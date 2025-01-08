@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 const TOTAL_DAYS = 28;
 const CIRCLE_SIZE = 300; // px
@@ -7,6 +8,7 @@ const POINT_SIZE = 20; // px
 
 export const CircleCalendar = () => {
   const [currentDay, setCurrentDay] = useState(1);
+  const { toast } = useToast();
 
   const calculatePosition = (index: number) => {
     const angle = ((index - 1) * 360) / TOTAL_DAYS;
@@ -26,6 +28,16 @@ export const CircleCalendar = () => {
     return "luteal";
   };
 
+  const handleDayClick = (day: number) => {
+    if (day <= currentDay + 1) {
+      setCurrentDay(day);
+      toast({
+        title: "Day unlocked!",
+        description: "New activities and challenges are available.",
+      });
+    }
+  };
+
   return (
     <Card className="p-8 w-fit mx-auto">
       <div
@@ -34,11 +46,12 @@ export const CircleCalendar = () => {
       >
         {Array.from({ length: TOTAL_DAYS }, (_, i) => i + 1).map((day) => {
           const phase = getPhaseColor(day);
-          const isLocked = day > currentDay;
+          const isLocked = day > currentDay + 1;
           
           return (
             <button
               key={day}
+              onClick={() => handleDayClick(day)}
               disabled={isLocked}
               style={{
                 ...calculatePosition(day),
