@@ -12,18 +12,15 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-[#FF69B4] flex flex-col items-center justify-center p-6 text-white">
       <div className="w-full max-w-md space-y-8">
-        {/* Uteroo Logo/Mascot */}
         <div className="flex flex-col items-center space-y-4">
-          <img
-            src="/lovable-uploads/5a9bd3d3-cb17-4c03-a2ba-53d935c828e1.png"
-            alt="Uteroo Mascot"
-            className="w-32 h-32 animate-bounce"
-          />
-          <img
-            src="/lovable-uploads/2609640b-f01c-4bbe-ba7a-2a29da3be432.png"
-            alt="Uteroo Logo"
-            className="w-48 animate-pulse"
-          />
+          {/* Placeholder for future Uteroo character image */}
+          <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center animate-bounce">
+            <span className="text-2xl">Uteroo</span>
+          </div>
+          {/* Placeholder for future logo */}
+          <div className="w-48 h-12 bg-white/20 rounded-lg flex items-center justify-center animate-pulse">
+            <span className="text-xl font-bold">Uteroo</span>
+          </div>
         </div>
 
         <p className="text-center text-xl font-medium mt-6">
