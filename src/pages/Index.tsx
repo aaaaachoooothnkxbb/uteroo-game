@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const navigate = useNavigate();
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    navigate("/dashboard");
+  };
 
   if (showOnboarding) {
-    return <OnboardingFlow onComplete={() => setShowOnboarding(false)} />;
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
   }
 
   return (
