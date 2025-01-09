@@ -32,6 +32,14 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     }
   };
 
+  const handleSkip = () => {
+    toast({
+      title: "Welcome to Uteroo!",
+      description: "You can always complete your profile later in settings.",
+    });
+    onComplete();
+  };
+
   return (
     <div className="min-h-screen bg-[#FF69B4] flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-6 space-y-6 bg-white/90 backdrop-blur-sm">
@@ -146,12 +154,21 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               </div>
             </div>
 
-            <Button
-              onClick={handleNext}
-              className="w-full bg-[#9370DB] hover:bg-[#8A2BE2] text-white"
-            >
-              Submit
-            </Button>
+            <div className="flex gap-4 justify-between">
+              <Button
+                onClick={handleSkip}
+                variant="outline"
+                className="text-[#FF69B4] hover:bg-pink-50"
+              >
+                Skip for now
+              </Button>
+              <Button
+                onClick={handleNext}
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white"
+              >
+                Submit
+              </Button>
+            </div>
           </div>
         )}
       </Card>
