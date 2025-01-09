@@ -8,84 +8,84 @@ import { useToast } from "@/components/ui/use-toast";
 export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    age: "",
     lastPeriod: "",
     cycleLength: "28",
+    symptoms: "",
+    mood: "",
+    cravings: "",
   });
   const { toast } = useToast();
 
   const handleNext = () => {
-    if (step === 1 && (!formData.name || !formData.email)) {
+    if (step === 1) {
+      setStep(2);
+    } else if (step === 2 && (!formData.age || !formData.lastPeriod)) {
       toast({
         title: "Please fill in all fields",
-        description: "We need your name and email to continue",
+        description: "We need this information to personalize your experience",
         variant: "destructive",
       });
       return;
-    }
-    if (step === 2 && (!formData.lastPeriod || !formData.cycleLength)) {
-      toast({
-        title: "Please fill in all fields",
-        description: "We need your cycle information to personalize your experience",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (step < 3) {
-      setStep(step + 1);
     } else {
       onComplete();
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-menstruation-light to-menstruation-bg p-4">
-      <Card className="w-full max-w-md p-6 space-y-6 animate-fade-in">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">Welcome to Uteroo</h1>
-          <p className="text-gray-600">
-            {step === 1
-              ? "Let's get to know each other!"
-              : step === 2
-              ? "Tell us about your cycle"
-              : "Almost there!"}
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {step === 1 && (
-            <>
+    <div className="min-h-screen bg-[#FF69B4] flex items-center justify-center p-4">
+      <Card className="w-full max-w-md p-6 space-y-6 bg-white/90 backdrop-blur-sm">
+        {step === 1 ? (
+          <div className="text-center space-y-6">
+            <img
+              src="/lovable-uploads/b299e826-f68d-4a0a-b4ae-295d9a500bed.png"
+              alt="Welcome"
+              className="w-32 h-32 mx-auto"
+            />
+            <h1 className="text-2xl font-bold">Hi!</h1>
+            <p className="text-lg">
+              I'm <span className="text-[#FF69B4] font-bold">Uteroo</span> your loyal companion through every twist and turn of your hormonal journey.
+            </p>
+            <p className="text-gray-600">
+              Together, we'll navigate the ups and downs, making sure you feel supported and understood every step of the way
+            </p>
+            <h2 className="text-xl font-bold text-[#FF69B4]">
+              Who's up for this journey?
+            </h2>
+            <div className="flex gap-4 justify-center">
+              <Button
+                onClick={() => setStep(2)}
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8"
+              >
+                Me!
+              </Button>
+              <Button
+                onClick={() => setStep(2)}
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8"
+              >
+                I'm new to this...
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <h2 className="text-2xl text-center text-[#FF69B4] font-bold">
+              Now, lets get to know you...
+            </h2>
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="age">What is your age?</Label>
                 <Input
-                  id="name"
-                  placeholder="Enter your name"
-                  value={formData.name}
+                  id="age"
+                  type="number"
+                  value={formData.age}
                   onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
+                    setFormData({ ...formData, age: e.target.value })
                   }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
-              </div>
-            </>
-          )}
-
-          {step === 2 && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="lastPeriod">Last Period Start Date</Label>
+                <Label htmlFor="lastPeriod">When was your last period?</Label>
                 <Input
                   id="lastPeriod"
                   type="date"
@@ -96,56 +96,64 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cycleLength">Cycle Length (days)</Label>
+                <Label htmlFor="cycleLength">
+                  How long is your menstrual cycle (in days)?
+                </Label>
                 <Input
                   id="cycleLength"
                   type="number"
-                  min="21"
-                  max="35"
                   value={formData.cycleLength}
                   onChange={(e) =>
                     setFormData({ ...formData, cycleLength: e.target.value })
                   }
                 />
               </div>
-            </>
-          )}
-
-          {step === 3 && (
-            <div className="text-center space-y-4">
-              <div className="animate-float">
-                <span className="text-6xl">🌸</span>
+              <div className="space-y-2">
+                <Label htmlFor="symptoms">
+                  What symptoms do you usually experience? (e.g., cramps, mood swings)
+                </Label>
+                <Input
+                  id="symptoms"
+                  value={formData.symptoms}
+                  onChange={(e) =>
+                    setFormData({ ...formData, symptoms: e.target.value })
+                  }
+                />
               </div>
-              <p className="text-lg">
-                Hey {formData.name}! I'm Uteroo, your buddy through the ups and
-                downs of your cycle! Let's discover what your body needs every step
-                of the way.
-              </p>
+              <div className="space-y-2">
+                <Label htmlFor="mood">
+                  How would you describe your overall mood last week?
+                </Label>
+                <Input
+                  id="mood"
+                  value={formData.mood}
+                  onChange={(e) =>
+                    setFormData({ ...formData, mood: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cravings">
+                  Have you experienced any cravings recently?
+                </Label>
+                <Input
+                  id="cravings"
+                  value={formData.cravings}
+                  onChange={(e) =>
+                    setFormData({ ...formData, cravings: e.target.value })
+                  }
+                />
+              </div>
             </div>
-          )}
-        </div>
 
-        <div className="flex justify-center pt-4">
-          <Button
-            onClick={handleNext}
-            className="bg-menstruation-primary hover:bg-menstruation-secondary text-white px-8"
-          >
-            {step === 3 ? "Let's Begin!" : "Next"}
-          </Button>
-        </div>
-
-        <div className="flex justify-center gap-2 pt-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className={`h-2 w-2 rounded-full ${
-                i === step
-                  ? "bg-menstruation-primary"
-                  : "bg-menstruation-light"
-              }`}
-            />
-          ))}
-        </div>
+            <Button
+              onClick={handleNext}
+              className="w-full bg-[#9370DB] hover:bg-[#8A2BE2] text-white"
+            >
+              Submit
+            </Button>
+          </div>
+        )}
       </Card>
     </div>
   );
