@@ -4,7 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 
-const formOptions = {
+type FormOption = {
+  value: string;
+  label: string;
+  recommendation: string;
+};
+
+type Section = {
+  title: string;
+  encouragement: string;
+  fields: string[];
+};
+
+const formOptions: Record<string, FormOption[]> = {
   age: [
     {
       value: "10-15",
@@ -107,11 +119,6 @@ const formOptions = {
       recommendation: "No cravings? That's great! It likely means your blood sugar and hormones have been balanced."
     }
   ]
-
-type Section = {
-  title: string;
-  encouragement: string;
-  fields: string[];
 };
 
 const sections: Section[] = [
