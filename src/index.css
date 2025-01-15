@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  body {
+    background-image: url('/lovable-uploads/5c55f1d7-fb0d-4ce9-b66b-43b57fca6f43.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
