@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
 const phaseToImage = {
-  menstruation: "/lovable-uploads/8e841183-dbb4-442b-a052-1e662e6b5e62.png",
+  menstruation: "/lovable-uploads/54f35bf0-aadc-456e-a648-fd676451f2af.png",
   follicular: "/lovable-uploads/1f84dc45-8a8e-4c3f-b172-d1e790401cab.png",
   ovulatory: "/lovable-uploads/0e918b43-4f92-4624-bdac-ada61f161501.png",
   luteal: "/lovable-uploads/b876a90f-d862-42c0-8e10-ed06ccf862d3.png"
