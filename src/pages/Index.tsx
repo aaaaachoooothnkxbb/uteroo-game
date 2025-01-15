@@ -44,12 +44,18 @@ const Index = () => {
           >
             TRY IT FIRST
           </Button>
-          <Button
-            className="w-full bg-white hover:bg-gray-100 text-[#FF69B4] font-semibold py-4 rounded-full shadow-lg transform transition hover:scale-105"
+          <div 
             onClick={() => setShowOnboarding(true)}
+            className="w-full h-32 relative cursor-pointer group"
           >
-            SIGN UP
-          </Button>
+            <div 
+              className="absolute inset-0 bg-[url('lovable-uploads/896173af-7204-467f-986c-a542cc467697.png')] bg-contain bg-center bg-no-repeat hover:scale-105 transition-transform duration-300 flex items-center justify-center"
+            >
+              <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
+                SIGN UP
+              </span>
+            </div>
+          </div>
           <div className="relative w-full h-96 group cursor-pointer" onClick={() => setShowOnboarding(true)}>
             <img
               src="lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png"
