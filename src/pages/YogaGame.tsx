@@ -21,12 +21,14 @@ const YogaGame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FF69B4] to-[#FF1493] p-6">
-      <div className="max-w-2xl mx-auto space-y-8">
+    <div className="min-h-screen flex flex-col">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg p-4 shadow-sm">
         <Button variant="ghost" onClick={() => navigate("/dashboard")}>
           <ArrowLeft className="mr-2" /> Back to Dashboard
         </Button>
+      </header>
 
+      <main className="flex-1 px-4 py-6 overflow-y-auto">
         <Card className="p-6">
           <div className="text-center space-y-6">
             <h1 className="text-2xl font-bold">Yoga Challenge</h1>
@@ -47,7 +49,7 @@ const YogaGame = () => {
             </div>
           </div>
         </Card>
-      </div>
+      </main>
     </div>
   );
 };
