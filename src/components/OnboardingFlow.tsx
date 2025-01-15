@@ -126,6 +126,22 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   });
   const { toast } = useToast();
 
+  const generateSummary = () => {
+    const age = formOptions.age.find(o => o.value === formData.age);
+    const period = formOptions.lastPeriod.find(o => o.value === formData.lastPeriod);
+    const symptoms = formOptions.symptoms.find(o => o.value === formData.symptoms);
+    const mood = formOptions.mood.find(o => o.value === formData.mood);
+
+    let phase = "your current phase";
+    if (period?.value === "less-than-week") phase = "menstrual phase";
+    if (period?.value === "1-2-weeks") phase = "follicular phase";
+    if (period?.value === "more-than-2-weeks") phase = "luteal phase";
+
+    const summary = `Hello, beautiful! Based on your answers, it looks like your body is going through some normal hormonal changes. Here's why you might be feeling the way you do: During your ${phase}, ${period?.recommendation.toLowerCase()} ${symptoms?.recommendation} ${mood?.recommendation} Remember, every cycle is different, and listening to your body is the best thing you can do. Try practicing self-care and gentle movement—it might help you feel more balanced and in control!`;
+
+    return summary;
+  };
+
   const handleOptionSelect = (field: string, option: FormOption) => {
     setFormData({ ...formData, [field]: option.value });
     toast({
@@ -137,14 +153,23 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const handleNext = () => {
     if (step === 1) {
       setStep(2);
-    } else if (step === 2 && (!formData.age || !formData.lastPeriod)) {
+    } else if (step === 2) {
+      if (!formData.age || !formData.lastPeriod) {
+        toast({
+          title: "Please answer all questions",
+          description: "We need this information to personalize your experience",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const summary = generateSummary();
       toast({
-        title: "Please answer all questions",
-        description: "We need this information to personalize your experience",
-        variant: "destructive",
+        title: "Welcome to Uteroo!",
+        description: summary,
+        duration: 10000, // Extended duration for reading
       });
-      return;
-    } else {
+      
       onComplete();
     }
   };
