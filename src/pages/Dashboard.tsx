@@ -12,20 +12,24 @@ const Dashboard = () => {
   const currentPhase = "menstruation"; // This would be dynamic based on the day
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <nav className="flex justify-between items-center bg-white/20 backdrop-blur-lg rounded-lg p-4">
+    <div className="min-h-screen flex flex-col">
+      {/* Mobile header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg p-4 shadow-sm">
+        <nav className="flex justify-between items-center">
           <Button variant="ghost" onClick={() => navigate("/profile")}>Profile</Button>
           <Button variant="ghost" onClick={() => navigate("/rewards")}>Rewards</Button>
           <Button variant="ghost" onClick={() => navigate("/settings")}>Settings</Button>
         </nav>
+      </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Mobile content area with proper padding and spacing */}
+      <main className="flex-1 px-4 py-6 overflow-y-auto space-y-6">
+        <div className="space-y-6">
           <CircleCalendar />
           <MoodTracker phase={currentPhase} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="space-y-6">
           <DailyAffirmation phase={currentPhase} />
           <div className="space-y-4">
             <YogaPose phase={currentPhase} />
@@ -48,7 +52,7 @@ const Dashboard = () => {
         </div>
 
         <PhaseExplanation />
-      </div>
+      </main>
     </div>
   );
 };

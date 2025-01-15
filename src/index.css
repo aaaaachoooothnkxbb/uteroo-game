@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
   body {
     background-image: url('/lovable-uploads/5c55f1d7-fb0d-4ce9-b66b-43b57fca6f43.png');
     background-size: cover;
@@ -10,6 +14,7 @@
     background-repeat: no-repeat;
     background-attachment: fixed;
     min-height: 100vh;
+    @apply overflow-hidden;
   }
 
   :root {
