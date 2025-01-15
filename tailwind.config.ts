@@ -95,12 +95,23 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        sparkle: {
+          "0%, 100%": {
+            transform: "scale(1)",
+            opacity: "1"
+          },
+          "50%": {
+            transform: "scale(1.2)",
+            opacity: "0.8"
+          }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out",
         float: "float 3s ease-in-out infinite",
+        sparkle: "sparkle 2s ease-in-out infinite"
       },
       borderRadius: {
         lg: "var(--radius)",
