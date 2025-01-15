@@ -17,8 +17,10 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FF69B4] flex flex-col items-center justify-center p-6 text-white">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400 flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
+      {/* Add decorative clouds using pseudo-elements */}
+      <div className="absolute inset-0 bg-[url('/lovable-uploads/affe073e-32fe-4691-a9ae-c8a70dbacdc0.png')] bg-cover opacity-30 animate-float"></div>
+      <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="flex flex-col items-center space-y-4">
           <img 
             src="/lovable-uploads/8b746cff-3c5b-419d-aed1-09ca7485d512.png"
