@@ -18,8 +18,8 @@ const App = () => (
     <TooltipProvider>
       <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400">
         <div 
-          className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-20"
-          style={{ backgroundImage: "url('/lovable-uploads/5c55f1d7-fb0d-4ce9-b66b-43b57fca6f43.png')" }}
+          className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-30"
+          style={{ backgroundImage: "url('/lovable-uploads/c50c3f9b-9ae2-4a63-ab75-a4d1348bd893.png')" }}
         />
         <div className="w-full max-w-md h-screen overflow-hidden bg-white/90 backdrop-blur-sm shadow-2xl relative z-10">
           <div className="h-full overflow-auto">
