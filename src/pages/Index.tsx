@@ -25,9 +25,10 @@ const Index = () => {
             alt="Uteroo Character"
             className="w-48 h-48 object-contain animate-bounce"
           />
-          {/* Placeholder for future logo */}
-          <div className="w-48 h-12 bg-white/20 rounded-lg flex items-center justify-center animate-pulse">
-            <span className="text-xl font-bold">Uteroo</span>
+          <div className="w-64 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-pulse shadow-lg">
+            <span className="text-3xl font-bold font-['Segoe UI'] tracking-wider animate-pulse text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]">
+              Uteroo
+            </span>
           </div>
         </div>
 
