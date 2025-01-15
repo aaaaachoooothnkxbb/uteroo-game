@@ -16,9 +16,9 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <div className="min-h-screen w-full flex items-center justify-center bg-[#1a1a1a]">
+      <div className="min-h-screen w-full flex items-center justify-center bg-black">
         <div 
-          className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-50"
+          className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-20"
           style={{ backgroundImage: "url('/lovable-uploads/5c55f1d7-fb0d-4ce9-b66b-43b57fca6f43.png')" }}
         />
         <div className="max-w-md w-full h-screen bg-white shadow-2xl relative z-10">
