@@ -20,10 +20,11 @@ const Index = () => {
     <div className="min-h-screen bg-[#FF69B4] flex flex-col items-center justify-center p-6 text-white">
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center space-y-4">
-          {/* Placeholder for future Uteroo character image */}
-          <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center animate-bounce">
-            <span className="text-2xl">Uteroo</span>
-          </div>
+          <img 
+            src="/lovable-uploads/8b746cff-3c5b-419d-aed1-09ca7485d512.png"
+            alt="Uteroo Character"
+            className="w-32 h-32 object-contain animate-bounce"
+          />
           {/* Placeholder for future logo */}
           <div className="w-48 h-12 bg-white/20 rounded-lg flex items-center justify-center animate-pulse">
             <span className="text-xl font-bold">Uteroo</span>
