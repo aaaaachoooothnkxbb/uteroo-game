@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { UterooCharacter } from "./UterooCharacter";
 
 const TOTAL_DAYS = 28;
 const CIRCLE_SIZE = 300; // px
@@ -28,6 +29,8 @@ export const CircleCalendar = () => {
     return "luteal";
   };
 
+  const getCurrentPhase = () => getPhaseColor(currentDay);
+
   const handleDayClick = (day: number) => {
     if (day <= currentDay + 1) {
       setCurrentDay(day);
@@ -39,39 +42,42 @@ export const CircleCalendar = () => {
   };
 
   return (
-    <Card className="p-8 w-fit mx-auto">
-      <div
-        className="relative"
-        style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
-      >
-        {Array.from({ length: TOTAL_DAYS }, (_, i) => i + 1).map((day) => {
-          const phase = getPhaseColor(day);
-          const isLocked = day > currentDay + 1;
-          
-          return (
-            <button
-              key={day}
-              onClick={() => handleDayClick(day)}
-              disabled={isLocked}
-              style={{
-                ...calculatePosition(day),
-                width: POINT_SIZE,
-                height: POINT_SIZE,
-              }}
-              className={`absolute rounded-full flex items-center justify-center text-xs
-                ${
-                  isLocked
-                    ? "bg-gray-200 cursor-not-allowed"
-                    : `bg-${phase}-primary hover:bg-${phase}-secondary text-white cursor-pointer`
-                }
-                ${day === currentDay ? "ring-2 ring-offset-2" : ""}
-                transition-all duration-300`}
-            >
-              {day}
-            </button>
-          );
-        })}
-      </div>
-    </Card>
+    <div className="space-y-6">
+      <UterooCharacter phase={getCurrentPhase()} />
+      <Card className="p-8 w-fit mx-auto">
+        <div
+          className="relative"
+          style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
+        >
+          {Array.from({ length: TOTAL_DAYS }, (_, i) => i + 1).map((day) => {
+            const phase = getPhaseColor(day);
+            const isLocked = day > currentDay + 1;
+            
+            return (
+              <button
+                key={day}
+                onClick={() => handleDayClick(day)}
+                disabled={isLocked}
+                style={{
+                  ...calculatePosition(day),
+                  width: POINT_SIZE,
+                  height: POINT_SIZE,
+                }}
+                className={`absolute rounded-full flex items-center justify-center text-xs
+                  ${
+                    isLocked
+                      ? "bg-gray-200 cursor-not-allowed"
+                      : `bg-${phase}-primary hover:bg-${phase}-secondary text-white cursor-pointer`
+                  }
+                  ${day === currentDay ? "ring-2 ring-offset-2" : ""}
+                  transition-all duration-300`}
+              >
+                {day}
+              </button>
+            );
+          })}
+        </div>
+      </Card>
+    </div>
   );
 };
