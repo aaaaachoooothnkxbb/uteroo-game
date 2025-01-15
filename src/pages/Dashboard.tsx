@@ -12,7 +12,7 @@ const Dashboard = () => {
   const currentPhase = "menstruation"; // This would be dynamic based on the day
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FF69B4] to-[#FF1493] p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         <nav className="flex justify-between items-center bg-white/20 backdrop-blur-lg rounded-lg p-4">
           <Button variant="ghost" onClick={() => navigate("/profile")}>Profile</Button>
