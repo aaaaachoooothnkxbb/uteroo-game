@@ -20,11 +20,11 @@ export const UterooCharacter = ({ phase }: { phase: Phase }) => {
   return (
     <div className="flex flex-col items-center space-y-4">
       <Card className="p-4 rounded-full w-fit">
-        <div className="w-40 h-40 rounded-full overflow-hidden">
+        <div className="w-40 h-40 rounded-full overflow-hidden flex items-center justify-center">
           <img 
             src={phaseToImage[phase]} 
             alt={`Uteroo in ${phase} phase`} 
-            className="w-full h-full object-contain animate-bounce-slow"
+            className="w-4/5 h-4/5 object-contain animate-bounce-slow"
           />
         </div>
       </Card>
