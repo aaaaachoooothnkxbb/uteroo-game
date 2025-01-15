@@ -51,14 +51,18 @@ const Index = () => {
           >
             SIGN UP
           </Button>
-          <img
-            src="/lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png"
-            alt="Login"
-            className="w-full h-14 object-contain cursor-pointer hover:opacity-90 transform transition hover:scale-105"
-            onClick={() => setShowOnboarding(true)}
-            role="button"
-            aria-label="Log in"
-          />
+          <div className="relative w-full h-20 group cursor-pointer" onClick={() => setShowOnboarding(true)}>
+            <img
+              src="/lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png"
+              alt="Login"
+              className="w-full h-20 object-contain hover:opacity-90 transform transition hover:scale-105"
+              role="button"
+              aria-label="Log in"
+            />
+            <span className="absolute inset-0 flex items-center justify-center text-white font-semibold text-xl drop-shadow-lg">
+              SIGN IN
+            </span>
+          </div>
         </div>
       </div>
     </div>
