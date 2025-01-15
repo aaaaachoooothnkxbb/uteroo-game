@@ -23,7 +23,7 @@ const Index = () => {
           <img 
             src="/lovable-uploads/8b746cff-3c5b-419d-aed1-09ca7485d512.png"
             alt="Uteroo Character"
-            className="w-32 h-32 object-contain animate-bounce"
+            className="w-48 h-48 object-contain animate-bounce"
           />
           {/* Placeholder for future logo */}
           <div className="w-48 h-12 bg-white/20 rounded-lg flex items-center justify-center animate-pulse">
