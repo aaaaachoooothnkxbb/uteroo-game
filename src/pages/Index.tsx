@@ -50,7 +50,7 @@ const Index = () => {
             SIGN UP
           </Button>
           <Button
-            className="w-full bg-[#9370DB] hover:bg-[#8A2BE2] text-white font-semibold py-4 rounded-full shadow-lg transform transition hover:scale-105"
+            className="w-full bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 hover:opacity-90 text-white font-semibold py-4 rounded-full shadow-lg transform transition hover:scale-105 backdrop-blur-sm"
             onClick={() => setShowOnboarding(true)}
           >
             LOG IN
