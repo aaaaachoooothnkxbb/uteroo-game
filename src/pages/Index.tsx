@@ -26,7 +26,7 @@ const Index = () => {
             className="w-64 h-64 object-contain animate-bounce"
           />
           <div className="w-64 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-pulse shadow-lg">
-            <span className="text-3xl font-bold font-['Segoe UI'] tracking-wider animate-pulse text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]">
+            <span className="text-4xl font-bold font-['Comic_Sans_MS'] tracking-wider animate-pulse text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]">
               Uteroo
             </span>
           </div>
