@@ -21,8 +21,11 @@ const App = () => (
           className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-30"
           style={{ backgroundImage: "url('/lovable-uploads/8cc95945-7151-46d8-b54a-3bc04685f346.png')" }}
         />
-        <div className="w-full max-w-md h-screen overflow-hidden bg-white/90 backdrop-blur-sm shadow-2xl relative z-10">
-          <div className="h-full overflow-auto">
+        <div className="w-full max-w-md h-screen overflow-hidden relative z-10">
+          <div 
+            className="h-full overflow-auto bg-cover bg-center bg-no-repeat bg-white/90 backdrop-blur-sm shadow-2xl"
+            style={{ backgroundImage: "url('/lovable-uploads/029e38b3-0932-4fd9-b5ac-fbd2c10f626a.png')" }}
+          >
             <Toaster />
             <Sonner />
             <BrowserRouter>
