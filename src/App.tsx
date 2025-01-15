@@ -16,12 +16,12 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <div className="min-h-screen w-full flex items-center justify-center bg-black">
+      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400">
         <div 
           className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-20"
           style={{ backgroundImage: "url('/lovable-uploads/5c55f1d7-fb0d-4ce9-b66b-43b57fca6f43.png')" }}
         />
-        <div className="max-w-md w-full h-screen bg-white shadow-2xl relative z-10">
+        <div className="max-w-md w-full h-screen bg-white/90 backdrop-blur-sm shadow-2xl relative z-10">
           <Toaster />
           <Sonner />
           <BrowserRouter>
