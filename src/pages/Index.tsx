@@ -18,12 +18,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400 flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
-      {/* Add decorative clouds using pseudo-elements */}
-      <div className="absolute inset-0 bg-[url('/lovable-uploads/affe073e-32fe-4691-a9ae-c8a70dbacdc0.png')] bg-cover opacity-30 animate-float"></div>
+      <div className="absolute inset-0 bg-[url('lovable-uploads/affe073e-32fe-4691-a9ae-c8a70dbacdc0.png')] bg-cover opacity-30 animate-float"></div>
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="flex flex-col items-center space-y-4">
           <img 
-            src="/lovable-uploads/7ebd1c8f-ee04-47d5-876b-12f5fa215609.png"
+            src="lovable-uploads/7ebd1c8f-ee04-47d5-876b-12f5fa215609.png"
             alt="Uteroo Character"
             className="w-64 h-64 object-contain animate-bounce"
           />
@@ -53,7 +52,7 @@ const Index = () => {
           </Button>
           <div className="relative w-full h-96 group cursor-pointer" onClick={() => setShowOnboarding(true)}>
             <img
-              src="/lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png"
+              src="lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png"
               alt="Login"
               className="w-full h-96 object-contain hover:opacity-90 transform transition hover:scale-105"
               role="button"
