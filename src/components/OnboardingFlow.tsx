@@ -1,13 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-
-type FormOption = {
-  value: string;
-  label: string;
-  recommendation: string;
-};
 
 const formOptions = {
   age: [
@@ -112,10 +107,34 @@ const formOptions = {
       recommendation: "No cravings? That's great! It likely means your blood sugar and hormones have been balanced."
     }
   ]
+
+type Section = {
+  title: string;
+  encouragement: string;
+  fields: string[];
 };
+
+const sections: Section[] = [
+  {
+    title: "Getting to Know You",
+    encouragement: "Understanding your unique journey helps us provide better support. Your age and cycle details are important pieces of your story.",
+    fields: ["age", "lastPeriod"]
+  },
+  {
+    title: "Your Cycle Patterns",
+    encouragement: "Every cycle is unique, just like you! Let's understand your patterns to help you navigate your journey better.",
+    fields: ["cycleLength", "symptoms"]
+  },
+  {
+    title: "Your Wellbeing",
+    encouragement: "Your emotional and physical wellbeing matters. Sharing how you feel helps us provide more personalized support.",
+    fields: ["mood", "cravings"]
+  }
+];
 
 export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(1);
+  const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState({
     age: "",
     lastPeriod: "",
@@ -148,6 +167,20 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       title: "Great choice!",
       description: option.recommendation,
     });
+
+    // Check if all fields in current section are filled
+    const currentSectionFields = sections[currentSection].fields;
+    const allFieldsFilled = currentSectionFields.every(field => formData[field as keyof typeof formData]);
+    
+    if (allFieldsFilled && currentSection < sections.length - 1) {
+      setCurrentSection(prev => prev + 1);
+    }
+  };
+
+  const calculateProgress = () => {
+    const totalFields = sections.reduce((acc, section) => acc + section.fields.length, 0);
+    const filledFields = Object.values(formData).filter(value => value !== "").length;
+    return (filledFields / totalFields) * 100;
   };
 
   const handleNext = () => {
@@ -219,17 +252,25 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           </div>
         ) : (
           <div className="space-y-6">
-            <h2 className="text-2xl text-center text-[#FF69B4] font-bold">
-              Now, lets get to know you...
-            </h2>
+            <Progress value={calculateProgress()} className="w-full" />
+            
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl text-[#FF69B4] font-bold">
+                {sections[currentSection].title}
+              </h2>
+              <p className="text-gray-600 italic">
+                {sections[currentSection].encouragement}
+              </p>
+            </div>
+
             <div className="space-y-6">
-              {Object.entries(formOptions).map(([field, options]) => (
+              {sections[currentSection].fields.map((field) => (
                 <div key={field} className="space-y-3">
                   <h3 className="font-medium text-lg capitalize">
                     {field.replace(/([A-Z])/g, ' $1').trim()}?
                   </h3>
                   <div className="grid grid-cols-1 gap-2">
-                    {options.map((option) => (
+                    {formOptions[field as keyof typeof formOptions].map((option) => (
                       <Button
                         key={option.value}
                         onClick={() => handleOptionSelect(field, option)}
@@ -256,7 +297,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                 onClick={handleNext}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white"
               >
-                Submit
+                {currentSection === sections.length - 1 ? "Submit" : "Next"}
               </Button>
             </div>
           </div>
