@@ -46,7 +46,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         {step === 1 ? (
           <div className="text-center space-y-6">
             <img
-              src="/lovable-uploads/b299e826-f68d-4a0a-b4ae-295d9a500bed.png"
+              src="/lovable-uploads/4393595c-c2c4-4bf4-9e35-92258d623741.png"
               alt="Welcome"
               className="w-32 h-32 mx-auto"
             />
