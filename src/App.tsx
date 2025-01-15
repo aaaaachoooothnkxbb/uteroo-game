@@ -16,20 +16,22 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <div className="max-w-md mx-auto min-h-screen bg-background shadow-xl">
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/yoga" element={<YogaGame />} />
-            <Route path="/recipe" element={<RecipeGame />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/rewards" element={<Rewards />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </BrowserRouter>
+      <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed" style={{ backgroundImage: "url('/lovable-uploads/5c55f1d7-fb0d-4ce9-b66b-43b57fca6f43.png')" }}>
+        <div className="max-w-md w-full min-h-screen bg-white shadow-xl relative">
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/yoga" element={<YogaGame />} />
+              <Route path="/recipe" element={<RecipeGame />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/rewards" element={<Rewards />} />
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </BrowserRouter>
+        </div>
       </div>
     </TooltipProvider>
   </QueryClientProvider>
