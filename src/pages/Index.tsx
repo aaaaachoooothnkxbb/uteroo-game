@@ -69,7 +69,7 @@ const Index = () => {
               role="button"
               aria-label="Log in"
             />
-            <span className="absolute inset-0 flex items-center justify-center text-white font-semibold text-sm drop-shadow-lg">
+            <span className="absolute inset-0 flex items-center justify-center text-white font-semibold text-xs drop-shadow-lg">
               SIGN IN
             </span>
           </div>
