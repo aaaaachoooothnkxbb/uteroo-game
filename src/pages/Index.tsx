@@ -51,12 +51,14 @@ const Index = () => {
           >
             SIGN UP
           </Button>
-          <Button
-            className="w-full h-14 bg-[url('/lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png')] bg-cover bg-center hover:opacity-90 text-white font-semibold py-4 rounded-full shadow-lg transform transition hover:scale-105 backdrop-blur-sm relative overflow-hidden"
+          <img
+            src="/lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png"
+            alt="Login"
+            className="w-full h-14 object-contain cursor-pointer hover:opacity-90 transform transition hover:scale-105"
             onClick={() => setShowOnboarding(true)}
-          >
-            <span className="relative z-10 drop-shadow-lg">LOG IN</span>
-          </Button>
+            role="button"
+            aria-label="Log in"
+          />
         </div>
       </div>
     </div>
