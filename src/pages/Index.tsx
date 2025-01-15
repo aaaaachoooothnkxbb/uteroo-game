@@ -39,12 +39,12 @@ const Index = () => {
         <div className="space-y-4 mt-8">
           <div 
             onClick={() => setShowOnboarding(true)}
-            className="w-full h-48 relative cursor-pointer group"
+            className="w-full h-40 relative cursor-pointer group"
           >
             <div 
               className="absolute inset-0 bg-[url('lovable-uploads/e47907e6-61da-4860-97dc-47179e32bcf8.png')] bg-contain bg-center bg-no-repeat hover:scale-105 transition-transform duration-300 flex items-center justify-center"
             >
-              <span className="text-white text-3xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
+              <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
                 TRY IT FIRST
               </span>
             </div>
