@@ -70,7 +70,7 @@ export const MoodTracker = ({ phase = "menstruation" }) => {
   };
 
   return (
-    <Card className={`p-6 bg-${phase}-bg border-${phase}-primary max-w-md mx-auto`}>
+    <Card className={`p-6 bg-${phase}-bg border-0 max-w-md mx-auto`}>
       <div className="space-y-6">
         <h3 className={`text-xl font-medium text-${phase}-primary text-center`}>
           How are you feeling today?
