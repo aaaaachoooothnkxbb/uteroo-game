@@ -43,7 +43,7 @@ export const CircleCalendar = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="p-8 w-fit mx-auto">
+      <Card className="p-8 w-fit mx-auto bg-transparent border-none shadow-none">
         <div
           className="relative"
           style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
