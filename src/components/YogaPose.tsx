@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Camera } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type YogaPose = {
   name: string;
@@ -60,6 +61,7 @@ const yogaPoses: Record<string, YogaPose> = {
 
 export const YogaPose = ({ phase = "menstruation" }) => {
   const [photoUploaded, setPhotoUploaded] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const { toast } = useToast();
   const pose = yogaPoses[phase];
 
@@ -71,24 +73,46 @@ export const YogaPose = ({ phase = "menstruation" }) => {
     });
   };
 
+  const toggleStep = (index: number) => {
+    setCompletedSteps(prev => 
+      prev.includes(index) 
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
+  };
+
   return (
     <Card className={`p-6 bg-${phase}-bg border-${phase}-primary max-w-md mx-auto`}>
       <div className="space-y-4">
-        <h3 className={`text-xl font-medium text-${phase}-primary`}>
+        <h3 className={`text-xl font-medium text-black`}>
           Today's Yoga Pose: {pose.name}
         </h3>
         
         <div className="space-y-2">
-          <h4 className="font-medium">Instructions:</h4>
-          <ol className="list-decimal list-inside space-y-1">
+          <h4 className="font-medium text-black">Instructions:</h4>
+          <div className="space-y-2">
             {pose.instructions.map((instruction, index) => (
-              <li key={index} className="text-gray-600">{instruction}</li>
+              <div key={index} className="flex items-start space-x-2">
+                <Checkbox
+                  id={`yoga-step-${index}`}
+                  checked={completedSteps.includes(index)}
+                  onCheckedChange={() => toggleStep(index)}
+                />
+                <label
+                  htmlFor={`yoga-step-${index}`}
+                  className={`text-black cursor-pointer ${
+                    completedSteps.includes(index) ? "line-through opacity-70" : ""
+                  }`}
+                >
+                  {instruction}
+                </label>
+              </div>
             ))}
-          </ol>
+          </div>
         </div>
 
-        <div className="bg-gray-50 p-4 rounded-md">
-          <p className="text-sm text-gray-600">
+        <div className="bg-white p-4 rounded-md">
+          <p className="text-sm text-black">
             <strong>Benefits:</strong> {pose.benefits}
           </p>
         </div>
@@ -96,7 +120,7 @@ export const YogaPose = ({ phase = "menstruation" }) => {
         <Button
           onClick={handlePhotoUpload}
           disabled={photoUploaded}
-          className={`w-full bg-${phase}-primary hover:bg-${phase}-secondary`}
+          className={`w-full bg-${phase}-primary hover:bg-${phase}-secondary text-white`}
         >
           <Camera className="w-4 h-4 mr-2" />
           {photoUploaded ? "Photo Uploaded!" : "Upload Your Pose"}
