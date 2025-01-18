@@ -55,7 +55,7 @@ export const PhaseExplanation = () => {
   return (
     <div className="space-y-8 p-4">
       <div className="w-full overflow-x-auto">
-        <Card className="p-6 bg-white/90 backdrop-blur-sm shadow-lg">
+        <Card className="p-6 bg-white/80 backdrop-blur-md shadow-lg">
           <h2 className="text-2xl font-bold mb-4 text-center">Hormone Levels Throughout Your Cycle</h2>
           <LineChart
             width={800}
@@ -97,13 +97,13 @@ export const PhaseExplanation = () => {
         {phases.map((phase) => (
           <Card
             key={phase.name}
-            className={`p-6 bg-${phase.color}-bg/95 backdrop-blur-sm border-${phase.color}-primary hover:scale-105 transition-transform duration-300 shadow-lg`}
+            className={`p-6 bg-${phase.color}-bg/90 backdrop-blur-md border-${phase.color}-primary hover:scale-105 transition-transform duration-300 shadow-lg`}
           >
             <h3 className={`text-xl font-bold mb-2 text-${phase.color}-primary`}>
               {phase.name}
             </h3>
             <p className="text-gray-800 font-medium mb-4">{phase.description}</p>
-            <div className={`text-sm p-2 rounded-md bg-${phase.color}-light/90 text-gray-800 font-medium`}>
+            <div className={`text-sm p-2 rounded-md bg-${phase.color}-light/85 text-gray-800 font-medium`}>
               <strong>Mood:</strong> {phase.mood}
             </div>
           </Card>
