@@ -19,8 +19,8 @@ const phaseToMessage = {
 export const UterooCharacter = ({ phase }: { phase: Phase }) => {
   return (
     <div className="flex flex-col items-center space-y-4">
-      <Card className="p-6 rounded-full w-fit">
-        <div className="w-52 h-52 rounded-full overflow-hidden flex items-center justify-center">
+      <Card className="p-5 rounded-full w-fit">
+        <div className="w-48 h-48 rounded-full overflow-hidden flex items-center justify-center">
           <img 
             src={phaseToImage[phase]} 
             alt={`Uteroo in ${phase} phase`} 
