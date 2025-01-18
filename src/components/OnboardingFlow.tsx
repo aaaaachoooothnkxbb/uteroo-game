@@ -191,7 +191,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   return (
     <div className="min-h-screen bg-[#FF69B4] flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl p-6 space-y-6 bg-white/90 backdrop-blur-sm">
+      <Card className="w-full max-w-4xl p-6 space-y-6 bg-transparent border-0 backdrop-blur-sm">
         {step === 1 ? (
           <div className="text-center space-y-6">
             <img
