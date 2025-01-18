@@ -21,7 +21,7 @@ const Index = () => {
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="flex flex-col items-center space-y-4">
           <img 
-            src="lovable-uploads/7ebd1c8f-ee04-47d5-876b-12f5fa215609.png"
+            src="lovable-uploads/0773cf44-f840-4ef4-96cb-afea5811ea9b.png"
             alt="Uteroo Character"
             className="w-64 h-64 object-contain animate-bounce"
           />
