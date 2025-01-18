@@ -82,12 +82,12 @@ export const MoodTracker = ({ phase = "menstruation" }) => {
               key={key}
               onClick={() => handleMoodSelect(key)}
               variant={selectedMood === key ? "default" : "outline"}
-              className={`flex flex-col items-center p-4 ${
+              className={`flex flex-col items-center justify-center p-4 min-h-[80px] ${
                 selectedMood === key ? `bg-${phase}-primary text-white` : ""
               }`}
             >
               <span className="text-2xl mb-1">{mood.emoji}</span>
-              <span className="text-sm">{mood.label}</span>
+              <span className="text-xs">{mood.label}</span>
             </Button>
           ))}
         </div>
