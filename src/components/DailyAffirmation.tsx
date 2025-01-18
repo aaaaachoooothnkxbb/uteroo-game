@@ -9,19 +9,19 @@ type Affirmation = {
 
 const affirmations: Affirmation[] = [
   {
-    text: "I honor my body's need for rest today.",
+    text: "Rest and recharge",
     phase: "menstruation",
   },
   {
-    text: "I am energized and ready to take on new challenges.",
+    text: "Embrace new challenges",
     phase: "follicular",
   },
   {
-    text: "I radiate confidence and joy.",
+    text: "Radiate confidence",
     phase: "ovulatory",
   },
   {
-    text: "I nurture my body and allow it to recharge.",
+    text: "Nurture yourself",
     phase: "luteal",
   },
 ];
