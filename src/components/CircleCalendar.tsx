@@ -42,17 +42,12 @@ export const CircleCalendar = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-12">
       <Card className="p-8 w-fit mx-auto bg-transparent border-none shadow-none">
         <div
           className="relative"
           style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
         >
-          {/* Center the UterooCharacter */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-            <UterooCharacter phase={getCurrentPhase()} />
-          </div>
-
           {Array.from({ length: TOTAL_DAYS }, (_, i) => i + 1).map((day) => {
             const phase = getPhaseColor(day);
             const isLocked = day > currentDay + 1;
@@ -82,6 +77,10 @@ export const CircleCalendar = () => {
           })}
         </div>
       </Card>
+      
+      <div className="mt-12">
+        <UterooCharacter phase={getCurrentPhase()} />
+      </div>
     </div>
   );
 };
