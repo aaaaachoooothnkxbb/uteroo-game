@@ -23,7 +23,7 @@ const Dashboard = () => {
       </header>
 
       {/* Mobile content area with proper padding and spacing */}
-      <main className="flex-1 px-4 py-6 overflow-y-auto space-y-6">
+      <main className="flex-1 px-4 py-6 overflow-y-auto space-y-6 bg-white/60 backdrop-blur-md">
         <div className="space-y-6">
           <CircleCalendar />
           <MoodTracker phase={currentPhase} />
