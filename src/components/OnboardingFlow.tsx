@@ -199,14 +199,14 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               alt="Welcome"
               className="w-64 h-48 mx-auto"
             />
-            <h1 className="text-2xl font-bold">Hi!</h1>
-            <p className="text-lg">
-              I'm <span className="text-[#FF69B4] font-bold">Uteroo</span> your loyal companion through every twist and turn of your hormonal journey.
+            <h1 className="text-2xl font-bold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">Hi!</h1>
+            <p className="text-lg text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+              I'm <span className="text-[#FF69B4] font-bold bg-white/80 px-2 rounded">Uteroo</span> your loyal companion through every twist and turn of your hormonal journey.
             </p>
-            <p className="text-gray-600">
+            <p className="text-gray-100 drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
               Together, we'll navigate the ups and downs, making sure you feel supported and understood every step of the way
             </p>
-            <h2 className="text-xl font-bold text-[#FF69B4]">
+            <h2 className="text-xl font-bold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
               Who's up for this journey?
             </h2>
             <div className="flex gap-4 justify-center">
