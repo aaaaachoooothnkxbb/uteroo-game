@@ -197,7 +197,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             <img
               src="/lovable-uploads/1d83cfe8-2a8b-4ac7-b7db-8749d5e367e7.png"
               alt="Welcome"
-              className="w-48 h-48 mx-auto"
+              className="w-64 h-48 mx-auto"
             />
             <h1 className="text-2xl font-bold">Hi!</h1>
             <p className="text-lg">
