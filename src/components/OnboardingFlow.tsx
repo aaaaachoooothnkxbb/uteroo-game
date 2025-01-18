@@ -10,12 +10,6 @@ type FormOption = {
   recommendation: string;
 };
 
-type Section = {
-  title: string;
-  encouragement: string;
-  fields: string[];
-};
-
 const formOptions: Record<string, FormOption[]> = {
   age: [
     {
@@ -121,27 +115,8 @@ const formOptions: Record<string, FormOption[]> = {
   ]
 };
 
-const sections: Section[] = [
-  {
-    title: "Getting to Know You",
-    encouragement: "Understanding your unique journey helps us provide better support. Your age and cycle details are important pieces of your story.",
-    fields: ["age", "lastPeriod"]
-  },
-  {
-    title: "Your Cycle Patterns",
-    encouragement: "Every cycle is unique, just like you! Let's understand your patterns to help you navigate your journey better.",
-    fields: ["cycleLength", "symptoms"]
-  },
-  {
-    title: "Your Wellbeing",
-    encouragement: "Your emotional and physical wellbeing matters. Sharing how you feel helps us provide more personalized support.",
-    fields: ["mood", "cravings"]
-  }
-];
-
 export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(1);
-  const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState({
     age: "",
     lastPeriod: "",
@@ -174,18 +149,10 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       title: "Great choice!",
       description: option.recommendation,
     });
-
-    // Check if all fields in current section are filled
-    const currentSectionFields = sections[currentSection].fields;
-    const allFieldsFilled = currentSectionFields.every(field => formData[field as keyof typeof formData]);
-    
-    if (allFieldsFilled && currentSection < sections.length - 1) {
-      setCurrentSection(prev => prev + 1);
-    }
   };
 
   const calculateProgress = () => {
-    const totalFields = sections.reduce((acc, section) => acc + section.fields.length, 0);
+    const totalFields = Object.keys(formData).length;
     const filledFields = Object.values(formData).filter(value => value !== "").length;
     return (filledFields / totalFields) * 100;
   };
@@ -194,7 +161,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     if (step === 1) {
       setStep(2);
     } else if (step === 2) {
-      if (!formData.age || !formData.lastPeriod) {
+      if (Object.values(formData).some(value => value === "")) {
         toast({
           title: "Please answer all questions",
           description: "We need this information to personalize your experience",
@@ -207,7 +174,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       toast({
         title: "Welcome to Uteroo!",
         description: summary,
-        duration: 10000, // Extended duration for reading
+        duration: 10000,
       });
       
       onComplete();
@@ -224,7 +191,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   return (
     <div className="min-h-screen bg-[#FF69B4] flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-6 space-y-6 bg-white/90 backdrop-blur-sm">
+      <Card className="w-full max-w-4xl p-6 space-y-6 bg-white/90 backdrop-blur-sm">
         {step === 1 ? (
           <div className="text-center space-y-6">
             <img
@@ -261,23 +228,23 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           <div className="space-y-6">
             <Progress value={calculateProgress()} className="w-full" />
             
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl text-[#FF69B4] font-bold">
-                {sections[currentSection].title}
+            <div className="text-center mb-8">
+              <h2 className="text-2xl text-[#FF69B4] font-bold mb-2">
+                Let's Get to Know You Better
               </h2>
               <p className="text-gray-600 italic">
-                {sections[currentSection].encouragement}
+                Your answers help us provide personalized support throughout your journey
               </p>
             </div>
 
-            <div className="space-y-6">
-              {sections[currentSection].fields.map((field) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {Object.entries(formOptions).map(([field, options]) => (
                 <div key={field} className="space-y-3">
                   <h3 className="font-medium text-lg capitalize">
                     {field.replace(/([A-Z])/g, ' $1').trim()}?
                   </h3>
                   <div className="grid grid-cols-1 gap-2">
-                    {formOptions[field as keyof typeof formOptions].map((option) => (
+                    {options.map((option) => (
                       <Button
                         key={option.value}
                         onClick={() => handleOptionSelect(field, option)}
@@ -292,7 +259,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               ))}
             </div>
 
-            <div className="flex gap-4 justify-between">
+            <div className="flex gap-4 justify-between mt-8">
               <Button
                 onClick={handleSkip}
                 variant="outline"
@@ -304,7 +271,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                 onClick={handleNext}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white"
               >
-                {currentSection === sections.length - 1 ? "Submit" : "Next"}
+                Submit
               </Button>
             </div>
           </div>
