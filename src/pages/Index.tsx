@@ -23,7 +23,7 @@ const Index = () => {
           <img 
             src="lovable-uploads/0773cf44-f840-4ef4-96cb-afea5811ea9b.png"
             alt="Uteroo Character"
-            className="w-64 h-64 object-contain animate-bounce"
+            className="w-96 h-96 object-contain animate-[bounce_2s_ease-in-out_infinite]"
           />
           <div className="w-64 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
             <span className="text-6xl font-bold font-sans tracking-wider text-white">
