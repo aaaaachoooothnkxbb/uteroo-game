@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Icons } from "@/components/ui/icons";
+import { Provider } from "@supabase/supabase-js";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -17,11 +18,11 @@ const Index = () => {
     navigate("/dashboard");
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'facebook' | 'instagram') => {
+  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     try {
       setIsLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: provider as Provider,
         options: {
           redirectTo: `${window.location.origin}/dashboard`
         }
@@ -115,15 +116,6 @@ const Index = () => {
               >
                 <Icons.facebook className="h-5 w-5" />
                 Continue with Facebook
-              </Button>
-              <Button
-                variant="outline"
-                className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white hover:opacity-90 gap-2"
-                onClick={() => handleSocialLogin('instagram')}
-                disabled={isLoading}
-              >
-                <Icons.instagram className="h-5 w-5" />
-                Continue with Instagram
               </Button>
             </div>
           </div>
