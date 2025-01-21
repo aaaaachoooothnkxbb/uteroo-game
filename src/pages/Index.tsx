@@ -19,7 +19,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400 flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('lovable-uploads/affe073e-32fe-4691-a9ae-c8a70dbacdc0.png')] bg-cover opacity-30 animate-float"></div>
       <div className="w-full max-w-md space-y-8 relative z-10">
-        <div className="flex flex-col items-center space-y-4">
+        <div className="flex flex-col items-center space-y-4 -mt-12"> {/* Added negative margin to lower the image */}
           <img 
             src="lovable-uploads/c5a4901b-e045-4e02-b1dd-f6361280d983.png"
             alt="Uteroo Character"
