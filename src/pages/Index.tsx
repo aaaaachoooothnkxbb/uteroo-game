@@ -5,6 +5,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AuthError } from "@supabase/supabase-js";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -22,10 +23,13 @@ const Index = () => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (session) {
         navigate("/dashboard");
+      }
+      if (event === 'SIGNED_OUT') {
+        setErrorMessage(""); // Clear errors on sign out
       }
     });
 
@@ -87,9 +91,6 @@ const Index = () => {
             }}
             providers={["google"]}
             redirectTo={window.location.origin}
-            onError={(error) => {
-              setErrorMessage(error.message);
-            }}
           />
         </div>
       </div>
