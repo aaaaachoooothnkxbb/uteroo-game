@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { UterooCharacter } from "./UterooCharacter";
+import { supabase } from "@/integrations/supabase/client";
 
 const TOTAL_DAYS = 28;
 const CIRCLE_SIZE = 300; // px
 const POINT_SIZE = 20; // px
 
-export const CircleCalendar = () => {
-  const [currentDay, setCurrentDay] = useState(1);
+interface CircleCalendarProps {
+  initialDay?: number;
+}
+
+export const CircleCalendar = ({ initialDay = 1 }: CircleCalendarProps) => {
+  const [currentDay, setCurrentDay] = useState(initialDay);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setCurrentDay(initialDay);
+  }, [initialDay]);
 
   const calculatePosition = (index: number) => {
     const angle = ((index - 1) * 360) / TOTAL_DAYS;
@@ -31,13 +40,30 @@ export const CircleCalendar = () => {
 
   const getCurrentPhase = () => getPhaseColor(currentDay);
 
-  const handleDayClick = (day: number) => {
+  const handleDayClick = async (day: number) => {
     if (day <= currentDay + 1) {
       setCurrentDay(day);
-      toast({
-        title: "Day unlocked!",
-        description: "New activities and challenges are available.",
-      });
+      
+      // Log the activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('daily_activities')
+          .insert({
+            user_id: user.id,
+            date: new Date().toISOString().split('T')[0],
+            activity_type: 'calendar_check',
+            completed: true,
+            points: 5
+          });
+
+        if (!error) {
+          toast({
+            title: "Day unlocked!",
+            description: "New activities and challenges are available. +5 points earned!",
+          });
+        }
+      }
     }
   };
 

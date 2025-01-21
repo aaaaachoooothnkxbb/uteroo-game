@@ -9,7 +9,147 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      cycle_tracking: {
+        Row: {
+          created_at: string
+          cycle_length: number | null
+          cycle_start_date: string
+          id: string
+          period_length: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          cycle_length?: number | null
+          cycle_start_date: string
+          id?: string
+          period_length?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          cycle_length?: number | null
+          cycle_start_date?: string
+          id?: string
+          period_length?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycle_tracking_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_activities: {
+        Row: {
+          activity_type: string
+          completed: boolean | null
+          created_at: string
+          date: string
+          id: string
+          points: number | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          completed?: boolean | null
+          created_at?: string
+          date: string
+          id?: string
+          points?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          completed?: boolean | null
+          created_at?: string
+          date?: string
+          id?: string
+          points?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mood_logs: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          mood: string
+          notes: string | null
+          symptoms: string[] | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          mood: string
+          notes?: string | null
+          symptoms?: string[] | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          mood?: string
+          notes?: string | null
+          symptoms?: string[] | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
