@@ -5,7 +5,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthError } from "@supabase/supabase-js";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -23,10 +23,16 @@ const Index = () => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       if (session) {
         navigate("/dashboard");
+      }
+      if (event === 'USER_UPDATED') {
+        const { error } = await supabase.auth.getSession();
+        if (error) {
+          setErrorMessage(getErrorMessage(error));
+        }
       }
       if (event === 'SIGNED_OUT') {
         setErrorMessage(""); // Clear errors on sign out
@@ -36,9 +42,22 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false);
-    navigate("/dashboard");
+  const getErrorMessage = (error: AuthError) => {
+    if (error instanceof AuthApiError) {
+      switch (error.code) {
+        case 'invalid_credentials':
+          return 'Invalid email or password. Please check your credentials and try again.';
+        case 'email_not_confirmed':
+          return 'Please verify your email address before signing in.';
+        case 'user_not_found':
+          return 'No user found with these credentials.';
+        case 'invalid_grant':
+          return 'Invalid login credentials.';
+        default:
+          return error.message;
+      }
+    }
+    return error.message;
   };
 
   if (showOnboarding) {
@@ -55,7 +74,7 @@ const Index = () => {
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="flex flex-col items-center space-y-4 -mt-24">
           <img 
-            src="lovable-uploads/c5a4901b-e045-4e02-b1dd-f6361280d983.png"
+            src="/lovable-uploads/c5a4901b-e045-4e02-b1dd-f6361280d983.png"
             alt="Uteroo Character"
             className="w-[500px] h-[500px] object-contain animate-[bounce_2s_ease-in-out_infinite]"
           />
