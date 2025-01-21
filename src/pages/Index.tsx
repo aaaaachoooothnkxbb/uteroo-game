@@ -1,10 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
+import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { supabase } from "@/integrations/supabase/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [session, setSession] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        navigate("/dashboard");
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        navigate("/dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
@@ -15,11 +41,15 @@ const Index = () => {
     return <OnboardingFlow onComplete={handleOnboardingComplete} />;
   }
 
+  if (session) {
+    return null; // Will redirect to dashboard
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400 flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('lovable-uploads/affe073e-32fe-4691-a9ae-c8a70dbacdc0.png')] bg-cover opacity-30 animate-float"></div>
       <div className="w-full max-w-md space-y-8 relative z-10">
-        <div className="flex flex-col items-center space-y-4 -mt-24"> {/* Increased negative margin from -12 to -24 */}
+        <div className="flex flex-col items-center space-y-4 -mt-24">
           <img 
             src="lovable-uploads/c5a4901b-e045-4e02-b1dd-f6361280d983.png"
             alt="Uteroo Character"
@@ -36,44 +66,31 @@ const Index = () => {
           Discover your hormones, moods, and energy in a fun way!
         </p>
 
-        <div className="space-y-4 mt-8">
-          <div 
-            onClick={() => setShowOnboarding(true)}
-            className="w-full h-40 relative cursor-pointer group"
-          >
-            <div className="absolute inset-0">
-              <div className="absolute inset-0 bg-[url('lovable-uploads/e47907e6-61da-4860-97dc-47179e32bcf8.png')] bg-cover bg-center bg-no-repeat scale-y-[-1] hover:scale-105 transition-transform duration-300" />
-              <div className="absolute inset-0 flex items-center justify-center text-center">
-                <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
-                  TRY IT FIRST
-                </span>
-              </div>
-            </div>
-          </div>
-          <div 
-            onClick={() => setShowOnboarding(true)}
-            className="w-full h-32 relative cursor-pointer group"
-          >
-            <div 
-              className="absolute inset-0 bg-[url('lovable-uploads/896173af-7204-467f-986c-a542cc467697.png')] bg-contain bg-center bg-no-repeat hover:scale-105 transition-transform duration-300 flex items-center justify-center"
-            >
-              <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
-                SIGN UP
-              </span>
-            </div>
-          </div>
-          <div className="relative w-full h-48 group cursor-pointer" onClick={() => setShowOnboarding(true)}>
-            <img
-              src="lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png"
-              alt="Login"
-              className="w-full h-48 object-contain hover:opacity-90 transform transition hover:scale-105"
-              role="button"
-              aria-label="Log in"
-            />
-            <span className="absolute inset-0 flex items-center justify-center text-white font-semibold text-xl drop-shadow-lg">
-              SIGN IN
-            </span>
-          </div>
+        <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 mt-8">
+          {errorMessage && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#9333ea',
+                    brandAccent: '#7e22ce',
+                  },
+                },
+              },
+            }}
+            providers={["google"]}
+            redirectTo={window.location.origin}
+            onError={(error) => {
+              setErrorMessage(error.message);
+            }}
+          />
         </div>
       </div>
     </div>

@@ -123,6 +123,39 @@ export type Database = {
           },
         ]
       }
+      phase_recommendations: {
+        Row: {
+          category: Database["public"]["Enums"]["recommendation_category"]
+          created_at: string
+          day: number
+          id: string
+          instructions: string
+          phase: Database["public"]["Enums"]["cycle_phase"]
+          recommendation: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["recommendation_category"]
+          created_at?: string
+          day: number
+          id?: string
+          instructions: string
+          phase: Database["public"]["Enums"]["cycle_phase"]
+          recommendation: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["recommendation_category"]
+          created_at?: string
+          day?: number
+          id?: string
+          instructions?: string
+          phase?: Database["public"]["Enums"]["cycle_phase"]
+          recommendation?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -158,7 +191,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      cycle_phase:
+        | "Menstruation Flatland"
+        | "Follicular Uphill"
+        | "Ovulatory Mountain"
+        | "Luteal Hill"
+      recommendation_category: "Affirmation" | "Recipe" | "Yoga Pose"
     }
     CompositeTypes: {
       [_ in never]: never
