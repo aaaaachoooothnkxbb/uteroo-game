@@ -1,14 +1,48 @@
 import { useState } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Icons } from "@/components/ui/icons";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     navigate("/dashboard");
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'facebook' | 'instagram') => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Authentication error",
+          description: error.message
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Unexpected error",
+        description: "Please try again later"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (showOnboarding) {
@@ -19,7 +53,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400 flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('lovable-uploads/affe073e-32fe-4691-a9ae-c8a70dbacdc0.png')] bg-cover opacity-30 animate-float"></div>
       <div className="w-full max-w-md space-y-8 relative z-10">
-        <div className="flex flex-col items-center space-y-4 -mt-24"> {/* Increased negative margin from -12 to -24 */}
+        <div className="flex flex-col items-center space-y-4 -mt-24">
           <img 
             src="lovable-uploads/c5a4901b-e045-4e02-b1dd-f6361280d983.png"
             alt="Uteroo Character"
@@ -62,17 +96,36 @@ const Index = () => {
               </span>
             </div>
           </div>
-          <div className="relative w-full h-48 group cursor-pointer" onClick={() => setShowOnboarding(true)}>
-            <img
-              src="lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png"
-              alt="Login"
-              className="w-full h-48 object-contain hover:opacity-90 transform transition hover:scale-105"
-              role="button"
-              aria-label="Log in"
-            />
-            <span className="absolute inset-0 flex items-center justify-center text-white font-semibold text-xl drop-shadow-lg">
-              SIGN IN
-            </span>
+          <div className="relative w-full space-y-4">
+            <div className="flex flex-col gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-lg">
+              <Button
+                variant="outline"
+                className="bg-white text-gray-800 hover:bg-gray-100 gap-2"
+                onClick={() => handleSocialLogin('google')}
+                disabled={isLoading}
+              >
+                <Icons.google className="h-5 w-5" />
+                Continue with Google
+              </Button>
+              <Button
+                variant="outline"
+                className="bg-[#1877F2] text-white hover:bg-[#1864D9] gap-2"
+                onClick={() => handleSocialLogin('facebook')}
+                disabled={isLoading}
+              >
+                <Icons.facebook className="h-5 w-5" />
+                Continue with Facebook
+              </Button>
+              <Button
+                variant="outline"
+                className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white hover:opacity-90 gap-2"
+                onClick={() => handleSocialLogin('instagram')}
+                disabled={isLoading}
+              >
+                <Icons.instagram className="h-5 w-5" />
+                Continue with Instagram
+              </Button>
+            </div>
           </div>
         </div>
       </div>
