@@ -6,7 +6,7 @@ import { DailyAffirmation } from "./DailyAffirmation";
 import { DailyRecipe } from "./DailyRecipe";
 import { YogaPose } from "./YogaPose";
 import { Progress } from "@/components/ui/progress";
-import { Confetti } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 const TOTAL_DAYS = 28;
 const CIRCLE_SIZE = 300; // px
@@ -115,7 +115,7 @@ export const CircleCalendar = () => {
         <Progress value={currentProgress} className="h-2" />
         {completedTasks.length === 3 && (
           <div className="flex items-center justify-center gap-2 text-green-500 animate-bounce">
-            <Confetti className="w-4 h-4" />
+            <Sparkles className="w-4 h-4" />
             <span className="text-sm font-medium">All tasks completed!</span>
           </div>
         )}
