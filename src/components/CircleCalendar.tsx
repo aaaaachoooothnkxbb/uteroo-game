@@ -2,19 +2,46 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { UterooCharacter } from "./UterooCharacter";
-import { DailyAffirmation } from "./DailyAffirmation";
-import { DailyRecipe } from "./DailyRecipe";
-import { YogaPose } from "./YogaPose";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles } from "lucide-react";
+import { Sparkles, BookOpen, Sun, Wind, BookMarked } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const TOTAL_DAYS = 28;
 const CIRCLE_SIZE = 300; // px
 const POINT_SIZE = 20; // px
 
+const dailyChallenges = [
+  {
+    title: "Mindful Breathing",
+    description: "Take 5 deep breaths, holding each for 4 seconds",
+    icon: Wind,
+  },
+  {
+    title: "Reading Time",
+    description: "Read 10 pages of any book you enjoy",
+    icon: BookOpen,
+  },
+  {
+    title: "Sunlight Break",
+    description: "Spend 10 minutes in natural sunlight",
+    icon: Sun,
+  },
+  {
+    title: "Journaling",
+    description: "Write down three things you're grateful for",
+    icon: BookMarked,
+  },
+];
+
 export const CircleCalendar = () => {
   const [currentDay, setCurrentDay] = useState(1);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
+  const [showChallenge, setShowChallenge] = useState(false);
   const { toast } = useToast();
 
   const calculatePosition = (index: number) => {
@@ -52,16 +79,23 @@ export const CircleCalendar = () => {
       const newCompletedTasks = [...completedTasks, taskType];
       setCompletedTasks(newCompletedTasks);
       
-      if (newCompletedTasks.length === 3) {
+      if (newCompletedTasks.length === 1) {
         toast({
           title: "Amazing job! 🎉",
-          description: "You've completed all tasks for today! +10 points earned!",
+          description: "You've completed today's challenge! +10 points earned!",
         });
       }
     }
   };
 
-  const currentProgress = (completedTasks.length / 3) * 100;
+  // Get a random challenge for the day
+  const getDailyChallenge = () => {
+    const index = currentDay % dailyChallenges.length;
+    return dailyChallenges[index];
+  };
+
+  const currentProgress = (completedTasks.length / 1) * 100;
+  const dailyChallenge = getDailyChallenge();
 
   return (
     <div className="space-y-6">
@@ -70,7 +104,6 @@ export const CircleCalendar = () => {
           className="relative"
           style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
         >
-          {/* Center the UterooCharacter */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
             <UterooCharacter phase={getCurrentPhase()} />
           </div>
@@ -110,35 +143,55 @@ export const CircleCalendar = () => {
       <div className="max-w-md mx-auto space-y-2">
         <div className="flex justify-between text-sm text-gray-600">
           <span>Daily Progress</span>
-          <span>{completedTasks.length}/3 completed</span>
+          <span>{completedTasks.length}/1 completed</span>
         </div>
         <Progress value={currentProgress} className="h-2" />
-        {completedTasks.length === 3 && (
+        {completedTasks.length === 1 && (
           <div className="flex items-center justify-center gap-2 text-green-500 animate-bounce">
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">All tasks completed!</span>
+            <span className="text-sm font-medium">Challenge completed!</span>
           </div>
         )}
       </div>
 
-      {/* Daily recommendations */}
-      <div className="grid gap-6 max-w-4xl mx-auto">
-        <DailyAffirmation 
-          phase={getCurrentPhase()} 
-          onComplete={() => handleTaskComplete("affirmation")} 
-          isCompleted={completedTasks.includes("affirmation")}
-        />
-        <DailyRecipe 
-          phase={getCurrentPhase()} 
-          onComplete={() => handleTaskComplete("recipe")}
-          isCompleted={completedTasks.includes("recipe")}
-        />
-        <YogaPose 
-          phase={getCurrentPhase()} 
-          onComplete={() => handleTaskComplete("yoga")}
-          isCompleted={completedTasks.includes("yoga")}
-        />
+      {/* Daily Challenge Icon */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => setShowChallenge(true)}
+          className={`p-4 rounded-full bg-${getCurrentPhase()}-primary hover:bg-${getCurrentPhase()}-secondary transition-colors
+            ${completedTasks.includes('challenge') ? 'opacity-50' : 'animate-pulse'}
+          `}
+        >
+          <dailyChallenge.icon className="w-6 h-6 text-white" />
+        </button>
       </div>
+
+      {/* Challenge Dialog */}
+      <Dialog open={showChallenge} onOpenChange={setShowChallenge}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <dailyChallenge.icon className="w-5 h-5" />
+              {dailyChallenge.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-6">
+            <p className="text-gray-600 mb-6">{dailyChallenge.description}</p>
+            <button
+              onClick={() => {
+                handleTaskComplete('challenge');
+                setShowChallenge(false);
+              }}
+              className={`w-full py-2 px-4 rounded-md bg-${getCurrentPhase()}-primary hover:bg-${getCurrentPhase()}-secondary text-white transition-colors
+                ${completedTasks.includes('challenge') ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+              disabled={completedTasks.includes('challenge')}
+            >
+              {completedTasks.includes('challenge') ? 'Completed!' : 'Complete Challenge'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
