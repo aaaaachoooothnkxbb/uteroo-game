@@ -15,37 +15,56 @@ const Profile = () => {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Please sign in to access this page",
-          variant: "destructive",
-        });
-        navigate("/");
-        return;
-      }
-      if (user) {
+    const fetchUserProfile = async () => {
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) {
+          toast({
+            title: "Authentication Error",
+            description: "Please sign in to access this page",
+            variant: "destructive",
+          });
+          navigate("/");
+          return;
+        }
+
         setUserId(user.id);
+
         // Fetch existing avatar URL
-        const { data } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('avatar_url')
           .eq('id', user.id)
           .single();
-        if (data?.avatar_url) {
-          setAvatarUrl(data.avatar_url);
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+        } else if (profileData?.avatar_url) {
+          setAvatarUrl(profileData.avatar_url);
         }
+      } catch (error) {
+        console.error('Error in fetchUserProfile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile",
+          variant: "destructive",
+        });
       }
     };
-    fetchUser();
+
+    fetchUserProfile();
   }, [navigate, toast]);
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       if (!userId) {
-        throw new Error('Please sign in to upload a profile picture.');
+        toast({
+          title: "Error",
+          description: "Please sign in to upload a profile picture",
+          variant: "destructive",
+        });
+        return;
       }
 
       setUploading(true);
@@ -85,9 +104,10 @@ const Profile = () => {
         description: "Profile picture updated successfully.",
       });
     } catch (error) {
+      console.error('Error uploading:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to upload profile picture",
         variant: "destructive",
       });
     } finally {
