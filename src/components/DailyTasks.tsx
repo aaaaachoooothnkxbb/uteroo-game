@@ -9,7 +9,7 @@ import {
 import { DailyAffirmation } from "./DailyAffirmation";
 import { DailyRecipe } from "./DailyRecipe";
 import { YogaPose } from "./YogaPose";
-import { Heart, ChefHat, Yoga } from "lucide-react";
+import { Heart, ChefHat, Leaf } from "lucide-react";
 
 interface DailyTasksProps {
   phase: string;
@@ -50,7 +50,7 @@ export const DailyTasks = ({ phase, completedTasks, onTaskComplete }: DailyTasks
     {
       id: "yoga",
       title: "Daily Yoga",
-      icon: Yoga,
+      icon: Leaf,
       color: "text-purple-500",
       component: (
         <YogaPose
