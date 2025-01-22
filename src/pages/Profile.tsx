@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { AvatarCustomization } from "@/components/AvatarCustomization";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -15,22 +16,29 @@ const Profile = () => {
       </header>
 
       <main className="flex-1 px-4 py-6 overflow-y-auto">
-        <Card className="p-6">
-          <div className="text-center space-y-6">
-            <div className="w-32 h-32 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
-              <User className="w-16 h-16 text-gray-400" />
-            </div>
-            
-            <div className="space-y-4">
-              <h1 className="text-2xl font-bold">Your Profile</h1>
-              <div className="text-gray-600">
-                <p>Total Points: 0</p>
-                <p>Achievements: 0</p>
-                <p>Days Tracked: 0</p>
+        <div className="max-w-4xl mx-auto space-y-6">
+          <Card className="p-6">
+            <div className="text-center space-y-6">
+              <div className="w-32 h-32 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+                <User className="w-16 h-16 text-gray-400" />
+              </div>
+              
+              <div className="space-y-4">
+                <h1 className="text-2xl font-bold">Your Profile</h1>
+                <div className="text-gray-600">
+                  <p>Total Points: 0</p>
+                  <p>Achievements: 0</p>
+                  <p>Days Tracked: 0</p>
+                </div>
               </div>
             </div>
+          </Card>
+
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Customize Your Avatar</h2>
+            <AvatarCustomization />
           </div>
-        </Card>
+        </div>
       </main>
     </div>
   );
