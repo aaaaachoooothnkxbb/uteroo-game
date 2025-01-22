@@ -5,16 +5,49 @@ import { useNavigate } from "react-router-dom";
 import { AvatarCustomization } from "@/components/AvatarCustomization";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Please sign in to access this page",
+          variant: "destructive",
+        });
+        navigate("/");
+        return;
+      }
+      if (user) {
+        setUserId(user.id);
+        // Fetch existing avatar URL
+        const { data } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single();
+        if (data?.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+        }
+      }
+    };
+    fetchUser();
+  }, [navigate, toast]);
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
+      if (!userId) {
+        throw new Error('Please sign in to upload a profile picture.');
+      }
+
       setUploading(true);
       
       if (!event.target.files || event.target.files.length === 0) {
@@ -23,7 +56,6 @@ const Profile = () => {
 
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const userId = (await supabase.auth.getUser()).data.user?.id;
       const filePath = `${userId}/${Math.random()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
