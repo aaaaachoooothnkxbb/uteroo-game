@@ -21,21 +21,33 @@ const Index = () => {
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider as Provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         }
       });
 
       if (error) {
+        console.error('Auth error:', error);
         toast({
           variant: "destructive",
           title: "Authentication error",
           description: error.message
         });
+      } else if (data) {
+        console.log('Auth successful:', data);
+        toast({
+          title: "Success",
+          description: "Successfully logged in!"
+        });
       }
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast({
         variant: "destructive",
         title: "Unexpected error",
