@@ -88,34 +88,49 @@ const recipes: Record<string, Recipe> = {
   }
 };
 
-export const DailyRecipe = ({ phase = "menstruation" }) => {
-  const [photoUploaded, setPhotoUploaded] = useState(false);
+interface DailyRecipeProps {
+  phase?: string;
+  onComplete?: () => void;
+  isCompleted?: boolean;
+}
+
+export const DailyRecipe = ({ 
+  phase = "menstruation",
+  onComplete,
+  isCompleted = false
+}: DailyRecipeProps) => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const { toast } = useToast();
   const recipe = recipes[phase];
 
-  const handlePhotoUpload = () => {
-    setPhotoUploaded(true);
-    toast({
-      title: "Recipe photo uploaded!",
-      description: "You earned 15 points for completing today's recipe challenge!",
+  const toggleStep = (index: number) => {
+    if (isCompleted) return;
+    
+    setCompletedSteps(prev => {
+      const newSteps = prev.includes(index)
+        ? prev.filter(i => i !== index)
+        : [...prev, index];
+      
+      if (newSteps.length === recipe.instructions.length) {
+        toast({
+          title: "Great job!",
+          description: "You've completed today's recipe challenge.",
+        });
+        onComplete?.();
+      }
+      return newSteps;
     });
   };
 
-  const toggleStep = (index: number) => {
-    setCompletedSteps(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
-    );
-  };
-
   return (
-    <Card className={`p-6 bg-${phase}-bg border-${phase}-primary max-w-md mx-auto`}>
+    <Card className={`p-6 bg-${phase}-bg border-${phase}-primary max-w-md mx-auto ${
+      isCompleted ? "bg-opacity-50" : ""
+    }`}>
       <div className="space-y-4">
         <h3 className={`text-xl font-medium text-${phase}-primary flex items-center gap-2`}>
           <ChefHat className="w-5 h-5" />
           Today's Recipe: {recipe.name}
+          {isCompleted && <Check className="w-5 h-5 text-green-500" />}
         </h3>
 
         <div className="space-y-2">
@@ -134,13 +149,14 @@ export const DailyRecipe = ({ phase = "menstruation" }) => {
               <div key={index} className="flex items-start space-x-2">
                 <Checkbox
                   id={`step-${index}`}
-                  checked={completedSteps.includes(index)}
+                  checked={completedSteps.includes(index) || isCompleted}
                   onCheckedChange={() => toggleStep(index)}
+                  disabled={isCompleted}
                 />
                 <label
                   htmlFor={`step-${index}`}
                   className={`text-black cursor-pointer ${
-                    completedSteps.includes(index) ? "line-through opacity-70" : ""
+                    completedSteps.includes(index) || isCompleted ? "line-through opacity-70" : ""
                   }`}
                 >
                   {instruction}
@@ -157,12 +173,12 @@ export const DailyRecipe = ({ phase = "menstruation" }) => {
         </div>
 
         <Button
-          onClick={handlePhotoUpload}
-          disabled={photoUploaded}
+          onClick={onComplete}
+          disabled={isCompleted}
           className={`w-full bg-${phase}-primary hover:bg-${phase}-secondary text-white`}
         >
           <Camera className="w-4 h-4 mr-2" />
-          {photoUploaded ? "Photo Uploaded!" : "Share Your Creation"}
+          {isCompleted ? "Photo Uploaded!" : "Share Your Creation"}
         </Button>
       </div>
     </Card>

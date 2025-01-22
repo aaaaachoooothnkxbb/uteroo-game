@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Camera } from "lucide-react";
+import { Camera, Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 type YogaPose = {
@@ -59,33 +59,48 @@ const yogaPoses: Record<string, YogaPose> = {
   }
 };
 
-export const YogaPose = ({ phase = "menstruation" }) => {
-  const [photoUploaded, setPhotoUploaded] = useState(false);
+interface YogaPoseProps {
+  phase?: string;
+  onComplete?: () => void;
+  isCompleted?: boolean;
+}
+
+export const YogaPose = ({ 
+  phase = "menstruation",
+  onComplete,
+  isCompleted = false
+}: YogaPoseProps) => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const { toast } = useToast();
   const pose = yogaPoses[phase];
 
-  const handlePhotoUpload = () => {
-    setPhotoUploaded(true);
-    toast({
-      title: "Photo uploaded successfully!",
-      description: "You earned 10 points for completing today's yoga challenge!",
+  const toggleStep = (index: number) => {
+    if (isCompleted) return;
+    
+    setCompletedSteps(prev => {
+      const newSteps = prev.includes(index)
+        ? prev.filter(i => i !== index)
+        : [...prev, index];
+      
+      if (newSteps.length === pose.instructions.length) {
+        toast({
+          title: "Great job!",
+          description: "You've completed today's yoga practice.",
+        });
+        onComplete?.();
+      }
+      return newSteps;
     });
   };
 
-  const toggleStep = (index: number) => {
-    setCompletedSteps(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
-    );
-  };
-
   return (
-    <Card className={`p-6 bg-${phase}-bg border-${phase}-primary max-w-md mx-auto`}>
+    <Card className={`p-6 bg-${phase}-bg border-${phase}-primary max-w-md mx-auto ${
+      isCompleted ? "bg-opacity-50" : ""
+    }`}>
       <div className="space-y-4">
-        <h3 className={`text-xl font-medium text-black`}>
+        <h3 className={`text-xl font-medium text-black flex items-center gap-2`}>
           Today's Yoga Pose: {pose.name}
+          {isCompleted && <Check className="w-5 h-5 text-green-500" />}
         </h3>
         
         <div className="space-y-2">
@@ -95,13 +110,14 @@ export const YogaPose = ({ phase = "menstruation" }) => {
               <div key={index} className="flex items-start space-x-2">
                 <Checkbox
                   id={`yoga-step-${index}`}
-                  checked={completedSteps.includes(index)}
+                  checked={completedSteps.includes(index) || isCompleted}
                   onCheckedChange={() => toggleStep(index)}
+                  disabled={isCompleted}
                 />
                 <label
                   htmlFor={`yoga-step-${index}`}
                   className={`text-black cursor-pointer ${
-                    completedSteps.includes(index) ? "line-through opacity-70" : ""
+                    completedSteps.includes(index) || isCompleted ? "line-through opacity-70" : ""
                   }`}
                 >
                   {instruction}
@@ -118,12 +134,12 @@ export const YogaPose = ({ phase = "menstruation" }) => {
         </div>
 
         <Button
-          onClick={handlePhotoUpload}
-          disabled={photoUploaded}
+          onClick={onComplete}
+          disabled={isCompleted}
           className={`w-full bg-${phase}-primary hover:bg-${phase}-secondary text-white`}
         >
           <Camera className="w-4 h-4 mr-2" />
-          {photoUploaded ? "Photo Uploaded!" : "Upload Your Pose"}
+          {isCompleted ? "Photo Uploaded!" : "Upload Your Pose"}
         </Button>
       </div>
     </Card>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Share2 } from "lucide-react";
+import { Share2, MessageCircle, Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 
@@ -13,7 +13,7 @@ type Affirmation = {
 
 const affirmations: Affirmation[] = [
   {
-    text: "Rest and recharge",
+    text: "I am in tune with my body's needs and honor my rest",
     phase: "menstruation",
     instructions: [
       "Find a quiet space for 5 minutes",
@@ -54,12 +54,24 @@ const affirmations: Affirmation[] = [
   },
 ];
 
-export const DailyAffirmation = ({ phase = "menstruation" }) => {
+interface DailyAffirmationProps {
+  phase?: string;
+  onComplete?: () => void;
+  isCompleted?: boolean;
+}
+
+export const DailyAffirmation = ({ 
+  phase = "menstruation",
+  onComplete,
+  isCompleted = false
+}: DailyAffirmationProps) => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const { toast } = useToast();
   const affirmation = affirmations.find((a) => a.phase === phase) || affirmations[0];
 
   const toggleStep = (index: number) => {
+    if (isCompleted) return;
+    
     setCompletedSteps(prev => {
       const newSteps = prev.includes(index)
         ? prev.filter(i => i !== index)
@@ -70,19 +82,32 @@ export const DailyAffirmation = ({ phase = "menstruation" }) => {
           title: "Great job!",
           description: "You've completed today's affirmation practice.",
         });
+        onComplete?.();
       }
       return newSteps;
     });
   };
 
   return (
-    <Card className={`p-6 bg-${phase}-bg border-${phase}-primary max-w-md mx-auto`}>
+    <Card className={`p-6 bg-${phase}-bg border-${phase}-primary max-w-md mx-auto ${
+      isCompleted ? "bg-opacity-50" : ""
+    }`}>
       <div className="text-center space-y-4">
-        <span className="text-4xl animate-float">🌟</span>
-        <h3 className="text-xl font-medium">Today's Affirmation</h3>
-        <p className={`text-${phase}-primary text-lg font-medium italic`}>
-          "{affirmation.text}"
-        </p>
+        <div className="flex items-center justify-center gap-2">
+          <MessageCircle className={`w-5 h-5 text-${phase}-primary`} />
+          <h3 className="text-xl font-medium">Today's Affirmation</h3>
+        </div>
+        
+        {isCompleted ? (
+          <div className="flex items-center justify-center gap-2 text-green-500">
+            <Check className="w-5 h-5" />
+            <p className="text-lg font-medium">Well done! 🌟</p>
+          </div>
+        ) : (
+          <p className={`text-${phase}-primary text-lg font-medium italic`}>
+            "{affirmation.text}"
+          </p>
+        )}
         
         <div className="space-y-2 text-left mt-4">
           <h4 className="font-medium text-sm text-gray-600">Practice Instructions:</h4>
@@ -91,13 +116,14 @@ export const DailyAffirmation = ({ phase = "menstruation" }) => {
               <div key={index} className="flex items-start space-x-2">
                 <Checkbox
                   id={`step-${index}`}
-                  checked={completedSteps.includes(index)}
+                  checked={completedSteps.includes(index) || isCompleted}
                   onCheckedChange={() => toggleStep(index)}
+                  disabled={isCompleted}
                 />
                 <label
                   htmlFor={`step-${index}`}
                   className={`text-sm cursor-pointer ${
-                    completedSteps.includes(index) ? "line-through opacity-70" : ""
+                    completedSteps.includes(index) || isCompleted ? "line-through opacity-70" : ""
                   }`}
                 >
                   {instruction}
@@ -110,6 +136,7 @@ export const DailyAffirmation = ({ phase = "menstruation" }) => {
         <Button
           variant="outline"
           className={`mt-4 text-${phase}-primary hover:bg-${phase}-light`}
+          disabled={isCompleted}
         >
           <Share2 className="w-4 h-4 mr-2" />
           Share
