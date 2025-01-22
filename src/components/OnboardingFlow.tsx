@@ -128,17 +128,31 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const { toast } = useToast();
 
   const generateSummary = () => {
-    const age = formOptions.age.find(o => o.value === formData.age);
     const period = formOptions.lastPeriod.find(o => o.value === formData.lastPeriod);
     const symptoms = formOptions.symptoms.find(o => o.value === formData.symptoms);
     const mood = formOptions.mood.find(o => o.value === formData.mood);
 
-    let phase = "your current phase";
+    let phase = "";
     if (period?.value === "less-than-week") phase = "menstrual phase";
     if (period?.value === "1-2-weeks") phase = "follicular phase";
     if (period?.value === "more-than-2-weeks") phase = "luteal phase";
 
-    const summary = `Hello, beautiful! Based on your answers, it looks like your body is going through some normal hormonal changes. Here's why you might be feeling the way you do: During your ${phase}, ${period?.recommendation.toLowerCase()} ${symptoms?.recommendation} ${mood?.recommendation} Remember, every cycle is different, and listening to your body is the best thing you can do. Try practicing self-care and gentle movement—it might help you feel more balanced and in control!`;
+    let phaseInfo = "";
+    if (phase === "menstrual phase") {
+      phaseInfo = "your estrogen levels are starting to rise";
+    } else if (phase === "follicular phase") {
+      phaseInfo = "your estrogen levels are increasing, which often brings more energy";
+    } else if (phase === "luteal phase") {
+      phaseInfo = "your progesterone levels are rising, which might make you feel more reflective";
+    }
+
+    const summary = `Welcome to Uteroo! Based on your answers, it looks like you're in your ${phase}. During this time, ${phaseInfo}.
+
+To support your body right now:
+• ${symptoms?.recommendation.split('.')[0]}.
+• ${mood?.recommendation.split('.')[0]}.
+
+Remember, every cycle is unique, and Uteroo is here to guide you every step of the way. You've got this! 💖`;
 
     return summary;
   };
