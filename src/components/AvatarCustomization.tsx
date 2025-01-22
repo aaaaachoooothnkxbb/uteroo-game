@@ -7,13 +7,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AvatarFeatures {
-  hairStyle: string;
-  hairColor: string;
-  eyeShape: string;
-  eyeColor: string;
-  skinTone: string;
-  faceFeatures: string[];
-  bodyType: string;
+  hair_style: string;
+  hair_color: string;
+  eye_shape: string;
+  eye_color: string;
+  skin_tone: string;
+  face_features: string[];
+  body_type: string;
   posture: string;
   accessories: string[];
   outfit: {
@@ -21,19 +21,19 @@ interface AvatarFeatures {
     bottom: string;
     shoes: string;
   };
-  backgroundTheme: string;
+  background_theme: string;
 }
 
 export const AvatarCustomization = () => {
   const { toast } = useToast();
   const [features, setFeatures] = useState<AvatarFeatures>({
-    hairStyle: "short",
-    hairColor: "#000000",
-    eyeShape: "round",
-    eyeColor: "#000000",
-    skinTone: "#F2D2BD",
-    faceFeatures: [],
-    bodyType: "default",
+    hair_style: "short",
+    hair_color: "#000000",
+    eye_shape: "round",
+    eye_color: "#000000",
+    skin_tone: "#F2D2BD",
+    face_features: [],
+    body_type: "default",
     posture: "default",
     accessories: [],
     outfit: {
@@ -41,7 +41,7 @@ export const AvatarCustomization = () => {
       bottom: "default",
       shoes: "default"
     },
-    backgroundTheme: "default"
+    background_theme: "default"
   });
 
   const handleSave = async () => {
@@ -84,8 +84,8 @@ export const AvatarCustomization = () => {
               <Label>Hair Color</Label>
               <input
                 type="color"
-                value={features.hairColor}
-                onChange={(e) => setFeatures(prev => ({...prev, hairColor: e.target.value}))}
+                value={features.hair_color}
+                onChange={(e) => setFeatures(prev => ({...prev, hair_color: e.target.value}))}
                 className="w-full h-10 rounded-md"
               />
             </div>
@@ -93,8 +93,8 @@ export const AvatarCustomization = () => {
               <Label>Skin Tone</Label>
               <input
                 type="color"
-                value={features.skinTone}
-                onChange={(e) => setFeatures(prev => ({...prev, skinTone: e.target.value}))}
+                value={features.skin_tone}
+                onChange={(e) => setFeatures(prev => ({...prev, skin_tone: e.target.value}))}
                 className="w-full h-10 rounded-md"
               />
             </div>

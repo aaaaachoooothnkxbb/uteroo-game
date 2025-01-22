@@ -9,6 +9,71 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      avatar_customizations: {
+        Row: {
+          accessories: Json | null
+          background_theme: string | null
+          body_type: string | null
+          created_at: string
+          eye_color: string | null
+          eye_shape: string | null
+          face_features: Json | null
+          hair_color: string | null
+          hair_style: string | null
+          id: string
+          outfit: Json | null
+          posture: string | null
+          skin_tone: string | null
+          unlocked_features: Json | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          accessories?: Json | null
+          background_theme?: string | null
+          body_type?: string | null
+          created_at?: string
+          eye_color?: string | null
+          eye_shape?: string | null
+          face_features?: Json | null
+          hair_color?: string | null
+          hair_style?: string | null
+          id?: string
+          outfit?: Json | null
+          posture?: string | null
+          skin_tone?: string | null
+          unlocked_features?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          accessories?: Json | null
+          background_theme?: string | null
+          body_type?: string | null
+          created_at?: string
+          eye_color?: string | null
+          eye_shape?: string | null
+          face_features?: Json | null
+          hair_color?: string | null
+          hair_style?: string | null
+          id?: string
+          outfit?: Json | null
+          posture?: string | null
+          skin_tone?: string | null
+          unlocked_features?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avatar_customizations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       cycle_tracking: {
         Row: {
           created_at: string
@@ -300,3 +365,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
