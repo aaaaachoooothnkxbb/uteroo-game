@@ -248,6 +248,128 @@ export type Database = {
         }
         Relationships: []
       }
+      cultural_practices: {
+        Row: {
+          id: string
+          practice_name: string
+          description: string
+          country_origin: string
+          instructions: string
+          benefits: string[]
+          phase: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          practice_name: string
+          description: string
+          country_origin: string
+          instructions: string
+          benefits: string[]
+          phase: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          practice_name?: string
+          description?: string
+          country_origin?: string
+          instructions?: string
+          benefits?: string[]
+          phase?: string
+          created_at?: string
+        }
+      }
+      cycle_rewards: {
+        Row: {
+          id: string
+          reward_name: string
+          description: string
+          brand: string
+          discount_code: string
+          required_streak: number
+          valid_until: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          reward_name: string
+          description: string
+          brand: string
+          discount_code: string
+          required_streak: number
+          valid_until: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          reward_name?: string
+          description?: string
+          brand?: string
+          discount_code?: string
+          required_streak?: number
+          valid_until?: string
+          created_at?: string
+        }
+      }
+      hormone_analysis: {
+        Row: {
+          id: string
+          phase: string
+          prediction: string
+          suggestions: string[]
+          commentary: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          phase: string
+          prediction: string
+          suggestions: string[]
+          commentary: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          phase?: string
+          prediction?: string
+          suggestions?: string[]
+          commentary?: string
+          created_at?: string
+        }
+      }
+      recipe_roulette: {
+        Row: {
+          id: string
+          recipe_name: string
+          ingredients: string[]
+          instructions: string[]
+          bonus_ingredients: string[]
+          cooking_tips: string[]
+          phase: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          recipe_name: string
+          ingredients: string[]
+          instructions: string[]
+          bonus_ingredients: string[]
+          cooking_tips: string[]
+          phase: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          recipe_name?: string
+          ingredients?: string[]
+          instructions?: string[]
+          bonus_ingredients?: string[]
+          cooking_tips?: string[]
+          phase?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -278,7 +400,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
