@@ -220,6 +220,7 @@ export type Database = {
         Row: {
           commentary: string
           created_at: string
+          hormone_levels: Json | null
           id: string
           phase: string
           prediction: string
@@ -228,6 +229,7 @@ export type Database = {
         Insert: {
           commentary: string
           created_at?: string
+          hormone_levels?: Json | null
           id?: string
           phase: string
           prediction: string
@@ -236,6 +238,7 @@ export type Database = {
         Update: {
           commentary?: string
           created_at?: string
+          hormone_levels?: Json | null
           id?: string
           phase?: string
           prediction?: string

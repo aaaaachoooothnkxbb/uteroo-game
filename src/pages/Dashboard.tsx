@@ -9,6 +9,13 @@ import { CulturalWellness } from "@/components/CulturalWellness";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Menu } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -27,15 +34,24 @@ const Dashboard = () => {
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg p-4 shadow-sm">
         <nav className="flex justify-between items-center">
-          <Button variant="ghost" onClick={() => navigate("/profile")}>
-            Profile
-          </Button>
-          <Button variant="ghost" onClick={() => navigate("/rewards")}>
-            Rewards
-          </Button>
-          <Button variant="ghost" onClick={() => navigate("/settings")}>
-            Settings
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48">
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/rewards")}>
+                Rewards
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/settings")}>
+                Settings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
       </header>
 
