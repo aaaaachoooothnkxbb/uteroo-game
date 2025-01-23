@@ -74,6 +74,72 @@ export type Database = {
           },
         ]
       }
+      cultural_practices: {
+        Row: {
+          benefits: string[]
+          country_origin: string
+          created_at: string
+          description: string
+          id: string
+          instructions: string
+          phase: string
+          practice_name: string
+        }
+        Insert: {
+          benefits: string[]
+          country_origin: string
+          created_at?: string
+          description: string
+          id?: string
+          instructions: string
+          phase: string
+          practice_name: string
+        }
+        Update: {
+          benefits?: string[]
+          country_origin?: string
+          created_at?: string
+          description?: string
+          id?: string
+          instructions?: string
+          phase?: string
+          practice_name?: string
+        }
+        Relationships: []
+      }
+      cycle_rewards: {
+        Row: {
+          brand: string
+          created_at: string
+          description: string
+          discount_code: string
+          id: string
+          required_streak: number
+          reward_name: string
+          valid_until: string
+        }
+        Insert: {
+          brand: string
+          created_at?: string
+          description: string
+          discount_code: string
+          id?: string
+          required_streak: number
+          reward_name: string
+          valid_until: string
+        }
+        Update: {
+          brand?: string
+          created_at?: string
+          description?: string
+          discount_code?: string
+          id?: string
+          required_streak?: number
+          reward_name?: string
+          valid_until?: string
+        }
+        Relationships: []
+      }
       cycle_tracking: {
         Row: {
           created_at: string
@@ -149,6 +215,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      hormone_analysis: {
+        Row: {
+          commentary: string
+          created_at: string
+          id: string
+          phase: string
+          prediction: string
+          suggestions: string[]
+        }
+        Insert: {
+          commentary: string
+          created_at?: string
+          id?: string
+          phase: string
+          prediction: string
+          suggestions: string[]
+        }
+        Update: {
+          commentary?: string
+          created_at?: string
+          id?: string
+          phase?: string
+          prediction?: string
+          suggestions?: string[]
+        }
+        Relationships: []
       }
       mood_logs: {
         Row: {
@@ -248,127 +341,38 @@ export type Database = {
         }
         Relationships: []
       }
-      cultural_practices: {
-        Row: {
-          id: string
-          practice_name: string
-          description: string
-          country_origin: string
-          instructions: string
-          benefits: string[]
-          phase: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          practice_name: string
-          description: string
-          country_origin: string
-          instructions: string
-          benefits: string[]
-          phase: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          practice_name?: string
-          description?: string
-          country_origin?: string
-          instructions?: string
-          benefits?: string[]
-          phase?: string
-          created_at?: string
-        }
-      }
-      cycle_rewards: {
-        Row: {
-          id: string
-          reward_name: string
-          description: string
-          brand: string
-          discount_code: string
-          required_streak: number
-          valid_until: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          reward_name: string
-          description: string
-          brand: string
-          discount_code: string
-          required_streak: number
-          valid_until: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          reward_name?: string
-          description?: string
-          brand?: string
-          discount_code?: string
-          required_streak?: number
-          valid_until?: string
-          created_at?: string
-        }
-      }
-      hormone_analysis: {
-        Row: {
-          id: string
-          phase: string
-          prediction: string
-          suggestions: string[]
-          commentary: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          phase: string
-          prediction: string
-          suggestions: string[]
-          commentary: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          phase?: string
-          prediction?: string
-          suggestions?: string[]
-          commentary?: string
-          created_at?: string
-        }
-      }
       recipe_roulette: {
         Row: {
-          id: string
-          recipe_name: string
-          ingredients: string[]
-          instructions: string[]
           bonus_ingredients: string[]
           cooking_tips: string[]
-          phase: string
           created_at: string
+          id: string
+          ingredients: string[]
+          instructions: string[]
+          phase: string
+          recipe_name: string
         }
         Insert: {
-          id?: string
-          recipe_name: string
-          ingredients: string[]
-          instructions: string[]
           bonus_ingredients: string[]
           cooking_tips: string[]
-          phase: string
           created_at?: string
+          id?: string
+          ingredients: string[]
+          instructions: string[]
+          phase: string
+          recipe_name: string
         }
         Update: {
-          id?: string
-          recipe_name?: string
-          ingredients?: string[]
-          instructions?: string[]
           bonus_ingredients?: string[]
           cooking_tips?: string[]
-          phase?: string
           created_at?: string
+          id?: string
+          ingredients?: string[]
+          instructions?: string[]
+          phase?: string
+          recipe_name?: string
         }
+        Relationships: []
       }
     }
     Views: {
@@ -400,7 +404,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never,
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {

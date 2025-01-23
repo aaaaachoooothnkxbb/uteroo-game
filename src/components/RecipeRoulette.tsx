@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ChefHat, DiceIcon } from "lucide-react";
+import { ChefHat, Dice1 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -61,7 +61,7 @@ export const RecipeRoulette = ({ phase }: { phase: string }) => {
             disabled={isSpinning}
             className="bg-orange-500 hover:bg-orange-600"
           >
-            <DiceIcon className={`w-4 h-4 mr-2 ${isSpinning ? 'animate-spin' : ''}`} />
+            <Dice1 className={`w-4 h-4 mr-2 ${isSpinning ? 'animate-spin' : ''}`} />
             Spin for Recipe
           </Button>
         </div>
