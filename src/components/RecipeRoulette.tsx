@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { ChefHat, Dice1 } from "lucide-react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { ChefHat, Dice1 } from "lucide-react";
 
 interface Recipe {
   recipe_name: string;
@@ -13,29 +18,29 @@ interface Recipe {
   instructions: string[];
   bonus_ingredients: string[];
   cooking_tips: string[];
+  phase: string;
 }
 
-export const RecipeRoulette = ({ phase }: { phase: string }) => {
-  const [showRecipe, setShowRecipe] = useState(false);
+export const RecipeRoulette = ({ phase = "menstruation" }) => {
   const [isSpinning, setIsSpinning] = useState(false);
+  const [showRecipe, setShowRecipe] = useState(false);
   const { toast } = useToast();
 
-  const { data: recipes, refetch } = useQuery({
-    queryKey: ['recipe-roulette', phase],
+  const { data: recipes } = useQuery({
+    queryKey: ["recipes", phase],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('recipe_roulette')
-        .select('*')
-        .eq('phase', phase);
+        .from("recipe_roulette")
+        .select("*")
+        .eq("phase", phase);
 
       if (error) throw error;
       return data as Recipe[];
-    }
+    },
   });
 
-  const handleSpin = async () => {
+  const handleSpin = () => {
     setIsSpinning(true);
-    await refetch();
     setTimeout(() => {
       setIsSpinning(false);
       setShowRecipe(true);
