@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { PhaseExplanation } from "@/components/PhaseExplanation";
 
 type FormOption = {
   value: string;
@@ -175,6 +176,8 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
     if (step === 1) {
       setStep(2);
     } else if (step === 2) {
+      setStep(3);
+    } else if (step === 3) {
       if (Object.values(formData).some(value => value === "")) {
         toast({
           title: "Please answer all questions",
@@ -225,7 +228,7 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
             </h2>
             <div className="flex gap-4 justify-center">
               <Button
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8"
               >
                 Me!
@@ -235,6 +238,26 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8"
               >
                 I'm new to this...
+              </Button>
+            </div>
+          </div>
+        ) : step === 2 ? (
+          <div className="space-y-6">
+            <h1 className="text-3xl font-bold text-center text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+              UNDERSTANDING YOUR CYCLE
+            </h1>
+            <p className="text-lg text-center text-white mb-8 drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+              Your hormones, including Estrogen, Progesterone, Luteinizing hormone (LH), and 
+              Follicle-stimulating hormone (FSH), play a crucial role in your cycle. They influence 
+              your mood, energy, and overall well-being.
+            </p>
+            <PhaseExplanation />
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={() => setStep(3)}
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8"
+              >
+                Next
               </Button>
             </div>
           </div>
