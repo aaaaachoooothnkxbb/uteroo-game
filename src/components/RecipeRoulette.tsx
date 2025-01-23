@@ -43,14 +43,14 @@ export const RecipeRoulette = ({ phase }: { phase: string }) => {
         title: "🎲 Recipe Found!",
         description: "Your perfect recipe match has been selected.",
       });
-    }, 1500);
+    }, 2000);
   };
 
   const currentRecipe = recipes?.[Math.floor(Math.random() * recipes.length)];
 
   return (
     <>
-      <Card className="p-6">
+      <Card className="p-6 relative overflow-hidden">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ChefHat className="w-6 h-6 text-orange-500" />
@@ -59,52 +59,68 @@ export const RecipeRoulette = ({ phase }: { phase: string }) => {
           <Button
             onClick={handleSpin}
             disabled={isSpinning}
-            className="bg-orange-500 hover:bg-orange-600"
+            className={`bg-orange-500 hover:bg-orange-600 transition-all duration-300 ${
+              isSpinning ? 'scale-110' : ''
+            }`}
           >
-            <Dice1 className={`w-4 h-4 mr-2 ${isSpinning ? 'animate-spin' : ''}`} />
-            Spin for Recipe
+            <Dice1 
+              className={`w-4 h-4 mr-2 transition-transform duration-700 ${
+                isSpinning ? 'animate-[spin_0.5s_linear_infinite]' : ''
+              }`} 
+            />
+            {isSpinning ? 'Spinning...' : 'Spin for Recipe'}
           </Button>
         </div>
+        {isSpinning && (
+          <div className="absolute inset-0 bg-orange-50/50 backdrop-blur-sm flex items-center justify-center">
+            <div className="text-2xl font-bold text-orange-500 animate-bounce">
+              Finding your perfect recipe...
+            </div>
+          </div>
+        )}
       </Card>
 
       <Dialog open={showRecipe} onOpenChange={setShowRecipe}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{currentRecipe?.recipe_name}</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-orange-500 flex items-center gap-2">
+              <ChefHat className="w-6 h-6" />
+              {currentRecipe?.recipe_name}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-6 p-4">
             <div>
-              <h4 className="font-medium mb-2">Ingredients:</h4>
-              <ul className="list-disc list-inside">
+              <h4 className="font-medium text-lg mb-2">Ingredients:</h4>
+              <ul className="list-disc list-inside space-y-1">
                 {currentRecipe?.ingredients.map((ingredient, index) => (
-                  <li key={index}>{ingredient}</li>
+                  <li key={index} className="text-gray-700">{ingredient}</li>
                 ))}
               </ul>
             </div>
 
             <div>
-              <h4 className="font-medium mb-2">Bonus Ingredients:</h4>
-              <ul className="list-disc list-inside text-green-600">
+              <h4 className="font-medium text-lg mb-2">Bonus Ingredients:</h4>
+              <ul className="list-disc list-inside space-y-1">
                 {currentRecipe?.bonus_ingredients.map((ingredient, index) => (
-                  <li key={index}>{ingredient}</li>
+                  <li key={index} className="text-green-600">{ingredient}</li>
                 ))}
               </ul>
             </div>
 
             <div>
-              <h4 className="font-medium mb-2">Instructions:</h4>
-              <ol className="list-decimal list-inside">
+              <h4 className="font-medium text-lg mb-2">Instructions:</h4>
+              <ol className="list-decimal list-inside space-y-2">
                 {currentRecipe?.instructions.map((step, index) => (
-                  <li key={index}>{step}</li>
+                  <li key={index} className="text-gray-700">{step}</li>
                 ))}
               </ol>
             </div>
 
             <div className="bg-orange-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Cooking Tips:</h4>
-              <ul className="list-disc list-inside">
+              <h4 className="font-medium text-lg mb-2">Cooking Tips:</h4>
+              <ul className="list-disc list-inside space-y-1">
                 {currentRecipe?.cooking_tips.map((tip, index) => (
-                  <li key={index}>{tip}</li>
+                  <li key={index} className="text-gray-700">{tip}</li>
                 ))}
               </ul>
             </div>
