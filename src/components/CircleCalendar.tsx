@@ -124,6 +124,17 @@ export const CircleCalendar = () => {
 
   const currentProgress = (completedTasks.length / 1) * 100;
   const currentChallenges = getCurrentChallenges();
+  const currentPhase = getCurrentPhase();
+
+  const getPhaseStyles = (phase: string) => {
+    const styles = {
+      menstruation: "bg-red-500 hover:bg-red-600",
+      follicular: "bg-green-500 hover:bg-green-600",
+      ovulatory: "bg-yellow-500 hover:bg-yellow-600",
+      luteal: "bg-purple-500 hover:bg-purple-600"
+    };
+    return styles[phase as keyof typeof styles] || styles.menstruation;
+  };
 
   return (
     <div className="space-y-6">
@@ -133,7 +144,7 @@ export const CircleCalendar = () => {
           style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
         >
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-            <UterooCharacter phase={getCurrentPhase()} />
+            <UterooCharacter phase={currentPhase} />
           </div>
 
           {Array.from({ length: TOTAL_DAYS }, (_, i) => i + 1).map((day) => {
@@ -150,7 +161,7 @@ export const CircleCalendar = () => {
                   height: POINT_SIZE,
                 }}
                 className={`absolute rounded-full flex items-center justify-center text-xs
-                  bg-${phase}-primary hover:bg-${phase}-secondary text-white cursor-pointer
+                  ${getPhaseStyles(phase)} text-white cursor-pointer
                   ${isCurrentDay ? "ring-2 ring-offset-2 animate-pulse" : ""}
                   transition-all duration-300`}
               >
@@ -180,11 +191,12 @@ export const CircleCalendar = () => {
       <div className="flex justify-center">
         <button
           onClick={() => setShowChallenge(true)}
-          className={`p-4 rounded-full bg-${getCurrentPhase()}-primary hover:bg-${getCurrentPhase()}-secondary transition-colors
-            ${completedTasks.includes('challenge') ? 'opacity-50' : 'animate-pulse'}
-          `}
+          className={`p-4 rounded-full ${getPhaseStyles(currentPhase)} transition-colors
+            ${completedTasks.includes('challenge') ? 'opacity-50' : 'animate-pulse'}`}
         >
-          {currentChallenges[0].icon && <currentChallenges[0].icon className="w-6 h-6 text-white" />}
+          {currentChallenges[0].icon && React.createElement(currentChallenges[0].icon, {
+            className: "w-6 h-6 text-white"
+          })}
         </button>
       </div>
 
@@ -193,7 +205,7 @@ export const CircleCalendar = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              Daily Challenges - {getCurrentPhase().charAt(0).toUpperCase() + getCurrentPhase().slice(1)} Phase
+              Daily Challenges - {currentPhase.charAt(0).toUpperCase() + currentPhase.slice(1)} Phase
             </DialogTitle>
             <DialogDescription>
               Choose a challenge that resonates with you today
@@ -203,7 +215,7 @@ export const CircleCalendar = () => {
             {currentChallenges.map((challenge, index) => (
               <div key={index} className="space-y-2">
                 <h3 className="flex items-center gap-2 font-medium">
-                  <challenge.icon className="w-5 h-5" />
+                  {React.createElement(challenge.icon, { className: "w-5 h-5" })}
                   {challenge.title}
                 </h3>
                 <p className="text-gray-600 text-sm">{challenge.description}</p>
@@ -212,9 +224,8 @@ export const CircleCalendar = () => {
                     handleTaskComplete('challenge');
                     setShowChallenge(false);
                   }}
-                  className={`w-full py-2 px-4 rounded-md bg-${getCurrentPhase()}-primary hover:bg-${getCurrentPhase()}-secondary text-white transition-colors
-                    ${completedTasks.includes('challenge') ? 'opacity-50 cursor-not-allowed' : ''}
-                  `}
+                  className={`w-full py-2 px-4 rounded-md ${getPhaseStyles(currentPhase)} text-white transition-colors
+                    ${completedTasks.includes('challenge') ? 'opacity-50 cursor-not-allowed' : ''}`}
                   disabled={completedTasks.includes('challenge')}
                 >
                   {completedTasks.includes('challenge') ? 'Completed!' : 'Complete Challenge'}
