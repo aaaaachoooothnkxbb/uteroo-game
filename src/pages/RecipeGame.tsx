@@ -1,7 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Camera, ArrowLeft, ArrowRight, HelpCircle, ShoppingBag, Refrigerator } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { 
+  Camera, 
+  ArrowLeft, 
+  ArrowRight, 
+  HelpCircle, 
+  ShoppingBag, 
+  Refrigerator,
+  Heart,
+  Droplet,
+  BatteryFull,
+  Cup
+} from "lucide-react";
 import { RecipeRoulette } from "@/components/RecipeRoulette";
 import { UterooCharacter } from "@/components/UterooCharacter";
 
@@ -62,6 +74,44 @@ const RecipeGame = () => {
 
       {/* Main Character Area */}
       <div className="flex-1 flex flex-col items-center justify-center relative">
+        {/* Status Indicators */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 p-4 rounded-lg shadow-md w-80">
+          <div className="grid grid-cols-2 gap-4">
+            {/* Hunger */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Cup className="w-4 h-4 text-orange-500" />
+                <span className="text-sm font-medium">Hunger</span>
+              </div>
+              <Progress value={75} className="h-2" />
+            </div>
+            {/* Hygiene */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Droplet className="w-4 h-4 text-blue-500" />
+                <span className="text-sm font-medium">Hygiene</span>
+              </div>
+              <Progress value={90} className="h-2" />
+            </div>
+            {/* Energy */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <BatteryFull className="w-4 h-4 text-green-500" />
+                <span className="text-sm font-medium">Energy</span>
+              </div>
+              <Progress value={60} className="h-2" />
+            </div>
+            {/* Happiness */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-red-500" />
+                <span className="text-sm font-medium">Happiness</span>
+              </div>
+              <Progress value={85} className="h-2" />
+            </div>
+          </div>
+        </div>
+
         <UterooCharacter phase="menstruation" />
       </div>
 

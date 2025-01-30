@@ -216,6 +216,41 @@ export type Database = {
           },
         ]
       }
+      game_scores: {
+        Row: {
+          coins_earned: number
+          created_at: string | null
+          game_type: string
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          coins_earned: number
+          created_at?: string | null
+          game_type: string
+          id?: string
+          score: number
+          user_id: string
+        }
+        Update: {
+          coins_earned?: number
+          created_at?: string | null
+          game_type?: string
+          id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hormone_analysis: {
         Row: {
           commentary: string
@@ -277,6 +312,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "mood_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pet_stats: {
+        Row: {
+          coins: number | null
+          created_at: string | null
+          energy: number | null
+          experience: number | null
+          happiness: number | null
+          hunger: number | null
+          hygiene: number | null
+          id: string
+          last_updated: string | null
+          level: number | null
+          user_id: string
+        }
+        Insert: {
+          coins?: number | null
+          created_at?: string | null
+          energy?: number | null
+          experience?: number | null
+          happiness?: number | null
+          hunger?: number | null
+          hygiene?: number | null
+          id?: string
+          last_updated?: string | null
+          level?: number | null
+          user_id: string
+        }
+        Update: {
+          coins?: number | null
+          created_at?: string | null
+          energy?: number | null
+          experience?: number | null
+          happiness?: number | null
+          hunger?: number | null
+          hygiene?: number | null
+          id?: string
+          last_updated?: string | null
+          level?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_stats_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -377,6 +462,78 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_items: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          effects: Json | null
+          id: string
+          name: string
+          price: number
+          type: Database["public"]["Enums"]["item_type"]
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          effects?: Json | null
+          id?: string
+          name: string
+          price: number
+          type: Database["public"]["Enums"]["item_type"]
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          effects?: Json | null
+          id?: string
+          name?: string
+          price?: number
+          type?: Database["public"]["Enums"]["item_type"]
+        }
+        Relationships: []
+      }
+      user_inventory: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_equipped: boolean | null
+          item_id: string
+          quantity: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_equipped?: boolean | null
+          item_id: string
+          quantity?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_equipped?: boolean | null
+          item_id?: string
+          quantity?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_inventory_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_inventory_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -390,6 +547,7 @@ export type Database = {
         | "Follicular Uphill"
         | "Ovulatory Mountain"
         | "Luteal Hill"
+      item_type: "food" | "potion" | "clothing" | "decoration"
       recommendation_category: "Affirmation" | "Recipe" | "Yoga Pose"
     }
     CompositeTypes: {
