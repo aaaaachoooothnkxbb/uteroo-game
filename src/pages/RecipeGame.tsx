@@ -5,9 +5,20 @@ import { Camera, ArrowLeft, ArrowRight, HelpCircle, ShoppingBag, Refrigerator } 
 import { RecipeRoulette } from "@/components/RecipeRoulette";
 import { UterooCharacter } from "@/components/UterooCharacter";
 
+const rooms = ["Bedroom", "Bathroom", "Kitchen", "Game Room"];
+
 const RecipeGame = () => {
   const navigate = useNavigate();
   const [showRecipeRoulette, setShowRecipeRoulette] = useState(false);
+  const [currentRoomIndex, setCurrentRoomIndex] = useState(2); // Start with Kitchen
+
+  const handlePreviousRoom = () => {
+    setCurrentRoomIndex((prev) => (prev === 0 ? rooms.length - 1 : prev - 1));
+  };
+
+  const handleNextRoom = () => {
+    setCurrentRoomIndex((prev) => (prev === rooms.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <div className="min-h-screen bg-[#FDE1D3] flex flex-col">
@@ -21,13 +32,25 @@ const RecipeGame = () => {
             <Button variant="outline" size="icon" className="w-8 h-8">
               <Camera className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="icon" className="w-8 h-8">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="w-8 h-8"
+              onClick={handlePreviousRoom}
+            >
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div className="px-4 py-1 bg-white rounded-md shadow-sm">
-              <span className="text-lg font-bold">Cocina</span>
+              <span className="text-lg font-bold animate-fade-in">
+                {rooms[currentRoomIndex]}
+              </span>
             </div>
-            <Button variant="outline" size="icon" className="w-8 h-8">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="w-8 h-8"
+              onClick={handleNextRoom}
+            >
               <ArrowRight className="w-4 h-4" />
             </Button>
             <Button variant="outline" size="icon" className="w-8 h-8">
