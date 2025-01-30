@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Camera, ArrowLeft, ArrowRight, HelpCircle, ShoppingBag, Refrigerator } from "lucide-react";
 import { RecipeRoulette } from "@/components/RecipeRoulette";
+import { UterooCharacter } from "@/components/UterooCharacter";
 
 const RecipeGame = () => {
   const navigate = useNavigate();
@@ -38,18 +39,7 @@ const RecipeGame = () => {
 
       {/* Main Character Area */}
       <div className="flex-1 flex flex-col items-center justify-center relative">
-        <div className="w-48 h-48 bg-[#D4A27C] rounded-full flex items-center justify-center">
-          <div className="w-32 h-16 bg-[#8B4513] rounded-[50%] flex items-center justify-center">
-            <div className="flex gap-8">
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                <div className="w-4 h-4 bg-black rounded-full" />
-              </div>
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                <div className="w-4 h-4 bg-black rounded-full" />
-              </div>
-            </div>
-          </div>
-        </div>
+        <UterooCharacter phase="menstruation" />
       </div>
 
       {/* Bottom Bar */}
