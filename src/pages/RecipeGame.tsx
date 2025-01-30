@@ -12,7 +12,7 @@ import {
   Heart,
   Droplet,
   BatteryFull,
-  Cup
+  Apple
 } from "lucide-react";
 import { RecipeRoulette } from "@/components/RecipeRoulette";
 import { UterooCharacter } from "@/components/UterooCharacter";
@@ -80,7 +80,7 @@ const RecipeGame = () => {
             {/* Hunger */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Cup className="w-4 h-4 text-orange-500" />
+                <Apple className="w-4 h-4 text-orange-500" />
                 <span className="text-sm font-medium">Hunger</span>
               </div>
               <Progress value={75} className="h-2" />
