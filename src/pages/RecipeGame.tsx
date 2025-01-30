@@ -33,7 +33,7 @@ const RecipeGame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDE1D3] flex flex-col">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Top Bar */}
       <div className="bg-white/90 p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
