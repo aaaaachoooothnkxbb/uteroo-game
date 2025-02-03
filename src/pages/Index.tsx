@@ -85,7 +85,7 @@ const Index = () => {
 
         <div className="space-y-4 mt-8">
           <div 
-            onClick={() => navigate("/recipe")}
+            onClick={() => navigate("/dashboard")}
             className="w-full h-40 relative cursor-pointer group"
           >
             <div className="absolute inset-0">
