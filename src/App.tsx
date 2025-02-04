@@ -10,6 +10,7 @@ import RecipeGame from "./pages/RecipeGame";
 import Profile from "./pages/Profile";
 import Rewards from "./pages/Rewards";
 import Settings from "./pages/Settings";
+import PouGame from "./pages/PouGame";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/rewards" element={<Rewards />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/pou-game" element={<PouGame />} />
               </Routes>
             </BrowserRouter>
           </div>
