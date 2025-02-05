@@ -91,8 +91,8 @@ const phaseInfo = {
       energy: -0.5,
       happiness: -0.6
     }
-  },
-];
+  }
+};
 
 const rooms = [
   { id: "living", name: "Living Room", icon: Home },
