@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { 
-  ArrowLeft, Apple, Bath, Bed, Gamepad, 
+  ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
   Home, Dumbbell, Brain, Moon, Sun, Leaf 
 } from "lucide-react";
@@ -95,19 +95,16 @@ const phaseInfo = {
 };
 
 const rooms = [
-  { id: "living", name: "Living Room", icon: Home },
-  { id: "kitchen", name: "Kitchen", icon: Apple },
-  { id: "bathroom", name: "Bathroom", icon: Bath },
   { id: "bedroom", name: "Bedroom", icon: Bed },
-  { id: "exercise", name: "Exercise", icon: Dumbbell },
+  { id: "bathroom", name: "Bathroom", icon: Bath },
+  { id: "exercise", name: "Exercise Room", icon: Dumbbell },
   { id: "games", name: "Game Room", icon: Gamepad },
-  { id: "shop", name: "Shop", icon: ShoppingBag },
 ];
 
 const PouGame = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [currentRoom, setCurrentRoom] = useState("living");
+  const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
   const [currentPhase, setCurrentPhase] = useState<Phase>("menstruation");
   const [stats, setStats] = useState({
     hunger: 75,
@@ -192,6 +189,17 @@ const PouGame = () => {
     return "bg-red-500";
   };
 
+  const handleNextRoom = () => {
+    setCurrentRoomIndex((prev) => (prev === rooms.length - 1 ? 0 : prev + 1));
+  };
+
+  const handlePreviousRoom = () => {
+    setCurrentRoomIndex((prev) => (prev === 0 ? rooms.length - 1 : prev - 1));
+  };
+
+  const currentRoom = rooms[currentRoomIndex];
+  const RoomIcon = currentRoom.icon;
+
   return (
     <div className="min-h-screen relative">
       <div 
@@ -203,8 +211,9 @@ const PouGame = () => {
         }}
       />
       
-      <div className="relative z-10 min-h-screen">
-        <div className="bg-white/90 p-4 shadow-md backdrop-blur-sm">
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* Fixed top bar */}
+        <div className="fixed top-0 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
@@ -256,55 +265,68 @@ const PouGame = () => {
           </div>
         </div>
 
-        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/90 p-4 rounded-lg shadow-lg backdrop-blur-sm">
-          <div className="flex gap-4">
-            {boostItems.map((item) => (
-              <DraggableItem
-                key={item.id}
-                {...item}
-                onDrop={() => {}}
-              />
-            ))}
+        {/* Room navigation */}
+        <div className="fixed top-24 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
+          <div className="max-w-md mx-auto flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handlePreviousRoom}
+              className="hover:bg-gray-100"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              <RoomIcon className="h-6 w-6" />
+              <span className="text-lg font-semibold">{currentRoom.name}</span>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleNextRoom}
+              className="hover:bg-gray-100"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
-        <div 
-          className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[60vh]"
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative">
-              <UterooCharacter phase={currentPhase} />
-              {showBoostIndicator && (
-                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 animate-bounce text-lg font-bold text-green-500">
-                  +1 {boostType}!
-                </div>
-              )}
+        {/* Main content area */}
+        <div className="flex-1 pt-48">
+          <div 
+            className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[60vh]"
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative">
+                <UterooCharacter phase={currentPhase} />
+                {showBoostIndicator && (
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 animate-bounce text-lg font-bold text-green-500">
+                    +1 {boostType}!
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white/90 p-4 shadow-md backdrop-blur-sm">
-          <div className="max-w-md mx-auto grid grid-cols-4 sm:grid-cols-7 gap-2">
-            {rooms.map((room) => {
-              const Icon = room.icon;
-              return (
-                <Button
-                  key={room.id}
-                  variant={currentRoom === room.id ? "default" : "ghost"}
-                  className={`flex flex-col items-center gap-1 p-2 transition-all duration-300 ${
-                    currentRoom === room.id ? 'scale-110' : 'hover:scale-105'
-                  }`}
-                  onClick={() => setCurrentRoom(room.id)}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="text-xs">{room.name}</span>
-                </Button>
-              );
-            })}
+          {/* Boosters */}
+          <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/90 p-4 rounded-lg shadow-lg backdrop-blur-sm">
+            <div className="flex gap-4">
+              {boostItems.map((item) => (
+                <DraggableItem
+                  key={item.id}
+                  {...item}
+                  onDrop={() => {}}
+                />
+              ))}
+            </div>
           </div>
-          <div className="max-w-md mx-auto mt-4">
+
+          {/* Back button */}
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
             <Button 
               variant="outline" 
               className="w-full hover:scale-105 transition-transform duration-300"
