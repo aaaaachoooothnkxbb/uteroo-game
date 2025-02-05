@@ -313,7 +313,7 @@ const PouGame = () => {
           </div>
 
           {/* Boosters */}
-          <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 backdrop-blur-sm p-4 rounded-lg">
+          <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl">
             <div className="flex gap-4">
               {boostItems.map((item) => (
                 <DraggableItem
