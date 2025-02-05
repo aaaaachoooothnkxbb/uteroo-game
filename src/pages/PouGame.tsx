@@ -16,20 +16,20 @@ type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 const boostItems = [
   {
     id: "chocolate",
-    type: "energy",
+    type: "energy" as const,
     icon: "/lovable-uploads/17d6a638-8cf2-4040-9718-0bb47adca025.png",
   },
   {
     id: "facemask",
-    type: "happiness",
+    type: "happiness" as const,
     icon: "/lovable-uploads/bba6dd3c-7a88-40ff-80f4-7d97d5e93ce5.png",
   },
   {
     id: "tea",
-    type: "mood",
+    type: "mood" as const,
     icon: "/lovable-uploads/fde63ce1-cd6c-4d9d-afe4-60581331900b.png",
   },
-];
+};
 
 const phaseInfo = {
   menstruation: {
