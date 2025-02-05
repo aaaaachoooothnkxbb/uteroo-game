@@ -3,26 +3,33 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { 
-  ArrowLeft,
-  Apple,
-  Bath,
-  Bed,
-  Gamepad,
-  ShoppingBag,
-  Heart,
-  Droplet,
-  BatteryFull,
-  Home,
-  Dumbbell,
-  Brain,
-  Moon,
-  Sun,
-  Leaf
+  ArrowLeft, Apple, Bath, Bed, Gamepad, 
+  ShoppingBag, Heart, Droplet, BatteryFull, 
+  Home, Dumbbell, Brain, Moon, Sun, Leaf 
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
+import { DraggableItem } from "@/components/DraggableItem";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
+
+const boostItems = [
+  {
+    id: "chocolate",
+    type: "energy",
+    icon: "/lovable-uploads/17d6a638-8cf2-4040-9718-0bb47adca025.png",
+  },
+  {
+    id: "facemask",
+    type: "happiness",
+    icon: "/lovable-uploads/bba6dd3c-7a88-40ff-80f4-7d97d5e93ce5.png",
+  },
+  {
+    id: "tea",
+    type: "mood",
+    icon: "/lovable-uploads/fde63ce1-cd6c-4d9d-afe4-60581331900b.png",
+  },
+};
 
 const phaseInfo = {
   menstruation: {
@@ -109,8 +116,9 @@ const PouGame = () => {
     happiness: 85,
     coins: 200
   });
+  const [showBoostIndicator, setShowBoostIndicator] = useState(false);
+  const [boostType, setBoostType] = useState<string>("");
 
-  // Effect to deplete stats based on current phase
   useEffect(() => {
     const interval = setInterval(() => {
       setStats(prevStats => {
@@ -123,7 +131,6 @@ const PouGame = () => {
           happiness: Math.max(0, prevStats.happiness + modifiers.happiness),
         };
 
-        // Check if any stat is critically low
         Object.entries(newStats).forEach(([stat, value]) => {
           if (value < 20 && stat !== 'coins') {
             toast({
@@ -136,10 +143,45 @@ const PouGame = () => {
 
         return newStats;
       });
-    }, 10000); // Update every 10 seconds
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [currentPhase, toast]);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const itemType = e.dataTransfer.getData("itemType");
+    
+    setStats(prev => {
+      const newStats = { ...prev };
+      switch (itemType) {
+        case "energy":
+          newStats.energy = Math.min(100, prev.energy + 10);
+          break;
+        case "happiness":
+          newStats.happiness = Math.min(100, prev.happiness + 10);
+          break;
+        case "mood":
+          newStats.hunger = Math.min(100, prev.hunger + 10);
+          break;
+      }
+      return newStats;
+    });
+
+    setBoostType(itemType);
+    setShowBoostIndicator(true);
+    setTimeout(() => setShowBoostIndicator(false), 1000);
+
+    toast({
+      title: "Boost Applied!",
+      description: `Uteroo received a ${itemType} boost!`,
+      duration: 2000,
+    });
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
 
   const phase = phaseInfo[currentPhase];
   const PhaseIcon = phase.icon;
@@ -152,7 +194,6 @@ const PouGame = () => {
 
   return (
     <div className="min-h-screen relative">
-      {/* Background Image */}
       <div 
         className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
         style={{ 
@@ -162,9 +203,7 @@ const PouGame = () => {
         }}
       />
       
-      {/* Content Container with backdrop blur */}
       <div className="relative z-10 min-h-screen">
-        {/* Top Bar - Stats */}
         <div className="bg-white/90 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -217,25 +256,35 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Phase Information */}
-        <div className="max-w-md mx-auto mt-4 px-4">
-          <div className={`${phase.background} backdrop-blur-sm rounded-lg p-4 shadow-md animate-fade-in`}>
-            <div className="flex items-center gap-2 mb-2">
-              <PhaseIcon className={`w-5 h-5 text-${currentPhase}-primary animate-pulse`} />
-              <h3 className={`text-${currentPhase}-primary font-medium`}>{phase.name}</h3>
-            </div>
-            <p className="text-sm text-gray-600">{phase.description}</p>
+        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/90 p-4 rounded-lg shadow-lg backdrop-blur-sm">
+          <div className="flex gap-4">
+            {boostItems.map((item) => (
+              <DraggableItem
+                key={item.id}
+                {...item}
+                onDrop={() => {}}
+              />
+            ))}
           </div>
         </div>
 
-        {/* Main Character Area */}
-        <div className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[60vh]">
+        <div 
+          className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[60vh]"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+        >
           <div className="absolute inset-0 flex items-center justify-center">
-            <UterooCharacter phase={currentPhase} />
+            <div className="relative">
+              <UterooCharacter phase={currentPhase} />
+              {showBoostIndicator && (
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 animate-bounce text-lg font-bold text-green-500">
+                  +1 {boostType}!
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Bottom Navigation */}
         <div className="bg-white/90 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto grid grid-cols-4 sm:grid-cols-7 gap-2">
             {rooms.map((room) => {

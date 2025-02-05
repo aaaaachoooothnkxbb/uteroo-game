@@ -19,7 +19,6 @@ export default {
     },
     extend: {
       colors: {
-        // Phase-specific colors
         menstruation: {
           primary: "#7E69AB",
           secondary: "#6E59A5",
@@ -103,7 +102,12 @@ export default {
           "50%": {
             transform: "scale(1.2)",
             opacity: "0.8"
-          }
+          },
+        },
+        "boost": {
+          "0%": { transform: "scale(1) translateY(0)" },
+          "50%": { transform: "scale(1.2) translateY(-10px)" },
+          "100%": { transform: "scale(1) translateY(0)" }
         }
       },
       animation: {
@@ -111,7 +115,8 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out",
         float: "float 3s ease-in-out infinite",
-        sparkle: "sparkle 2s ease-in-out infinite"
+        sparkle: "sparkle 2s ease-in-out infinite",
+        "boost": "boost 0.5s ease-in-out"
       },
       borderRadius: {
         lg: "var(--radius)",
