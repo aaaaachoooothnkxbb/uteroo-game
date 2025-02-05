@@ -29,7 +29,7 @@ const boostItems = [
     type: "mood",
     icon: "/lovable-uploads/fde63ce1-cd6c-4d9d-afe4-60581331900b.png",
   },
-};
+];
 
 const phaseInfo = {
   menstruation: {
