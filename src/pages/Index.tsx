@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -84,20 +85,19 @@ const Index = () => {
         </p>
 
         <div className="space-y-4 mt-8">
-
-<div 
-  onClick={() => navigate("/pou-game")}
-  className="w-full h-40 relative cursor-pointer group"
->
-  <div className="absolute inset-0">
-    <div className="absolute inset-0 bg-[url('lovable-uploads/e47907e6-61da-4860-97dc-47179e32bcf8.png')] bg-cover bg-center bg-no-repeat scale-y-[-1] hover:scale-105 transition-transform duration-300" />
-    <div className="absolute inset-0 flex items-center justify-center text-center">
-      <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
-        TRY IT FIRST
-      </span>
-    </div>
-  </div>
-</div>
+          <div 
+            onClick={() => navigate("/pou-game")}
+            className="w-full h-40 relative cursor-pointer group"
+          >
+            <div className="absolute inset-0">
+              <div className="absolute inset-0 bg-[url('lovable-uploads/e47907e6-61da-4860-97dc-47179e32bcf8.png')] bg-cover bg-center bg-no-repeat scale-y-[-1] hover:scale-105 transition-transform duration-300" />
+              <div className="absolute inset-0 flex items-center justify-center text-center">
+                <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
+                  TRY IT FIRST
+                </span>
+              </div>
+            </div>
+          </div>
 
           <div 
             onClick={() => setShowOnboarding(true)}
@@ -111,6 +111,7 @@ const Index = () => {
               </span>
             </div>
           </div>
+
           <div className="relative w-full space-y-4">
             <div className="flex flex-col gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-lg">
               <Button
