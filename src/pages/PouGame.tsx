@@ -31,24 +31,6 @@ const enemies = {
   ]
 };
 
-const boostItems = [
-  {
-    id: "chocolate",
-    type: "energy" as const,
-    icon: "/lovable-uploads/17d6a638-8cf2-4040-9718-0bb47adca025.png",
-  },
-  {
-    id: "facemask",
-    type: "happiness" as const,
-    icon: "/lovable-uploads/bba6dd3c-7a88-40ff-80f4-7d97d5e93ce5.png",
-  },
-  {
-    id: "tea",
-    type: "mood" as const,
-    icon: "/lovable-uploads/fde63ce1-cd6c-4d9d-afe4-60581331900b.png",
-  },
-];
-
 const phaseInfo = {
   menstruation: {
     name: "Level 1",
@@ -426,18 +408,6 @@ const PouGame = () => {
                 <GroceryList phase={currentPhase} />
               </div>
             )}
-          </div>
-
-          <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl">
-            <div className="flex gap-4">
-              {boostItems.map((item) => (
-                <DraggableItem
-                  key={item.id}
-                  {...item}
-                  onDrop={() => {}}
-                />
-              ))}
-            </div>
           </div>
 
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
