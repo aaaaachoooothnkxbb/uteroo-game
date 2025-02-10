@@ -25,7 +25,8 @@ const enemies = {
     { id: "headache", name: "Headache", hp: 2, icon: "/lovable-uploads/d67a2349-3eb7-47bf-b2b7-e52514f533f2.png" }
   ],
   luteal: [
-    { id: "moodSwings", name: "Mood Swings", hp: 3, icon: "/lovable-uploads/2ece6e4e-6cc7-4707-9327-32fcd5ecb10d.png" }
+    { id: "moodSwings", name: "Mood Swings", hp: 3, icon: "/lovable-uploads/2ece6e4e-6cc7-4707-9327-32fcd5ecb10d.png" },
+    { id: "bloated", name: "Bloated", hp: 3, icon: "/lovable-uploads/38235581-e0fe-4a99-843a-cce1d98788b3.png" }
   ]
 };
 
