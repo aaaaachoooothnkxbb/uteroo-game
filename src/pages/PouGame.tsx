@@ -270,10 +270,8 @@ const PouGame = () => {
           backgroundImage: currentRoom.background 
             ? `url('${currentRoom.background}')`
             : "url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png')",
-          backgroundSize: currentRoom.id === 'kitchen' ? '512px 512px' : 'cover',
-          imageRendering: 'pixelated',
-          backgroundPosition: 'center center',
-          backgroundRepeat: 'repeat'
+          backgroundSize: 'cover',
+          imageRendering: 'pixelated'
         }}
       />
       
@@ -454,4 +452,3 @@ const PouGame = () => {
 };
 
 export default PouGame;
-
