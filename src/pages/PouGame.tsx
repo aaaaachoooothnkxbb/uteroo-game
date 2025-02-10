@@ -248,19 +248,23 @@ const PouGame = () => {
         <div className="fixed top-0 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto">
             <h1 className="text-2xl font-bold text-center">{phase.name}</h1>
-            <h2 className="text-xl font-semibold text-center mb-4">{phase.subtitle}</h2>
-            <div className="flex justify-between gap-2">
-              {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => (
-                <Button
-                  key={phaseName}
-                  variant={currentPhase === phaseName ? "default" : "outline"}
-                  onClick={() => handlePhaseChange(phaseName)}
-                  className="flex-1"
-                >
-                  <PhaseIcon className="w-4 h-4 mr-2" />
-                  {phaseName.charAt(0).toUpperCase() + phaseName.slice(1)}
-                </Button>
-              ))}
+            <h2 className="text-xl font-semibold text-center mb-2">{phase.subtitle}</h2>
+            <div className="flex justify-center gap-2 px-4">
+              {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
+                const PhaseIconComponent = phaseInfo[phaseName].icon;
+                return (
+                  <Button
+                    key={phaseName}
+                    variant={currentPhase === phaseName ? "default" : "outline"}
+                    onClick={() => handlePhaseChange(phaseName)}
+                    className="h-8 px-2 text-xs sm:text-sm sm:px-3"
+                  >
+                    <PhaseIconComponent className="w-3 h-3 mr-1" />
+                    <span className="hidden sm:inline">{phaseName.charAt(0).toUpperCase() + phaseName.slice(1)}</span>
+                    <span className="sm:hidden">{phaseName.charAt(0).toUpperCase()}</span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         </div>
