@@ -265,53 +265,55 @@ const PouGame = () => {
           </div>
         </div>
 
-        <div className="fixed top-24 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
-          <div className="max-w-md mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
-                <span className="text-sm font-bold">{stats.coins}</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-4 flex-1 max-w-xs mx-4">
-              <div className="space-y-1">
-                <div className="flex items-center justify-center">
-                  <Apple className="w-4 h-4 text-orange-500 animate-pulse" />
+        <div className="fixed top-32 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
+          <div className="max-w-md mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
+                  <span className="text-sm font-bold">{stats.coins}</span>
                 </div>
-                <Progress 
-                  value={stats.hunger} 
-                  className="h-2 transition-all duration-500"
-                  indicatorClassName={getProgressColor(stats.hunger)}
-                />
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-center">
-                  <Droplet className="w-4 h-4 text-blue-500 animate-pulse" />
+              <div className="grid grid-cols-4 gap-4 flex-1 max-w-xs mx-4">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center">
+                    <Apple className="w-4 h-4 text-orange-500 animate-pulse" />
+                  </div>
+                  <Progress 
+                    value={stats.hunger} 
+                    className="h-2 transition-all duration-500"
+                    indicatorClassName={getProgressColor(stats.hunger)}
+                  />
                 </div>
-                <Progress 
-                  value={stats.hygiene} 
-                  className="h-2 transition-all duration-500"
-                  indicatorClassName={getProgressColor(stats.hygiene)}
-                />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-center">
-                  <BatteryFull className="w-4 h-4 text-green-500 animate-pulse" />
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center">
+                    <Droplet className="w-4 h-4 text-blue-500 animate-pulse" />
+                  </div>
+                  <Progress 
+                    value={stats.hygiene} 
+                    className="h-2 transition-all duration-500"
+                    indicatorClassName={getProgressColor(stats.hygiene)}
+                  />
                 </div>
-                <Progress 
-                  value={stats.energy} 
-                  className="h-2 transition-all duration-500"
-                  indicatorClassName={getProgressColor(stats.energy)}
-                />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-center">
-                  <Heart className="w-4 h-4 text-red-500 animate-pulse" />
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center">
+                    <BatteryFull className="w-4 h-4 text-green-500 animate-pulse" />
+                  </div>
+                  <Progress 
+                    value={stats.energy} 
+                    className="h-2 transition-all duration-500"
+                    indicatorClassName={getProgressColor(stats.energy)}
+                  />
                 </div>
-                <Progress 
-                  value={stats.happiness} 
-                  className="h-2 transition-all duration-500"
-                  indicatorClassName={getProgressColor(stats.happiness)}
-                />
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center">
+                    <Heart className="w-4 h-4 text-red-500 animate-pulse" />
+                  </div>
+                  <Progress 
+                    value={stats.happiness} 
+                    className="h-2 transition-all duration-500"
+                    indicatorClassName={getProgressColor(stats.happiness)}
+                  />
+                </div>
               </div>
             </div>
           </div>
