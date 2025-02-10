@@ -140,7 +140,7 @@ const rooms = [
     id: "exercise", 
     name: "Exercise Room", 
     icon: Dumbbell,
-    background: "/lovable-uploads/8ec01c3e-1159-491f-ad7a-c2b8ad56ceb3.png"
+    background: "/lovable-uploads/647c4f54-a00f-4440-9f67-ed9a4cef9936.png"
   },
   { 
     id: "games", 
