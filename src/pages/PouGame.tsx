@@ -118,11 +118,36 @@ const phaseInfo = {
 };
 
 const rooms = [
-  { id: "bedroom", name: "Bedroom", icon: Bed },
-  { id: "bathroom", name: "Bathroom", icon: Bath },
-  { id: "kitchen", name: "Kitchen", icon: UtensilsCrossed },
-  { id: "exercise", name: "Exercise Room", icon: Dumbbell },
-  { id: "games", name: "Game Room", icon: Gamepad },
+  { 
+    id: "bedroom", 
+    name: "Bedroom", 
+    icon: Bed,
+    background: "" // We'll add this later
+  },
+  { 
+    id: "bathroom", 
+    name: "Bathroom", 
+    icon: Bath,
+    background: "" // We'll add this later
+  },
+  { 
+    id: "kitchen", 
+    name: "Kitchen", 
+    icon: UtensilsCrossed,
+    background: "/lovable-uploads/4158149b-307b-4145-99ca-e9af129d62f9.png"
+  },
+  { 
+    id: "exercise", 
+    name: "Exercise Room", 
+    icon: Dumbbell,
+    background: "" // We'll add this later
+  },
+  { 
+    id: "games", 
+    name: "Game Room", 
+    icon: Gamepad,
+    background: "" // We'll add this later
+  },
 ];
 
 const PouGame = () => {
@@ -240,9 +265,11 @@ const PouGame = () => {
   return (
     <div className="min-h-screen relative">
       <div 
-        className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+        className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-500"
         style={{ 
-          backgroundImage: "url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png')",
+          backgroundImage: currentRoom.background 
+            ? `url('${currentRoom.background}')`
+            : "url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png')",
           backgroundSize: 'cover',
           imageRendering: 'pixelated'
         }}
