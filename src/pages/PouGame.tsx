@@ -5,11 +5,12 @@ import { Progress } from "@/components/ui/progress";
 import { 
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
-  Home, Dumbbell, Brain, Moon, Sun, Leaf 
+  Home, Dumbbell, Brain, Moon, Sun, Leaf, Kitchen 
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
 import { DraggableItem } from "@/components/DraggableItem";
+import { GroceryList } from "@/components/GroceryList";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -118,6 +119,7 @@ const phaseInfo = {
 const rooms = [
   { id: "bedroom", name: "Bedroom", icon: Bed },
   { id: "bathroom", name: "Bathroom", icon: Bath },
+  { id: "kitchen", name: "Kitchen", icon: Kitchen },
   { id: "exercise", name: "Exercise Room", icon: Dumbbell },
   { id: "games", name: "Game Room", icon: Gamepad },
 ];
@@ -385,6 +387,12 @@ const PouGame = () => {
                 )}
               </div>
             </div>
+
+            {currentRoom.id === "kitchen" && (
+              <div className="absolute bottom-4 right-4">
+                <GroceryList phase={currentPhase} />
+              </div>
+            )}
           </div>
 
           <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl">

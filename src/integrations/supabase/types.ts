@@ -251,6 +251,30 @@ export type Database = {
           },
         ]
       }
+      grocery_lists: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_checked: boolean | null
+          item_name: string
+          phase: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_checked?: boolean | null
+          item_name: string
+          phase: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_checked?: boolean | null
+          item_name?: string
+          phase?: string
+        }
+        Relationships: []
+      }
       hormone_analysis: {
         Row: {
           commentary: string
