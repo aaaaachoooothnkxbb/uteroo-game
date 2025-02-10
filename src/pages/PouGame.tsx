@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { 
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
-  Home, Dumbbell, Brain, Moon, Sun, Leaf, Kitchen 
+  Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed 
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
@@ -119,7 +120,7 @@ const phaseInfo = {
 const rooms = [
   { id: "bedroom", name: "Bedroom", icon: Bed },
   { id: "bathroom", name: "Bathroom", icon: Bath },
-  { id: "kitchen", name: "Kitchen", icon: Kitchen },
+  { id: "kitchen", name: "Kitchen", icon: UtensilsCrossed },
   { id: "exercise", name: "Exercise Room", icon: Dumbbell },
   { id: "games", name: "Game Room", icon: Gamepad },
 ];
