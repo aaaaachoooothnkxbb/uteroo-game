@@ -265,13 +265,15 @@ const PouGame = () => {
   return (
     <div className="min-h-screen relative">
       <div 
-        className="fixed inset-0 w-full h-full bg-cover bg-center bg-repeat transition-all duration-500"
+        className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-500"
         style={{ 
           backgroundImage: currentRoom.background 
             ? `url('${currentRoom.background}')`
             : "url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png')",
-          backgroundSize: '256px 256px',
-          imageRendering: 'pixelated'
+          backgroundSize: currentRoom.id === 'kitchen' ? '512px 512px' : 'cover',
+          imageRendering: 'pixelated',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'repeat'
         }}
       />
       
@@ -452,3 +454,4 @@ const PouGame = () => {
 };
 
 export default PouGame;
+
