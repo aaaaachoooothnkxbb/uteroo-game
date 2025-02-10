@@ -122,7 +122,7 @@ const rooms = [
     id: "bedroom", 
     name: "Bedroom", 
     icon: Bed,
-    background: "" // We'll add this later
+    background: "/lovable-uploads/40a82f5a-59e8-4e85-882b-d7dc5a3b9f81.png"
   },
   { 
     id: "bathroom", 
