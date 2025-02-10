@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -121,7 +122,7 @@ const rooms = [
     id: "bedroom", 
     name: "Bedroom", 
     icon: Bed,
-    background: "/lovable-uploads/40a82f5a-59e8-4e85-882b-d7dc5a3b9f81.png"
+    background: "/lovable-uploads/a1bbe578-56c2-4388-a3b7-f149015540e4.png"
   },
   { 
     id: "bathroom", 
