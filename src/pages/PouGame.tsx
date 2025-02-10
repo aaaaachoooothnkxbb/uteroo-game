@@ -13,6 +13,22 @@ import { DraggableItem } from "@/components/DraggableItem";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
+const enemies = {
+  menstruation: [
+    { id: "cramps", name: "Cramps", hp: 3, icon: "/lovable-uploads/52b8fe36-6c7e-4397-b705-b055fa4d0c62.png" },
+    { id: "fatigue", name: "Fatigue", hp: 2, icon: "/lovable-uploads/d67a2349-3eb7-47bf-b2b7-e52514f533f2.png" }
+  ],
+  follicular: [
+    { id: "anxiety", name: "Anxiety", hp: 2, icon: "/lovable-uploads/2ece6e4e-6cc7-4707-9327-32fcd5ecb10d.png" }
+  ],
+  ovulatory: [
+    { id: "headache", name: "Headache", hp: 2, icon: "/lovable-uploads/d67a2349-3eb7-47bf-b2b7-e52514f533f2.png" }
+  ],
+  luteal: [
+    { id: "moodSwings", name: "Mood Swings", hp: 3, icon: "/lovable-uploads/2ece6e4e-6cc7-4707-9327-32fcd5ecb10d.png" }
+  ]
+};
+
 const boostItems = [
   {
     id: "chocolate",
@@ -115,6 +131,12 @@ const PouGame = () => {
   });
   const [showBoostIndicator, setShowBoostIndicator] = useState(false);
   const [boostType, setBoostType] = useState<string>("");
+  const [currentEnemies, setCurrentEnemies] = useState(enemies[currentPhase]);
+  const [showDamage, setShowDamage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentEnemies(enemies[currentPhase]);
+  }, [currentPhase]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -165,6 +187,9 @@ const PouGame = () => {
       return newStats;
     });
 
+    setShowDamage(itemType);
+    setTimeout(() => setShowDamage(null), 1000);
+
     setBoostType(itemType);
     setShowBoostIndicator(true);
     setTimeout(() => setShowBoostIndicator(false), 1000);
@@ -197,6 +222,10 @@ const PouGame = () => {
     setCurrentRoomIndex((prev) => (prev === 0 ? rooms.length - 1 : prev - 1));
   };
 
+  const handlePhaseChange = (newPhase: Phase) => {
+    setCurrentPhase(newPhase);
+  };
+
   const currentRoom = rooms[currentRoomIndex];
   const RoomIcon = currentRoom.icon;
 
@@ -212,8 +241,26 @@ const PouGame = () => {
       />
       
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Fixed top bar */}
         <div className="fixed top-0 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
+          <div className="max-w-md mx-auto">
+            <h1 className="text-2xl font-bold text-center mb-4">{phase.name}</h1>
+            <div className="flex justify-between gap-2">
+              {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => (
+                <Button
+                  key={phaseName}
+                  variant={currentPhase === phaseName ? "default" : "outline"}
+                  onClick={() => handlePhaseChange(phaseName)}
+                  className="flex-1"
+                >
+                  <PhaseIcon className="w-4 h-4 mr-2" />
+                  {phaseName.charAt(0).toUpperCase() + phaseName.slice(1)}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="fixed top-24 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
@@ -265,8 +312,7 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Room navigation */}
-        <div className="fixed top-24 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
+        <div className="fixed top-44 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <Button
               variant="ghost"
@@ -293,13 +339,30 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Main content area */}
-        <div className="flex-1 pt-48">
+        <div className="flex-1 pt-64">
           <div 
             className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[60vh]"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex gap-8">
+              {currentEnemies.map((enemy) => (
+                <div key={enemy.id} className="relative flex flex-col items-center">
+                  <img 
+                    src={enemy.icon} 
+                    alt={enemy.name}
+                    className="w-20 h-20 object-contain pixelated"
+                  />
+                  <span className="text-sm font-bold mt-2">{enemy.name}</span>
+                  {showDamage && (
+                    <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-red-500 font-bold animate-bounce">
+                      -1 HP
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative">
                 <UterooCharacter phase={currentPhase} />
@@ -312,7 +375,6 @@ const PouGame = () => {
             </div>
           </div>
 
-          {/* Boosters */}
           <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl">
             <div className="flex gap-4">
               {boostItems.map((item) => (
@@ -325,7 +387,6 @@ const PouGame = () => {
             </div>
           </div>
 
-          {/* Back button */}
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
             <Button 
               variant="outline" 
