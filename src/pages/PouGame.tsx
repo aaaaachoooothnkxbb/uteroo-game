@@ -245,7 +245,7 @@ const PouGame = () => {
       />
       
       <div className="relative z-10 min-h-screen flex flex-col">
-        <div className="fixed top-0 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
+        <div className="fixed top-0 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto">
             <h1 className="text-2xl font-bold text-center">{phase.name}</h1>
             <h2 className="text-xl font-semibold text-center mb-4">{phase.subtitle}</h2>
@@ -265,7 +265,7 @@ const PouGame = () => {
           </div>
         </div>
 
-        <div className="fixed top-24 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
+        <div className="fixed top-24 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
@@ -317,7 +317,7 @@ const PouGame = () => {
           </div>
         </div>
 
-        <div className="fixed top-44 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
+        <div className="fixed top-44 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <Button
               variant="ghost"
