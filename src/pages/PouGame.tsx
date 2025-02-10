@@ -49,7 +49,8 @@ const boostItems = [
 
 const phaseInfo = {
   menstruation: {
-    name: "Menstruation Flatland",
+    name: "Level 1",
+    subtitle: "MENSTRUATION",
     icon: Moon,
     color: "purple",
     background: "bg-menstruation-bg",
@@ -64,7 +65,8 @@ const phaseInfo = {
     }
   },
   follicular: {
-    name: "Follicular Uphill",
+    name: "Level 2",
+    subtitle: "FOLLICULAR",
     icon: Leaf,
     color: "green",
     background: "bg-follicular-bg",
@@ -79,7 +81,8 @@ const phaseInfo = {
     }
   },
   ovulatory: {
-    name: "Ovulatory Mountain",
+    name: "Level 3",
+    subtitle: "OVULATORY",
     icon: Sun,
     color: "yellow",
     background: "bg-ovulatory-bg",
@@ -94,7 +97,8 @@ const phaseInfo = {
     }
   },
   luteal: {
-    name: "Luteal Hill",
+    name: "Level 4",
+    subtitle: "LUTEAL",
     icon: Brain,
     color: "orange",
     background: "bg-luteal-bg",
@@ -243,7 +247,8 @@ const PouGame = () => {
       <div className="relative z-10 min-h-screen flex flex-col">
         <div className="fixed top-0 left-0 right-0 bg-white/90 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto">
-            <h1 className="text-2xl font-bold text-center mb-4">{phase.name}</h1>
+            <h1 className="text-2xl font-bold text-center">{phase.name}</h1>
+            <h2 className="text-xl font-semibold text-center mb-4">{phase.subtitle}</h2>
             <div className="flex justify-between gap-2">
               {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => (
                 <Button
