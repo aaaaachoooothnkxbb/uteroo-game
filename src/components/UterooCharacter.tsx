@@ -1,12 +1,13 @@
+
 import { Card } from "@/components/ui/card";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
 const phaseToImage = {
-  menstruation: "/lovable-uploads/bb75ffbb-199c-4115-9ab1-fd2935d8440a.png",
-  follicular: "/lovable-uploads/bb75ffbb-199c-4115-9ab1-fd2935d8440a.png",
-  ovulatory: "/lovable-uploads/bb75ffbb-199c-4115-9ab1-fd2935d8440a.png",
-  luteal: "/lovable-uploads/bb75ffbb-199c-4115-9ab1-fd2935d8440a.png"
+  menstruation: "/lovable-uploads/f320d998-a6be-4a19-a71d-433960e4d663.png",
+  follicular: "/lovable-uploads/f320d998-a6be-4a19-a71d-433960e4d663.png",
+  ovulatory: "/lovable-uploads/f320d998-a6be-4a19-a71d-433960e4d663.png",
+  luteal: "/lovable-uploads/f320d998-a6be-4a19-a71d-433960e4d663.png"
 };
 
 const phaseToMessage = {
