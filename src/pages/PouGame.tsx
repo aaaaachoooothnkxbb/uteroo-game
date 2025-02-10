@@ -128,7 +128,7 @@ const rooms = [
     id: "bathroom", 
     name: "Bathroom", 
     icon: Bath,
-    background: "" // We'll add this later
+    background: "/lovable-uploads/c23d5676-d7ea-4312-9e51-1bd06eef4d12.png"
   },
   { 
     id: "kitchen", 
