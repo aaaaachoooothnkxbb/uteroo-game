@@ -52,4 +52,3 @@ export const DraggableItem = ({ id, type, icon, boost = 10, onDrop, onClick }: D
     </div>
   );
 };
-
