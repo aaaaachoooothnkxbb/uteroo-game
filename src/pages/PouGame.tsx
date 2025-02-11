@@ -137,6 +137,22 @@ const rooms = [
   },
 ];
 
+const roomBoosters = {
+  kitchen: [
+    {
+      id: "fridge",
+      type: "hunger" as const,
+      icon: "/lovable-uploads/d2c58694-d998-412e-98ea-f07e05603033.png",
+      boost: 15,
+    }
+  ],
+  bathroom: [],
+  bedroom: [],
+  exercise: [],
+  games: [],
+  workstation: [],
+};
+
 const PouGame = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -190,18 +206,22 @@ const PouGame = () => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const itemType = e.dataTransfer.getData("itemType");
+    const boost = Number(e.dataTransfer.getData("boost")) || 10;
     
     setStats(prev => {
       const newStats = { ...prev };
       switch (itemType) {
+        case "hunger":
+          newStats.hunger = Math.min(100, prev.hunger + boost);
+          break;
+        case "hygiene":
+          newStats.hygiene = Math.min(100, prev.hygiene + boost);
+          break;
         case "energy":
-          newStats.energy = Math.min(100, prev.energy + 10);
+          newStats.energy = Math.min(100, prev.energy + boost);
           break;
         case "happiness":
-          newStats.happiness = Math.min(100, prev.happiness + 10);
-          break;
-        case "mood":
-          newStats.hunger = Math.min(100, prev.hunger + 10);
+          newStats.happiness = Math.min(100, prev.happiness + boost);
           break;
       }
       return newStats;
@@ -248,6 +268,7 @@ const PouGame = () => {
 
   const currentRoom = rooms[currentRoomIndex];
   const RoomIcon = currentRoom.icon;
+  const currentRoomBoosters = roomBoosters[currentRoom.id as keyof typeof roomBoosters] || [];
 
   return (
     <div className="min-h-screen relative">
@@ -402,6 +423,23 @@ const PouGame = () => {
                 )}
               </div>
             </div>
+
+            {currentRoomBoosters.length > 0 && (
+              <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl">
+                <div className="flex gap-4 justify-center">
+                  {currentRoomBoosters.map((item) => (
+                    <DraggableItem
+                      key={item.id}
+                      id={item.id}
+                      type={item.type}
+                      icon={item.icon}
+                      boost={item.boost}
+                      onDrop={() => {}}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {currentRoom.id === "kitchen" && (
               <div className="absolute bottom-4 right-4">

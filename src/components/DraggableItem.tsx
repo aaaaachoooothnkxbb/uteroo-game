@@ -1,19 +1,22 @@
+
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface DraggableItemProps {
   id: string;
-  type: "energy" | "happiness" | "mood";
+  type: "hunger" | "hygiene" | "energy" | "happiness";
   icon: string;
+  boost?: number;
   onDrop: (type: string) => void;
 }
 
-export const DraggableItem = ({ id, type, icon, onDrop }: DraggableItemProps) => {
+export const DraggableItem = ({ id, type, icon, boost = 10, onDrop }: DraggableItemProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = (e: React.DragEvent) => {
     setIsDragging(true);
     e.dataTransfer.setData("itemType", type);
+    e.dataTransfer.setData("boost", boost.toString());
   };
 
   const handleDragEnd = () => {
