@@ -64,7 +64,7 @@ export function GroceryList({ phase }: GroceryListProps) {
       <SheetTrigger asChild>
         <button className="p-2 hover:bg-white/20 rounded-lg transition-colors">
           <img 
-            src="/lovable-uploads/019acee7-e13b-4e26-9b63-ca8ddfd4e238.png" 
+            src="/lovable-uploads/b293163a-3aff-42ee-8b1f-d2c10ccadafb.png" 
             alt="Grocery List" 
             className="w-12 h-12 object-contain pixelated"
           />
