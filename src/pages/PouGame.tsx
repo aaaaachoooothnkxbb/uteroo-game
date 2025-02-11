@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DraggableItem } from "@/components/DraggableItem";
 import { GroceryList } from "@/components/GroceryList";
 import { YogaPoseModal } from "@/components/YogaPoseModal";
+import { ProductivityTipsModal } from "@/components/ProductivityTipsModal";
 import { supabase } from "@/integrations/supabase/client";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
@@ -182,6 +183,14 @@ const roomBoosters = {
       icon: "/lovable-uploads/0d952487-7b39-49f2-b2d5-7a34cfcd37da.png",
       boost: 20,
       onClick: () => window.open('https://open.spotify.com/intl-es/track/5baUzaryxi8EfsQQdjW6wD?si=c05fd49617d74ddd', '_blank')
+    },
+    {
+      id: "productivity-tips",
+      name: "Productivity Tips",
+      type: "energy" as const,
+      icon: "/lovable-uploads/b2b073f6-711f-4381-81f3-4e2932068a95.png",
+      boost: 25,
+      onClick: (currentPhase: string, openProductivityTips: () => void) => openProductivityTips(),
     }
   ],
   exercise: [
@@ -231,6 +240,7 @@ const PouGame = () => {
   const [showDamage, setShowDamage] = useState<string | null>(null);
   const [showYogaPoses, setShowYogaPoses] = useState(false);
   const [yogaPoses, setYogaPoses] = useState<any[]>([]);
+  const [showProductivityTips, setShowProductivityTips] = useState(false);
 
   useEffect(() => {
     setCurrentEnemies(enemies[currentPhase]);
@@ -363,6 +373,8 @@ const PouGame = () => {
     if (booster.onClick) {
       if (booster.id === "yogamat") {
         booster.onClick(currentPhase, () => setShowYogaPoses(true));
+      } else if (booster.id === "productivity-tips") {
+        booster.onClick(currentPhase, () => setShowProductivityTips(true));
       } else {
         booster.onClick();
       }
@@ -593,6 +605,12 @@ const PouGame = () => {
         isOpen={showYogaPoses}
         onClose={() => setShowYogaPoses(false)}
         poses={yogaPoses}
+        phase={currentPhase}
+      />
+
+      <ProductivityTipsModal
+        isOpen={showProductivityTips}
+        onClose={() => setShowProductivityTips(false)}
         phase={currentPhase}
       />
     </div>
