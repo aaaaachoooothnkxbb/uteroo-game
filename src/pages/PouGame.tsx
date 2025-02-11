@@ -28,8 +28,8 @@ const enemies = {
     { id: "migraine", name: "Migraine", hp: 3, icon: "/lovable-uploads/4a7e6242-abfe-4345-9727-07fd2c60357a.png" }
   ],
   luteal: [
-    { id: "moodSwings", name: "Mood Swings", hp: 3, icon: "/lovable-uploads/2ece6e4e-6cc7-4707-9327-32fcd5ecb10d.png" },
-    { id: "bloated", name: "Bloated", hp: 3, icon: "/lovable-uploads/38235581-e0fe-4a99-843a-cce1d98788b3.png" }
+    { id: "irritability", name: "Irritability", hp: 3, icon: "/lovable-uploads/d400493e-b747-4572-9f72-d3e592cc4a3f.png" },
+    { id: "sadness", name: "Sadness", hp: 3, icon: "/lovable-uploads/b63fbdb8-0dd0-463d-9269-7bce9726d517.png" }
   ]
 };
 
