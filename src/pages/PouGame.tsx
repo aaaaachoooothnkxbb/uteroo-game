@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -340,8 +341,13 @@ const PouGame = () => {
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
-                  <span className="text-sm font-bold">{stats.coins}</span>
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <img 
+                    src="/lovable-uploads/79e01f75-20fb-4814-a2d3-219a420a385b.png" 
+                    alt="Coins"
+                    className="w-full h-full object-contain pixelated"
+                  />
+                  <span className="text-sm font-bold ml-2">{stats.coins}</span>
                 </div>
               </div>
               <div className="grid grid-cols-4 gap-4 flex-1 max-w-xs mx-4">
