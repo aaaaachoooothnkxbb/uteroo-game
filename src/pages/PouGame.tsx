@@ -376,7 +376,7 @@ const PouGame = () => {
         booster.onClick(currentPhase, () => setShowYogaPoses(true));
       } else if (booster.id === "productivity_tips") {
         booster.onClick(currentPhase, () => setShowProductivityTips(true));
-      } else {
+      } else if (booster.id === "affirmations") {
         booster.onClick();
       }
     }
