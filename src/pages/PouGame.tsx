@@ -170,7 +170,7 @@ const roomBoosters = {
       id: "journal",
       name: "Daily Journaling",
       type: "happiness" as const,
-      icon: "/lovable-uploads/b9725891-e2c3-4702-ad96-ffb8a0690e5d.png",
+      icon: "/lovable-uploads/db737ae2-ab52-4d61-af92-95a81616243d.png",
       boost: 15,
     }
   ],
