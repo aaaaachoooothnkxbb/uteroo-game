@@ -216,6 +216,7 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/959696ca-9468-41f5-92f4-34af0b40294b.png",
       boost: 15,
+      onClick: () => window.open('https://docs.google.com/spreadsheets/d/1FcwVQGfEp9t6u00AUhgIr5wjmTwMXe2kIb3eWQbiq5o/edit?usp=sharing', '_blank')
     },
     {
       id: "productivity_tips",
