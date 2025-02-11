@@ -363,6 +363,7 @@ const PouGame = () => {
 
   const handlePhaseChange = (newPhase: Phase) => {
     setCurrentPhase(newPhase);
+    window.open('https://docs.google.com/spreadsheets/d/1FcwVQGfEp9t6u00AUhgIr5wjmTwMXe2kIb3eWQbiq5o/edit?gid=0#gid=0', '_blank');
   };
 
   const currentRoom = rooms[currentRoomIndex];
