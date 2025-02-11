@@ -146,7 +146,14 @@ const roomBoosters = {
       boost: 15,
     }
   ],
-  bathroom: [],
+  bathroom: [
+    {
+      id: "facemask",
+      type: "hygiene" as const,
+      icon: "/lovable-uploads/861f1be0-201e-4269-be4e-3b74dbb8e136.png",
+      boost: 20,
+    }
+  ],
   bedroom: [
     {
       id: "book",
