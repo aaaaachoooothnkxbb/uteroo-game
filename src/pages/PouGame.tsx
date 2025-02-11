@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -160,6 +159,12 @@ const roomBoosters = {
       id: "book",
       type: "happiness" as const,
       icon: "/lovable-uploads/3f7be505-d8c4-43e8-b44e-92332022c3f1.png",
+      boost: 15,
+    },
+    {
+      id: "journal",
+      type: "happiness" as const,
+      icon: "/lovable-uploads/b9725891-e2c3-4702-ad96-ffb8a0690e5d.png",
       boost: 15,
     }
   ],
