@@ -147,7 +147,14 @@ const roomBoosters = {
     }
   ],
   bathroom: [],
-  bedroom: [],
+  bedroom: [
+    {
+      id: "book",
+      type: "happiness" as const,
+      icon: "/lovable-uploads/3f7be505-d8c4-43e8-b44e-92332022c3f1.png",
+      boost: 15,
+    }
+  ],
   exercise: [
     {
       id: "yogamat",
