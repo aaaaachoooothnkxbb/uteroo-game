@@ -20,7 +20,8 @@ const enemies = {
     { id: "fatigue", name: "Fatigue", hp: 2, icon: "/lovable-uploads/d67a2349-3eb7-47bf-b2b7-e52514f533f2.png" }
   ],
   follicular: [
-    { id: "anxiety", name: "Anxiety", hp: 2, icon: "/lovable-uploads/2ece6e4e-6cc7-4707-9327-32fcd5ecb10d.png" }
+    { id: "anxiety", name: "Anxiety", hp: 2, icon: "/lovable-uploads/2ece6e4e-6cc7-4707-9327-32fcd5ecb10d.png" },
+    { id: "migraine", name: "Migraine", hp: 3, icon: "/lovable-uploads/61451e82-27fc-4110-94e4-a08167b4d8db.png" }
   ],
   ovulatory: [
     { id: "headache", name: "Headache", hp: 2, icon: "/lovable-uploads/d67a2349-3eb7-47bf-b2b7-e52514f533f2.png" }
