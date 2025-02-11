@@ -34,11 +34,10 @@ export const DraggableItem = ({ id, type, icon, boost = 10, onDrop }: DraggableI
       )}
     >
       <img
-        src="/lovable-uploads/dd07ef54-174b-4c57-aa81-9593562fb75f.png"
+        src={icon}
         alt={`${type} boost item`}
         className="w-full h-full object-contain pixelated"
       />
     </div>
   );
 };
-
