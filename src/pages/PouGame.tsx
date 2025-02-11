@@ -188,7 +188,7 @@ const roomBoosters = {
       type: "happiness" as const,
       icon: "/lovable-uploads/0d952487-7b39-49f2-b2d5-7a34cfcd37da.png",
       boost: 20,
-      onClick: () => window.open('https://open.spotify.com/intl-es/track/5baUzaryxi8EfsQQdjW6wD?si=c05fd49617d74ddd', '_blank')
+      onClick: () => window.open('https://open.spotify.com/intl-es/album/2ptz0mo135CScaIxz3Fz7q?si=dd_BEvOpRa6nYjIuHsuNDQ', '_blank')
     }
   ],
   exercise: [
