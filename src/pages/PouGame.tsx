@@ -449,8 +449,8 @@ const PouGame = () => {
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <img 
-                    src="/lovable-uploads/79e01f75-20fb-4814-a2d3-219a420a385b.png" 
-                    alt="Coins"
+                    src="/lovable-uploads/66623718-41b6-4f40-b631-a76ed8fb34c9.png" 
+                    alt="Streak"
                     className="w-full h-full object-contain pixelated"
                   />
                   <span className="text-sm font-bold ml-2">{stats.coins}</span>
