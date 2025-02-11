@@ -140,6 +140,12 @@ const rooms = [
     icon: Laptop,
     background: "/lovable-uploads/38331f05-68ba-498a-9a0f-eafcd0ed1291.png"
   },
+  { 
+    id: "shop", 
+    name: "Shop", 
+    icon: ShoppingBag,
+    background: "/lovable-uploads/b293163a-3aff-42ee-8b1f-d2c10ccadafb.png"
+  },
 ];
 
 const roomBoosters = {
@@ -218,6 +224,32 @@ const roomBoosters = {
       icon: "/lovable-uploads/8a96a5ad-54d1-431d-816c-aaf25e1a3a99.png",
       boost: 20,
       onClick: (currentPhase: string, openProductivityTips: () => void) => openProductivityTips()
+    }
+  ],
+  shop: [
+    {
+      id: "energy_potion",
+      name: "Energy Potion",
+      type: "energy" as const,
+      icon: "/lovable-uploads/c23d5676-d7ea-4312-9e51-1bd06eef4d12.png",
+      boost: 30,
+      cost: 50
+    },
+    {
+      id: "happiness_crystal",
+      name: "Happiness Crystal",
+      type: "happiness" as const,
+      icon: "/lovable-uploads/79e01f75-20fb-4814-a2d3-219a420a385b.png",
+      boost: 25,
+      cost: 40
+    },
+    {
+      id: "hygiene_kit",
+      name: "Hygiene Kit",
+      type: "hygiene" as const,
+      icon: "/lovable-uploads/8e841183-dbb4-442b-a052-1e662e6b5e62.png",
+      boost: 35,
+      cost: 45
     }
   ],
 };
@@ -379,6 +411,27 @@ const PouGame = () => {
       } else if (booster.id === "affirmations") {
         booster.onClick();
       }
+    }
+
+    if (booster.cost) {
+      if (stats.coins < booster.cost) {
+        toast({
+          title: "Not enough coins!",
+          description: `You need ${booster.cost} coins to buy ${booster.name}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setStats(prev => ({
+        ...prev,
+        coins: prev.coins - booster.cost
+      }));
+
+      toast({
+        title: `${booster.name} purchased!`,
+        description: `You spent ${booster.cost} coins`,
+      });
     }
     
     setStats(prev => {
