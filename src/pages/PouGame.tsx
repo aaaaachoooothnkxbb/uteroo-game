@@ -189,6 +189,13 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/de0368a0-d48f-46c5-99c6-fec67d055986.png",
       boost: 20,
+    },
+    {
+      id: "meditation",
+      name: "Meditation Session",
+      type: "happiness" as const,
+      icon: "/lovable-uploads/c00b6791-8007-435f-a0fd-63104a0d898b.png",
+      boost: 25,
     }
   ],
   games: [],
