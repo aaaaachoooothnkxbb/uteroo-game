@@ -172,6 +172,14 @@ const roomBoosters = {
       type: "happiness" as const,
       icon: "/lovable-uploads/db737ae2-ab52-4d61-af92-95a81616243d.png",
       boost: 15,
+    },
+    {
+      id: "affirmations",
+      name: "Affirmation Playlist",
+      type: "happiness" as const,
+      icon: "/lovable-uploads/0d952487-7b39-49f2-b2d5-7a34cfcd37da.png",
+      boost: 20,
+      onClick: () => window.open('https://open.spotify.com/playlist/46Fol0fTPm2fvgVcqhthwX?si=I9vdTgYES46K-65luaMPVg', '_blank')
     }
   ],
   exercise: [

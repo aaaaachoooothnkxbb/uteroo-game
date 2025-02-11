@@ -8,9 +8,10 @@ interface DraggableItemProps {
   icon: string;
   boost?: number;
   onDrop: (type: string) => void;
+  onClick?: () => void;
 }
 
-export const DraggableItem = ({ id, type, icon, boost = 10, onDrop }: DraggableItemProps) => {
+export const DraggableItem = ({ id, type, icon, boost = 10, onDrop, onClick }: DraggableItemProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -23,14 +24,24 @@ export const DraggableItem = ({ id, type, icon, boost = 10, onDrop }: DraggableI
     setIsDragging(false);
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      e.preventDefault();
+      e.stopPropagation();
+      onClick();
+    }
+  };
+
   return (
     <div
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onClick={handleClick}
       className={cn(
         "w-16 h-16 cursor-move transition-all duration-300",
-        isDragging ? "opacity-50 scale-95" : "hover:scale-110"
+        isDragging ? "opacity-50 scale-95" : "hover:scale-110",
+        onClick && "cursor-pointer"
       )}
     >
       <img
@@ -41,3 +52,4 @@ export const DraggableItem = ({ id, type, icon, boost = 10, onDrop }: DraggableI
     </div>
   );
 };
+
