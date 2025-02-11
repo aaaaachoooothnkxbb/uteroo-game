@@ -148,7 +148,14 @@ const roomBoosters = {
   ],
   bathroom: [],
   bedroom: [],
-  exercise: [],
+  exercise: [
+    {
+      id: "yogamat",
+      type: "energy" as const,
+      icon: "/lovable-uploads/de0368a0-d48f-46c5-99c6-fec67d055986.png",
+      boost: 20,
+    }
+  ],
   games: [],
   workstation: [],
 };
