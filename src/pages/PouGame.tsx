@@ -449,7 +449,7 @@ const PouGame = () => {
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <img 
-                    src="/lovable-uploads/66623718-41b6-4f40-b631-a76ed8fb34c9.png" 
+                    src="/lovable-uploads/9d2927cf-4bef-4f50-bcd7-815713718bcd.png" 
                     alt="Streak"
                     className="w-full h-full object-contain pixelated"
                   />
