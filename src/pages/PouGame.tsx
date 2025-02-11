@@ -192,7 +192,7 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/de0368a0-d48f-46c5-99c6-fec67d055986.png",
       boost: 20,
-      onClick: (currentPhase: string, openYogaPoses: () => void) => openYogaPoses(),
+      onClick: (currentPhase: string, openYogaPoses: () => void) => openYogaPoses()
     },
     {
       id: "meditation",
@@ -217,7 +217,7 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/8a96a5ad-54d1-431d-816c-aaf25e1a3a99.png",
       boost: 20,
-      onClick: (currentPhase: string, openProductivityTips: () => void) => openProductivityTips(),
+      onClick: (currentPhase: string, openProductivityTips: () => void) => openProductivityTips()
     }
   ],
 };
@@ -580,6 +580,7 @@ const PouGame = () => {
                       icon={item.icon}
                       boost={item.boost}
                       onDrop={() => {}}
+                      onClick={() => handleBoosterClick(item)}
                     />
                   ))}
                 </div>
