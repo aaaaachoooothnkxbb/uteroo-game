@@ -141,6 +141,7 @@ const roomBoosters = {
   kitchen: [
     {
       id: "fridge",
+      name: "Healthy Snacks",
       type: "hunger" as const,
       icon: "/lovable-uploads/d2c58694-d998-412e-98ea-f07e05603033.png",
       boost: 15,
@@ -149,6 +150,7 @@ const roomBoosters = {
   bathroom: [
     {
       id: "facemask",
+      name: "Self-Care Routine",
       type: "hygiene" as const,
       icon: "/lovable-uploads/861f1be0-201e-4269-be4e-3b74dbb8e136.png",
       boost: 20,
@@ -157,12 +159,14 @@ const roomBoosters = {
   bedroom: [
     {
       id: "book",
+      name: "Reading Time",
       type: "happiness" as const,
       icon: "/lovable-uploads/3f7be505-d8c4-43e8-b44e-92332022c3f1.png",
       boost: 15,
     },
     {
       id: "journal",
+      name: "Daily Journaling",
       type: "happiness" as const,
       icon: "/lovable-uploads/b9725891-e2c3-4702-ad96-ffb8a0690e5d.png",
       boost: 15,
@@ -171,6 +175,7 @@ const roomBoosters = {
   exercise: [
     {
       id: "yogamat",
+      name: "Yoga Session",
       type: "energy" as const,
       icon: "/lovable-uploads/de0368a0-d48f-46c5-99c6-fec67d055986.png",
       boost: 20,
@@ -180,6 +185,7 @@ const roomBoosters = {
   workstation: [
     {
       id: "calendar",
+      name: "Schedule Planning",
       type: "energy" as const,
       icon: "/lovable-uploads/959696ca-9468-41f5-92f4-34af0b40294b.png",
       boost: 15,
@@ -249,13 +255,13 @@ const PouGame = () => {
           newStats.hunger = Math.min(100, prev.hunger + boost);
           break;
         case "hygiene":
-          newStats.hygiene = Math.min(100, prev.hygiene + boost);
+          newStats.hygiene = Math.max(0, prev.hygiene + boost);
           break;
         case "energy":
-          newStats.energy = Math.min(100, prev.energy + boost);
+          newStats.energy = Math.max(0, prev.energy + boost);
           break;
         case "happiness":
-          newStats.happiness = Math.min(100, prev.happiness + boost);
+          newStats.happiness = Math.max(0, prev.happiness + boost);
           break;
       }
       return newStats;
