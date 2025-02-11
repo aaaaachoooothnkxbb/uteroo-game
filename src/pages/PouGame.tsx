@@ -431,9 +431,13 @@ const PouGame = () => {
                     key={phaseName}
                     variant={currentPhase === phaseName ? "default" : "outline"}
                     onClick={() => handlePhaseChange(phaseName)}
-                    className="h-8 px-2 text-xs sm:text-sm sm:px-3"
+                    className={`h-10 px-3 text-sm sm:text-base sm:px-4 font-semibold ${
+                      currentPhase === phaseName 
+                        ? `bg-${phaseInfo[phaseName].color}-600 hover:bg-${phaseInfo[phaseName].color}-700 text-white` 
+                        : `bg-white hover:bg-gray-100 text-gray-900 border-2 border-${phaseInfo[phaseName].color}-500`
+                    }`}
                   >
-                    <PhaseIconComponent className="w-3 h-3 mr-1" />
+                    <PhaseIconComponent className="w-4 h-4 mr-2" />
                     <span className="hidden sm:inline">{phaseName.charAt(0).toUpperCase() + phaseName.slice(1)}</span>
                     <span className="sm:hidden">{phaseName.charAt(0).toUpperCase()}</span>
                   </Button>
