@@ -171,7 +171,14 @@ const roomBoosters = {
     }
   ],
   games: [],
-  workstation: [],
+  workstation: [
+    {
+      id: "calendar",
+      type: "energy" as const,
+      icon: "/lovable-uploads/959696ca-9468-41f5-92f4-34af0b40294b.png",
+      boost: 15,
+    }
+  ],
 };
 
 const PouGame = () => {
