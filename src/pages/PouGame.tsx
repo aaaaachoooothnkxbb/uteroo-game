@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DraggableItem } from "@/components/DraggableItem";
 import { GroceryList } from "@/components/GroceryList";
 import { YogaPoseModal } from "@/components/YogaPoseModal";
+import { ProductivityTipsModal } from "@/components/ProductivityTipsModal";
 import { supabase } from "@/integrations/supabase/client";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
@@ -209,6 +210,14 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/959696ca-9468-41f5-92f4-34af0b40294b.png",
       boost: 15,
+    },
+    {
+      id: "productivity_tips",
+      name: "Productivity Tips",
+      type: "energy" as const,
+      icon: "/lovable-uploads/8a96a5ad-54d1-431d-816c-aaf25e1a3a99.png",
+      boost: 20,
+      onClick: (currentPhase: string, openProductivityTips: () => void) => openProductivityTips(),
     }
   ],
 };
@@ -231,6 +240,7 @@ const PouGame = () => {
   const [showDamage, setShowDamage] = useState<string | null>(null);
   const [showYogaPoses, setShowYogaPoses] = useState(false);
   const [yogaPoses, setYogaPoses] = useState<any[]>([]);
+  const [showProductivityTips, setShowProductivityTips] = useState(false);
 
   useEffect(() => {
     setCurrentEnemies(enemies[currentPhase]);
@@ -363,6 +373,8 @@ const PouGame = () => {
     if (booster.onClick) {
       if (booster.id === "yogamat") {
         booster.onClick(currentPhase, () => setShowYogaPoses(true));
+      } else if (booster.id === "productivity_tips") {
+        booster.onClick(currentPhase, () => setShowProductivityTips(true));
       } else {
         booster.onClick();
       }
@@ -593,6 +605,12 @@ const PouGame = () => {
         isOpen={showYogaPoses}
         onClose={() => setShowYogaPoses(false)}
         poses={yogaPoses}
+        phase={currentPhase}
+      />
+
+      <ProductivityTipsModal 
+        isOpen={showProductivityTips}
+        onClose={() => setShowProductivityTips(false)}
         phase={currentPhase}
       />
     </div>
