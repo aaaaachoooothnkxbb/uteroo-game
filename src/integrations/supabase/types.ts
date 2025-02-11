@@ -558,6 +558,42 @@ export type Database = {
           },
         ]
       }
+      yoga_poses: {
+        Row: {
+          benefits: string[]
+          created_at: string
+          description: string
+          difficulty: Database["public"]["Enums"]["yoga_difficulty"] | null
+          id: string
+          instructions: string[]
+          name: string
+          phase: string
+          sanskrit_name: string | null
+        }
+        Insert: {
+          benefits: string[]
+          created_at?: string
+          description: string
+          difficulty?: Database["public"]["Enums"]["yoga_difficulty"] | null
+          id?: string
+          instructions: string[]
+          name: string
+          phase: string
+          sanskrit_name?: string | null
+        }
+        Update: {
+          benefits?: string[]
+          created_at?: string
+          description?: string
+          difficulty?: Database["public"]["Enums"]["yoga_difficulty"] | null
+          id?: string
+          instructions?: string[]
+          name?: string
+          phase?: string
+          sanskrit_name?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -573,6 +609,7 @@ export type Database = {
         | "Luteal Hill"
       item_type: "food" | "potion" | "clothing" | "decoration"
       recommendation_category: "Affirmation" | "Recipe" | "Yoga Pose"
+      yoga_difficulty: "beginner" | "intermediate" | "advanced"
     }
     CompositeTypes: {
       [_ in never]: never

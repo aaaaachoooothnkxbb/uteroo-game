@@ -11,6 +11,8 @@ import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
 import { DraggableItem } from "@/components/DraggableItem";
 import { GroceryList } from "@/components/GroceryList";
+import { YogaPoseModal } from "@/components/YogaPoseModal";
+import { supabase } from "@/integrations/supabase/client";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -189,6 +191,7 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/de0368a0-d48f-46c5-99c6-fec67d055986.png",
       boost: 20,
+      onClick: (currentPhase: string, openYogaPoses: () => void) => openYogaPoses(),
     },
     {
       id: "meditation",
@@ -226,6 +229,8 @@ const PouGame = () => {
   const [boostType, setBoostType] = useState<string>("");
   const [currentEnemies, setCurrentEnemies] = useState(enemies[currentPhase]);
   const [showDamage, setShowDamage] = useState<string | null>(null);
+  const [showYogaPoses, setShowYogaPoses] = useState(false);
+  const [yogaPoses, setYogaPoses] = useState<any[]>([]);
 
   useEffect(() => {
     setCurrentEnemies(enemies[currentPhase]);
@@ -259,6 +264,33 @@ const PouGame = () => {
 
     return () => clearInterval(interval);
   }, [currentPhase, toast]);
+
+  useEffect(() => {
+    const fetchYogaPoses = async () => {
+      const { data, error } = await supabase
+        .from('yoga_poses')
+        .select('*')
+        .eq('phase', currentPhase);
+      
+      if (error) {
+        console.error('Error fetching yoga poses:', error);
+        toast({
+          title: "Error",
+          description: "Could not load yoga poses",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data) {
+        setYogaPoses(data);
+      }
+    };
+
+    if (showYogaPoses) {
+      fetchYogaPoses();
+    }
+  }, [currentPhase, showYogaPoses, toast]);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -326,6 +358,40 @@ const PouGame = () => {
   const currentRoom = rooms[currentRoomIndex];
   const RoomIcon = currentRoom.icon;
   const currentRoomBoosters = roomBoosters[currentRoom.id as keyof typeof roomBoosters] || [];
+
+  const handleBoosterClick = (booster: any) => {
+    if (booster.onClick) {
+      if (booster.id === "yogamat") {
+        booster.onClick(currentPhase, () => setShowYogaPoses(true));
+      } else {
+        booster.onClick();
+      }
+    }
+    
+    setStats(prev => {
+      const newStats = { ...prev };
+      switch (booster.type) {
+        case "hunger":
+          newStats.hunger = Math.min(100, prev.hunger + booster.boost);
+          break;
+        case "hygiene":
+          newStats.hygiene = Math.min(100, prev.hygiene + booster.boost);
+          break;
+        case "energy":
+          newStats.energy = Math.min(100, prev.energy + booster.boost);
+          break;
+        case "happiness":
+          newStats.happiness = Math.min(100, prev.happiness + booster.boost);
+          break;
+      }
+      return newStats;
+    });
+
+    toast({
+      title: `${booster.name} used!`,
+      description: `Gained ${booster.boost} ${booster.type} points!`,
+    });
+  };
 
   return (
     <div className="min-h-screen relative">
@@ -522,6 +588,13 @@ const PouGame = () => {
           </div>
         </div>
       </div>
+
+      <YogaPoseModal 
+        isOpen={showYogaPoses}
+        onClose={() => setShowYogaPoses(false)}
+        poses={yogaPoses}
+        phase={currentPhase}
+      />
     </div>
   );
 };
