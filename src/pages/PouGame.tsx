@@ -13,6 +13,7 @@ import { DraggableItem } from "@/components/DraggableItem";
 import { GroceryList } from "@/components/GroceryList";
 import { YogaPoseModal } from "@/components/YogaPoseModal";
 import { ProductivityTipsModal } from "@/components/ProductivityTipsModal";
+import { JournalingModal } from "@/components/JournalingModal";
 import { supabase } from "@/integrations/supabase/client";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
@@ -181,6 +182,7 @@ const roomBoosters = {
       type: "happiness" as const,
       icon: "/lovable-uploads/db737ae2-ab52-4d61-af92-95a81616243d.png",
       boost: 15,
+      journalingItem: true
     },
     {
       id: "affirmations",
@@ -275,6 +277,7 @@ const PouGame = () => {
   const [showYogaPoses, setShowYogaPoses] = useState(false);
   const [yogaPoses, setYogaPoses] = useState<any[]>([]);
   const [showProductivityTips, setShowProductivityTips] = useState(false);
+  const [showJournalingModal, setShowJournalingModal] = useState(false);
 
   useEffect(() => {
     setCurrentEnemies(enemies[currentPhase]);
@@ -404,6 +407,11 @@ const PouGame = () => {
   const currentRoomBoosters = roomBoosters[currentRoom.id as keyof typeof roomBoosters] || [];
 
   const handleBoosterClick = (booster: any) => {
+    if (booster.journalingItem) {
+      setShowJournalingModal(true);
+      return;
+    }
+    
     if (booster.onClick) {
       if (booster.id === "yogamat") {
         booster.onClick(currentPhase, () => setShowYogaPoses(true));
@@ -636,6 +644,7 @@ const PouGame = () => {
                       onDrop={() => {}}
                       onClick={() => handleBoosterClick(item)}
                       meditationPlaylist={item.meditationPlaylist}
+                      journalingItem={item.journalingItem}
                     />
                   ))}
                 </div>
@@ -674,8 +683,15 @@ const PouGame = () => {
         onClose={() => setShowProductivityTips(false)}
         phase={currentPhase}
       />
+
+      <JournalingModal
+        isOpen={showJournalingModal}
+        onClose={() => setShowJournalingModal(false)}
+        phase={currentPhase}
+      />
     </div>
   );
 };
 
 export default PouGame;
+

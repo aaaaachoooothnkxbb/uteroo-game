@@ -10,6 +10,7 @@ interface DraggableItemProps {
   onDrop: (type: string) => void;
   onClick?: () => void;
   meditationPlaylist?: boolean;
+  journalingItem?: boolean;
 }
 
 export const DraggableItem = ({ 
@@ -19,7 +20,8 @@ export const DraggableItem = ({
   boost = 10, 
   onDrop, 
   onClick,
-  meditationPlaylist 
+  meditationPlaylist,
+  journalingItem
 }: DraggableItemProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -57,7 +59,7 @@ export const DraggableItem = ({
       className={cn(
         "w-16 h-16 cursor-move transition-all duration-300",
         isDragging ? "opacity-50 scale-95" : "hover:scale-110",
-        (onClick || meditationPlaylist) && "cursor-pointer"
+        (onClick || meditationPlaylist || journalingItem) && "cursor-pointer"
       )}
     >
       <img
