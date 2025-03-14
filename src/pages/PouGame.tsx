@@ -206,6 +206,7 @@ const roomBoosters = {
       type: "happiness" as const,
       icon: "/lovable-uploads/c00b6791-8007-435f-a0fd-63104a0d898b.png",
       boost: 25,
+      meditationPlaylist: true
     }
   ],
   games: [],
@@ -634,6 +635,7 @@ const PouGame = () => {
                       boost={item.boost}
                       onDrop={() => {}}
                       onClick={() => handleBoosterClick(item)}
+                      meditationPlaylist={item.meditationPlaylist}
                     />
                   ))}
                 </div>

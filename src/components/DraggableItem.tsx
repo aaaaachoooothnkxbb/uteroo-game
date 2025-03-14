@@ -9,9 +9,18 @@ interface DraggableItemProps {
   boost?: number;
   onDrop: (type: string) => void;
   onClick?: () => void;
+  meditationPlaylist?: boolean;
 }
 
-export const DraggableItem = ({ id, type, icon, boost = 10, onDrop, onClick }: DraggableItemProps) => {
+export const DraggableItem = ({ 
+  id, 
+  type, 
+  icon, 
+  boost = 10, 
+  onDrop, 
+  onClick,
+  meditationPlaylist 
+}: DraggableItemProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -25,6 +34,13 @@ export const DraggableItem = ({ id, type, icon, boost = 10, onDrop, onClick }: D
   };
 
   const handleClick = (e: React.MouseEvent) => {
+    if (meditationPlaylist) {
+      e.preventDefault();
+      e.stopPropagation();
+      window.open('https://open.spotify.com/album/1LWRSOuPZO4XA8H9tetvMe', '_blank');
+      return;
+    }
+    
     if (onClick) {
       e.preventDefault();
       e.stopPropagation();
@@ -41,7 +57,7 @@ export const DraggableItem = ({ id, type, icon, boost = 10, onDrop, onClick }: D
       className={cn(
         "w-16 h-16 cursor-move transition-all duration-300",
         isDragging ? "opacity-50 scale-95" : "hover:scale-110",
-        onClick && "cursor-pointer"
+        (onClick || meditationPlaylist) && "cursor-pointer"
       )}
     >
       <img
