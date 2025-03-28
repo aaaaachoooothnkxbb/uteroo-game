@@ -23,21 +23,23 @@ const App = () => (
           className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-20"
           style={{ backgroundImage: "url('/lovable-uploads/8cc95945-7151-46d8-b54a-3bc04685f346.png')" }}
         />
-        <div className="w-full h-screen overflow-hidden relative z-10 max-w-md mx-auto bg-white/5 backdrop-blur-sm">
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/yoga" element={<YogaGame />} />
-              <Route path="/recipe" element={<RecipeGame />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/rewards" element={<Rewards />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/pou-game" element={<PouGame />} />
-            </Routes>
-          </BrowserRouter>
+        <div className="w-full h-screen overflow-hidden relative z-10 max-w-md mx-auto">
+          <div className="h-full overflow-auto bg-white/5 backdrop-blur-sm">
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/yoga" element={<YogaGame />} />
+                <Route path="/recipe" element={<RecipeGame />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/rewards" element={<Rewards />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/pou-game" element={<PouGame />} />
+              </Routes>
+            </BrowserRouter>
+          </div>
         </div>
       </div>
     </TooltipProvider>

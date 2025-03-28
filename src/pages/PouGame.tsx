@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -470,9 +469,9 @@ const PouGame = () => {
   };
 
   return (
-    <div className="game-container relative">
+    <div className="min-h-screen relative">
       <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-500"
+        className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-500"
         style={{ 
           backgroundImage: currentRoom.background 
             ? `url('${currentRoom.background}')`
@@ -482,139 +481,138 @@ const PouGame = () => {
         }}
       />
       
-      <div className="relative z-10 h-full flex flex-col">
-        {/* Header with phase navigation */}
-        <div className="bg-white/30 p-3 shadow-md backdrop-blur-sm">
-          <h1 className="text-xl font-bold text-center">{phase.name}</h1>
-          <h2 className="text-base font-semibold text-center mb-2">{phase.subtitle}</h2>
-          <div className="flex justify-center gap-1 px-2">
-            {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
-              const PhaseIconComponent = phaseInfo[phaseName].icon;
-              return (
-                <Button
-                  key={phaseName}
-                  variant={currentPhase === phaseName ? "default" : "outline"}
-                  onClick={() => handlePhaseChange(phaseName)}
-                  className={`h-8 px-2 text-xs font-semibold ${
-                    currentPhase === phaseName 
-                      ? `bg-${phaseInfo[phaseName].color}-600 hover:bg-${phaseInfo[phaseName].color}-700 text-white` 
-                      : `bg-white hover:bg-gray-100 text-gray-900 border-2 border-${phaseInfo[phaseName].color}-500`
-                  }`}
-                >
-                  <PhaseIconComponent className="w-3 h-3 mr-1" />
-                  <span className="hidden sm:inline">{phaseName.charAt(0).toUpperCase() + phaseName.slice(1)}</span>
-                  <span className="sm:hidden">{phaseName.charAt(0).toUpperCase()}</span>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Stats bar */}
-        <div className="bg-white/30 p-3 shadow-md backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 flex items-center justify-center">
-                <img 
-                  src="/lovable-uploads/9d2927cf-4bef-4f50-bcd7-815713718bcd.png" 
-                  alt="Streak"
-                  className="w-full h-full object-contain pixelated"
-                />
-                <span className="text-xs font-bold ml-1">{stats.coins}</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-2 flex-1 max-w-xs mx-2">
-              <div className="space-y-1">
-                <div className="flex items-center justify-center">
-                  <Apple className="w-3 h-3 text-orange-500 animate-pulse" />
-                </div>
-                <Progress 
-                  value={stats.hunger} 
-                  className="h-1.5 transition-all duration-500"
-                  indicatorClassName={getProgressColor(stats.hunger)}
-                />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-center">
-                  <Droplet className="w-3 h-3 text-blue-500 animate-pulse" />
-                </div>
-                <Progress 
-                  value={stats.hygiene} 
-                  className="h-1.5 transition-all duration-500"
-                  indicatorClassName={getProgressColor(stats.hygiene)}
-                />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-center">
-                  <BatteryFull className="w-3 h-3 text-green-500 animate-pulse" />
-                </div>
-                <Progress 
-                  value={stats.energy} 
-                  className="h-1.5 transition-all duration-500"
-                  indicatorClassName={getProgressColor(stats.energy)}
-                />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-center">
-                  <Heart className="w-3 h-3 text-red-500 animate-pulse" />
-                </div>
-                <Progress 
-                  value={stats.happiness} 
-                  className="h-1.5 transition-all duration-500"
-                  indicatorClassName={getProgressColor(stats.happiness)}
-                />
-              </div>
+      <div className="relative z-10 min-h-screen flex flex-col">
+        <div className="fixed top-0 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
+          <div className="max-w-md mx-auto">
+            <h1 className="text-2xl font-bold text-center">{phase.name}</h1>
+            <h2 className="text-xl font-semibold text-center mb-2">{phase.subtitle}</h2>
+            <div className="flex justify-center gap-2 px-4">
+              {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
+                const PhaseIconComponent = phaseInfo[phaseName].icon;
+                return (
+                  <Button
+                    key={phaseName}
+                    variant={currentPhase === phaseName ? "default" : "outline"}
+                    onClick={() => handlePhaseChange(phaseName)}
+                    className={`h-10 px-3 text-sm sm:text-base sm:px-4 font-semibold ${
+                      currentPhase === phaseName 
+                        ? `bg-${phaseInfo[phaseName].color}-600 hover:bg-${phaseInfo[phaseName].color}-700 text-white` 
+                        : `bg-white hover:bg-gray-100 text-gray-900 border-2 border-${phaseInfo[phaseName].color}-500`
+                    }`}
+                  >
+                    <PhaseIconComponent className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">{phaseName.charAt(0).toUpperCase() + phaseName.slice(1)}</span>
+                    <span className="sm:hidden">{phaseName.charAt(0).toUpperCase()}</span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Room navigation */}
-        <div className="bg-white/30 p-2 shadow-md backdrop-blur-sm">
-          <div className="flex items-center justify-between">
+        <div className="fixed top-32 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
+          <div className="max-w-md mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <img 
+                    src="/lovable-uploads/9d2927cf-4bef-4f50-bcd7-815713718bcd.png" 
+                    alt="Streak"
+                    className="w-full h-full object-contain pixelated"
+                  />
+                  <span className="text-sm font-bold ml-2">{stats.coins}</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-4 flex-1 max-w-xs mx-4">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center">
+                    <Apple className="w-4 h-4 text-orange-500 animate-pulse" />
+                  </div>
+                  <Progress 
+                    value={stats.hunger} 
+                    className="h-2 transition-all duration-500"
+                    indicatorClassName={getProgressColor(stats.hunger)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center">
+                    <Droplet className="w-4 h-4 text-blue-500 animate-pulse" />
+                  </div>
+                  <Progress 
+                    value={stats.hygiene} 
+                    className="h-2 transition-all duration-500"
+                    indicatorClassName={getProgressColor(stats.hygiene)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center">
+                    <BatteryFull className="w-4 h-4 text-green-500 animate-pulse" />
+                  </div>
+                  <Progress 
+                    value={stats.energy} 
+                    className="h-2 transition-all duration-500"
+                    indicatorClassName={getProgressColor(stats.energy)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center">
+                    <Heart className="w-4 h-4 text-red-500 animate-pulse" />
+                  </div>
+                  <Progress 
+                    value={stats.happiness} 
+                    className="h-2 transition-all duration-500"
+                    indicatorClassName={getProgressColor(stats.happiness)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="fixed top-44 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
+          <div className="max-w-md mx-auto flex items-center justify-between">
             <Button
               variant="ghost"
               size="icon"
               onClick={handlePreviousRoom}
-              className="h-7 w-7 hover:bg-gray-100"
+              className="hover:bg-gray-100"
             >
-              <ArrowLeft className="h-3 w-3" />
+              <ArrowLeft className="h-4 w-4" />
             </Button>
             
-            <div className="flex items-center gap-1">
-              <RoomIcon className="h-4 w-4" />
-              <span className="text-sm font-semibold">{currentRoom.name}</span>
+            <div className="flex items-center gap-2">
+              <RoomIcon className="h-6 w-6" />
+              <span className="text-lg font-semibold">{currentRoom.name}</span>
             </div>
 
             <Button
               variant="ghost"
               size="icon"
               onClick={handleNextRoom}
-              className="h-7 w-7 hover:bg-gray-100"
+              className="hover:bg-gray-100"
             >
-              <ArrowRight className="h-3 w-3" />
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        {/* Main game area */}
-        <div className="flex-1 relative">
+        <div className="flex-1 pt-64">
           <div 
-            className="absolute inset-0 flex flex-col items-center justify-between p-4"
+            className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[60vh]"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
-            {/* Enemies area */}
-            <div className="w-full flex justify-center gap-6 mb-4">
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex gap-8">
               {currentEnemies.map((enemy) => (
                 <div key={enemy.id} className="relative flex flex-col items-center">
                   <img 
                     src={enemy.icon} 
                     alt={enemy.name}
-                    className="w-14 h-14 object-contain pixelated"
+                    className="w-20 h-20 object-contain pixelated"
                   />
-                  <span className="text-xs font-bold mt-1">{enemy.name}</span>
+                  <span className="text-sm font-bold mt-2">{enemy.name}</span>
                   {showDamage && (
-                    <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-red-500 text-xs font-bold animate-bounce">
+                    <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-red-500 font-bold animate-bounce">
                       -1 HP
                     </span>
                   )}
@@ -622,22 +620,20 @@ const PouGame = () => {
               ))}
             </div>
 
-            {/* Character area */}
-            <div className="flex-1 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative">
                 <UterooCharacter phase={currentPhase} />
                 {showBoostIndicator && (
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 animate-bounce text-sm font-bold text-green-500">
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 animate-bounce text-lg font-bold text-green-500">
                     +1 {boostType}!
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Items */}
             {currentRoomBoosters.length > 0 && (
-              <div className="w-full bg-white/10 p-3 rounded-lg mb-2">
-                <div className="flex gap-2 justify-center">
+              <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl">
+                <div className="flex gap-4 justify-center">
                   {currentRoomBoosters.map((item) => (
                     <DraggableItem
                       key={item.id}
@@ -656,27 +652,25 @@ const PouGame = () => {
             )}
 
             {currentRoom.id === "kitchen" && (
-              <div className="absolute bottom-16 right-2 scale-75 origin-bottom-right">
+              <div className="absolute bottom-4 right-4">
                 <GroceryList phase={currentPhase} />
               </div>
             )}
           </div>
 
-          {/* Back button */}
-          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-full px-4">
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
             <Button 
               variant="outline" 
-              className="w-full text-xs h-8 hover:scale-105 transition-transform duration-300"
+              className="w-full hover:scale-105 transition-transform duration-300"
               onClick={() => navigate(-1)}
             >
-              <ArrowLeft className="w-3 h-3 mr-1" />
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Menu
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Modals */}
       <YogaPoseModal 
         isOpen={showYogaPoses}
         onClose={() => setShowYogaPoses(false)}
@@ -700,3 +694,4 @@ const PouGame = () => {
 };
 
 export default PouGame;
+
