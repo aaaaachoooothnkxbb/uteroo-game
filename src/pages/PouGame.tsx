@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { 
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
-  Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Flask 
+  Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Beaker 
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
@@ -151,7 +151,7 @@ const rooms = [
   { 
     id: "lab", 
     name: "The Lab", 
-    icon: Flask,
+    icon: Beaker,
     background: "/lovable-uploads/ea0e42e2-99c7-4da4-b052-d00b0b77c9ab.png"
   },
 ];
