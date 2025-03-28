@@ -125,11 +125,13 @@
     aspect-ratio: 9/16;
     width: 100%;
     max-width: 500px;
-    height: auto;
+    height: 100vh;
     max-height: 100vh;
     margin: 0 auto;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
   .pixelated {
