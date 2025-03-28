@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { 
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
-  Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop 
+  Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Flask 
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
@@ -146,6 +147,12 @@ const rooms = [
     name: "Shop", 
     icon: ShoppingBag,
     background: "/lovable-uploads/b293163a-3aff-42ee-8b1f-d2c10ccadafb.png"
+  },
+  { 
+    id: "lab", 
+    name: "The Lab", 
+    icon: Flask,
+    background: "/lovable-uploads/ea0e42e2-99c7-4da4-b052-d00b0b77c9ab.png"
   },
 ];
 
