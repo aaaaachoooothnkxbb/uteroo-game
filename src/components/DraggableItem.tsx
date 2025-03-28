@@ -57,7 +57,7 @@ export const DraggableItem = ({
       onDragEnd={handleDragEnd}
       onClick={handleClick}
       className={cn(
-        "w-16 h-16 cursor-move transition-all duration-300",
+        "responsive-square w-12 h-12 md:w-16 md:h-16 cursor-move transition-all duration-300",
         isDragging ? "opacity-50 scale-95" : "hover:scale-110",
         (onClick || meditationPlaylist || journalingItem) && "cursor-pointer"
       )}
