@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,12 +17,12 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400">
+      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400">
         <div 
           className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-20"
           style={{ backgroundImage: "url('/lovable-uploads/8cc95945-7151-46d8-b54a-3bc04685f346.png')" }}
         />
-        <div className="w-full h-screen overflow-hidden relative z-10 max-w-md mx-auto">
+        <div className="w-full h-screen overflow-hidden relative z-10">
           <div className="h-full overflow-auto bg-white/5 backdrop-blur-sm">
             <Toaster />
             <Sonner />
