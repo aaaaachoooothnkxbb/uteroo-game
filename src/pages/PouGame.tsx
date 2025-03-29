@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -146,7 +145,7 @@ const rooms = [
     id: "shop", 
     name: "Shop", 
     icon: ShoppingBag,
-    background: "/lovable-uploads/b293163a-3aff-42ee-8b1f-d2c10ccadafb.png"
+    background: "/lovable-uploads/580d3606-41f4-46c2-aafc-cd0f7d46bd57.png"
   },
   { 
     id: "lab", 
@@ -701,4 +700,3 @@ const PouGame = () => {
 };
 
 export default PouGame;
-
