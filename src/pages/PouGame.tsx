@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -241,7 +242,7 @@ const roomBoosters = {
       id: "energy_potion",
       name: "Energy Potion",
       type: "energy" as const,
-      icon: "/lovable-uploads/c23d5676-d7ea-4312-9e51-1bd06eef4d12.png",
+      icon: "/lovable-uploads/c5a3a3fe-1f7c-43fd-af31-47b307feb425.png", // Updated to use the new vitamin bottle image
       boost: 30,
       cost: 50
     },
