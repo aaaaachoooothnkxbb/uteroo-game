@@ -110,49 +110,49 @@ const rooms = [
     id: "bedroom", 
     name: "Bedroom", 
     icon: Bed,
-    background: "/lovable-uploads/a1bbe578-56c2-4388-a3b7-f149015540e4.png"
+    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
   },
   { 
     id: "bathroom", 
     name: "Bathroom", 
     icon: Bath,
-    background: "/lovable-uploads/feda7f2a-d175-4797-9e49-f57732cd151a.png"
+    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
   },
   { 
     id: "kitchen", 
     name: "Kitchen", 
     icon: UtensilsCrossed,
-    background: "/lovable-uploads/6b949a64-a128-4425-bd7d-de68fb3cacc3.png"
+    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
   },
   { 
     id: "exercise", 
     name: "Exercise Room", 
     icon: Dumbbell,
-    background: "/lovable-uploads/647c4f54-a00f-4440-9f67-ed9a4cef9936.png"
+    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
   },
   { 
     id: "games", 
     name: "Game Room", 
     icon: Gamepad,
-    background: "/lovable-uploads/4b783d28-54ae-4784-8b47-380bcbc178e7.png"
+    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
   },
   { 
     id: "workstation", 
     name: "Work Station", 
     icon: Laptop,
-    background: "/lovable-uploads/38331f05-68ba-498a-9a0f-eafcd0ed1291.png"
+    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
   },
   { 
     id: "shop", 
     name: "Shop", 
     icon: ShoppingBag,
-    background: "/lovable-uploads/580d3606-41f4-46c2-aafc-cd0f7d46bd57.png"
+    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
   },
   { 
     id: "lab", 
     name: "The Lab", 
     icon: Beaker,
-    background: "/lovable-uploads/ea0e42e2-99c7-4da4-b052-d00b0b77c9ab.png"
+    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
   },
 ];
 
@@ -575,7 +575,6 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Room navigation bar - moved under the stats section */}
         <div className="fixed top-44 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <Button
