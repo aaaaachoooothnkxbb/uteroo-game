@@ -66,7 +66,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400 flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70 animate-float"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 animate-float"
         style={{ 
           backgroundImage: "url('/lovable-uploads/1d6f23fa-837d-40cb-ac6f-4a1bd7ff9964.png')",
           imageRendering: 'pixelated'
