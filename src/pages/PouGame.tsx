@@ -15,7 +15,9 @@ import { YogaPoseModal } from "@/components/YogaPoseModal";
 import { ProductivityTipsModal } from "@/components/ProductivityTipsModal";
 import { JournalingModal } from "@/components/JournalingModal";
 import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils"; // Ensure this import is present
+import { cn } from "@/lib/utils";
+
+type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
 const enemies = {
   menstruation: [
@@ -579,21 +581,36 @@ const PouGame = () => {
               variant="ghost"
               size="icon"
               onClick={handlePreviousRoom}
-              className="hover:bg-gray-100"
+              className="h-10 w-10 rounded-full hover:bg-gray-100"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
             
-            <div className="flex items-center gap-2">
-              <RoomIcon className="h-6 w-6" />
-              <span className="text-lg font-semibold">{currentRoom.name}</span>
+            <div className="flex items-center gap-4">
+              {rooms.map((room, index) => {
+                const RoomIcon = room.icon;
+                return (
+                  <Button
+                    key={room.id}
+                    variant={currentRoomIndex === index ? "default" : "ghost"}
+                    size="icon"
+                    onClick={() => setCurrentRoomIndex(index)}
+                    className={cn(
+                      "h-10 w-10 rounded-full p-0",
+                      currentRoomIndex === index ? "bg-primary text-primary-foreground" : "hover:bg-gray-100"
+                    )}
+                  >
+                    <RoomIcon className="h-5 w-5" />
+                  </Button>
+                );
+              })}
             </div>
 
             <Button
               variant="ghost"
               size="icon"
               onClick={handleNextRoom}
-              className="hover:bg-gray-100"
+              className="h-10 w-10 rounded-full hover:bg-gray-100"
             >
               <ArrowRight className="h-4 w-4" />
             </Button>
