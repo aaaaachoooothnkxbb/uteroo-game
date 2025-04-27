@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +12,10 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    console.log('Background Image URL:', '/lovable-uploads/a585fafe-c555-4646-816f-5f58fe5c005f.png');
+  }, []);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
