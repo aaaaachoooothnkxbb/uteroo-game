@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -65,10 +66,11 @@ export const DraggableItem = ({
         src={icon}
         alt={`${type} boost item`}
         className={cn(
-          "w-16 h-16 object-contain pixelated", 
+          "w-full h-full object-contain pixelated", 
           (onClick || meditationPlaylist || journalingItem) && "cursor-pointer"
         )}
       />
     </div>
   );
 };
+
