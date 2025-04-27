@@ -575,7 +575,8 @@ const PouGame = () => {
           </div>
         </div>
 
-        <div className="fixed top-56 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
+        {/* Room navigation bar - moved under the stats section */}
+        <div className="fixed top-44 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <Button
               variant="ghost"
