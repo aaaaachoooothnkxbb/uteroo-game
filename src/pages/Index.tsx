@@ -98,7 +98,7 @@ const Index = () => {
             className="w-full h-40 relative cursor-pointer group"
           >
             <div className="absolute inset-0">
-              <div className="absolute inset-0 bg-[url('lovable-uploads/e47907e6-61da-4860-97dc-47179e32bcf8.png')] bg-cover bg-center bg-no-repeat scale-y-[-1] hover:scale-105 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-[url('lovable-uploads/e47907e6-61da-4860-97dc-47179e32bcf8.png')] bg-cover bg-center bg-no-repeat scale-y-[-1] hover:scale-105 transition-transform duration-300 rounded-full" />
               <div className="absolute inset-0 flex items-center justify-center text-center">
                 <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
                   TRY IT FIRST
@@ -112,7 +112,7 @@ const Index = () => {
             className="w-full h-32 relative cursor-pointer group"
           >
             <div 
-              className="absolute inset-0 bg-[url('lovable-uploads/896173af-7204-467f-986c-a542cc467697.png')] bg-contain bg-center bg-no-repeat hover:scale-105 transition-transform duration-300 flex items-center justify-center"
+              className="absolute inset-0 bg-[url('lovable-uploads/896173af-7204-467f-986c-a542cc467697.png')] bg-contain bg-center bg-no-repeat hover:scale-105 transition-transform duration-300 rounded-full flex items-center justify-center"
             >
               <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
                 SIGN UP
@@ -121,24 +121,22 @@ const Index = () => {
           </div>
 
           <div className="relative w-full space-y-4">
-            <div className="flex flex-col gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-2xl">
+            <div className="flex flex-col gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-full">
               <Button
                 variant="outline"
-                className="bg-white text-gray-800 hover:bg-gray-100 gap-2 rounded-full"
+                className="bg-white text-gray-800 hover:bg-gray-100 gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0"
                 onClick={() => handleSocialLogin('google')}
                 disabled={isLoading}
               >
-                <Icons.google className="h-5 w-5" />
-                Continue with Google
+                <Icons.google className="h-8 w-8" />
               </Button>
               <Button
                 variant="outline"
-                className="bg-[#1877F2] text-white hover:bg-[#1864D9] gap-2 rounded-full"
+                className="bg-[#1877F2] text-white hover:bg-[#1864D9] gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0"
                 onClick={() => handleSocialLogin('facebook')}
                 disabled={isLoading}
               >
-                <Icons.facebook className="h-5 w-5" />
-                Continue with Facebook
+                <Icons.facebook className="h-8 w-8" />
               </Button>
             </div>
           </div>
