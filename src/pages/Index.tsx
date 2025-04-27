@@ -65,7 +65,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400 flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('lovable-uploads/f739ed3e-ef8a-46e3-997a-5fad19a5fa50.png')] bg-cover animate-float"></div>
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70 animate-float"
+        style={{ 
+          backgroundImage: "url('/lovable-uploads/1d6f23fa-837d-40cb-ac6f-4a1bd7ff9964.png')",
+          imageRendering: 'pixelated'
+        }}
+      />
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="flex flex-col items-center space-y-4 mt-48">
           <img 
