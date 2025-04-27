@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -67,7 +68,7 @@ const Index = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-float"
         style={{ 
-          backgroundImage: "url('/lovable-uploads/1d6f23fa-837d-40cb-ac6f-4a1bd7ff9964.png')"
+          backgroundImage: "url('/lovable-uploads/a585fafe-c555-4646-816f-5f58fe5c005f.png')"
         }}
       />
       <div className="w-full max-w-md space-y-8 relative z-10">
