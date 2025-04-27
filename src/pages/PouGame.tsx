@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -242,7 +241,7 @@ const roomBoosters = {
       id: "energy_potion",
       name: "Energy Potion",
       type: "energy" as const,
-      icon: "/lovable-uploads/c5a3a3fe-1f7c-43fd-af31-47b307feb425.png", // Updated to use the new vitamin bottle image
+      icon: "/lovable-uploads/c5a3a3fe-1f7c-43fd-af31-47b307feb425.png",
       boost: 30,
       cost: 50
     },
@@ -501,15 +500,14 @@ const PouGame = () => {
                     key={phaseName}
                     variant={currentPhase === phaseName ? "default" : "outline"}
                     onClick={() => handlePhaseChange(phaseName)}
-                    className={`h-10 px-3 text-sm sm:text-base sm:px-4 font-semibold ${
+                    className={cn(
+                      "h-12 w-12 rounded-full p-0 flex items-center justify-center",
                       currentPhase === phaseName 
                         ? `bg-${phaseInfo[phaseName].color}-600 hover:bg-${phaseInfo[phaseName].color}-700 text-white` 
                         : `bg-white hover:bg-gray-100 text-gray-900 border-2 border-${phaseInfo[phaseName].color}-500`
-                    }`}
+                    )}
                   >
-                    <PhaseIconComponent className="w-4 h-4 mr-2" />
-                    <span className="hidden sm:inline">{phaseName.charAt(0).toUpperCase() + phaseName.slice(1)}</span>
-                    <span className="sm:hidden">{phaseName.charAt(0).toUpperCase()}</span>
+                    <PhaseIconComponent className="w-6 h-6" />
                   </Button>
                 );
               })}
