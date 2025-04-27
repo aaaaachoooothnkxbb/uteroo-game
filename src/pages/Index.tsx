@@ -121,10 +121,10 @@ const Index = () => {
           </div>
 
           <div className="relative w-full space-y-4">
-            <div className="flex flex-col gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-lg">
+            <div className="flex flex-col gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-2xl">
               <Button
                 variant="outline"
-                className="bg-white text-gray-800 hover:bg-gray-100 gap-2"
+                className="bg-white text-gray-800 hover:bg-gray-100 gap-2 rounded-full"
                 onClick={() => handleSocialLogin('google')}
                 disabled={isLoading}
               >
@@ -133,7 +133,7 @@ const Index = () => {
               </Button>
               <Button
                 variant="outline"
-                className="bg-[#1877F2] text-white hover:bg-[#1864D9] gap-2"
+                className="bg-[#1877F2] text-white hover:bg-[#1864D9] gap-2 rounded-full"
                 onClick={() => handleSocialLogin('facebook')}
                 disabled={isLoading}
               >
