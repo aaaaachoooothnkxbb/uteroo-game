@@ -15,6 +15,7 @@ import { YogaPoseModal } from "@/components/YogaPoseModal";
 import { ProductivityTipsModal } from "@/components/ProductivityTipsModal";
 import { JournalingModal } from "@/components/JournalingModal";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
