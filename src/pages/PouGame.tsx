@@ -597,7 +597,6 @@ const PouGame = () => {
                   return <RoomIcon className="h-5 w-5" />;
                 })()}
               </Button>
-              <span className="ml-2 text-sm font-medium">{currentRoom.name}</span>
             </div>
 
             <Button
