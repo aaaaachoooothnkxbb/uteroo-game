@@ -586,24 +586,18 @@ const PouGame = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             
-            <div className="flex items-center gap-4">
-              {rooms.map((room, index) => {
-                const RoomIcon = room.icon;
-                return (
-                  <Button
-                    key={room.id}
-                    variant={currentRoomIndex === index ? "default" : "ghost"}
-                    size="icon"
-                    onClick={() => setCurrentRoomIndex(index)}
-                    className={cn(
-                      "h-10 w-10 rounded-full p-0",
-                      currentRoomIndex === index ? "bg-primary text-primary-foreground" : "hover:bg-gray-100"
-                    )}
-                  >
-                    <RoomIcon className="h-5 w-5" />
-                  </Button>
-                );
-              })}
+            <div className="flex items-center justify-center">
+              <Button
+                variant="default"
+                size="icon"
+                className="h-10 w-10 rounded-full p-0"
+              >
+                {(() => {
+                  const RoomIcon = currentRoom.icon;
+                  return <RoomIcon className="h-5 w-5" />;
+                })()}
+              </Button>
+              <span className="ml-2 text-sm font-medium">{currentRoom.name}</span>
             </div>
 
             <Button
