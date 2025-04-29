@@ -15,6 +15,7 @@ import { GroceryList } from "@/components/GroceryList";
 import { YogaPoseModal } from "@/components/YogaPoseModal";
 import { ProductivityTipsModal } from "@/components/ProductivityTipsModal";
 import { JournalingModal } from "@/components/JournalingModal";
+import { BloodworkModal } from "@/components/BloodworkModal";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -264,6 +265,16 @@ const roomBoosters = {
       cost: 45
     }
   ],
+  lab: [
+    {
+      id: "bloodwork",
+      name: "Upload Bloodwork",
+      type: "energy" as const,
+      icon: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png",
+      boost: 25,
+      bloodworkAnalysis: true
+    }
+  ],
 };
 
 const PouGame = () => {
@@ -288,6 +299,7 @@ const PouGame = () => {
   const [yogaPoses, setYogaPoses] = useState<any[]>([]);
   const [showProductivityTips, setShowProductivityTips] = useState(false);
   const [showJournalingModal, setShowJournalingModal] = useState(false);
+  const [showBloodworkModal, setShowBloodworkModal] = useState(false);
 
   // Load streak from localStorage on component mount
   useEffect(() => {
@@ -453,6 +465,13 @@ const PouGame = () => {
     if (booster.journalingItem) {
       setShowJournalingModal(true);
       // Don't count journaling as streak until completed
+      return;
+    }
+    
+    if (booster.bloodworkAnalysis) {
+      setShowBloodworkModal(true);
+      // Update streak when bloodwork is analyzed
+      updateStreak();
       return;
     }
     
@@ -745,6 +764,12 @@ const PouGame = () => {
       <JournalingModal
         isOpen={showJournalingModal}
         onClose={() => setShowJournalingModal(false)}
+        phase={currentPhase}
+      />
+
+      <BloodworkModal 
+        isOpen={showBloodworkModal}
+        onClose={() => setShowBloodworkModal(false)}
         phase={currentPhase}
       />
     </div>
