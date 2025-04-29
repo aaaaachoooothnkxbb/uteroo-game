@@ -5,7 +5,8 @@ import { Progress } from "@/components/ui/progress";
 import { 
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
-  Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Beaker 
+  Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Beaker,
+  Flame
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
@@ -277,6 +278,8 @@ const PouGame = () => {
     happiness: 85,
     coins: 200
   });
+  const [streak, setStreak] = useState(0);
+  const [lastBoosterUsed, setLastBoosterUsed] = useState<string | null>(null);
   const [showBoostIndicator, setShowBoostIndicator] = useState(false);
   const [boostType, setBoostType] = useState<string>("");
   const [currentEnemies, setCurrentEnemies] = useState(enemies[currentPhase]);
@@ -285,6 +288,28 @@ const PouGame = () => {
   const [yogaPoses, setYogaPoses] = useState<any[]>([]);
   const [showProductivityTips, setShowProductivityTips] = useState(false);
   const [showJournalingModal, setShowJournalingModal] = useState(false);
+
+  // Load streak from localStorage on component mount
+  useEffect(() => {
+    const savedStreak = localStorage.getItem('uterooStreak');
+    const lastUsedTimestamp = localStorage.getItem('lastBoosterTimestamp');
+    
+    if (savedStreak) {
+      setStreak(parseInt(savedStreak));
+    }
+    
+    // Reset streak if it's been more than 24 hours since last booster use
+    if (lastUsedTimestamp) {
+      const lastUsed = new Date(lastUsedTimestamp);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - lastUsed.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursDiff > 24) {
+        setStreak(0);
+        localStorage.setItem('uterooStreak', '0');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     setCurrentEnemies(enemies[currentPhase]);
@@ -370,6 +395,9 @@ const PouGame = () => {
       return newStats;
     });
 
+    // Update streak when item is dropped on character
+    updateStreak();
+
     setShowDamage(itemType);
     setTimeout(() => setShowDamage(null), 1000);
 
@@ -382,6 +410,14 @@ const PouGame = () => {
       description: `Uteroo received a ${itemType} boost!`,
       duration: 2000,
     });
+  };
+
+  // Update streak counter
+  const updateStreak = () => {
+    const newStreak = streak + 1;
+    setStreak(newStreak);
+    localStorage.setItem('uterooStreak', newStreak.toString());
+    localStorage.setItem('lastBoosterTimestamp', new Date().toISOString());
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -416,8 +452,12 @@ const PouGame = () => {
   const handleBoosterClick = (booster: any) => {
     if (booster.journalingItem) {
       setShowJournalingModal(true);
+      // Don't count journaling as streak until completed
       return;
     }
+    
+    // Update streak when booster is clicked
+    updateStreak();
     
     if (booster.onClick) {
       if (booster.id === "yogamat") {
@@ -520,10 +560,14 @@ const PouGame = () => {
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
+                <div className="w-8 h-8 flex items-center justify-center relative">
+                  <Flame className="w-5 h-5 text-orange-500 animate-pulse" />
+                  <span className="text-sm font-bold ml-2">{streak}</span>
+                </div>
                 <div className="w-8 h-8 flex items-center justify-center">
                   <img 
                     src="/lovable-uploads/9d2927cf-4bef-4f50-bcd7-815713718bcd.png" 
-                    alt="Streak"
+                    alt="Coins"
                     className="w-full h-full object-contain pixelated"
                   />
                   <span className="text-sm font-bold ml-2">{stats.coins}</span>
