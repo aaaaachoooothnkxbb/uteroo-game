@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,7 +68,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-black relative overflow-hidden bg-white">
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="flex flex-col items-center space-y-4 mt-48">
           <img 
@@ -76,14 +76,14 @@ const Index = () => {
             alt="Uteroo Character"
             className="w-[500px] h-[500px] object-contain animate-[bounce_2s_ease-in-out_infinite]"
           />
-          <div className="w-64 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
-            <span className="text-6xl font-bold font-sans tracking-wider text-white">
+          <div className="w-64 h-16 bg-pink-100 rounded-2xl flex items-center justify-center shadow-lg">
+            <span className="text-6xl font-bold font-sans tracking-wider text-pink-500">
               UTEROO
             </span>
           </div>
         </div>
 
-        <p className="text-center text-xl font-medium mt-6">
+        <p className="text-center text-xl font-medium mt-6 text-gray-700">
           Discover your hormones, moods, and energy in a fun way!
         </p>
 
@@ -116,7 +116,7 @@ const Index = () => {
           </div>
 
           <div className="relative w-full space-y-4">
-            <div className="flex justify-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-full">
+            <div className="flex justify-center gap-3 p-4 bg-pink-100 rounded-full">
               <Button
                 variant="outline"
                 className="bg-white text-gray-800 hover:bg-gray-100 gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0"

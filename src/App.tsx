@@ -18,7 +18,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400">
+      <div className="min-h-screen w-full flex items-center justify-center bg-white">
         <div className="w-full h-screen overflow-hidden relative z-10">
           <div className="h-full overflow-auto">
             <Toaster />
