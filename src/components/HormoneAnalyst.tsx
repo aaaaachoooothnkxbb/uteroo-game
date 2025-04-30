@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Brain, Sparkles } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface HormoneAnalysis {
   prediction: string;
@@ -64,31 +66,33 @@ export const HormoneAnalyst = ({ phase }: { phase: string }) => {
   }
 
   return (
-    <Card className="p-6 space-y-4">
+    <Card className="p-6">
       <div className="flex items-center gap-2">
         <Brain className="w-6 h-6 text-purple-500" />
         <h3 className="text-lg font-medium">AI Hormone Analyst</h3>
       </div>
       
-      <div className="space-y-4">
-        <div className="bg-purple-50 p-4 rounded-lg">
-          <p className="text-purple-800 font-medium">{analysis.prediction}</p>
-        </div>
-        
-        <div>
-          <h4 className="font-medium mb-2">Suggested Strategies:</h4>
-          <ul className="list-disc list-inside space-y-1">
-            {analysis.suggestions.map((suggestion, index) => (
-              <li key={index} className="text-gray-600">{suggestion}</li>
-            ))}
-          </ul>
-        </div>
+      <ScrollArea className="h-full max-h-[300px] mt-4">
+        <div className="space-y-4">
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <p className="text-purple-800 font-medium">{analysis.prediction}</p>
+          </div>
+          
+          <div>
+            <h4 className="font-medium mb-2">Suggested Strategies:</h4>
+            <ul className="list-disc list-inside space-y-1">
+              {analysis.suggestions.map((suggestion, index) => (
+                <li key={index} className="text-gray-600">{suggestion}</li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="bg-pink-50 p-4 rounded-lg flex items-start gap-2">
-          <Sparkles className="w-5 h-5 text-pink-500 mt-1" />
-          <p className="text-pink-800 italic">{analysis.commentary}</p>
+          <div className="bg-pink-50 p-4 rounded-lg flex items-start gap-2">
+            <Sparkles className="w-5 h-5 text-pink-500 mt-1" />
+            <p className="text-pink-800 italic">{analysis.commentary}</p>
+          </div>
         </div>
-      </div>
+      </ScrollArea>
     </Card>
   );
 };
