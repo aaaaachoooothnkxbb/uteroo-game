@@ -107,57 +107,57 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
       balanced: string[];
     }> = {
       menstruation: {
-        criticalAlerts: ["Iron levels are lower than optimal → Book a follow up with your doctor within the next 2 weeks"],
+        criticalAlerts: ["Iron levels are lower than optimal. Book a follow up with your doctor within the next 2 weeks"],
         wellnessOpportunities: [
-          "Vitamin B → Those B vitamins are giving 'meh' energy vibes! Try:\n- 🥬 Add leafy greens and beans to your meals\n- 🥚 Enjoy 2 eggs at breakfast\n- 🌱 Consider a B-complex if fatigue persists",
-          "Magnesium → Your levels are giving 'need a spa day' energy! Try:\n- 🥑 Add avocados and bananas to your diet\n- 🌰 Snack on some almonds or cashews\n- 🧴 Try magnesium lotion before bed for better sleep"
+          "Vitamin B: Those B vitamins are giving 'meh' energy vibes! Try:\nAdd leafy greens and beans to your meals\nEnjoy 2 eggs at breakfast\nConsider a B-complex if fatigue persists",
+          "Magnesium: Your levels are giving 'need a spa day' energy! Try:\nAdd avocados and bananas to your diet\nSnack on some almonds or cashews\nTry magnesium lotion before bed for better sleep"
         ],
-        balanced: ["Hormone balance → Your estrogen and progesterone are working beautifully together!", "Blood sugar → Perfect glucose levels! Keep up those stable energy habits!"]
+        balanced: ["Hormone balance: Your estrogen and progesterone are working beautifully together!", "Blood sugar: Perfect glucose levels! Keep up those stable energy habits!"]
       },
       follicular: {
         criticalAlerts: [],
         wellnessOpportunities: [
-          "Magnesium → Your levels could use a little boost! Try:\n- 🥜 Add more nuts and seeds to your diet\n- 🍌 Enjoy a banana daily\n- 🌊 Consider an Epsom salt bath for absorption through skin",
-          "Vitamin D → You're giving 'indoor cat' energy! Try:\n- ☀️ 15 minutes of morning sun (with SPF!)\n- 🍳 Add more egg yolks to your diet\n- 🐟 Wild-caught fatty fish twice a week" 
+          "Magnesium: Your levels could use a little boost! Try:\nAdd more nuts and seeds to your diet\nEnjoy a banana daily\nConsider an Epsom salt bath for absorption through skin",
+          "Vitamin D: You're giving 'indoor cat' energy! Try:\n15 minutes of morning sun (with SPF!)\nAdd more egg yolks to your diet\nWild-caught fatty fish twice a week" 
         ],
-        balanced: ["Estrogen → Looking fantastic as you build toward ovulation!", "Iron → Great levels, your body is prepped for a strong cycle!"]
+        balanced: ["Estrogen: Looking fantastic as you build toward ovulation!", "Iron: Great levels, your body is prepped for a strong cycle!"]
       },
       ovulatory: {
         criticalAlerts: [],
         wellnessOpportunities: [
-          "Zinc → Your egg quality support system needs some love! Try:\n- 🦪 Oysters (zinc superstars!)\n- 🎃 Pumpkin seeds make a great daily snack\n- 🥩 Red meat 1-2 times this week",
-          "Antioxidants → Boost your fertility vibes with:\n- 🫐 Daily berries for cell protection\n- 🌈 Eat a 'rainbow' of vegetables\n- 🍵 Green tea (limit to 2 cups daily)"
+          "Zinc: Your egg quality support system needs some love! Try:\nOysters (zinc superstars!)\nPumpkin seeds make a great daily snack\nRed meat 1-2 times this week",
+          "Antioxidants: Boost your fertility vibes with:\nDaily berries for cell protection\nEat a rainbow of vegetables\nGreen tea (limit to 2 cups daily)"
         ],
-        balanced: ["Estrogen → Peak levels looking absolutely perfect!", "Metabolic markers → Your energy processing systems are working efficiently!"]
+        balanced: ["Estrogen: Peak levels looking absolutely perfect!", "Metabolic markers: Your energy processing systems are working efficiently!"]
       },
       luteal: {
         criticalAlerts: [],
         wellnessOpportunities: [
-          "Vitamin D → Your sunshine vitamin could use some love! Try:\n- 🌞 Morning walks with SPF\n- 🥛 Fortified plant milk or dairy\n- 💊 D3+K2 supplement for better absorption",
-          "Omega-3s → Your anti-inflammation squad needs backup! Try:\n- 🐟 Fatty fish 2x this week\n- 🌱 Add ground flaxseed to your smoothies\n- 🥑 Avocados for healthy fats"
+          "Vitamin D: Your sunshine vitamin could use some love! Try:\nMorning walks with SPF\nFortified plant milk or dairy\nD3+K2 supplement for better absorption",
+          "Omega-3s: Your anti-inflammation squad needs backup! Try:\nFatty fish 2x this week\nAdd ground flaxseed to your smoothies\nAvocados for healthy fats"
         ],
-        balanced: ["Progesterone → Very good levels supporting your luteal phase!", "Thyroid function → Perfect T3/T4 balance for metabolic health!"]
+        balanced: ["Progesterone: Very good levels supporting your luteal phase!", "Thyroid function: Perfect T3/T4 balance for metabolic health!"]
       }
     };
     
     // Use the specified phase or default to menstruation if not found
     const results = phaseData[phase] || phaseData.menstruation;
     
-    // Format the analysis according to the structured template
+    // Format the analysis according to the structured template but with more organic text
     const formattedAnalysis = `
-### 🩸 Bloodwork Breakdown
+Bloodwork Breakdown
 
-${results.criticalAlerts.length > 0 ? `**1. 🚨 Critical Alerts**
-${results.criticalAlerts.map(alert => `- ${alert}`).join('\n')}
+${results.criticalAlerts.length > 0 ? `Critical Alerts
+${results.criticalAlerts.join('\n')}
 
-` : ''}**2. 💖 Wellness Opportunities**
-${results.wellnessOpportunities.map(opp => `- ${opp}`).join('\n\n')}
+` : ''}Wellness Opportunities
+${results.wellnessOpportunities.join('\n\n')}
 
-**3. ✨ Perfectly Balanced**
-${results.balanced.map(bal => `- ${bal}`).join('\n')}
+Perfectly Balanced
+${results.balanced.join('\n')}
 
-**4. ⚠️ Legal Footer**
-*These insights are general wellness suggestions, not medical advice. Always consult your doctor. Data processed per GDPR/LOPDGDD.*
+Legal Footer
+These insights are general wellness suggestions, not medical advice. Always consult your doctor. Data processed per GDPR/LOPDGDD.
     `;
     
     return formattedAnalysis;
@@ -182,7 +182,7 @@ ${results.balanced.map(bal => `- ${bal}`).join('\n')}
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-center">🩸 Your Bloodwork BFF is Here! 🌈</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-center">Your Bloodwork BFF is Here!</DialogTitle>
           <DialogDescription className="text-center italic">
             "Upload your lab results and let's turn those confusing numbers into <span className="font-bold">your</span> personalized wellness story!"
           </DialogDescription>
@@ -247,7 +247,7 @@ ${results.balanced.map(bal => `- ${bal}`).join('\n')}
                 )}
                 
                 <div className="bg-pink-50 p-4 rounded-lg border border-pink-200 w-full">
-                  <h3 className="font-bold text-pink-700 mb-2">💖 What happens next?</h3>
+                  <h3 className="font-bold text-pink-700 mb-2">What happens next?</h3>
                   <ul className="text-sm text-pink-600 space-y-2">
                     <li className="flex items-center"><span className="mr-2">✨</span> <strong>No-judgment analysis</strong> (we're your wellness hype squad!)</li>
                     <li className="flex items-center"><span className="mr-2">🍳</span> <strong>Delicious health hacks</strong> (yes, chocolate might be involved)</li>
@@ -327,18 +327,18 @@ ${results.balanced.map(bal => `- ${bal}`).join('\n')}
                 </div>
                 
                 <p className="text-xs text-gray-500 italic">
-                  P.S. Your data is safer than our secret stash of gummy vitamins! 🔒
+                  P.S. Your data is safer than our secret stash of gummy vitamins!
                 </p>
                 
                 {uploading && (
                   <div className="text-center animate-pulse font-medium text-pink-600">
-                    Analyzing your bloodwork with AI magic... ✨
+                    Analyzing your bloodwork with AI magic...
                   </div>
                 )}
                 
                 {analysisResult && analysisComplete && (
                   <div className="bg-green-50 p-4 rounded-lg border border-green-200 w-full">
-                    <h3 className="font-bold text-green-700 mb-1">✨ Your Personalized Results</h3>
+                    <h3 className="font-bold text-green-700 mb-1">Your Personalized Results</h3>
                     <div className="text-sm text-green-600 whitespace-pre-line">{analysisResult}</div>
                   </div>
                 )}
