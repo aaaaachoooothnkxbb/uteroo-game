@@ -71,14 +71,19 @@ export const UterooTutorial = ({ onClose }: { onClose: () => void }) => {
       content: (
         <div>
           <p className="text-lg mb-4">
-            Each phase has its own <em>room</em> with special boosters! ✨
+            Time to explore your <em>7 magical rooms</em>! Each is full of boosters tailored to your phase:
           </p>
-          <p>For example:</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Menstruation Room</strong>: Warm tea, cozy blankets.</li>
-            <li><strong>Ovulatory Room</strong>: Dance breaks, social plans!</li>
+            <li><strong>Bedroom</strong> 🛏️: Cozy blankets, naps, or journaling.</li>
+            <li><strong>Bathroom</strong> 🛁: Warm baths, skincare, or hydration reminders.</li>
+            <li><strong>Kitchen</strong> 🍽️: Healthy snacks and nutrition.</li>
+            <li><strong>Exercise Room</strong> 🧘: Gentle yoga or energizing workouts.</li>
+            <li><strong>Game Room</strong> 🎮: Fun breaks, creativity, or silly dances!</li>
+            <li><strong>Work Station</strong> 💼: Focus tips, productivity hacks.</li>
+            <li><strong>Shop</strong> 🛒: Retail therapy (virtual boosts!).</li>
+            <li><strong>Lab</strong> 🔬: Track symptoms or learn cycle science!</li>
           </ul>
-          <p className="mt-2">Tap a room to find tools tailored to <em>your</em> phase!</p>
+          <p className="mt-2">Tap a room to find <em>your</em> perfect booster!</p>
         </div>
       ),
       highlightSelector: ".room-navigation"
@@ -92,8 +97,10 @@ export const UterooTutorial = ({ onClose }: { onClose: () => void }) => {
           </p>
           <p>For example:</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Cramp Monster</strong>? Try a heating pad booster!</li>
-            <li><strong>Anxiety Goblin</strong>? Deep breathing!</li>
+            <li><strong>Cramp Monster</strong>? Try the <em>Bathroom's</em> heating pad booster!</li>
+            <li><strong>Anxiety Goblin</strong>? The <em>Game Room's</em> fun break!</li>
+            <li><strong>Fatigue Ghost</strong>? Visit the <em>Kitchen</em> for energy snacks!</li>
+            <li><strong>Irritability</strong>? Use the <em>Bedroom's</em> journaling!</li>
           </ul>
           <p className="mt-2">When an enemy vanishes, tap ✅ to celebrate your win!</p>
         </div>
@@ -108,8 +115,8 @@ export const UterooTutorial = ({ onClose }: { onClose: () => void }) => {
             These magic boosters ✨ are <em>real actions</em> to help you feel better!
           </p>
           <p>
-            Tap one (like 'Drink Water' or 'Take a Walk') and I'll cheer you on. 
-            Pro tip: Doing them IRL makes enemies <em>and</em> bad habits disappear faster!
+            Tap one (like 'Drink Water' in the <em>Bathroom</em> or 'Yoga Session' in the <em>Exercise Room</em>) 
+            and I'll cheer you on. Pro tip: Doing them IRL makes enemies <em>and</em> bad habits disappear faster!
           </p>
         </div>
       ),
