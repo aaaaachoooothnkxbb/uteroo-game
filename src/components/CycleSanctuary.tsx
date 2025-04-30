@@ -129,7 +129,28 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
     } else {
       setIsFirstTimeUser(false);
     }
+    
+    // Set today's date when component loads
+    setCurrentDate(new Date());
   }, []);
+  
+  // Set up a timer to refresh the date at midnight
+  useEffect(() => {
+    // Calculate time until next midnight
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const timeUntilMidnight = tomorrow.getTime() - now.getTime();
+    
+    // Set timer to update the date at midnight
+    const timerId = setTimeout(() => {
+      setCurrentDate(new Date());
+    }, timeUntilMidnight);
+    
+    // Clear timer on component unmount
+    return () => clearTimeout(timerId);
+  }, [currentDate]);
 
   // Save data to localStorage whenever it changes
   useEffect(() => {
