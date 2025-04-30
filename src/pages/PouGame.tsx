@@ -20,6 +20,7 @@ import { UterooTutorial } from "@/components/UterooTutorial";
 import { CycleSanctuary } from "@/components/CycleSanctuary";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -733,3 +734,174 @@ const PouGame = () => {
               return (
                 <Button
                   key={phaseName}
+                  variant={currentPhase === phaseName ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePhaseChange(phaseName)}
+                  className={cn(
+                    "relative flex items-center gap-1.5",
+                    currentPhase === phaseName && `bg-${phaseInfo[phaseName].color}-600`
+                  )}
+                >
+                  <PhaseIconComponent className="h-4 w-4" />
+                  <span className="hidden sm:inline">{phaseInfo[phaseName].subtitle}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Stats display */}
+        <div className="fixed top-24 left-0 p-4 bg-white/30 backdrop-blur-sm shadow-md rounded-r-lg">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Apple className="h-5 w-5 text-red-500" />
+              <Progress value={stats.hunger} className={cn("w-24 h-2", getProgressColor(stats.hunger))} />
+              <span className="text-xs font-medium">{stats.hunger}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Droplet className="h-5 w-5 text-blue-500" />
+              <Progress value={stats.hygiene} className={cn("w-24 h-2", getProgressColor(stats.hygiene))} />
+              <span className="text-xs font-medium">{stats.hygiene}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BatteryFull className="h-5 w-5 text-green-500" />
+              <Progress value={stats.energy} className={cn("w-24 h-2", getProgressColor(stats.energy))} />
+              <span className="text-xs font-medium">{stats.energy}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-pink-500" />
+              <Progress value={stats.happiness} className={cn("w-24 h-2", getProgressColor(stats.happiness))} />
+              <span className="text-xs font-medium">{stats.happiness}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="h-5 w-5 text-yellow-500" />
+              <span className="text-xs font-medium">{stats.coins} coins</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Flame className="h-5 w-5 text-orange-500" />
+              <span className="text-xs font-medium">Streak: {streak} days</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Main content area */}
+        <div className="flex-1 pt-40 pb-20 px-4">
+          <div className="max-w-md mx-auto">
+            <div className="flex justify-between items-center mb-4">
+              <Button variant="outline" size="sm" onClick={handlePreviousRoom}>
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Prev
+              </Button>
+              
+              <div className="flex items-center gap-2">
+                <RoomIcon className="h-5 w-5" />
+                <h2 className="text-lg font-medium">{currentRoom.name}</h2>
+              </div>
+              
+              <Button variant="outline" size="sm" onClick={handleNextRoom}>
+                Next
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+            
+            {/* Character area with droppable zone */}
+            <div 
+              className="relative flex flex-col items-center justify-center min-h-[300px]"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+            >
+              <div className="mb-6 flex space-x-10 justify-center">
+                {renderEnemies()}
+              </div>
+              
+              <UterooCharacter phase={currentPhase} />
+              
+              {showBoostIndicator && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-green-500 animate-bounce">
+                  +{boostType}!
+                </div>
+              )}
+            </div>
+            
+            {/* Items/boosters for current room */}
+            <div className="mt-8">
+              <h3 className="text-center font-semibold mb-4">Available Items</h3>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 justify-items-center">
+                {currentRoomBoosters.map((booster) => (
+                  <DraggableItem 
+                    key={booster.id}
+                    id={booster.id}
+                    type={booster.type}
+                    icon={booster.icon}
+                    boost={booster.boost}
+                    onDrop={() => {}} // This doesn't seem to be used, but kept for prop compatibility
+                    onClick={() => handleBoosterClick(booster)}
+                    meditationPlaylist={booster.meditationPlaylist}
+                    journalingItem={booster.journalingItem}
+                    tooltip={booster.tooltip}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Room navigation indicator */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/30 backdrop-blur-sm shadow-md">
+          <div className="flex justify-center gap-2 max-w-md mx-auto overflow-x-auto pb-2">
+            {rooms.map((room, index) => {
+              const RoomIconComponent = room.icon;
+              return (
+                <Button
+                  key={room.id}
+                  variant={currentRoomIndex === index ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentRoomIndex(index)}
+                  className="min-w-[40px]"
+                >
+                  <RoomIconComponent className="h-4 w-4" />
+                  <span className="sr-only">{room.name}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Modals */}
+        <YogaPoseModal
+          isOpen={showYogaPoses}
+          onClose={() => setShowYogaPoses(false)}
+          poses={yogaPoses}
+          phase={currentPhase}
+        />
+        
+        <ProductivityTipsModal
+          isOpen={showProductivityTips}
+          onClose={() => setShowProductivityTips(false)}
+          phase={currentPhase}
+        />
+        
+        <JournalingModal
+          isOpen={showJournalingModal}
+          onClose={() => setShowJournalingModal(false)}
+        />
+        
+        <BloodworkModal
+          isOpen={showBloodworkModal}
+          onClose={() => setShowBloodworkModal(false)}
+        />
+        
+        <UterooTutorial
+          isOpen={showTutorial}
+          onClose={() => setShowTutorial(false)}
+        />
+        
+        {currentRoom.id === 'cycle_sanctuary' && (
+          <CycleSanctuary />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default PouGame;
