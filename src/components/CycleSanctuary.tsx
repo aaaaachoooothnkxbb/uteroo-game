@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameMonth, isSameDay, addMonths, parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type CyclePhase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -330,7 +330,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Onboarding dialog */}
       <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
         <DialogContent className="sm:max-w-md">
@@ -362,117 +362,146 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
         </DialogContent>
       </Dialog>
 
-      {/* Calendar header */}
-      <div className="bg-white p-4 rounded-lg shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5" />
-            Cycle Sanctuary
-            {isPrivateMode ? (
-              <span className="text-sm bg-gray-200 px-2 py-1 rounded-full">🔒 Private</span>
-            ) : null}
-          </h2>
-          <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setIsPrivateMode(!isPrivateMode)}
-            >
-              {isPrivateMode ? "Show Details" : "Private Mode"} 
-            </Button>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <span className="flex items-center">
-                    <span className="mr-1">🔥</span> 
-                    {streak}
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80">
-                <div className="space-y-2">
-                  <h3 className="font-medium">Your Tracking Streak</h3>
-                  <p className="text-sm text-muted-foreground">
-                    You've logged your cycle for {streak} days. Keep it up to unlock special rewards!
-                  </p>
-                  {streak >= 5 && (
-                    <div className="bg-yellow-100 p-2 rounded">
-                      <span className="font-bold">🏅 Unlocked: Period Oracle</span>
-                      <p className="text-xs">Your predictions are now more accurate!</p>
-                    </div>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
+      {/* Calendar section with proper scrolling */}
+      <ScrollArea className="flex-1 overflow-y-auto pr-4">
+        <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <CalendarIcon className="h-5 w-5" />
+              Cycle Sanctuary
+              {isPrivateMode ? (
+                <span className="text-sm bg-gray-200 px-2 py-1 rounded-full">🔒 Private</span>
+              ) : null}
+            </h2>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsPrivateMode(!isPrivateMode)}
+              >
+                {isPrivateMode ? "Show Details" : "Private Mode"} 
+              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <span className="flex items-center">
+                      <span className="mr-1">🔥</span> 
+                      {streak}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <div className="space-y-2">
+                    <h3 className="font-medium">Your Tracking Streak</h3>
+                    <p className="text-sm text-muted-foreground">
+                      You've logged your cycle for {streak} days. Keep it up to unlock special rewards!
+                    </p>
+                    {streak >= 5 && (
+                      <div className="bg-yellow-100 p-2 rounded">
+                        <span className="font-bold">🏅 Unlocked: Period Oracle</span>
+                        <p className="text-xs">Your predictions are now more accurate!</p>
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          
+          {/* Month navigation */}
+          <div className="flex justify-between items-center mb-4">
+            <Button onClick={handlePreviousMonth} variant="outline" size="sm">Previous</Button>
+            <h3 className="text-lg font-medium">{format(currentDate, 'MMMM yyyy')}</h3>
+            <Button onClick={handleNextMonth} variant="outline" size="sm">Next</Button>
+          </div>
+
+          {/* Legend */}
+          <div className="flex flex-wrap justify-center gap-2 mb-4">
+            {Object.entries(phaseInfo).map(([phase, info]) => (
+              <Popover key={phase}>
+                <PopoverTrigger asChild>
+                  <div 
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full cursor-pointer ${info.color}`}
+                    onClick={() => onPhaseChange(phase as CyclePhase)}
+                  >
+                    <info.icon className="h-4 w-4" />
+                    <span className="text-xs">{info.name}</span>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <div className="space-y-2">
+                    <h3 className="font-medium">{info.name} Phase</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {info.description}
+                    </p>
+                    <p className="text-xs">
+                      <span className="font-bold">Typical duration:</span> {info.duration}
+                    </p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            ))}
+          </div>
+
+          {/* Calendar grid with pointer-events-auto to ensure interactivity */}
+          <div className="grid grid-cols-7 gap-1 pointer-events-auto">
+            {/* Day labels */}
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="text-center text-sm font-medium p-2">
+                {day}
+              </div>
+            ))}
+            
+            {/* Calendar cells */}
+            {monthDays.map((day, index) => (
+              <div
+                key={index}
+                onClick={() => handleDateClick(day)}
+                className={cn(
+                  "p-2 min-h-[60px] text-center rounded-md cursor-pointer flex flex-col items-center justify-start relative pointer-events-auto",
+                  getCellColor(day),
+                  getPredictedPeriodClass(day)
+                )}
+              >
+                <span className={cn(
+                  "w-6 h-6 flex items-center justify-center rounded-full text-sm",
+                  isToday(day) ? "bg-blue-500 text-white" : ""
+                )}>
+                  {format(day, 'd')}
+                </span>
+                {getCellContent(day)}
+              </div>
+            ))}
           </div>
         </div>
-        
-        {/* Month navigation */}
-        <div className="flex justify-between items-center mb-4">
-          <Button onClick={handlePreviousMonth} variant="outline" size="sm">Previous</Button>
-          <h3 className="text-lg font-medium">{format(currentDate, 'MMMM yyyy')}</h3>
-          <Button onClick={handleNextMonth} variant="outline" size="sm">Next</Button>
+
+        {/* Educational tips */}
+        <div className="mt-4 bg-yellow-50 p-3 rounded-lg text-sm">
+          <h3 className="font-bold flex items-center">
+            <Sun className="h-4 w-4 mr-1" /> 
+            Did you know?
+          </h3>
+          <p>
+            Your Follicular Phase can vary in length, but your Luteal Phase is usually 10-14 days! 
+            Track consistently to help Uteroo learn your unique rhythm!
+          </p>
         </div>
 
-        {/* Legend */}
-        <div className="flex flex-wrap justify-center gap-2 mb-4">
-          {Object.entries(phaseInfo).map(([phase, info]) => (
-            <Popover key={phase}>
-              <PopoverTrigger asChild>
-                <div 
-                  className={`flex items-center gap-1 px-2 py-1 rounded-full cursor-pointer ${info.color}`}
-                  onClick={() => onPhaseChange(phase as CyclePhase)}
-                >
-                  <info.icon className="h-4 w-4" />
-                  <span className="text-xs">{info.name}</span>
-                </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-80">
-                <div className="space-y-2">
-                  <h3 className="font-medium">{info.name} Phase</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {info.description}
-                  </p>
-                  <p className="text-xs">
-                    <span className="font-bold">Typical duration:</span> {info.duration}
-                  </p>
-                </div>
-              </PopoverContent>
-            </Popover>
-          ))}
+        <div className="flex justify-center mt-6 mb-4">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => toast({
+              title: "Cycle Synced!",
+              description: "Your Uteroo will now adjust based on your cycle phase.",
+              duration: 3000,
+            })}
+          >
+            <Heart className="h-4 w-4 text-red-500" />
+            Sync with Uteroo
+          </Button>
         </div>
-
-        {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {/* Day labels */}
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="text-center text-sm font-medium p-2">
-              {day}
-            </div>
-          ))}
-          
-          {/* Calendar cells */}
-          {monthDays.map((day, index) => (
-            <div
-              key={index}
-              onClick={() => handleDateClick(day)}
-              className={cn(
-                "p-2 min-h-[60px] text-center rounded-md cursor-pointer flex flex-col items-center justify-start relative",
-                getCellColor(day),
-                getPredictedPeriodClass(day)
-              )}
-            >
-              <span className={cn(
-                "w-6 h-6 flex items-center justify-center rounded-full text-sm",
-                isToday(day) ? "bg-blue-500 text-white" : ""
-              )}>
-                {format(day, 'd')}
-              </span>
-              {getCellContent(day)}
-            </div>
-          ))}
-        </div>
-      </div>
+      </ScrollArea>
 
       {/* Log dialog */}
       <Dialog open={showLogDialog} onOpenChange={setShowLogDialog}>
@@ -482,68 +511,70 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
               {selectedDate ? `Log for ${format(selectedDate, 'MMMM d, yyyy')}` : 'Log your cycle'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <h4 className="font-medium">Flow</h4>
-              <div className="flex space-x-2">
-                <Button
-                  variant={flow === "light" ? "default" : "outline"}
-                  onClick={() => setFlow("light")}
-                  className="flex-1"
-                >
-                  Light 💧
-                </Button>
-                <Button
-                  variant={flow === "medium" ? "default" : "outline"}
-                  onClick={() => setFlow("medium")}
-                  className="flex-1"
-                >
-                  Medium 💧💧
-                </Button>
-                <Button
-                  variant={flow === "heavy" ? "default" : "outline"}
-                  onClick={() => setFlow("heavy")}
-                  className="flex-1"
-                >
-                  Heavy 💧💧💧
-                </Button>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <h4 className="font-medium">Symptoms</h4>
-              <div className="grid grid-cols-2 gap-2">
-                {symptoms.map(symptom => (
+          <ScrollArea className="max-h-[50vh]">
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <h4 className="font-medium">Flow</h4>
+                <div className="flex space-x-2">
                   <Button
-                    key={symptom.id}
-                    variant={selectedSymptoms.includes(symptom.id) ? "default" : "outline"}
-                    onClick={() => toggleSymptom(symptom.id)}
-                    className="flex justify-between items-center"
-                  >
-                    <span>{symptom.name}</span>
-                    <span>{symptom.emoji}</span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <h4 className="font-medium">Mood</h4>
-              <div className="flex space-x-2">
-                {moods.map(moodOption => (
-                  <Button
-                    key={moodOption.id}
-                    variant={mood === moodOption.id ? "default" : "outline"}
-                    onClick={() => setMood(moodOption.id as "happy" | "sad" | "anxious")}
+                    variant={flow === "light" ? "default" : "outline"}
+                    onClick={() => setFlow("light")}
                     className="flex-1"
                   >
-                    {moodOption.name} {moodOption.emoji}
+                    Light 💧
                   </Button>
-                ))}
+                  <Button
+                    variant={flow === "medium" ? "default" : "outline"}
+                    onClick={() => setFlow("medium")}
+                    className="flex-1"
+                  >
+                    Medium 💧💧
+                  </Button>
+                  <Button
+                    variant={flow === "heavy" ? "default" : "outline"}
+                    onClick={() => setFlow("heavy")}
+                    className="flex-1"
+                  >
+                    Heavy 💧💧💧
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="font-medium">Symptoms</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {symptoms.map(symptom => (
+                    <Button
+                      key={symptom.id}
+                      variant={selectedSymptoms.includes(symptom.id) ? "default" : "outline"}
+                      onClick={() => toggleSymptom(symptom.id)}
+                      className="flex justify-between items-center"
+                    >
+                      <span>{symptom.name}</span>
+                      <span>{symptom.emoji}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="font-medium">Mood</h4>
+                <div className="flex space-x-2">
+                  {moods.map(moodOption => (
+                    <Button
+                      key={moodOption.id}
+                      variant={mood === moodOption.id ? "default" : "outline"}
+                      onClick={() => setMood(moodOption.id as "happy" | "sad" | "anxious")}
+                      className="flex-1"
+                    >
+                      {moodOption.name} {moodOption.emoji}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex justify-end space-x-2">
+          </ScrollArea>
+          <div className="flex justify-end space-x-2 mt-4 pt-4 border-t">
             <Button variant="outline" onClick={() => setShowLogDialog(false)}>
               Cancel
             </Button>
@@ -551,33 +582,6 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Educational tips */}
-      <div className="mt-4 bg-yellow-50 p-3 rounded-lg text-sm">
-        <h3 className="font-bold flex items-center">
-          <Sun className="h-4 w-4 mr-1" /> 
-          Did you know?
-        </h3>
-        <p>
-          Your Follicular Phase can vary in length, but your Luteal Phase is usually 10-14 days! 
-          Track consistently to help Uteroo learn your unique rhythm!
-        </p>
-      </div>
-
-      <div className="flex justify-center mt-6">
-        <Button 
-          variant="outline" 
-          className="flex items-center gap-2"
-          onClick={() => toast({
-            title: "Cycle Synced!",
-            description: "Your Uteroo will now adjust based on your cycle phase.",
-            duration: 3000,
-          })}
-        >
-          <Heart className="h-4 w-4 text-red-500" />
-          Sync with Uteroo
-        </Button>
-      </div>
     </div>
   );
 };
