@@ -378,19 +378,20 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
                 variant="outline" 
                 size="sm"
                 onClick={() => setIsPrivateMode(!isPrivateMode)}
+                className="pointer-events-auto"
               >
                 {isPrivateMode ? "Show Details" : "Private Mode"} 
               </Button>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="pointer-events-auto">
                     <span className="flex items-center">
                       <span className="mr-1">🔥</span> 
                       {streak}
                     </span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80">
+                <PopoverContent className="w-80 pointer-events-auto">
                   <div className="space-y-2">
                     <h3 className="font-medium">Your Tracking Streak</h3>
                     <p className="text-sm text-muted-foreground">
@@ -410,9 +411,9 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
           
           {/* Month navigation */}
           <div className="flex justify-between items-center mb-4">
-            <Button onClick={handlePreviousMonth} variant="outline" size="sm">Previous</Button>
+            <Button onClick={handlePreviousMonth} variant="outline" size="sm" className="pointer-events-auto">Previous</Button>
             <h3 className="text-lg font-medium">{format(currentDate, 'MMMM yyyy')}</h3>
-            <Button onClick={handleNextMonth} variant="outline" size="sm">Next</Button>
+            <Button onClick={handleNextMonth} variant="outline" size="sm" className="pointer-events-auto">Next</Button>
           </div>
 
           {/* Legend */}
@@ -421,14 +422,14 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
               <Popover key={phase}>
                 <PopoverTrigger asChild>
                   <div 
-                    className={`flex items-center gap-1 px-2 py-1 rounded-full cursor-pointer ${info.color}`}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full cursor-pointer pointer-events-auto ${info.color}`}
                     onClick={() => onPhaseChange(phase as CyclePhase)}
                   >
                     <info.icon className="h-4 w-4" />
                     <span className="text-xs">{info.name}</span>
                   </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-80">
+                <PopoverContent className="w-80 pointer-events-auto">
                   <div className="space-y-2">
                     <h3 className="font-medium">{info.name} Phase</h3>
                     <p className="text-sm text-muted-foreground">
@@ -447,7 +448,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
           <div className="grid grid-cols-7 gap-1 pointer-events-auto">
             {/* Day labels */}
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center text-sm font-medium p-2">
+              <div key={day} className="text-center text-sm font-medium p-2 pointer-events-auto">
                 {day}
               </div>
             ))}
@@ -464,7 +465,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
                 )}
               >
                 <span className={cn(
-                  "w-6 h-6 flex items-center justify-center rounded-full text-sm",
+                  "w-6 h-6 flex items-center justify-center rounded-full text-sm pointer-events-auto",
                   isToday(day) ? "bg-blue-500 text-white" : ""
                 )}>
                   {format(day, 'd')}
@@ -490,7 +491,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
         <div className="flex justify-center mt-6 mb-4">
           <Button 
             variant="outline" 
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 pointer-events-auto"
             onClick={() => toast({
               title: "Cycle Synced!",
               description: "Your Uteroo will now adjust based on your cycle phase.",
@@ -519,21 +520,21 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
                   <Button
                     variant={flow === "light" ? "default" : "outline"}
                     onClick={() => setFlow("light")}
-                    className="flex-1"
+                    className="flex-1 pointer-events-auto"
                   >
                     Light 💧
                   </Button>
                   <Button
                     variant={flow === "medium" ? "default" : "outline"}
                     onClick={() => setFlow("medium")}
-                    className="flex-1"
+                    className="flex-1 pointer-events-auto"
                   >
                     Medium 💧💧
                   </Button>
                   <Button
                     variant={flow === "heavy" ? "default" : "outline"}
                     onClick={() => setFlow("heavy")}
-                    className="flex-1"
+                    className="flex-1 pointer-events-auto"
                   >
                     Heavy 💧💧💧
                   </Button>
@@ -548,7 +549,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
                       key={symptom.id}
                       variant={selectedSymptoms.includes(symptom.id) ? "default" : "outline"}
                       onClick={() => toggleSymptom(symptom.id)}
-                      className="flex justify-between items-center"
+                      className="flex justify-between items-center pointer-events-auto"
                     >
                       <span>{symptom.name}</span>
                       <span>{symptom.emoji}</span>
@@ -565,7 +566,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
                       key={moodOption.id}
                       variant={mood === moodOption.id ? "default" : "outline"}
                       onClick={() => setMood(moodOption.id as "happy" | "sad" | "anxious")}
-                      className="flex-1"
+                      className="flex-1 pointer-events-auto"
                     >
                       {moodOption.name} {moodOption.emoji}
                     </Button>
@@ -575,10 +576,10 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
             </div>
           </ScrollArea>
           <div className="flex justify-end space-x-2 mt-4 pt-4 border-t">
-            <Button variant="outline" onClick={() => setShowLogDialog(false)}>
+            <Button variant="outline" onClick={() => setShowLogDialog(false)} className="pointer-events-auto">
               Cancel
             </Button>
-            <Button onClick={saveLogData}>Save</Button>
+            <Button onClick={saveLogData} className="pointer-events-auto">Save</Button>
           </div>
         </DialogContent>
       </Dialog>
