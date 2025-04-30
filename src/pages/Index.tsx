@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -67,7 +68,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-400 flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="flex flex-col items-center space-y-4 mt-48">
           <img 
@@ -115,7 +116,7 @@ const Index = () => {
           </div>
 
           <div className="relative w-full space-y-4">
-            <div className="flex flex-col gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-full">
+            <div className="flex justify-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-full">
               <Button
                 variant="outline"
                 className="bg-white text-gray-800 hover:bg-gray-100 gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0"
