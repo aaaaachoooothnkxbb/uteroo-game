@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameMonth, isSameDay, addMonths, parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Calendar, CalendarIcon, Moon, Sun, Droplets, Heart, CloudMoon } from "lucide-react";
+import { Calendar as CalendarIcon, Moon, Sun, Droplets, Heart, CloudMoon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -130,8 +131,9 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
       setIsFirstTimeUser(false);
     }
     
-    // Set today's date when component loads
-    setCurrentDate(new Date());
+    // Always set to the current date when component loads
+    const today = new Date();
+    setCurrentDate(today);
   }, []);
   
   // Set up a timer to refresh the date at midnight
@@ -333,13 +335,13 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
     <div className="h-full flex flex-col overflow-hidden">
       {/* Onboarding dialog */}
       <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-auto">
           <DialogHeader>
             <DialogTitle>Welcome to your Cycle Sanctuary! 🏩</DialogTitle>
             <DialogDescription>
               <div className="space-y-4 py-4">
                 <div className="flex items-center gap-3">
-                  <Calendar className="h-8 w-8 text-pink-500" />
+                  <CalendarIcon className="h-8 w-8 text-pink-500" />
                   <span>Log periods & symptoms → Colors show your phase!</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -364,7 +366,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
 
       {/* Calendar section with proper scrolling */}
       <ScrollArea className="flex-1 overflow-y-auto pr-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
+        <div className="bg-white p-4 rounded-lg shadow-sm mb-4 max-w-full">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <CalendarIcon className="h-5 w-5" />
@@ -444,28 +446,28 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
             ))}
           </div>
 
-          {/* Calendar grid with pointer-events-auto to ensure interactivity */}
+          {/* Calendar grid with proper sizing for mobile */}
           <div className="grid grid-cols-7 gap-1 pointer-events-auto">
             {/* Day labels */}
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center text-sm font-medium p-2 pointer-events-auto">
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
+              <div key={day} className="text-center text-xs font-medium p-1 pointer-events-auto">
                 {day}
               </div>
             ))}
             
-            {/* Calendar cells */}
+            {/* Calendar cells - make them more compact for mobile */}
             {monthDays.map((day, index) => (
               <div
                 key={index}
                 onClick={() => handleDateClick(day)}
                 className={cn(
-                  "p-2 min-h-[60px] text-center rounded-md cursor-pointer flex flex-col items-center justify-start relative pointer-events-auto",
+                  "p-1 min-h-[40px] text-center rounded-md cursor-pointer flex flex-col items-center justify-start relative pointer-events-auto",
                   getCellColor(day),
                   getPredictedPeriodClass(day)
                 )}
               >
                 <span className={cn(
-                  "w-6 h-6 flex items-center justify-center rounded-full text-sm pointer-events-auto",
+                  "w-6 h-6 flex items-center justify-center rounded-full text-xs pointer-events-auto",
                   isToday(day) ? "bg-blue-500 text-white" : ""
                 )}>
                   {format(day, 'd')}
@@ -506,13 +508,13 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
 
       {/* Log dialog */}
       <Dialog open={showLogDialog} onOpenChange={setShowLogDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>
               {selectedDate ? `Log for ${format(selectedDate, 'MMMM d, yyyy')}` : 'Log your cycle'}
             </DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[50vh]">
+          <ScrollArea className="max-h-[50vh] pr-4">
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <h4 className="font-medium">Flow</h4>
