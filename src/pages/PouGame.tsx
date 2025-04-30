@@ -598,7 +598,6 @@ const PouGame = () => {
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 flex items-center justify-center relative">
                   <Flame className="w-5 h-5 text-orange-500 animate-pulse" />
-                  <span className="text-sm font-bold ml-2">{streak}</span>
                 </div>
                 <div className="w-8 h-8 flex items-center justify-center">
                   <img 
@@ -763,50 +762,3 @@ const PouGame = () => {
                 <GroceryList phase={currentPhase} />
               </div>
             )}
-          </div>
-
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4 back-button">
-            <Button 
-              variant="outline" 
-              className="w-full hover:scale-105 transition-transform duration-300"
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Menu
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Tutorial component */}
-      {showTutorial && <UterooTutorial onClose={() => setShowTutorial(false)} />}
-
-      <YogaPoseModal 
-        isOpen={showYogaPoses}
-        onClose={() => setShowYogaPoses(false)}
-        poses={yogaPoses}
-        phase={currentPhase}
-      />
-
-      <ProductivityTipsModal 
-        isOpen={showProductivityTips}
-        onClose={() => setShowProductivityTips(false)}
-        phase={currentPhase}
-      />
-
-      <JournalingModal
-        isOpen={showJournalingModal}
-        onClose={() => setShowJournalingModal(false)}
-        phase={currentPhase}
-      />
-
-      <BloodworkModal 
-        isOpen={showBloodworkModal}
-        onClose={() => setShowBloodworkModal(false)}
-        phase={currentPhase}
-      />
-    </div>
-  );
-};
-
-export default PouGame;
