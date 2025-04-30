@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -51,9 +50,9 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
       setBucketCreationInProgress(true);
       
       // Create the bloodwork bucket if it doesn't exist
-      const { data, error } = await supabase.rpc('create_storage_bucket', {
-        bucket_id: 'bloodwork',
-        bucket_public: false
+      const { data, error } = await supabase.storage.createBucket({
+        id: 'bloodwork',
+        public: false
       });
 
       if (error) {
