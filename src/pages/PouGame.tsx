@@ -6,7 +6,7 @@ import {
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
   Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Beaker,
-  Flame, HelpCircle
+  Flame, HelpCircle, Calendar
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,7 @@ import { ProductivityTipsModal } from "@/components/ProductivityTipsModal";
 import { JournalingModal } from "@/components/JournalingModal";
 import { BloodworkModal } from "@/components/BloodworkModal";
 import { UterooTutorial } from "@/components/UterooTutorial";
+import { CycleSanctuary } from "@/components/CycleSanctuary";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -155,6 +156,12 @@ const rooms = [
     id: "lab", 
     name: "The Lab", 
     icon: Beaker,
+    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+  },
+  { 
+    id: "cycle_sanctuary", 
+    name: "Cycle Sanctuary", 
+    icon: Calendar,
     background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
   },
 ];
@@ -689,36 +696,49 @@ const PouGame = () => {
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex gap-8 enemies-section">
-              {currentEnemies.map((enemy) => (
-                <div key={enemy.id} className="relative flex flex-col items-center">
-                  <img 
-                    src={enemy.icon} 
-                    alt={enemy.name}
-                    className="w-20 h-20 object-contain pixelated"
-                  />
-                  <span className="text-sm font-bold mt-2">{enemy.name}</span>
-                  {showDamage && (
-                    <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-red-500 font-bold animate-bounce">
-                      -1 HP
-                    </span>
-                  )}
+            {currentRoom.id !== "cycle_sanctuary" && (
+              <>
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex gap-8 enemies-section">
+                  {currentEnemies.map((enemy) => (
+                    <div key={enemy.id} className="relative flex flex-col items-center">
+                      <img 
+                        src={enemy.icon} 
+                        alt={enemy.name}
+                        className="w-20 h-20 object-contain pixelated"
+                      />
+                      <span className="text-sm font-bold mt-2">{enemy.name}</span>
+                      {showDamage && (
+                        <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-red-500 font-bold animate-bounce">
+                          -1 HP
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative">
-                <UterooCharacter phase={currentPhase} />
-                {showBoostIndicator && (
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 animate-bounce text-lg font-bold text-green-500">
-                    +1 {boostType}!
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative">
+                    <UterooCharacter phase={currentPhase} />
+                    {showBoostIndicator && (
+                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 animate-bounce text-lg font-bold text-green-500">
+                        +1 {boostType}!
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              </>
+            )}
 
-            {currentRoomBoosters.length > 0 && (
+            {currentRoom.id === "cycle_sanctuary" && (
+              <div className="w-full h-full max-w-3xl mx-auto overflow-auto">
+                <CycleSanctuary 
+                  currentPhase={currentPhase} 
+                  onPhaseChange={handlePhaseChange} 
+                />
+              </div>
+            )}
+
+            {currentRoomBoosters.length > 0 && currentRoom.id !== "cycle_sanctuary" && (
               <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl boosters-section">
                 <div className="flex gap-4 justify-center">
                   {currentRoomBoosters.map((item) => (
