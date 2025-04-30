@@ -50,10 +50,7 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
       setBucketCreationInProgress(true);
       
       // Create the bloodwork bucket if it doesn't exist
-      const { data, error } = await supabase.storage.createBucket({
-        id: 'bloodwork',
-        public: false
-      });
+      const { data, error } = await supabase.storage.createBucket('bloodwork', { public: false });
 
       if (error) {
         console.error("Error creating bloodwork bucket:", error);
