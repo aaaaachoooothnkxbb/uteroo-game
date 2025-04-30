@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -175,6 +174,11 @@ const roomBoosters = {
       type: "hunger" as const,
       icon: "/lovable-uploads/d2c58694-d998-412e-98ea-f07e05603033.png",
       boost: 15,
+      tooltip: {
+        title: "Nutrición en tu ciclo",
+        description: "Los alimentos ricos en hierro y proteínas son especialmente importantes durante la menstruación para reponer los nutrientes perdidos.",
+        learnMoreUrl: "https://www.healthline.com/health/womens-health/menstrual-cycle-diet"
+      }
     }
   ],
   bathroom: [
@@ -184,6 +188,11 @@ const roomBoosters = {
       type: "hygiene" as const,
       icon: "/lovable-uploads/861f1be0-201e-4269-be4e-3b74dbb8e136.png",
       boost: 20,
+      tooltip: {
+        title: "Auto-cuidado hormonal",
+        description: "Los rituales de cuidado personal ayudan a reducir el cortisol (hormona del estrés) que puede desequilibrar tus niveles hormonales.",
+        learnMoreUrl: "https://www.medicalnewstoday.com/articles/322317"
+      }
     }
   ],
   bedroom: [
@@ -193,6 +202,10 @@ const roomBoosters = {
       type: "happiness" as const,
       icon: "/lovable-uploads/3f7be505-d8c4-43e8-b44e-92332022c3f1.png",
       boost: 15,
+      tooltip: {
+        title: "Descanso mental",
+        description: "La lectura antes de dormir reduce los niveles de cortisol y mejora la calidad del sueño, especialmente importante durante la fase lútea."
+      }
     },
     {
       id: "journal",
@@ -200,7 +213,11 @@ const roomBoosters = {
       type: "happiness" as const,
       icon: "/lovable-uploads/db737ae2-ab52-4d61-af92-95a81616243d.png",
       boost: 15,
-      journalingItem: true
+      journalingItem: true,
+      tooltip: {
+        title: "Seguimiento emocional",
+        description: "Escribir sobre tus emociones ayuda a identificar patrones relacionados con tu ciclo hormonal y a desarrollar estrategias de afrontamiento."
+      }
     },
     {
       id: "affirmations",
@@ -208,7 +225,10 @@ const roomBoosters = {
       type: "happiness" as const,
       icon: "/lovable-uploads/0d952487-7b39-49f2-b2d5-7a34cfcd37da.png",
       boost: 20,
-      onClick: () => window.open('https://open.spotify.com/intl-es/album/2ptz0mo135CScaIxz3Fz7q?si=dd_BEvOpRa6nYjIuHsuNDQ', '_blank')
+      onClick: () => window.open('https://open.spotify.com/intl-es/album/2ptz0mo135CScaIxz3Fz7q?si=dd_BEvOpRa6nYjIuHsuNDQ', '_blank'),
+      tooltip: {
+        description: "Las afirmaciones positivas pueden ayudar a equilibrar los cambios de humor relacionados con las fluctuaciones de estrógeno y progesterona."
+      }
     }
   ],
   exercise: [
@@ -218,7 +238,12 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/de0368a0-d48f-46c5-99c6-fec67d055986.png",
       boost: 20,
-      onClick: (currentPhase: string, openYogaPoses: () => void) => openYogaPoses()
+      onClick: (currentPhase: string, openYogaPoses: () => void) => openYogaPoses(),
+      tooltip: {
+        title: "Yoga hormonal",
+        description: "Ciertas posturas de yoga pueden ayudar a aliviar los cólicos menstruales al reducir la inflamación y mejorar el flujo sanguíneo en la región pélvica.",
+        learnMoreUrl: "https://www.healthline.com/health/yoga-for-menstrual-cramps"
+      }
     },
     {
       id: "meditation",
@@ -226,7 +251,11 @@ const roomBoosters = {
       type: "happiness" as const,
       icon: "/lovable-uploads/c00b6791-8007-435f-a0fd-63104a0d898b.png",
       boost: 25,
-      meditationPlaylist: true
+      meditationPlaylist: true,
+      tooltip: {
+        title: "Meditación y hormonas",
+        description: "La meditación regular puede reducir los niveles de cortisol y aumentar la serotonina, ayudando a equilibrar las fluctuaciones hormonales durante tu ciclo."
+      }
     }
   ],
   games: [],
@@ -237,7 +266,10 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/959696ca-9468-41f5-92f4-34af0b40294b.png",
       boost: 15,
-      onClick: () => window.open('https://docs.google.com/spreadsheets/d/1FcwVQGfEp9t6u00AUhgIr5wjmTwMXe2kIb3eWQbiq5o/edit?gid=0#gid=0', '_blank')
+      onClick: () => window.open('https://docs.google.com/spreadsheets/d/1FcwVQGfEp9t6u00AUhgIr5wjmTwMXe2kIb3eWQbiq5o/edit?gid=0#gid=0', '_blank'),
+      tooltip: {
+        description: "Planificar actividades según tu fase del ciclo puede ayudarte a aprovechar tus fluctuaciones de energía naturales."
+      }
     },
     {
       id: "productivity_tips",
@@ -245,7 +277,11 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/8a96a5ad-54d1-431d-816c-aaf25e1a3a99.png",
       boost: 20,
-      onClick: (currentPhase: string, openProductivityTips: () => void) => openProductivityTips()
+      onClick: (currentPhase: string, openProductivityTips: () => void) => openProductivityTips(),
+      tooltip: {
+        title: "Productividad cíclica",
+        description: "Tu productividad varía naturalmente con tu ciclo hormonal. Aprovecha la fase folicular para iniciar proyectos y la fase lútea para tareas detalladas."
+      }
     }
   ],
   shop: [
@@ -255,7 +291,11 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/c5a3a3fe-1f7c-43fd-af31-47b307feb425.png",
       boost: 30,
-      cost: 50
+      cost: 50,
+      tooltip: {
+        title: "Impulso energético",
+        description: "La fatiga durante la menstruación se debe a la pérdida de hierro. Los suplementos naturales pueden ayudar a reponer tus niveles de energía."
+      }
     },
     {
       id: "happiness_crystal",
@@ -263,7 +303,10 @@ const roomBoosters = {
       type: "happiness" as const,
       icon: "/lovable-uploads/79e01f75-20fb-4814-a2d3-219a420a385b.png",
       boost: 25,
-      cost: 40
+      cost: 40,
+      tooltip: {
+        description: "Los cambios de humor pueden ser causados por fluctuaciones en los niveles de serotonina durante tu ciclo. Ciertas actividades pueden ayudar a estabilizarla."
+      }
     },
     {
       id: "hygiene_kit",
@@ -271,7 +314,11 @@ const roomBoosters = {
       type: "hygiene" as const,
       icon: "/lovable-uploads/8e841183-dbb4-442b-a052-1e662e6b5e62.png",
       boost: 35,
-      cost: 45
+      cost: 45,
+      tooltip: {
+        title: "Cuidado íntimo",
+        description: "El pH vaginal cambia durante tu ciclo. Es importante usar productos suaves y naturales, especialmente durante la menstruación."
+      }
     }
   ],
   lab: [
@@ -281,7 +328,12 @@ const roomBoosters = {
       type: "energy" as const,
       icon: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png",
       boost: 25,
-      bloodworkAnalysis: true
+      bloodworkAnalysis: true,
+      tooltip: {
+        title: "Análisis hormonal",
+        description: "Conocer tus niveles hormonales puede ayudarte a entender mejor tu ciclo y cualquier síntoma inusual que puedas experimentar.",
+        learnMoreUrl: "https://helloclue.com/articles/cycle-a-z/hormone-levels-throughout-your-menstrual-cycle"
+      }
     }
   ],
 };
@@ -544,8 +596,111 @@ const PouGame = () => {
     });
   };
 
+  // Add enemies tooltip information
+  const getEnemyTooltip = (enemyId: string) => {
+    const tooltips: Record<string, {title: string, description: string}> = {
+      "cramps": {
+        title: "Cólicos menstruales", 
+        description: "Los cólicos son causados por prostaglandinas, que hacen que el útero se contraiga. Los boosters de calor y ciertos estiramientos pueden aliviarlos."
+      },
+      "fatigue": {
+        title: "Fatiga menstrual", 
+        description: "La fatiga durante la menstruación se debe principalmente a la pérdida de hierro. Descansar y consumir alimentos ricos en hierro puede ayudar."
+      },
+      "anxiety": {
+        title: "Ansiedad hormonal", 
+        description: "Los cambios en los niveles de estrógeno pueden afectar los neurotransmisores que regulan el estado de ánimo. La meditación y respiración profunda son útiles."
+      },
+      "migraine": {
+        title: "Migraña menstrual", 
+        description: "Las migrañas pueden ser desencadenadas por la caída de estrógeno antes de la menstruación. La hidratación y evitar desencadenantes ayuda a prevenirlas."
+      },
+      "sensitivity": {
+        title: "Sensibilidad aumentada", 
+        description: "El aumento de progesterona puede causar mayor sensibilidad emocional. Es normal y puede ser una buena oportunidad para la introspección."
+      },
+      "irritability": {
+        title: "Irritabilidad premenstrual", 
+        description: "La fluctuación del estrógeno y la progesterona puede afectar los niveles de serotonina, causando irritabilidad. El ejercicio moderado puede ayudar."
+      },
+      "sadness": {
+        title: "Tristeza premenstrual", 
+        description: "Los cambios hormonales pueden afectar los neurotransmisores relacionados con el estado de ánimo. El autocuidado y el apoyo social son importantes."
+      }
+    };
+
+    return tooltips[enemyId] || null;
+  };
+
+  const renderEnemies = () => {
+    return currentEnemies.map((enemy) => (
+      <div key={enemy.id} className="relative flex flex-col items-center">
+        <TooltipProvider>
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>
+              <div className="relative cursor-help">
+                <img 
+                  src={enemy.icon} 
+                  alt={enemy.name}
+                  className="w-20 h-20 object-contain pixelated"
+                />
+                <div className="absolute -top-2 -right-2">
+                  <div className="bg-white/80 rounded-full p-0.5 shadow-sm">
+                    <HelpCircle className="h-4 w-4 text-primary" />
+                  </div>
+                </div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent 
+              side="top" 
+              className="max-w-[250px] p-4 bg-white/95 backdrop-blur-sm text-left"
+            >
+              {getEnemyTooltip(enemy.id) ? (
+                <>
+                  <h4 className="font-semibold mb-1">{getEnemyTooltip(enemy.id)?.title}</h4>
+                  <p className="text-sm">{getEnemyTooltip(enemy.id)?.description}</p>
+                </>
+              ) : (
+                <p className="text-sm">Este síntoma está relacionado con los cambios hormonales de tu ciclo.</p>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <span className="text-sm font-bold mt-2">{enemy.name}</span>
+        {showDamage && (
+          <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-red-500 font-bold animate-bounce">
+            -1 HP
+          </span>
+        )}
+      </div>
+    ));
+  };
+
+  // Add phase progress indicator
+  const renderPhaseProgress = () => {
+    // This is a simplified version - in a real implementation, you'd calculate actual days
+    const currentDay = 2; // Assuming day 2 of the phase for demonstration
+    const phaseDuration = 7; // Assuming 7 days per phase for demonstration
+    const nextPhase = currentPhase === 'menstruation' ? 'follicular' : 
+                     currentPhase === 'follicular' ? 'ovulatory' :
+                     currentPhase === 'ovulatory' ? 'luteal' : 'menstruation';
+    
+    const nextPhaseInfo = phaseInfo[nextPhase];
+    
+    return (
+      <div className="mb-4 px-4">
+        <div className="flex justify-between items-center text-xs mb-1">
+          <span className="font-medium">Día {currentDay}/{phaseDuration} de {phaseInfo[currentPhase].subtitle}</span>
+          <span>Próximo: {nextPhaseInfo.subtitle}</span>
+        </div>
+        <Progress value={(currentDay/phaseDuration) * 100} className="h-1" />
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen relative">
+      
       <div 
         className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-500"
         style={{ 
@@ -571,242 +726,10 @@ const PouGame = () => {
             </Button>
           </div>
           <h2 className="text-xl font-semibold text-center mb-2">{phase.subtitle}</h2>
+          {renderPhaseProgress()}
           <div className="flex justify-center gap-2 px-4 phase-buttons">
             {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
               const PhaseIconComponent = phaseInfo[phaseName].icon;
               return (
                 <Button
                   key={phaseName}
-                  variant={currentPhase === phaseName ? "default" : "outline"}
-                  onClick={() => handlePhaseChange(phaseName)}
-                  className={cn(
-                    "h-12 w-12 rounded-full p-0 flex items-center justify-center",
-                    currentPhase === phaseName 
-                      ? `bg-${phaseInfo[phaseName].color}-600 hover:bg-${phaseInfo[phaseName].color}-700 text-white` 
-                      : `bg-white hover:bg-gray-100 text-gray-900 border-2 border-${phaseInfo[phaseName].color}-500`
-                  )}
-                >
-                  <PhaseIconComponent className="w-6 h-6" />
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="fixed top-32 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
-          <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 flex items-center justify-center relative">
-                  <Flame className="w-5 h-5 text-orange-500 animate-pulse" />
-                </div>
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <img 
-                    src="/lovable-uploads/9d2927cf-4bef-4f50-bcd7-815713718bcd.png" 
-                    alt="Coins"
-                    className="w-full h-full object-contain pixelated"
-                  />
-                  <span className="text-sm font-bold ml-2">{stats.coins}</span>
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-4 flex-1 max-w-xs mx-4 stats-bars">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center">
-                    <Apple className="w-4 h-4 text-orange-500 animate-pulse" />
-                  </div>
-                  <Progress 
-                    value={stats.hunger} 
-                    className="h-2 transition-all duration-500"
-                    indicatorClassName={getProgressColor(stats.hunger)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center">
-                    <Droplet className="w-4 h-4 text-blue-500 animate-pulse" />
-                  </div>
-                  <Progress 
-                    value={stats.hygiene} 
-                    className="h-2 transition-all duration-500"
-                    indicatorClassName={getProgressColor(stats.hygiene)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center">
-                    <BatteryFull className="w-4 h-4 text-green-500 animate-pulse" />
-                  </div>
-                  <Progress 
-                    value={stats.energy} 
-                    className="h-2 transition-all duration-500"
-                    indicatorClassName={getProgressColor(stats.energy)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center">
-                    <Heart className="w-4 h-4 text-red-500 animate-pulse" />
-                  </div>
-                  <Progress 
-                    value={stats.happiness} 
-                    className="h-2 transition-all duration-500"
-                    indicatorClassName={getProgressColor(stats.happiness)}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="fixed top-44 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
-          <div className="max-w-md mx-auto flex items-center justify-between room-navigation">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handlePreviousRoom}
-              className="h-10 w-10 rounded-full hover:bg-gray-100"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            
-            <div className="flex items-center justify-center">
-              <Button
-                variant="default"
-                size="icon"
-                className="h-10 w-10 rounded-full p-0"
-              >
-                {(() => {
-                  const RoomIcon = currentRoom.icon;
-                  return <RoomIcon className="h-5 w-5" />;
-                })()}
-              </Button>
-            </div>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleNextRoom}
-              className="h-10 w-10 rounded-full hover:bg-gray-100"
-            >
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex-1 pt-64">
-          <div 
-            className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[60vh]"
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-          >
-            {currentRoom.id !== "cycle_sanctuary" && (
-              <>
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex gap-8 enemies-section">
-                  {currentEnemies.map((enemy) => (
-                    <div key={enemy.id} className="relative flex flex-col items-center">
-                      <img 
-                        src={enemy.icon} 
-                        alt={enemy.name}
-                        className="w-20 h-20 object-contain pixelated"
-                      />
-                      <span className="text-sm font-bold mt-2">{enemy.name}</span>
-                      {showDamage && (
-                        <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-red-500 font-bold animate-bounce">
-                          -1 HP
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative">
-                    <UterooCharacter phase={currentPhase} />
-                    {showBoostIndicator && (
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 animate-bounce text-lg font-bold text-green-500">
-                        +1 {boostType}!
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {currentRoom.id === "cycle_sanctuary" && (
-              <div className="w-full h-full max-w-3xl mx-auto overflow-auto">
-                <CycleSanctuary 
-                  currentPhase={currentPhase} 
-                  onPhaseChange={handlePhaseChange} 
-                />
-              </div>
-            )}
-
-            {currentRoomBoosters.length > 0 && currentRoom.id !== "cycle_sanctuary" && (
-              <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl boosters-section">
-                <div className="flex gap-4 justify-center">
-                  {currentRoomBoosters.map((item) => (
-                    <DraggableItem
-                      key={item.id}
-                      id={item.id}
-                      type={item.type}
-                      icon={item.icon}
-                      boost={item.boost}
-                      onDrop={() => {}}
-                      onClick={() => handleBoosterClick(item)}
-                      meditationPlaylist={item.meditationPlaylist}
-                      journalingItem={item.journalingItem}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {currentRoom.id === "kitchen" && (
-              <div className="absolute bottom-4 right-4">
-                <GroceryList phase={currentPhase} />
-              </div>
-            )}
-          </div>
-
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4 back-button">
-            <Button 
-              variant="outline" 
-              className="w-full hover:scale-105 transition-transform duration-300"
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Menu
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Tutorial component */}
-      {showTutorial && <UterooTutorial onClose={() => setShowTutorial(false)} />}
-
-      <YogaPoseModal 
-        isOpen={showYogaPoses}
-        onClose={() => setShowYogaPoses(false)}
-        poses={yogaPoses}
-        phase={currentPhase}
-      />
-
-      <ProductivityTipsModal 
-        isOpen={showProductivityTips}
-        onClose={() => setShowProductivityTips(false)}
-        phase={currentPhase}
-      />
-
-      <JournalingModal
-        isOpen={showJournalingModal}
-        onClose={() => setShowJournalingModal(false)}
-        phase={currentPhase}
-      />
-
-      <BloodworkModal 
-        isOpen={showBloodworkModal}
-        onClose={() => setShowBloodworkModal(false)}
-        phase={currentPhase}
-      />
-    </div>
-  );
-};
-
-export default PouGame;
