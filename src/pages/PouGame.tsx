@@ -6,7 +6,7 @@ import {
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
   Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Beaker,
-  Flame
+  Flame, HelpCircle
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ import { YogaPoseModal } from "@/components/YogaPoseModal";
 import { ProductivityTipsModal } from "@/components/ProductivityTipsModal";
 import { JournalingModal } from "@/components/JournalingModal";
 import { BloodworkModal } from "@/components/BloodworkModal";
+import { UterooTutorial } from "@/components/UterooTutorial";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -300,6 +301,7 @@ const PouGame = () => {
   const [showProductivityTips, setShowProductivityTips] = useState(false);
   const [showJournalingModal, setShowJournalingModal] = useState(false);
   const [showBloodworkModal, setShowBloodworkModal] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   // Load streak from localStorage on component mount
   useEffect(() => {
@@ -549,29 +551,37 @@ const PouGame = () => {
       
       <div className="relative z-10 min-h-screen flex flex-col">
         <div className="fixed top-0 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
-          <div className="max-w-md mx-auto">
-            <h1 className="text-2xl font-bold text-center">{phase.name}</h1>
-            <h2 className="text-xl font-semibold text-center mb-2">{phase.subtitle}</h2>
-            <div className="flex justify-center gap-2 px-4">
-              {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
-                const PhaseIconComponent = phaseInfo[phaseName].icon;
-                return (
-                  <Button
-                    key={phaseName}
-                    variant={currentPhase === phaseName ? "default" : "outline"}
-                    onClick={() => handlePhaseChange(phaseName)}
-                    className={cn(
-                      "h-12 w-12 rounded-full p-0 flex items-center justify-center",
-                      currentPhase === phaseName 
-                        ? `bg-${phaseInfo[phaseName].color}-600 hover:bg-${phaseInfo[phaseName].color}-700 text-white` 
-                        : `bg-white hover:bg-gray-100 text-gray-900 border-2 border-${phaseInfo[phaseName].color}-500`
-                    )}
-                  >
-                    <PhaseIconComponent className="w-6 h-6" />
-                  </Button>
-                );
-              })}
-            </div>
+          <div className="max-w-md mx-auto flex items-center justify-between">
+            <h1 className="text-2xl font-bold">{phase.name}</h1>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full bg-white/50 hover:bg-white/70"
+              onClick={() => setShowTutorial(true)}
+            >
+              <HelpCircle className="h-5 w-5" />
+            </Button>
+          </div>
+          <h2 className="text-xl font-semibold text-center mb-2">{phase.subtitle}</h2>
+          <div className="flex justify-center gap-2 px-4 phase-buttons">
+            {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
+              const PhaseIconComponent = phaseInfo[phaseName].icon;
+              return (
+                <Button
+                  key={phaseName}
+                  variant={currentPhase === phaseName ? "default" : "outline"}
+                  onClick={() => handlePhaseChange(phaseName)}
+                  className={cn(
+                    "h-12 w-12 rounded-full p-0 flex items-center justify-center",
+                    currentPhase === phaseName 
+                      ? `bg-${phaseInfo[phaseName].color}-600 hover:bg-${phaseInfo[phaseName].color}-700 text-white` 
+                      : `bg-white hover:bg-gray-100 text-gray-900 border-2 border-${phaseInfo[phaseName].color}-500`
+                  )}
+                >
+                  <PhaseIconComponent className="w-6 h-6" />
+                </Button>
+              );
+            })}
           </div>
         </div>
 
@@ -592,7 +602,7 @@ const PouGame = () => {
                   <span className="text-sm font-bold ml-2">{stats.coins}</span>
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-4 flex-1 max-w-xs mx-4">
+              <div className="grid grid-cols-4 gap-4 flex-1 max-w-xs mx-4 stats-bars">
                 <div className="space-y-1">
                   <div className="flex items-center justify-center">
                     <Apple className="w-4 h-4 text-orange-500 animate-pulse" />
@@ -639,7 +649,7 @@ const PouGame = () => {
         </div>
 
         <div className="fixed top-44 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
-          <div className="max-w-md mx-auto flex items-center justify-between">
+          <div className="max-w-md mx-auto flex items-center justify-between room-navigation">
             <Button
               variant="ghost"
               size="icon"
@@ -679,7 +689,7 @@ const PouGame = () => {
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex gap-8">
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex gap-8 enemies-section">
               {currentEnemies.map((enemy) => (
                 <div key={enemy.id} className="relative flex flex-col items-center">
                   <img 
@@ -709,7 +719,7 @@ const PouGame = () => {
             </div>
 
             {currentRoomBoosters.length > 0 && (
-              <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl">
+              <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/5 p-6 rounded-xl w-[90%] max-w-2xl boosters-section">
                 <div className="flex gap-4 justify-center">
                   {currentRoomBoosters.map((item) => (
                     <DraggableItem
@@ -735,7 +745,7 @@ const PouGame = () => {
             )}
           </div>
 
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4 back-button">
             <Button 
               variant="outline" 
               className="w-full hover:scale-105 transition-transform duration-300"
@@ -747,6 +757,9 @@ const PouGame = () => {
           </div>
         </div>
       </div>
+
+      {/* Tutorial component */}
+      {showTutorial && <UterooTutorial onClose={() => setShowTutorial(false)} />}
 
       <YogaPoseModal 
         isOpen={showYogaPoses}
