@@ -28,6 +28,7 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
   const [cookieConsent, setCookieConsent] = useState<'all' | 'essential' | 'none' | null>(null);
   const [showCookieDialog, setShowCookieDialog] = useState(true);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [bucketCreationInProgress, setBucketCreationInProgress] = useState(false);
   
   // Initialize form
   const form = useForm<z.infer<typeof formSchema>>({
@@ -42,6 +43,44 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
       form.setValue("file", e.target.files[0]);
       setAnalysisResult(null);
       setUploadError(null);
+    }
+  };
+
+  const createBloodworkBucket = async () => {
+    try {
+      setBucketCreationInProgress(true);
+      
+      // Create the bloodwork bucket if it doesn't exist
+      const { data: { id }, error } = await supabase.rpc('create_storage_bucket', {
+        bucket_id: 'bloodwork',
+        bucket_public: false
+      });
+
+      if (error) {
+        console.error("Error creating bloodwork bucket:", error);
+        toast({
+          title: "Storage setup failed",
+          description: `Unable to setup storage: ${error.message}`,
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      toast({
+        title: "Storage setup complete",
+        description: "Bloodwork storage is now ready to use",
+      });
+      return true;
+    } catch (error: any) {
+      console.error("Exception creating bloodwork bucket:", error);
+      toast({
+        title: "Storage setup failed",
+        description: `An unexpected error occurred: ${error.message}`,
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setBucketCreationInProgress(false);
     }
   };
 
@@ -71,8 +110,12 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
       
       const bloodworkBucketExists = buckets.some(bucket => bucket.name === 'bloodwork');
       
+      // If the bloodwork bucket doesn't exist, try to create it
       if (!bloodworkBucketExists) {
-        throw new Error("Bloodwork bucket not found. Please contact support.");
+        const bucketCreated = await createBloodworkBucket();
+        if (!bucketCreated) {
+          throw new Error("Could not create bloodwork storage. Please contact support.");
+        }
       }
       
       // Upload to storage
@@ -84,53 +127,11 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
 
       if (error) throw error;
 
-      // Simulate bloodwork analysis with structured response format
+      // Simulate bloodwork analysis with structured response format based on the phase
       setTimeout(() => {
-        // Mock analysis results based on the current phase
-        const analysisResults = {
-          menstruation: {
-            criticalAlerts: ["Iron levels slightly low → Keep an eye on your energy levels"],
-            wellnessOpportunities: ["Vitamin B → Try including more leafy greens and beans in your diet"],
-            balanced: ["Hormone balance → Great job keeping things in check!"]
-          },
-          follicular: {
-            criticalAlerts: [],
-            wellnessOpportunities: ["Magnesium → Consider adding nuts and seeds to your diet"],
-            balanced: ["Estrogen levels → Perfect balance for this phase!"]
-          },
-          ovulatory: {
-            criticalAlerts: [],
-            wellnessOpportunities: ["Zinc → Pumpkin seeds and oysters can help boost levels"],
-            balanced: ["Estrogen → Peak levels looking fantastic!"]
-          },
-          luteal: {
-            criticalAlerts: [],
-            wellnessOpportunities: ["Vitamin D → Try getting more sunlight or consider supplements"],
-            balanced: ["Progesterone → Very good levels for this phase"]
-          }
-        };
-        
-        const results = analysisResults[phase as keyof typeof analysisResults];
-        
-        // Format the analysis according to the structured template
-        const formattedAnalysis = `
-### 🩸 Bloodwork Breakdown
-
-${results.criticalAlerts.length > 0 ? `**1. 🚨 Critical Alerts**
-${results.criticalAlerts.map(alert => `- ${alert}`).join('\n')}
-` : ''}
-
-**2. 💖 Wellness Opportunities**
-${results.wellnessOpportunities.map(opp => `- ${opp}`).join('\n')}
-
-**3. ✨ Perfectly Balanced**
-${results.balanced.map(bal => `- ${bal}`).join('\n')}
-
-**4. ⚠️ Legal Footer**
-*These insights are general wellness suggestions, not medical advice. Always consult your doctor. Data processed per GDPR/LOPDGDD.*
-        `;
-        
-        setAnalysisResult(formattedAnalysis);
+        // Get the appropriate analysis for this phase
+        const analysisResults = generateAnalysisForPhase(phase);
+        setAnalysisResult(analysisResults);
         
         toast({
           title: "Analysis Complete",
@@ -150,6 +151,65 @@ ${results.balanced.map(bal => `- ${bal}`).join('\n')}
       });
       setUploading(false);
     }
+  };
+
+  const generateAnalysisForPhase = (phase: string): string => {
+    // Create phase-specific analysis based on the provided template
+    const phaseData = {
+      menstruation: {
+        criticalAlerts: ["Iron levels are lower than optimal → Book a follow up with your doctor within the next 2 weeks"],
+        wellnessOpportunities: [
+          "Vitamin B → Those B vitamins are giving 'meh' energy vibes! Try:\n- 🥬 Add leafy greens and beans to your meals\n- 🥚 Enjoy 2 eggs at breakfast\n- 🌱 Consider a B-complex if fatigue persists",
+          "Magnesium → Your levels are giving 'need a spa day' energy! Try:\n- 🥑 Add avocados and bananas to your diet\n- 🌰 Snack on some almonds or cashews\n- 🧴 Try magnesium lotion before bed for better sleep"
+        ],
+        balanced: ["Hormone balance → Your estrogen and progesterone are working beautifully together!", "Blood sugar → Perfect glucose levels! Keep up those stable energy habits!"]
+      },
+      follicular: {
+        criticalAlerts: [],
+        wellnessOpportunities: [
+          "Magnesium → Your levels could use a little boost! Try:\n- 🥜 Add more nuts and seeds to your diet\n- 🍌 Enjoy a banana daily\n- 🌊 Consider an Epsom salt bath for absorption through skin",
+          "Vitamin D → You're giving 'indoor cat' energy! Try:\n- ☀️ 15 minutes of morning sun (with SPF!)\n- 🍳 Add more egg yolks to your diet\n- 🐟 Wild-caught fatty fish twice a week" 
+        ],
+        balanced: ["Estrogen → Looking fantastic as you build toward ovulation!", "Iron → Great levels, your body is prepped for a strong cycle!"]
+      },
+      ovulatory: {
+        criticalAlerts: [],
+        wellnessOpportunities: [
+          "Zinc → Your egg quality support system needs some love! Try:\n- 🦪 Oysters (zinc superstars!)\n- 🎃 Pumpkin seeds make a great daily snack\n- 🥩 Red meat 1-2 times this week",
+          "Antioxidants → Boost your fertility vibes with:\n- 🫐 Daily berries for cell protection\n- 🌈 Eat a 'rainbow' of vegetables\n- 🍵 Green tea (limit to 2 cups daily)"
+        ],
+        balanced: ["Estrogen → Peak levels looking absolutely perfect!", "Metabolic markers → Your energy processing systems are working efficiently!"]
+      },
+      luteal: {
+        criticalAlerts: [],
+        wellnessOpportunities: [
+          "Vitamin D → Your sunshine vitamin could use some love! Try:\n- 🌞 Morning walks with SPF\n- 🥛 Fortified plant milk or dairy\n- 💊 D3+K2 supplement for better absorption",
+          "Omega-3s → Your anti-inflammation squad needs backup! Try:\n- 🐟 Fatty fish 2x this week\n- 🌱 Add ground flaxseed to your smoothies\n- 🥑 Avocados for healthy fats"
+        ],
+        balanced: ["Progesterone → Very good levels supporting your luteal phase!", "Thyroid function → Perfect T3/T4 balance for metabolic health!"]
+      }
+    };
+    
+    const results = phaseData[phase as keyof typeof phaseData];
+    
+    // Format the analysis according to the structured template
+    const formattedAnalysis = `
+### 🩸 Bloodwork Breakdown
+
+${results.criticalAlerts.length > 0 ? `**1. 🚨 Critical Alerts**
+${results.criticalAlerts.map(alert => `- ${alert}`).join('\n')}
+
+` : ''}**2. 💖 Wellness Opportunities**
+${results.wellnessOpportunities.map(opp => `- ${opp}`).join('\n\n')}
+
+**3. ✨ Perfectly Balanced**
+${results.balanced.map(bal => `- ${bal}`).join('\n')}
+
+**4. ⚠️ Legal Footer**
+*These insights are general wellness suggestions, not medical advice. Always consult your doctor. Data processed per GDPR/LOPDGDD.*
+    `;
+    
+    return formattedAnalysis;
   };
 
   const handleCookieConsent = (choice: 'all' | 'essential' | 'none') => {
@@ -338,10 +398,10 @@ ${results.balanced.map(bal => `- ${bal}`).join('\n')}
           <Button variant="outline" onClick={onClose}>Maybe Later</Button>
           <Button 
             onClick={handleUpload} 
-            disabled={!form.getValues("file") || uploading}
+            disabled={!form.getValues("file") || uploading || bucketCreationInProgress}
             className="bg-pink-500 hover:bg-pink-600"
           >
-            {uploading ? "Working Magic..." : "Let's Do This!"}
+            {uploading ? "Working Magic..." : bucketCreationInProgress ? "Setting Up Storage..." : "Let's Do This!"}
           </Button>
         </DialogFooter>
       </DialogContent>
