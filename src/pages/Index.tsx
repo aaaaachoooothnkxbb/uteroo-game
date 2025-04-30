@@ -77,9 +77,11 @@ const Index = () => {
             className="w-[500px] h-[500px] object-contain animate-[bounce_2s_ease-in-out_infinite]"
           />
           <div className="w-64 h-16 bg-pink-100 rounded-2xl flex items-center justify-center shadow-lg">
-            <span className="text-6xl font-bold font-sans tracking-wider text-pink-500">
-              UTEROO
-            </span>
+            <img
+              src="lovable-uploads/790172fa-27b1-4ab3-a3ef-3f10cdac5181.png"
+              alt="Uteroo"
+              className="h-12 object-contain"
+            />
           </div>
         </div>
 
