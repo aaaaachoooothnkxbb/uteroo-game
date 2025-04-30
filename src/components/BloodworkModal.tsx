@@ -51,7 +51,7 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
       setBucketCreationInProgress(true);
       
       // Create the bloodwork bucket if it doesn't exist
-      const { data: { id }, error } = await supabase.rpc('create_storage_bucket', {
+      const { data, error } = await supabase.rpc('create_storage_bucket', {
         bucket_id: 'bloodwork',
         bucket_public: false
       });
@@ -155,7 +155,11 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
 
   const generateAnalysisForPhase = (phase: string): string => {
     // Create phase-specific analysis based on the provided template
-    const phaseData = {
+    const phaseData: Record<string, {
+      criticalAlerts: string[];
+      wellnessOpportunities: string[];
+      balanced: string[];
+    }> = {
       menstruation: {
         criticalAlerts: ["Iron levels are lower than optimal → Book a follow up with your doctor within the next 2 weeks"],
         wellnessOpportunities: [
@@ -190,7 +194,8 @@ export const BloodworkModal = ({ isOpen, onClose, phase }: BloodworkModalProps) 
       }
     };
     
-    const results = phaseData[phase as keyof typeof phaseData];
+    // Use the specified phase or default to menstruation if not found
+    const results = phaseData[phase] || phaseData.menstruation;
     
     // Format the analysis according to the structured template
     const formattedAnalysis = `
