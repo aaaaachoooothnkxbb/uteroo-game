@@ -867,7 +867,7 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Modals */}
+        {/* Modals - Fix prop passing to match component requirements */}
         <YogaPoseModal
           isOpen={showYogaPoses}
           onClose={() => setShowYogaPoses(false)}
@@ -884,11 +884,13 @@ const PouGame = () => {
         <JournalingModal
           isOpen={showJournalingModal}
           onClose={() => setShowJournalingModal(false)}
+          phase={currentPhase}
         />
         
         <BloodworkModal
           isOpen={showBloodworkModal}
           onClose={() => setShowBloodworkModal(false)}
+          phase={currentPhase}
         />
         
         <UterooTutorial
@@ -897,7 +899,10 @@ const PouGame = () => {
         />
         
         {currentRoom.id === 'cycle_sanctuary' && (
-          <CycleSanctuary />
+          <CycleSanctuary 
+            currentPhase={currentPhase}
+            onPhaseChange={handlePhaseChange}
+          />
         )}
       </div>
     </div>
