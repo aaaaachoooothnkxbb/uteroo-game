@@ -893,10 +893,9 @@ const PouGame = () => {
           phase={currentPhase}
         />
         
-        <UterooTutorial
-          isOpen={showTutorial}
-          onClose={() => setShowTutorial(false)}
-        />
+        {showTutorial && (
+          <UterooTutorial onClose={() => setShowTutorial(false)} />
+        )}
         
         {currentRoom.id === 'cycle_sanctuary' && (
           <CycleSanctuary 
