@@ -116,7 +116,7 @@ export const DraggableItem = ({
         src={icon}
         alt={`${type} boost item`}
         className={cn(
-          "w-full h-full object-contain pixelated", 
+          "w-full h-full object-contain pixelated filter drop-shadow-md", 
           (onClick || meditationPlaylist || journalingItem) && "cursor-pointer"
         )}
       />

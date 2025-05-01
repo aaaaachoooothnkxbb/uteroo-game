@@ -6,7 +6,7 @@ import {
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
   Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Beaker,
-  Flame, HelpCircle, Calendar
+  Flame, HelpCircle, Calendar, CoinIcon
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ import { CycleSanctuary } from "@/components/CycleSanctuary";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Card } from "@/components/ui/card";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -633,51 +634,68 @@ const PouGame = () => {
     return tooltips[enemyId] || null;
   };
 
+  // Enhanced enemy rendering with animation
   const renderEnemies = () => {
     return currentEnemies.map((enemy) => (
-      <div key={enemy.id} className="relative flex flex-col items-center">
-        <TooltipProvider>
-          <Tooltip delayDuration={300}>
-            <TooltipTrigger asChild>
-              <div className="relative cursor-help">
-                <img 
-                  src={enemy.icon} 
-                  alt={enemy.name}
-                  className="w-20 h-20 object-contain pixelated"
-                />
-                <div className="absolute -top-2 -right-2">
-                  <div className="bg-white/80 rounded-full p-0.5 shadow-sm">
-                    <HelpCircle className="h-4 w-4 text-primary" />
+      <Card key={enemy.id} className="relative p-4 bg-white/80 backdrop-blur-md shadow-lg border-2 border-white/50 rounded-xl">
+        <div className="flex flex-col items-center space-y-2">
+          <TooltipProvider>
+            <Tooltip delayDuration={300}>
+              <TooltipTrigger asChild>
+                <div className="relative cursor-help group">
+                  <div className={cn(
+                    "relative w-20 h-20 flex items-center justify-center",
+                    enemy.id === "cramps" ? "animate-pulse" : enemy.id === "fatigue" ? "animate-float" : ""
+                  )}>
+                    <img 
+                      src={enemy.icon} 
+                      alt={enemy.name}
+                      className="w-full h-full object-contain pixelated drop-shadow-md"
+                    />
+                  </div>
+                  <div className="absolute -top-2 -right-2">
+                    <div className="bg-white rounded-full p-1 shadow-md group-hover:bg-primary/20 transition-colors">
+                      <HelpCircle className="h-4 w-4 text-primary" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent 
-              side="top" 
-              className="max-w-[250px] p-4 bg-white/95 backdrop-blur-sm text-left"
-            >
-              {getEnemyTooltip(enemy.id) ? (
-                <>
-                  <h4 className="font-semibold mb-1">{getEnemyTooltip(enemy.id)?.title}</h4>
-                  <p className="text-sm">{getEnemyTooltip(enemy.id)?.description}</p>
-                </>
-              ) : (
-                <p className="text-sm">Este síntoma está relacionado con los cambios hormonales de tu ciclo.</p>
-              )}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <span className="text-sm font-bold mt-2">{enemy.name}</span>
-        {showDamage && (
-          <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-red-500 font-bold animate-bounce">
-            -1 HP
-          </span>
-        )}
-      </div>
+              </TooltipTrigger>
+              <TooltipContent 
+                side="top" 
+                className="max-w-[250px] p-4 bg-white/95 backdrop-blur-sm text-left"
+              >
+                {getEnemyTooltip(enemy.id) ? (
+                  <>
+                    <h4 className="font-semibold mb-1">{getEnemyTooltip(enemy.id)?.title}</h4>
+                    <p className="text-sm">{getEnemyTooltip(enemy.id)?.description}</p>
+                  </>
+                ) : (
+                  <p className="text-sm">Este síntoma está relacionado con los cambios hormonales de tu ciclo.</p>
+                )}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <div className="text-center">
+            <h4 className="font-bold text-sm uppercase tracking-wide">{enemy.name}</h4>
+            <div className="flex items-center justify-center mt-1 space-x-1">
+              {Array.from({length: enemy.hp}).map((_, i) => (
+                <div key={i} className="w-2 h-2 bg-red-500 rounded-full" />
+              ))}
+            </div>
+          </div>
+          
+          {showDamage && (
+            <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-red-500 font-bold animate-bounce bg-white/80 px-2 py-1 rounded-md">
+              -1 HP
+            </span>
+          )}
+        </div>
+      </Card>
     ));
   };
 
-  // Add phase progress indicator
+  // Enhanced phase progress indicator with better visualization
   const renderPhaseProgress = () => {
     // This is a simplified version - in a real implementation, you'd calculate actual days
     const currentDay = 2; // Assuming day 2 of the phase for demonstration
@@ -687,14 +705,123 @@ const PouGame = () => {
                      currentPhase === 'ovulatory' ? 'luteal' : 'menstruation';
     
     const nextPhaseInfo = phaseInfo[nextPhase];
+    const NextPhaseIcon = nextPhaseInfo.icon;
     
     return (
       <div className="mb-4 px-4">
-        <div className="flex justify-between items-center text-xs mb-1">
-          <span className="font-medium">Día {currentDay}/{phaseDuration} de {phaseInfo[currentPhase].subtitle}</span>
-          <span>Próximo: {nextPhaseInfo.subtitle}</span>
+        <div className="flex justify-between items-center text-sm mb-2">
+          <div className="flex items-center space-x-2">
+            <div className={cn(
+              "px-3 py-1 rounded-full font-medium",
+              currentPhase === "menstruation" ? "bg-menstruation-primary/20 text-menstruation-primary" :
+              currentPhase === "follicular" ? "bg-follicular-primary/20 text-follicular-primary" :
+              currentPhase === "ovulatory" ? "bg-ovulatory-primary/20 text-ovulatory-primary" :
+              "bg-luteal-primary/20 text-luteal-primary"
+            )}>
+              Day {currentDay}/{phaseDuration}
+            </div>
+            <span className="font-medium">{phaseInfo[currentPhase].subtitle}</span>
+          </div>
+          <div className="flex items-center space-x-1 text-xs">
+            <span>Next:</span>
+            <NextPhaseIcon className="h-4 w-4" />
+            <span>{nextPhaseInfo.subtitle} in {phaseDuration - currentDay}d</span>
+          </div>
         </div>
-        <Progress value={(currentDay/phaseDuration) * 100} className="h-1" />
+        <Progress 
+          value={(currentDay/phaseDuration) * 100} 
+          className="h-2" 
+          indicatorClassName={cn(
+            currentPhase === "menstruation" ? "bg-menstruation-primary" :
+            currentPhase === "follicular" ? "bg-follicular-primary" :
+            currentPhase === "ovulatory" ? "bg-ovulatory-primary" :
+            "bg-luteal-primary"
+          )}
+        />
+      </div>
+    );
+  };
+
+  // Render the stats panel with enhanced visuals
+  const renderStatsPanel = () => {
+    return (
+      <div className="fixed top-24 left-0 p-4 bg-white/40 backdrop-blur-lg shadow-lg rounded-r-2xl border-r-2 border-y-2 border-white/50">
+        <div className="space-y-4">
+          <div className="text-center mb-2">
+            <span className="text-xs uppercase tracking-wider font-semibold text-gray-600">Stats</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Apple className="h-5 w-5 text-red-500" />
+            <div className="flex-1">
+              <Progress 
+                value={stats.hunger} 
+                className={cn("w-24 h-2.5 rounded-sm", getProgressColor(stats.hunger))} 
+              />
+            </div>
+            <span className="text-xs font-mono font-semibold">{stats.hunger}%</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Droplet className="h-5 w-5 text-blue-500" />
+            <div className="flex-1">
+              <Progress 
+                value={stats.hygiene} 
+                className={cn("w-24 h-2.5 rounded-sm", getProgressColor(stats.hygiene))} 
+              />
+            </div>
+            <span className="text-xs font-mono font-semibold">{stats.hygiene}%</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <BatteryFull className="h-5 w-5 text-green-500" />
+            <div className="flex-1">
+              <Progress 
+                value={stats.energy} 
+                className={cn("w-24 h-2.5 rounded-sm", getProgressColor(stats.energy))} 
+              />
+            </div>
+            <span className="text-xs font-mono font-semibold">{stats.energy}%</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Heart className="h-5 w-5 text-pink-500" />
+            <div className="flex-1">
+              <Progress 
+                value={stats.happiness} 
+                className={cn("w-24 h-2.5 rounded-sm", getProgressColor(stats.happiness))} 
+              />
+            </div>
+            <span className="text-xs font-mono font-semibold">{stats.happiness}%</span>
+          </div>
+          
+          <div className="pt-2 border-t border-gray-200/50">
+            <div className="flex items-center gap-2 bg-yellow-50/80 p-2 rounded-lg">
+              <CoinIcon className="h-5 w-5 text-yellow-500 animate-pulse" />
+              <span className="text-sm font-mono font-semibold bg-gradient-to-r from-yellow-500 to-amber-500 bg-clip-text text-transparent">
+                {stats.coins}
+              </span>
+              <span className="text-xs text-gray-500">coins</span>
+            </div>
+            
+            <div className="flex items-center gap-2 mt-2 bg-orange-50/80 p-2 rounded-lg">
+              <Flame className={cn(
+                "h-5 w-5 text-orange-500",
+                streak > 0 ? "animate-pulse" : ""
+              )} />
+              <span className="text-sm font-mono font-semibold">{streak}</span>
+              <span className="text-xs text-gray-500">day streak</span>
+            </div>
+            
+            <div className="mt-2 text-center">
+              <span className="text-xs text-gray-500">
+                {streak > 0 
+                  ? "Great progress!" 
+                  : "Start your streak today!"}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
@@ -713,120 +840,162 @@ const PouGame = () => {
         }}
       />
       
+      {/* Phase-themed color overlay */}
+      <div className={cn(
+        "fixed inset-0 opacity-30 transition-colors duration-500",
+        currentPhase === "menstruation" ? "bg-menstruation-light" :
+        currentPhase === "follicular" ? "bg-follicular-light" :
+        currentPhase === "ovulatory" ? "bg-ovulatory-light" :
+        "bg-luteal-light"
+      )} />
+      
       <div className="relative z-10 min-h-screen flex flex-col">
-        <div className="fixed top-0 left-0 right-0 bg-white/30 p-4 shadow-md backdrop-blur-sm">
-          <div className="max-w-md mx-auto flex items-center justify-between">
-            <h1 className="text-2xl font-bold">{phase.name}</h1>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-full bg-white/50 hover:bg-white/70"
-              onClick={() => setShowTutorial(true)}
-            >
-              <HelpCircle className="h-5 w-5" />
-            </Button>
-          </div>
-          <h2 className="text-xl font-semibold text-center mb-2">{phase.subtitle}</h2>
-          {renderPhaseProgress()}
-          <div className="flex justify-center gap-2 px-4 phase-buttons">
-            {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
-              const PhaseIconComponent = phaseInfo[phaseName].icon;
-              return (
-                <Button
-                  key={phaseName}
-                  variant={currentPhase === phaseName ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePhaseChange(phaseName)}
-                  className={cn(
-                    "relative flex items-center gap-1.5",
-                    currentPhase === phaseName && `bg-${phaseInfo[phaseName].color}-600`
-                  )}
-                >
-                  <PhaseIconComponent className="h-4 w-4" />
-                  <span className="hidden sm:inline">{phaseInfo[phaseName].subtitle}</span>
-                </Button>
-              );
-            })}
+        {/* Enhanced header with better visual hierarchy */}
+        <div className="fixed top-0 left-0 right-0 bg-white/50 shadow-lg backdrop-blur-md">
+          <div className="max-w-md mx-auto p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className={cn(
+                  "text-2xl font-bold",
+                  currentPhase === "menstruation" ? "text-menstruation-primary" :
+                  currentPhase === "follicular" ? "text-follicular-primary" :
+                  currentPhase === "ovulatory" ? "text-ovulatory-primary" :
+                  "text-luteal-primary"
+                )}>{phase.name}</h1>
+                
+                <div className="flex items-center gap-2 mt-1">
+                  <PhaseIcon className={cn(
+                    "h-5 w-5",
+                    currentPhase === "menstruation" ? "text-menstruation-primary" :
+                    currentPhase === "follicular" ? "text-follicular-primary" :
+                    currentPhase === "ovulatory" ? "text-ovulatory-primary" :
+                    "text-luteal-primary"
+                  )} />
+                  <h2 className="text-lg font-semibold">{phase.subtitle}</h2>
+                </div>
+              </div>
+              
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full bg-white/70 hover:bg-white shadow-sm"
+                onClick={() => setShowTutorial(true)}
+              >
+                <HelpCircle className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            {renderPhaseProgress()}
+            
+            <div className="flex justify-center gap-2 px-4 phase-buttons">
+              {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
+                const PhaseIconComponent = phaseInfo[phaseName].icon;
+                return (
+                  <Button
+                    key={phaseName}
+                    variant={currentPhase === phaseName ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePhaseChange(phaseName)}
+                    className={cn(
+                      "relative flex items-center gap-1.5 border-2",
+                      currentPhase === phaseName && 
+                        (phaseName === "menstruation" ? "bg-menstruation-primary border-menstruation-primary/30" :
+                         phaseName === "follicular" ? "bg-follicular-primary border-follicular-primary/30" :
+                         phaseName === "ovulatory" ? "bg-ovulatory-primary border-ovulatory-primary/30" :
+                         "bg-luteal-primary border-luteal-primary/30")
+                    )}
+                  >
+                    <PhaseIconComponent className="h-4 w-4" />
+                    <span className="hidden sm:inline">{phaseInfo[phaseName].subtitle}</span>
+                  </Button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {/* Stats display */}
-        <div className="fixed top-24 left-0 p-4 bg-white/30 backdrop-blur-sm shadow-md rounded-r-lg">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Apple className="h-5 w-5 text-red-500" />
-              <Progress value={stats.hunger} className={cn("w-24 h-2", getProgressColor(stats.hunger))} />
-              <span className="text-xs font-medium">{stats.hunger}%</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Droplet className="h-5 w-5 text-blue-500" />
-              <Progress value={stats.hygiene} className={cn("w-24 h-2", getProgressColor(stats.hygiene))} />
-              <span className="text-xs font-medium">{stats.hygiene}%</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BatteryFull className="h-5 w-5 text-green-500" />
-              <Progress value={stats.energy} className={cn("w-24 h-2", getProgressColor(stats.energy))} />
-              <span className="text-xs font-medium">{stats.energy}%</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-pink-500" />
-              <Progress value={stats.happiness} className={cn("w-24 h-2", getProgressColor(stats.happiness))} />
-              <span className="text-xs font-medium">{stats.happiness}%</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5 text-yellow-500" />
-              <span className="text-xs font-medium">{stats.coins} coins</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Flame className="h-5 w-5 text-orange-500" />
-              <span className="text-xs font-medium">Streak: {streak} days</span>
-            </div>
-          </div>
-        </div>
+        {renderStatsPanel()}
 
-        {/* Main content area */}
+        {/* Main content area with enhanced styling */}
         <div className="flex-1 pt-40 pb-20 px-4">
           <div className="max-w-md mx-auto">
             <div className="flex justify-between items-center mb-4">
-              <Button variant="outline" size="sm" onClick={handlePreviousRoom}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePreviousRoom}
+                className="bg-white/70 border-white/40 hover:bg-white/90"
+              >
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Prev
               </Button>
               
-              <div className="flex items-center gap-2">
-                <RoomIcon className="h-5 w-5" />
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-white/70 backdrop-blur-sm rounded-full shadow-sm">
+                <RoomIcon className={cn(
+                  "h-5 w-5",
+                  currentPhase === "menstruation" ? "text-menstruation-primary" :
+                  currentPhase === "follicular" ? "text-follicular-primary" :
+                  currentPhase === "ovulatory" ? "text-ovulatory-primary" :
+                  "text-luteal-primary"
+                )} />
                 <h2 className="text-lg font-medium">{currentRoom.name}</h2>
               </div>
               
-              <Button variant="outline" size="sm" onClick={handleNextRoom}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleNextRoom}
+                className="bg-white/70 border-white/40 hover:bg-white/90"
+              >
                 Next
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
             
-            {/* Character area with droppable zone */}
+            {/* Character area with droppable zone and improved UI */}
             <div 
-              className="relative flex flex-col items-center justify-center min-h-[300px]"
+              className="relative flex flex-col items-center justify-center min-h-[300px] bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/30 shadow-lg"
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
-              <div className="mb-6 flex space-x-10 justify-center">
+              {/* Success message for tracking symptoms */}
+              {currentEnemies.length > 0 && (
+                <div className="absolute top-2 left-1/2 transform -translate-x-1/2 bg-white/80 px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm animate-fade-in">
+                  Good job tracking {currentEnemies.length} symptoms!
+                </div>
+              )}
+            
+              <div className="mb-6 flex space-x-6 justify-center">
                 {renderEnemies()}
               </div>
               
               <UterooCharacter phase={currentPhase} />
               
               {showBoostIndicator && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-green-500 animate-bounce">
-                  +{boostType}!
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-white animate-boost">
+                  <span className={cn(
+                    "px-4 py-2 rounded-full shadow-lg",
+                    boostType === "hunger" ? "bg-red-500" :
+                    boostType === "hygiene" ? "bg-blue-500" :
+                    boostType === "energy" ? "bg-green-500" :
+                    "bg-pink-500"
+                  )}>
+                    +{boostType}!
+                  </span>
                 </div>
               )}
             </div>
             
-            {/* Items/boosters for current room */}
+            {/* Items/boosters for current room - enhanced display */}
             <div className="mt-8">
-              <h3 className="text-center font-semibold mb-4">Available Items</h3>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 justify-items-center">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-lg">Available Items</h3>
+                <div className="text-xs px-2 py-1 bg-white/70 backdrop-blur-sm rounded-full">
+                  Drag items to Uteroo!
+                </div>
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 justify-items-center bg-white/30 backdrop-blur-sm p-4 rounded-xl border border-white/50 shadow-md">
                 {currentRoomBoosters.map((booster) => (
                   <DraggableItem 
                     key={booster.id}
@@ -846,8 +1015,8 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Room navigation indicator */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/30 backdrop-blur-sm shadow-md">
+        {/* Room navigation indicator with enhanced styling */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/50 backdrop-blur-md shadow-lg">
           <div className="flex justify-center gap-2 max-w-md mx-auto overflow-x-auto pb-2">
             {rooms.map((room, index) => {
               const RoomIconComponent = room.icon;
@@ -857,7 +1026,15 @@ const PouGame = () => {
                   variant={currentRoomIndex === index ? "default" : "outline"}
                   size="sm"
                   onClick={() => setCurrentRoomIndex(index)}
-                  className="min-w-[40px]"
+                  className={cn(
+                    "min-w-[40px] border-2",
+                    currentRoomIndex === index && (
+                      currentPhase === "menstruation" ? "bg-menstruation-primary border-menstruation-primary/30" :
+                      currentPhase === "follicular" ? "bg-follicular-primary border-follicular-primary/30" :
+                      currentPhase === "ovulatory" ? "bg-ovulatory-primary border-ovulatory-primary/30" :
+                      "bg-luteal-primary border-luteal-primary/30"
+                    )
+                  )}
                 >
                   <RoomIconComponent className="h-4 w-4" />
                   <span className="sr-only">{room.name}</span>
@@ -867,7 +1044,7 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Modals - Fix prop passing to match component requirements */}
+        {/* Modals */}
         <YogaPoseModal
           isOpen={showYogaPoses}
           onClose={() => setShowYogaPoses(false)}

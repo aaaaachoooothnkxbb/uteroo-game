@@ -1,5 +1,6 @@
 
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -17,19 +18,29 @@ const phaseToMessage = {
   luteal: "Comfort and self-care are key"
 };
 
+const phaseToGradient = {
+  menstruation: "from-menstruation-light/40 to-transparent",
+  follicular: "from-follicular-light/40 to-transparent",
+  ovulatory: "from-ovulatory-light/40 to-transparent",
+  luteal: "from-luteal-light/40 to-transparent"
+};
+
 export const UterooCharacter = ({ phase }: { phase: Phase }) => {
   return (
     <div className="flex flex-col items-center space-y-6 mt-20">
-      <Card className="p-5 rounded-full w-fit bg-transparent border-none shadow-none">
+      <Card className={cn(
+        "p-5 rounded-full w-fit shadow-lg bg-gradient-radial", 
+        phaseToGradient[phase]
+      )}>
         <div className="w-56 h-56 rounded-full overflow-hidden flex items-center justify-center">
           <img 
             src={phaseToImage[phase]} 
             alt={`Uteroo in ${phase} phase`} 
-            className="w-full h-full object-contain animate-bounce-slow"
+            className="w-full h-full object-contain animate-bounce-slow drop-shadow-lg"
           />
         </div>
       </Card>
-      <p className="text-center text-lg font-semibold tracking-wide text-white drop-shadow-md">
+      <p className="text-center text-lg font-semibold tracking-wide text-white drop-shadow-lg bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm">
         {phaseToMessage[phase]}
       </p>
     </div>

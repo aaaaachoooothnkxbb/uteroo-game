@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,11 +19,15 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        mono: ['Roboto Mono', 'monospace'],
+        sans: ['Inter', 'sans-serif'],
+      },
       colors: {
         menstruation: {
-          primary: "#7E69AB",
+          primary: "#D23D3D",
           secondary: "#6E59A5",
-          light: "#D6BCFA",
+          light: "#FFEEEE",
           bg: "#F1F0FB",
         },
         follicular: {
@@ -79,12 +84,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: { height: "0", opacity: "0" },
+          to: { height: "var(--radix-accordion-content-height)", opacity: "1" },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: { height: "var(--radix-accordion-content-height)", opacity: "1" },
+          to: { height: "0", opacity: "0" },
         },
         "fade-in": {
           "0%": { opacity: "0", transform: "translateY(10px)" },
@@ -108,6 +113,22 @@ export default {
           "0%": { transform: "scale(1) translateY(0)" },
           "50%": { transform: "scale(1.2) translateY(-10px)" },
           "100%": { transform: "scale(1) translateY(0)" }
+        },
+        pulse: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" }
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-500px 0" },
+          "100%": { backgroundPosition: "500px 0" }
+        },
+        bounce: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" }
+        },
+        wiggle: {
+          "0%, 100%": { transform: "rotate(-3deg)" },
+          "50%": { transform: "rotate(3deg)" }
         }
       },
       animation: {
@@ -116,12 +137,19 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         float: "float 3s ease-in-out infinite",
         sparkle: "sparkle 2s ease-in-out infinite",
-        "boost": "boost 0.5s ease-in-out"
+        "boost": "boost 0.5s ease-in-out",
+        "pulse": "pulse 2s ease-in-out infinite",
+        "shimmer": "shimmer 2s ease-in-out infinite",
+        "bounce-slow": "bounce 3s ease-in-out infinite",
+        "wiggle": "wiggle 2s ease-in-out infinite",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backgroundImage: {
+        "shimmer": "linear-gradient(to right, transparent 0%, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.1) 60%, transparent 80%)",
       },
     },
   },
