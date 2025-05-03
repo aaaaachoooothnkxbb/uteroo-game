@@ -8,25 +8,34 @@ const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & {
     indicatorClassName?: string
+    size?: "default" | "sm" | "xs"
   }
->(({ className, value, indicatorClassName, ...props }, ref) => (
-  <ProgressPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative h-4 w-full overflow-hidden rounded-full bg-secondary/30 backdrop-blur-sm",
-      className
-    )}
-    {...props}
-  >
-    <ProgressPrimitive.Indicator
+>(({ className, value, indicatorClassName, size = "default", ...props }, ref) => {
+  const heightClass = 
+    size === "xs" ? "h-1.5" : 
+    size === "sm" ? "h-2" : 
+    "h-3";
+
+  return (
+    <ProgressPrimitive.Root
+      ref={ref}
       className={cn(
-        "h-full w-full flex-1 bg-primary transition-all",
-        indicatorClassName
+        "relative w-full overflow-hidden rounded-full bg-secondary/20 backdrop-blur-sm",
+        heightClass,
+        className
       )}
-      style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-    />
-  </ProgressPrimitive.Root>
-))
+      {...props}
+    >
+      <ProgressPrimitive.Indicator
+        className={cn(
+          "h-full w-full flex-1 bg-primary transition-all",
+          indicatorClassName
+        )}
+        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+      />
+    </ProgressPrimitive.Root>
+  )
+})
 Progress.displayName = ProgressPrimitive.Root.displayName
 
 export { Progress }

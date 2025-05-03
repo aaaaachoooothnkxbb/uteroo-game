@@ -71,18 +71,18 @@ export const DraggableItem = ({
         <TooltipProvider>
           <Tooltip delayDuration={300}>
             <TooltipTrigger asChild>
-              <button className="rounded-full bg-white/80 p-1 shadow-sm hover:bg-white">
-                <HelpCircle className="h-4 w-4 text-primary" />
+              <button className="rounded-full bg-white/80 p-0.5 shadow-sm hover:bg-white">
+                <HelpCircle className="h-3 w-3 text-primary" />
               </button>
             </TooltipTrigger>
             <TooltipContent 
               side="top" 
-              className="max-w-[250px] p-4 bg-white/95 backdrop-blur-sm text-left"
+              className="max-w-[200px] p-3 bg-white/95 backdrop-blur-sm text-left"
             >
               {tooltip.title && (
-                <h4 className="font-semibold mb-1">{tooltip.title}</h4>
+                <h4 className="font-semibold mb-1 text-xs">{tooltip.title}</h4>
               )}
-              <p className="text-sm">{tooltip.description}</p>
+              <p className="text-xs">{tooltip.description}</p>
               {tooltip.learnMoreUrl && (
                 <a 
                   href={tooltip.learnMoreUrl} 
@@ -107,7 +107,7 @@ export const DraggableItem = ({
       onDragEnd={handleDragEnd}
       onClick={handleClick}
       className={cn(
-        "w-16 h-16 cursor-move transition-all duration-300 relative",
+        "w-12 h-12 sm:w-14 sm:h-14 cursor-move transition-all duration-300 relative",
         isDragging ? "opacity-50 scale-95" : "hover:scale-110",
         (onClick || meditationPlaylist || journalingItem) && "cursor-pointer"
       )}

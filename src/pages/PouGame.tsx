@@ -742,74 +742,77 @@ const PouGame = () => {
     );
   };
 
-  // Render the stats panel with enhanced visuals
+  // Simplified render stats panel for better layout
   const renderStatsPanel = () => {
     return (
-      <div className="fixed top-24 left-0 p-4 bg-white/40 backdrop-blur-lg shadow-lg rounded-r-2xl border-r-2 border-y-2 border-white/50">
-        <div className="space-y-4">
-          <div className="text-center mb-2">
+      <div className="fixed top-24 left-0 p-2 bg-white/40 backdrop-blur-lg shadow-md rounded-r-lg border-r border-y border-white/50 max-w-[160px]">
+        <div className="space-y-3">
+          <div className="text-center mb-1">
             <span className="text-xs uppercase tracking-wider font-semibold text-gray-600">Stats</span>
           </div>
           
-          <div className="flex items-center gap-3">
-            <Apple className="h-5 w-5 text-red-500" />
+          <div className="flex items-center gap-2">
+            <Apple className="h-4 w-4 text-red-500 shrink-0" />
             <div className="flex-1">
               <Progress 
                 value={stats.hunger} 
-                className={cn("w-24 h-2.5 rounded-sm", getProgressColor(stats.hunger))} 
+                className={cn(getProgressColor(stats.hunger))} 
+                size="xs"
               />
             </div>
-            <span className="text-xs font-mono font-semibold">{stats.hunger}%</span>
+            <span className="text-xs font-mono font-semibold w-7 text-right">{stats.hunger}%</span>
           </div>
           
-          <div className="flex items-center gap-3">
-            <Droplet className="h-5 w-5 text-blue-500" />
+          <div className="flex items-center gap-2">
+            <Droplet className="h-4 w-4 text-blue-500 shrink-0" />
             <div className="flex-1">
               <Progress 
                 value={stats.hygiene} 
-                className={cn("w-24 h-2.5 rounded-sm", getProgressColor(stats.hygiene))} 
+                className={cn(getProgressColor(stats.hygiene))} 
+                size="xs"
               />
             </div>
-            <span className="text-xs font-mono font-semibold">{stats.hygiene}%</span>
+            <span className="text-xs font-mono font-semibold w-7 text-right">{stats.hygiene}%</span>
           </div>
           
-          <div className="flex items-center gap-3">
-            <BatteryFull className="h-5 w-5 text-green-500" />
+          <div className="flex items-center gap-2">
+            <BatteryFull className="h-4 w-4 text-green-500 shrink-0" />
             <div className="flex-1">
               <Progress 
                 value={stats.energy} 
-                className={cn("w-24 h-2.5 rounded-sm", getProgressColor(stats.energy))} 
+                className={cn(getProgressColor(stats.energy))} 
+                size="xs"
               />
             </div>
-            <span className="text-xs font-mono font-semibold">{stats.energy}%</span>
+            <span className="text-xs font-mono font-semibold w-7 text-right">{stats.energy}%</span>
           </div>
           
-          <div className="flex items-center gap-3">
-            <Heart className="h-5 w-5 text-pink-500" />
+          <div className="flex items-center gap-2">
+            <Heart className="h-4 w-4 text-pink-500 shrink-0" />
             <div className="flex-1">
               <Progress 
                 value={stats.happiness} 
-                className={cn("w-24 h-2.5 rounded-sm", getProgressColor(stats.happiness))} 
+                className={cn(getProgressColor(stats.happiness))} 
+                size="xs"
               />
             </div>
-            <span className="text-xs font-mono font-semibold">{stats.happiness}%</span>
+            <span className="text-xs font-mono font-semibold w-7 text-right">{stats.happiness}%</span>
           </div>
           
           <div className="pt-2 border-t border-gray-200/50">
-            <div className="flex items-center gap-2 bg-yellow-50/80 p-2 rounded-lg">
-              <CoinsIcon className="h-5 w-5 text-yellow-500 animate-pulse" />
-              <span className="text-sm font-mono font-semibold bg-gradient-to-r from-yellow-500 to-amber-500 bg-clip-text text-transparent">
+            <div className="flex items-center gap-2 bg-yellow-50/80 p-1.5 rounded-lg">
+              <CoinsIcon className="h-4 w-4 text-yellow-500 animate-pulse" />
+              <span className="text-xs font-mono font-semibold bg-gradient-to-r from-yellow-500 to-amber-500 bg-clip-text text-transparent">
                 {stats.coins}
               </span>
-              <span className="text-xs text-gray-500">coins</span>
             </div>
             
-            <div className="flex items-center gap-2 mt-2 bg-orange-50/80 p-2 rounded-lg">
+            <div className="flex items-center gap-2 mt-2 bg-orange-50/80 p-1.5 rounded-lg">
               <Flame className={cn(
-                "h-5 w-5 text-orange-500",
+                "h-4 w-4 text-orange-500",
                 streak > 0 ? "animate-pulse" : ""
               )} />
-              <span className="text-sm font-mono font-semibold">{streak}</span>
+              <span className="text-xs font-mono font-semibold">{streak}</span>
               <span className="text-xs text-gray-500">day streak</span>
             </div>
             

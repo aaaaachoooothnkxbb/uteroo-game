@@ -126,3 +126,68 @@
   max-height: 80vh;
   overflow-y: auto;
 }
+
+/* Add tiny font size for better UI layout */
+.text-2xs {
+  font-size: 0.65rem;
+  line-height: 1rem;
+}
+
+/* Add animation for the boost indicator */
+@keyframes boost {
+  0% { 
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  50% { 
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% { 
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+}
+
+.animate-boost {
+  animation: boost 1s ease-out forwards;
+}
+
+/* Add animation for floating elements */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Add animation for slow bounce */
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 3s infinite ease-in-out;
+}
+
+/* Optimize for touch devices */
+@media (pointer: coarse) {
+  button, .button, [role="button"], .clickable {
+    min-height: 40px;
+    min-width: 40px;
+  }
+}
