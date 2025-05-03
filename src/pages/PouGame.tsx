@@ -6,7 +6,7 @@ import {
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
   Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Beaker,
-  Flame, HelpCircle, Calendar, CoinIcon
+  Flame, HelpCircle, Calendar, CoinsIcon
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
@@ -797,7 +797,7 @@ const PouGame = () => {
           
           <div className="pt-2 border-t border-gray-200/50">
             <div className="flex items-center gap-2 bg-yellow-50/80 p-2 rounded-lg">
-              <CoinIcon className="h-5 w-5 text-yellow-500 animate-pulse" />
+              <CoinsIcon className="h-5 w-5 text-yellow-500 animate-pulse" />
               <span className="text-sm font-mono font-semibold bg-gradient-to-r from-yellow-500 to-amber-500 bg-clip-text text-transparent">
                 {stats.coins}
               </span>
