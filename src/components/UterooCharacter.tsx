@@ -27,12 +27,12 @@ const phaseToGradient = {
 
 export const UterooCharacter = ({ phase }: { phase: Phase }) => {
   return (
-    <div className="flex flex-col items-center space-y-3 mt-6">
+    <div className="flex flex-col items-center space-y-2 mt-4">
       <Card className={cn(
-        "p-3 rounded-full w-fit shadow-lg bg-gradient-radial", 
+        "p-2 rounded-full w-fit shadow-lg bg-gradient-radial", 
         phaseToGradient[phase]
       )}>
-        <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden flex items-center justify-center">
+        <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden flex items-center justify-center">
           <img 
             src={phaseToImage[phase]} 
             alt={`Uteroo in ${phase} phase`} 
@@ -40,7 +40,7 @@ export const UterooCharacter = ({ phase }: { phase: Phase }) => {
           />
         </div>
       </Card>
-      <p className="text-center text-sm sm:text-base font-medium tracking-wide text-white drop-shadow-lg bg-black/30 px-3 py-1.5 rounded-full backdrop-blur-sm">
+      <p className="text-center text-xs sm:text-sm font-medium tracking-wide text-white drop-shadow-lg bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">
         {phaseToMessage[phase]}
       </p>
     </div>

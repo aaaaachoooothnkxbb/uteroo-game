@@ -67,7 +67,7 @@ export const DraggableItem = ({
     if (!tooltip) return null;
 
     return (
-      <div className="absolute top-0 right-0 z-10">
+      <div className="absolute -top-1 -right-1 z-10">
         <TooltipProvider>
           <Tooltip delayDuration={300}>
             <TooltipTrigger asChild>
@@ -107,7 +107,7 @@ export const DraggableItem = ({
       onDragEnd={handleDragEnd}
       onClick={handleClick}
       className={cn(
-        "w-12 h-12 sm:w-14 sm:h-14 cursor-move transition-all duration-300 relative",
+        "w-10 h-10 sm:w-12 sm:h-12 cursor-move transition-all duration-300 relative",
         isDragging ? "opacity-50 scale-95" : "hover:scale-110",
         (onClick || meditationPlaylist || journalingItem) && "cursor-pointer"
       )}

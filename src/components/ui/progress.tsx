@@ -12,9 +12,9 @@ const Progress = React.forwardRef<
   }
 >(({ className, value, indicatorClassName, size = "default", ...props }, ref) => {
   const heightClass = 
-    size === "xs" ? "h-1.5" : 
-    size === "sm" ? "h-2" : 
-    "h-3";
+    size === "xs" ? "h-1" : 
+    size === "sm" ? "h-1.5" : 
+    "h-2";
 
   return (
     <ProgressPrimitive.Root

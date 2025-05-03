@@ -11,6 +11,7 @@
   body {
     min-height: 100vh;
     @apply overflow-hidden;
+    font-size: 14px;
   }
 
   :root {
@@ -187,7 +188,52 @@
 /* Optimize for touch devices */
 @media (pointer: coarse) {
   button, .button, [role="button"], .clickable {
-    min-height: 40px;
-    min-width: 40px;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem;
   }
+  
+  .mobile-touch-fix {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Ensure buttons have proper spacing */
+  .button-group > * {
+    margin: 0.25rem;
+  }
+  
+  /* Improve hit areas */
+  .hit-area {
+    position: relative;
+  }
+  
+  .hit-area::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    bottom: -8px;
+    left: -8px;
+    z-index: -1;
+  }
+}
+
+/* Fix for overlapping elements */
+.overlap-fix {
+  isolation: isolate;
+}
+
+/* Fix for long text */
+.text-truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Fix for buttons */
+.button-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+  gap: 0.5rem;
 }
