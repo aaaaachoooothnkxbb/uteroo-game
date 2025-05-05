@@ -27,7 +27,7 @@ const phaseToGradient = {
 
 export const UterooCharacter = ({ phase }: { phase: Phase }) => {
   return (
-    <div className="flex flex-col items-center space-y-2 mt-4">
+    <div className="flex flex-col items-center space-y-2 mt-4 z-10">
       <Card className={cn(
         "p-2 rounded-full w-fit shadow-lg bg-gradient-radial", 
         phaseToGradient[phase]

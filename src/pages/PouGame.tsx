@@ -22,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card } from "@/components/ui/card";
+import { RecipeRoulette } from "@/components/RecipeRoulette";
+import { PhaseRecipeRoulette } from "@/components/PhaseRecipeRoulette";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -180,6 +182,17 @@ const roomBoosters = {
         title: "Nutrición en tu ciclo",
         description: "Los alimentos ricos en hierro y proteínas son especialmente importantes durante la menstruación para reponer los nutrientes perdidos.",
         learnMoreUrl: "https://www.healthline.com/health/womens-health/menstrual-cycle-diet"
+      }
+    },
+    {
+      id: "phase_recipe",
+      name: "Phase Recipe",
+      type: "hunger" as const,
+      isPhaseRecipe: true,
+      boost: 20,
+      tooltip: {
+        title: "Recetas para tu fase",
+        description: "Recetas adaptadas a tus necesidades nutricionales específicas según tu fase del ciclo menstrual.",
       }
     }
   ],
@@ -1000,18 +1013,22 @@ const PouGame = () => {
               </div>
               <div className="grid grid-cols-4 gap-3 justify-items-center bg-white/30 backdrop-blur-sm p-2 rounded-xl border border-white/50 shadow-md">
                 {currentRoomBoosters.map((booster) => (
-                  <DraggableItem 
-                    key={booster.id}
-                    id={booster.id}
-                    type={booster.type}
-                    icon={booster.icon}
-                    boost={booster.boost}
-                    onDrop={() => {}}
-                    onClick={() => handleBoosterClick(booster)}
-                    meditationPlaylist={booster.meditationPlaylist}
-                    journalingItem={booster.journalingItem}
-                    tooltip={booster.tooltip}
-                  />
+                  booster.isPhaseRecipe ? (
+                    <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
+                  ) : (
+                    <DraggableItem 
+                      key={booster.id}
+                      id={booster.id}
+                      type={booster.type}
+                      icon={booster.icon}
+                      boost={booster.boost}
+                      onDrop={() => {}}
+                      onClick={() => handleBoosterClick(booster)}
+                      meditationPlaylist={booster.meditationPlaylist}
+                      journalingItem={booster.journalingItem}
+                      tooltip={booster.tooltip}
+                    />
+                  )
                 ))}
               </div>
             </div>
