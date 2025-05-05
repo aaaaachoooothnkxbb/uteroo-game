@@ -90,7 +90,7 @@
   animation: boost 1s ease-out forwards;
 }
 
-/* Add this for wheel spinning animation */
+/* Wheel spinning animation */
 @keyframes spinWheel {
   from {
     transform: rotate(0deg);
@@ -102,4 +102,45 @@
 
 .wheel-spin {
   animation: spinWheel 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Concentric circles animations */
+@keyframes spin-circle-1 {
+  to { transform: rotate(3600deg); }
+}
+
+@keyframes spin-circle-2 {
+  to { transform: rotate(3960deg); }
+}
+
+@keyframes spin-circle-3 {
+  to { transform: rotate(4320deg); }
+}
+
+@keyframes spin-circle-4 {
+  to { transform: rotate(4680deg); }
+}
+
+@keyframes spin-circle-5 {
+  to { transform: rotate(5040deg); }
+}
+
+.spin-circle-1 {
+  animation: spin-circle-1 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.spin-circle-2 {
+  animation: spin-circle-2 3.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.spin-circle-3 {
+  animation: spin-circle-3 3.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.spin-circle-4 {
+  animation: spin-circle-4 3.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.spin-circle-5 {
+  animation: spin-circle-5 3.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }

@@ -179,12 +179,20 @@ interface Recipe {
   cooking_tips: string[];
 }
 
+const foodCirclesData = [
+  { name: "Water", color: "#60A5FA", rotationSpeed: 3 },
+  { name: "Fruits & Vegetables", color: "#34D399", rotationSpeed: 4 },
+  { name: "Proteins", color: "#F87171", rotationSpeed: 5 },
+  { name: "Whole Grains", color: "#FBBF24", rotationSpeed: 6 },
+  { name: "Healthy Fats", color: "#A78BFA", rotationSpeed: 7 }
+];
+
 export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
   const [showRecipeWheel, setShowRecipeWheel] = useState(false);
   const [showRecipeDetails, setShowRecipeDetails] = useState(false);
   const [spinningWheel, setSpinningWheel] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [wheelRotation, setWheelRotation] = useState(0);
+  const [circleRotations, setCircleRotations] = useState<number[]>([0, 0, 0, 0, 0]);
   const { toast } = useToast();
 
   const { data: recipes, isLoading } = useQuery({
@@ -209,9 +217,15 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
     if (spinningWheel) return; // Prevent multiple spins at once
     
     setSpinningWheel(true);
-    // Generate random rotation between 1800 and 3600 degrees (5-10 full spins)
-    const newRotation = wheelRotation + 1800 + Math.random() * 1800;
-    setWheelRotation(newRotation);
+    
+    // Generate random rotations for each circle
+    const newRotations = circleRotations.map((_, index) => {
+      // Each circle spins at different speed (more inner circles spin faster)
+      const baseRotation = 1800 + Math.random() * 1800; // 5-10 full spins
+      return baseRotation * (1 + (index * 0.1)); // Increase rotation for inner circles
+    });
+    
+    setCircleRotations(newRotations);
     
     setTimeout(() => {
       setSpinningWheel(false);
@@ -233,64 +247,95 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
     luteal: "from-luteal-primary to-luteal-light"
   };
   
-  // Create roulette wheel segments
-  const createRouletteWheel = () => {
-    const foodCategories = phaseRecipes[phase].foodCategories;
-    let cumulativePercentage = 0;
-    
+  // Create concentric circles roulette
+  const createConcentricCircles = () => {
     return (
-      <div className="relative w-64 h-64 mx-auto mt-4 mb-6">
-        {/* Spinning wheel */}
-        <div 
-          className="absolute w-full h-full rounded-full overflow-hidden"
-          style={{ 
-            transform: `rotate(${wheelRotation}deg)`,
-            transition: spinningWheel ? 'transform 3s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none'
-          }}
-        >
-          {foodCategories.map((category, index) => {
-            const startAngle = (cumulativePercentage / 100) * 360;
-            cumulativePercentage += category.percentage;
-            const endAngle = (cumulativePercentage / 100) * 360;
-            
-            return (
+      <div className="relative w-96 h-96 mx-auto mt-4 mb-6">
+        {foodCirclesData.map((circle, index) => {
+          const size = 100 - (index * 16); // Decrease size for inner circles (100%, 84%, 68%, 52%, 36%)
+          const zIndex = 10 - index; // Higher z-index for outer circles
+          
+          return (
+            <div 
+              key={index}
+              className="absolute rounded-full flex items-center justify-center"
+              style={{
+                top: `${(100 - size) / 2}%`,
+                left: `${(100 - size) / 2}%`,
+                width: `${size}%`,
+                height: `${size}%`,
+                backgroundColor: circle.color,
+                transform: `rotate(${circleRotations[index]}deg)`,
+                transition: spinningWheel 
+                  ? `transform ${3 + (0.2 * index)}s cubic-bezier(0.2, 0.8, 0.2, 1)` 
+                  : 'none',
+                zIndex,
+                border: index > 0 ? '2px solid white' : 'none',
+              }}
+            >
               <div 
-                key={index}
-                className="absolute inset-0"
+                className="absolute font-bold text-white text-center"
                 style={{
-                  clipPath: `path('M 160,160 L 160,0 A 160,160 0 ${startAngle > 180 ? 1 : 0},1 ${
-                    160 + 160 * Math.cos((endAngle * Math.PI) / 180)
-                  },${
-                    160 - 160 * Math.sin((endAngle * Math.PI) / 180)
-                  } Z')`,
-                  backgroundColor: category.color,
+                  transform: 'rotate(0deg)', // Text stays upright
+                  fontSize: `${1.2 - (index * 0.1)}rem`, // Adjust text size
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+                  width: '80%'
                 }}
               >
-                {/* Category label */}
-                <div 
-                  className="absolute left-1/2 top-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2"
-                  style={{
-                    transform: `rotate(${startAngle + (endAngle - startAngle) / 2}deg) translateY(-70px) rotate(-${startAngle + (endAngle - startAngle) / 2}deg)`,
-                  }}
-                >
-                  <div className="text-xs font-bold text-white bg-black/30 px-1 py-0.5 rounded-sm w-max mx-auto truncate max-w-[120px]">
-                    {category.name}
+                {circle.name}
+                
+                {/* Add food icons or decorations */}
+                {index === 0 && (
+                  <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+                    <span className="text-2xl">💧</span>
                   </div>
-                  <div className="text-xs font-bold text-white">{category.percentage}%</div>
-                </div>
+                )}
+                {index === 1 && (
+                  <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+                    <span className="text-2xl">🥦</span>
+                  </div>
+                )}
+                {index === 2 && (
+                  <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
+                    <span className="text-2xl">🍗</span>
+                  </div>
+                )}
+                {index === 3 && (
+                  <div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+                    <span className="text-xl">🌾</span>
+                  </div>
+                )}
+                {index === 4 && (
+                  <div className="absolute top-1/2 right-1 transform -translate-y-1/2">
+                    <span className="text-lg">🥑</span>
+                  </div>
+                )}
               </div>
-            );
-          })}
-        </div>
+              
+              {/* Add small markers */}
+              {[...Array(8)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className="absolute w-2 h-2 bg-white rounded-full"
+                  style={{
+                    transform: `rotate(${i * 45}deg) translateY(-${size / 2}%) translateX(-50%)`,
+                    left: '50%',
+                    top: '50%'
+                  }}
+                />
+              ))}
+            </div>
+          );
+        })}
         
         {/* Center pin */}
-        <div className="absolute top-1/2 left-1/2 w-8 h-8 bg-white rounded-full shadow-lg -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center">
-          <ChefHat className="h-5 w-5 text-pink-500" />
+        <div className="absolute top-1/2 left-1/2 w-12 h-12 bg-white rounded-full shadow-lg -translate-x-1/2 -translate-y-1/2 z-20 flex items-center justify-center">
+          <ChefHat className="h-7 w-7 text-pink-500" />
         </div>
         
         {/* Pointer */}
-        <div className="absolute top-0 left-1/2 w-4 h-8 -translate-x-1/2 z-10">
-          <div className="w-4 h-4 bg-white transform rotate-45 shadow-lg"></div>
+        <div className="absolute top-0 left-1/2 w-6 h-10 -translate-x-1/2 z-20">
+          <div className="w-6 h-6 bg-white transform rotate-45 shadow-lg"></div>
         </div>
       </div>
     );
@@ -345,8 +390,8 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
               <p className="text-gray-600">{phaseRecipes[phase].keyGoals}</p>
             </div>
             
-            {/* Roulette Wheel */}
-            {createRouletteWheel()}
+            {/* Concentric Circles Roulette */}
+            {createConcentricCircles()}
             
             <div className="space-y-3 mt-4">
               <h3 className="font-medium">Recommended Food Distribution:</h3>
