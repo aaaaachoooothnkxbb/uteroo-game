@@ -11,7 +11,7 @@ import {
   DialogDescription 
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ChefHat, Sparkles, UtensilsCrossed, Apple, Fish, Bread, Avocado, Carrot } from "lucide-react";
+import { ChefHat, Sparkles, UtensilsCrossed, Apple, Fish, Cherry, Egg, Salad, Carrot } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
