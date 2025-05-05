@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +11,7 @@ import {
   DialogDescription 
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ChefHat, Sparkles, UtensilsCrossed } from "lucide-react";
+import { ChefHat, Sparkles, UtensilsCrossed, Apple, Fish, Bread, Avocado, Carrot } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
@@ -180,11 +179,41 @@ interface Recipe {
 }
 
 const foodCirclesData = [
-  { name: "Water", color: "#60A5FA", rotationSpeed: 3 },
-  { name: "Fruits & Vegetables", color: "#34D399", rotationSpeed: 4 },
-  { name: "Proteins", color: "#F87171", rotationSpeed: 5 },
-  { name: "Whole Grains", color: "#FBBF24", rotationSpeed: 6 },
-  { name: "Healthy Fats", color: "#A78BFA", rotationSpeed: 7 }
+  { 
+    name: "Water", 
+    color: "#60A5FA", 
+    percentage: "25%",
+    icon: "💧",
+    description: "Stay hydrated!"
+  },
+  { 
+    name: "Fruits & Vegetables", 
+    color: "#34D399", 
+    percentage: "35%",
+    icon: "🥦",
+    description: "Eat the rainbow!"
+  },
+  { 
+    name: "Proteins", 
+    color: "#F87171", 
+    percentage: "20%",
+    icon: "🍗",
+    description: "Build strength!"
+  },
+  { 
+    name: "Whole Grains", 
+    color: "#FBBF24", 
+    percentage: "15%",
+    icon: "🌾",
+    description: "Fiber power!"
+  },
+  { 
+    name: "Healthy Fats", 
+    color: "#A78BFA", 
+    percentage: "5%",
+    icon: "🥑",
+    description: "Brain food!"
+  }
 ];
 
 export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
@@ -192,7 +221,6 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
   const [showRecipeDetails, setShowRecipeDetails] = useState(false);
   const [spinningWheel, setSpinningWheel] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [circleRotations, setCircleRotations] = useState<number[]>([0, 0, 0, 0, 0]);
   const { toast } = useToast();
 
   const { data: recipes, isLoading } = useQuery({
@@ -218,15 +246,6 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
     
     setSpinningWheel(true);
     
-    // Generate random rotations for each circle
-    const newRotations = circleRotations.map((_, index) => {
-      // Each circle spins at different speed (more inner circles spin faster)
-      const baseRotation = 1800 + Math.random() * 1800; // 5-10 full spins
-      return baseRotation * (1 + (index * 0.1)); // Increase rotation for inner circles
-    });
-    
-    setCircleRotations(newRotations);
-    
     setTimeout(() => {
       setSpinningWheel(false);
       const recipe = getRandomRecipe();
@@ -250,92 +269,44 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
   // Create concentric circles roulette
   const createConcentricCircles = () => {
     return (
-      <div className="relative w-96 h-96 mx-auto mt-4 mb-6">
+      <div className="relative w-[300px] h-[300px] mx-auto mt-4 mb-6">
         {foodCirclesData.map((circle, index) => {
           const size = 100 - (index * 16); // Decrease size for inner circles (100%, 84%, 68%, 52%, 36%)
-          const zIndex = 10 - index; // Higher z-index for outer circles
           
           return (
             <div 
               key={index}
-              className="absolute rounded-full flex items-center justify-center"
+              className={`absolute rounded-full flex items-center justify-center ${spinningWheel ? `spin-circle-${index + 1}` : ''}`}
               style={{
                 top: `${(100 - size) / 2}%`,
                 left: `${(100 - size) / 2}%`,
                 width: `${size}%`,
                 height: `${size}%`,
                 backgroundColor: circle.color,
-                transform: `rotate(${circleRotations[index]}deg)`,
-                transition: spinningWheel 
-                  ? `transform ${3 + (0.2 * index)}s cubic-bezier(0.2, 0.8, 0.2, 1)` 
-                  : 'none',
-                zIndex,
-                border: index > 0 ? '2px solid white' : 'none',
+                zIndex: 10 - index,
+                border: index > 0 ? '4px solid white' : 'none',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
               }}
             >
-              <div 
-                className="absolute font-bold text-white text-center"
-                style={{
-                  transform: 'rotate(0deg)', // Text stays upright
-                  fontSize: `${1.2 - (index * 0.1)}rem`, // Adjust text size
-                  textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-                  width: '80%'
-                }}
-              >
-                {circle.name}
-                
-                {/* Add food icons or decorations */}
-                {index === 0 && (
-                  <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
-                    <span className="text-2xl">💧</span>
-                  </div>
-                )}
-                {index === 1 && (
-                  <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
-                    <span className="text-2xl">🥦</span>
-                  </div>
-                )}
-                {index === 2 && (
-                  <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
-                    <span className="text-2xl">🍗</span>
-                  </div>
-                )}
-                {index === 3 && (
-                  <div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-                    <span className="text-xl">🌾</span>
-                  </div>
-                )}
-                {index === 4 && (
-                  <div className="absolute top-1/2 right-1 transform -translate-y-1/2">
-                    <span className="text-lg">🥑</span>
-                  </div>
-                )}
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+                <div className="text-2xl mb-1">{circle.icon}</div>
+                <div className="font-bold text-white" style={{ fontSize: `${1.2 - (index * 0.15)}rem` }}>
+                  {circle.name}
+                </div>
+                <div className="text-white font-semibold" style={{ fontSize: `${1 - (index * 0.15)}rem` }}>
+                  {circle.percentage}
+                </div>
+                <div className="text-white text-xs" style={{ fontSize: `${0.7 - (index * 0.05)}rem`, display: index < 3 ? 'block' : 'none' }}>
+                  {circle.description}
+                </div>
               </div>
-              
-              {/* Add small markers */}
-              {[...Array(8)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className="absolute w-2 h-2 bg-white rounded-full"
-                  style={{
-                    transform: `rotate(${i * 45}deg) translateY(-${size / 2}%) translateX(-50%)`,
-                    left: '50%',
-                    top: '50%'
-                  }}
-                />
-              ))}
             </div>
           );
         })}
         
         {/* Center pin */}
-        <div className="absolute top-1/2 left-1/2 w-12 h-12 bg-white rounded-full shadow-lg -translate-x-1/2 -translate-y-1/2 z-20 flex items-center justify-center">
-          <ChefHat className="h-7 w-7 text-pink-500" />
-        </div>
-        
-        {/* Pointer */}
-        <div className="absolute top-0 left-1/2 w-6 h-10 -translate-x-1/2 z-20">
-          <div className="w-6 h-6 bg-white transform rotate-45 shadow-lg"></div>
+        <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white rounded-full shadow-lg -translate-x-1/2 -translate-y-1/2 z-20 flex items-center justify-center border-4 border-pink-300">
+          <ChefHat className="h-8 w-8 text-pink-500" />
         </div>
       </div>
     );
@@ -351,7 +322,7 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
         <div className="absolute inset-0 rounded-full bg-gradient-to-r animate-pulse opacity-40 blur-sm from-pink-400 via-purple-500 to-indigo-500" />
         <div className="absolute inset-0 rotate-45 rounded-full bg-gradient-to-r animate-pulse opacity-40 blur-sm from-yellow-400 via-red-500 to-pink-500" />
         
-        <div className="relative z-10 w-16 h-16 bg-white rounded-full flex items-center justify-center overflow-hidden border-2">
+        <div className="relative z-10 w-16 h-16 bg-white rounded-full flex items-center justify-center overflow-hidden border-2 border-pink-200">
           <img 
             src="/lovable-uploads/8621b2b5-4f0d-4de1-8415-fadb4bb0eabe.png" 
             alt="Recipe Roulette" 
@@ -371,63 +342,33 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
 
       {/* Recipe Wheel Modal */}
       <Dialog open={showRecipeWheel} onOpenChange={setShowRecipeWheel}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-gradient-to-br from-pink-50 to-purple-50 border-2 border-pink-200 rounded-xl">
           <DialogHeader>
             <DialogTitle className="text-2xl flex items-center gap-2">
-              <UtensilsCrossed className="h-6 w-6 text-orange-500" />
+              <UtensilsCrossed className="h-6 w-6 text-pink-500" />
               <span className={`bg-gradient-to-r ${phaseColors[phase]} bg-clip-text text-transparent`}>
                 Phase-Specific Recipe Roulette
               </span>
             </DialogTitle>
-            <DialogDescription>
-              Discover recipes optimized for your {phase} phase needs
+            <DialogDescription className="text-gray-600">
+              Spin the wheel to discover recipes optimized for your {phase} phase needs!
             </DialogDescription>
           </DialogHeader>
           
           <div className="p-4 space-y-4">
             <div className="text-center">
-              <h3 className="font-bold">Key Goals for {phase.charAt(0).toUpperCase() + phase.slice(1)} Phase:</h3>
+              <h3 className="font-bold text-pink-600">Key Goals for {phase.charAt(0).toUpperCase() + phase.slice(1)} Phase:</h3>
               <p className="text-gray-600">{phaseRecipes[phase].keyGoals}</p>
             </div>
             
             {/* Concentric Circles Roulette */}
             {createConcentricCircles()}
             
-            <div className="space-y-3 mt-4">
-              <h3 className="font-medium">Recommended Food Distribution:</h3>
-              {phaseRecipes[phase].foodCategories.map((category) => (
-                <div key={category.name} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium">{category.name}</span>
-                    <span>{category.percentage}%</span>
-                  </div>
-                  <Progress 
-                    value={category.percentage} 
-                    className="bg-gray-200"
-                    indicatorClassName="transition-all"
-                    style={{ backgroundColor: category.color }}
-                  />
-                  <div className="text-xs text-gray-500 flex justify-between">
-                    <span>{category.sources}</span>
-                    <button 
-                      className="text-blue-500 hover:underline"
-                      onClick={() => toast({
-                        title: category.name,
-                        description: category.why,
-                      })}
-                    >
-                      Why?
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
             <div className="flex justify-center mt-6">
               <Button 
                 onClick={handleSpinWheel}
                 disabled={spinningWheel || isLoading}
-                className="relative overflow-hidden bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white font-bold py-2 px-6 rounded-full"
+                className="relative overflow-hidden bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 hover:from-pink-500 hover:via-purple-500 hover:to-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-md"
               >
                 {spinningWheel ? (
                   <div className="flex items-center">
@@ -442,16 +383,50 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
                 )}
               </Button>
             </div>
+            
+            <div className="space-y-3 mt-8">
+              <h3 className="font-medium text-pink-600 text-center">Recommended Food Distribution:</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {phaseRecipes[phase].foodCategories.map((category) => (
+                  <Card key={category.name} className="p-3 border-2 border-pink-100 bg-white/80 backdrop-blur-sm shadow-sm">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium">{category.name}</span>
+                        <span>{category.percentage}%</span>
+                      </div>
+                      <Progress 
+                        value={category.percentage} 
+                        className="bg-gray-200"
+                        indicatorClassName="transition-all"
+                        style={{ backgroundColor: category.color }}
+                      />
+                      <div className="text-xs text-gray-500 flex justify-between">
+                        <span>{category.sources}</span>
+                        <button 
+                          className="text-blue-500 hover:underline"
+                          onClick={() => toast({
+                            title: category.name,
+                            description: category.why,
+                          })}
+                        >
+                          Why?
+                        </button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Recipe Details Modal */}
       <Dialog open={showRecipeDetails} onOpenChange={setShowRecipeDetails}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl bg-gradient-to-br from-pink-50 to-purple-50 border-2 border-pink-200 rounded-xl">
           <DialogHeader>
             <DialogTitle className="text-2xl flex items-center gap-2">
-              <ChefHat className="h-6 w-6 text-orange-500" />
+              <ChefHat className="h-6 w-6 text-pink-500" />
               <span className={`bg-gradient-to-r ${phaseColors[phase]} bg-clip-text text-transparent`}>
                 {selectedRecipe?.recipe_name || "Phase Recipe"}
               </span>
@@ -463,8 +438,8 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
               <Carousel className="w-full">
                 <CarouselContent>
                   <CarouselItem>
-                    <div className="p-4">
-                      <h4 className="font-medium text-lg mb-2">Ingredients:</h4>
+                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-2 border-pink-100">
+                      <h4 className="font-medium text-lg mb-2 text-pink-600">Ingredients:</h4>
                       <ul className="list-disc list-inside space-y-1">
                         {selectedRecipe.ingredients.map((ingredient, index) => (
                           <li key={index} className="text-gray-700">{ingredient}</li>
@@ -474,8 +449,8 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
                   </CarouselItem>
                   
                   <CarouselItem>
-                    <div className="p-4">
-                      <h4 className="font-medium text-lg mb-2">Bonus Ingredients (Phase-Specific):</h4>
+                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-2 border-pink-100">
+                      <h4 className="font-medium text-lg mb-2 text-pink-600">Bonus Ingredients (Phase-Specific):</h4>
                       <ul className="list-disc list-inside space-y-1">
                         {selectedRecipe.bonus_ingredients.map((ingredient, index) => (
                           <li key={index} className="text-green-600">{ingredient}</li>
@@ -485,8 +460,8 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
                   </CarouselItem>
                   
                   <CarouselItem>
-                    <div className="p-4">
-                      <h4 className="font-medium text-lg mb-2">Instructions:</h4>
+                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-2 border-pink-100">
+                      <h4 className="font-medium text-lg mb-2 text-pink-600">Instructions:</h4>
                       <ol className="list-decimal list-inside space-y-2">
                         {selectedRecipe.instructions.map((step, index) => (
                           <li key={index} className="text-gray-700">{step}</li>
@@ -496,9 +471,9 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
                   </CarouselItem>
                   
                   <CarouselItem>
-                    <div className="p-4">
-                      <h4 className="font-medium text-lg mb-2">Cooking Tips:</h4>
-                      <div className="bg-orange-50 p-4 rounded-lg">
+                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-2 border-pink-100">
+                      <h4 className="font-medium text-lg mb-2 text-pink-600">Cooking Tips:</h4>
+                      <div className="bg-pink-50 p-4 rounded-lg">
                         <ul className="list-disc list-inside space-y-1">
                           {selectedRecipe.cooking_tips.map((tip, index) => (
                             <li key={index} className="text-gray-700">{tip}</li>
