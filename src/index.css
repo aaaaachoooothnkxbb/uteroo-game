@@ -1,239 +1,90 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  html {
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  body {
-    min-height: 100vh;
-    @apply overflow-hidden;
-    font-size: 14px;
-  }
-
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-
-@layer base {
   * {
-    @apply border-border;
+    @apply antialiased;
   }
-
   body {
     @apply bg-background text-foreground;
   }
 }
 
-/* Dialog content scrolling fix */
-.max-h-[85vh] {
-  max-height: 85vh;
-  overflow-y: auto;
+.bg-menstruation-bg {
+  background-image: url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png');
 }
 
-/* Enable scrolling for modal content */
-[role="dialog"] .overflow-hidden {
-  overflow: initial;
+.bg-follicular-bg {
+  background-image: url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png');
 }
 
-.sm\:max-w-md {
-  max-width: 28rem;
-  max-height: 80vh;
-  overflow-y: auto;
+.bg-ovulatory-bg {
+  background-image: url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png');
 }
 
-/* Add tiny font size for better UI layout */
-.text-2xs {
-  font-size: 0.65rem;
-  line-height: 1rem;
+.bg-luteal-bg {
+  background-image: url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png');
 }
 
-/* Add animation for the boost indicator */
-@keyframes boost {
-  0% { 
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.8);
+    transform: translateY(-10px);
   }
-  50% { 
+  to {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.2);
+    transform: translateY(0);
   }
-  100% { 
-    opacity: 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce 3s infinite;
+}
+
+.duration-3000 {
+  transition-duration: 3000ms;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-5%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes boost {
+  0% {
     transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
   }
 }
 
 .animate-boost {
   animation: boost 1s ease-out forwards;
-}
-
-/* Add animation for floating elements */
-@keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Add animation for slow bounce */
-@keyframes bounce-slow {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.animate-bounce-slow {
-  animation: bounce-slow 3s infinite ease-in-out;
-}
-
-/* Optimize for touch devices */
-@media (pointer: coarse) {
-  button, .button, [role="button"], .clickable {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.5rem;
-  }
-  
-  .mobile-touch-fix {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  /* Ensure buttons have proper spacing */
-  .button-group > * {
-    margin: 0.25rem;
-  }
-  
-  /* Improve hit areas */
-  .hit-area {
-    position: relative;
-  }
-  
-  .hit-area::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    bottom: -8px;
-    left: -8px;
-    z-index: -1;
-  }
-}
-
-/* Fix for overlapping elements */
-.overlap-fix {
-  isolation: isolate;
-}
-
-/* Fix for long text */
-.text-truncate {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/* Fix for buttons */
-.button-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
-  gap: 0.5rem;
 }
