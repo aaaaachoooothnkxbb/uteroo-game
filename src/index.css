@@ -107,27 +107,27 @@
 /* Concentric circles animations */
 @keyframes spin-circle-1 {
   0% { transform: rotate(0deg); }
-  100% { transform: rotate(3600deg); }
+  100% { transform: rotate(1080deg); }
 }
 
 @keyframes spin-circle-2 {
   0% { transform: rotate(0deg); }
-  100% { transform: rotate(-2880deg); }
+  100% { transform: rotate(-720deg); }
 }
 
 @keyframes spin-circle-3 {
   0% { transform: rotate(0deg); }
-  100% { transform: rotate(2160deg); }
+  100% { transform: rotate(540deg); }
 }
 
 @keyframes spin-circle-4 {
   0% { transform: rotate(0deg); }
-  100% { transform: rotate(-1440deg); }
+  100% { transform: rotate(-360deg); }
 }
 
 @keyframes spin-circle-5 {
   0% { transform: rotate(0deg); }
-  100% { transform: rotate(720deg); }
+  100% { transform: rotate(180deg); }
 }
 
 .spin-circle-1 {
@@ -148,4 +148,8 @@
 
 .spin-circle-5 {
   animation: spin-circle-5 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.text-shadow {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }

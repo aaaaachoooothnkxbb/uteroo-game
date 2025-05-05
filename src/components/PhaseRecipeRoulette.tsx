@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -271,7 +272,8 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
     return (
       <div className="relative w-[300px] h-[300px] mx-auto mt-4 mb-6">
         {foodCirclesData.map((circle, index) => {
-          const size = 100 - (index * 16); // Decrease size for inner circles (100%, 84%, 68%, 52%, 36%)
+          // Calculate circle sizes: 100%, 80%, 60%, 40%, 20% of container width
+          const size = 100 - (index * 20); 
           
           return (
             <div 
@@ -283,22 +285,24 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
                 width: `${size}%`,
                 height: `${size}%`,
                 backgroundColor: circle.color,
-                zIndex: 10 - index,
-                border: index > 0 ? '4px solid white' : 'none',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                zIndex: 5 - index,
+                border: '4px solid white',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               }}
             >
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-2">
                 <div className="text-2xl mb-1">{circle.icon}</div>
-                <div className="font-bold text-white" style={{ fontSize: `${1.2 - (index * 0.15)}rem` }}>
+                <div className="font-bold text-white text-shadow" style={{ fontSize: `${1.2 - (index * 0.15)}rem` }}>
                   {circle.name}
                 </div>
                 <div className="text-white font-semibold" style={{ fontSize: `${1 - (index * 0.15)}rem` }}>
                   {circle.percentage}
                 </div>
-                <div className="text-white text-xs" style={{ fontSize: `${0.7 - (index * 0.05)}rem`, display: index < 3 ? 'block' : 'none' }}>
-                  {circle.description}
-                </div>
+                {index < 3 && (
+                  <div className="text-white text-xs" style={{ fontSize: `${0.7 - (index * 0.05)}rem` }}>
+                    {circle.description}
+                  </div>
+                )}
               </div>
             </div>
           );
