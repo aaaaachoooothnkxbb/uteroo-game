@@ -206,6 +206,8 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
   };
 
   const handleSpinWheel = () => {
+    if (spinningWheel) return; // Prevent multiple spins at once
+    
     setSpinningWheel(true);
     // Generate random rotation between 1800 and 3600 degrees (5-10 full spins)
     const newRotation = wheelRotation + 1800 + Math.random() * 1800;
@@ -240,7 +242,7 @@ export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
       <div className="relative w-64 h-64 mx-auto mt-4 mb-6">
         {/* Spinning wheel */}
         <div 
-          className={`absolute w-full h-full rounded-full overflow-hidden transition-transform duration-3000 ease-out ${spinningWheel ? '' : 'transform'}`}
+          className="absolute w-full h-full rounded-full overflow-hidden"
           style={{ 
             transform: `rotate(${wheelRotation}deg)`,
             transition: spinningWheel ? 'transform 3s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none'

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -87,4 +88,18 @@
 
 .animate-boost {
   animation: boost 1s ease-out forwards;
+}
+
+/* Add this for wheel spinning animation */
+@keyframes spinWheel {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(3600deg);
+  }
+}
+
+.wheel-spin {
+  animation: spinWheel 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
