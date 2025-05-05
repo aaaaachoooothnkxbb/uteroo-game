@@ -310,7 +310,7 @@ These insights are general wellness suggestions, not medical advice. Always cons
                           {envelopeState === 'closed' && (
                             <div className="absolute inset-0 flex items-center justify-center">
                               <div className="w-10 h-10 text-pink-600">
-                                {envelopeState === 'open' ? (
+                                {envelopeState !== 'closed' ? (
                                   <MailOpen className="w-full h-full animate-pulse" />
                                 ) : (
                                   <Mail className="w-full h-full animate-pulse" />
