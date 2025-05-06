@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,19 +12,19 @@
 }
 
 .bg-menstruation-bg {
-  background-image: url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png');
+  background-image: url('/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png');
 }
 
 .bg-follicular-bg {
-  background-image: url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png');
+  background-image: url('/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png');
 }
 
 .bg-ovulatory-bg {
-  background-image: url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png');
+  background-image: url('/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png');
 }
 
 .bg-luteal-bg {
-  background-image: url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png');
+  background-image: url('/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png');
 }
 
 .animate-fade-in {

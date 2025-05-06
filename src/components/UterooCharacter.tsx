@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
 const phaseToImage = {
-  menstruation: "/lovable-uploads/7a934e51-2d98-42f6-ad3b-d918a606c610.png",
-  follicular: "/lovable-uploads/7a934e51-2d98-42f6-ad3b-d918a606c610.png",
-  ovulatory: "/lovable-uploads/7a934e51-2d98-42f6-ad3b-d918a606c610.png",
-  luteal: "/lovable-uploads/7a934e51-2d98-42f6-ad3b-d918a606c610.png"
+  menstruation: "/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png",
+  follicular: "/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png",
+  ovulatory: "/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png",
+  luteal: "/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png"
 };
 
 const phaseToMessage = {
