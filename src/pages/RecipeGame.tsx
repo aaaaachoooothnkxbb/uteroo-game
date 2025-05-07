@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ import {
 } from "lucide-react";
 import { RecipeRoulette } from "@/components/RecipeRoulette";
 import { UterooCharacter } from "@/components/UterooCharacter";
+import { VideoPlayer } from "@/components/VideoPlayer";
+import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
 
 const rooms = ["Bedroom", "Bathroom", "Kitchen", "Game Room"];
 
@@ -23,6 +26,7 @@ const RecipeGame = () => {
   const navigate = useNavigate();
   const [showRecipeRoulette, setShowRecipeRoulette] = useState(false);
   const [currentRoomIndex, setCurrentRoomIndex] = useState(2); // Start with Kitchen
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const handlePreviousRoom = () => {
     setCurrentRoomIndex((prev) => (prev === 0 ? rooms.length - 1 : prev - 1));
@@ -30,6 +34,13 @@ const RecipeGame = () => {
 
   const handleNextRoom = () => {
     setCurrentRoomIndex((prev) => (prev === rooms.length - 1 ? 0 : prev + 1));
+  };
+
+  // Tutorial video for recipe game
+  const tutorialVideo = {
+    src: "https://player.vimeo.com/external/517177560.sd.mp4?s=ccc7ecc16eaef12b89a8856fa6e5455c893c371b&profile_id=164&oauth2_token_id=57447761",
+    title: "How to Play Recipe Game",
+    description: "Learn how to use the Recipe Roulette, cook meals, and gain points."
   };
 
   return (
@@ -65,7 +76,12 @@ const RecipeGame = () => {
             >
               <ArrowRight className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="icon" className="w-8 h-8">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="w-8 h-8"
+              onClick={() => setShowTutorial(true)}
+            >
               <HelpCircle className="w-4 h-4" />
             </Button>
           </div>
@@ -162,6 +178,25 @@ const RecipeGame = () => {
           </div>
         </div>
       )}
+
+      {/* Tutorial Video Dialog */}
+      <Dialog open={showTutorial} onOpenChange={setShowTutorial}>
+        <DialogContent className="max-w-3xl">
+          <DialogTitle>Recipe Game Tutorial</DialogTitle>
+          <VideoPlayer
+            src={tutorialVideo.src}
+            title={tutorialVideo.title}
+            description={tutorialVideo.description}
+            controls={true}
+            autoPlay={true}
+          />
+          <div className="flex justify-end mt-4">
+            <DialogClose asChild>
+              <Button variant="outline">Close Tutorial</Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
