@@ -989,7 +989,7 @@ const PouGame = () => {
               </div>
               
               <div className="relative z-10">
-                <UterooCharacter phase={currentPhase} />
+                <UterooCharacter phase={currentPhase} currentRoom={currentRoom.id} />
               </div>
               
               {showBoostIndicator && (

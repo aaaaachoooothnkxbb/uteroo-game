@@ -5,10 +5,18 @@ import { cn } from "@/lib/utils";
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
 const phaseToImage = {
-  menstruation: "/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png",
-  follicular: "/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png",
-  ovulatory: "/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png",
-  luteal: "/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png"
+  menstruation: "/lovable-uploads/9ceb35ec-281c-4e4f-bad4-279fd2c1aedf.png",
+  follicular: "/lovable-uploads/9ceb35ec-281c-4e4f-bad4-279fd2c1aedf.png",
+  ovulatory: "/lovable-uploads/9ceb35ec-281c-4e4f-bad4-279fd2c1aedf.png",
+  luteal: "/lovable-uploads/9ceb35ec-281c-4e4f-bad4-279fd2c1aedf.png"
+};
+
+// Lab coat version for lab room
+const phaseToLabImage = {
+  menstruation: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png",
+  follicular: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png",
+  ovulatory: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png",
+  luteal: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png"
 };
 
 const phaseToMessage = {
@@ -25,7 +33,16 @@ const phaseToGradient = {
   luteal: "from-orange-200 to-transparent"
 };
 
-export const UterooCharacter = ({ phase }: { phase: Phase }) => {
+interface UterooCharacterProps {
+  phase: Phase;
+  currentRoom?: string;
+}
+
+export const UterooCharacter = ({ phase, currentRoom = "" }: UterooCharacterProps) => {
+  // Use lab coat image if in lab room
+  const isLabRoom = currentRoom === "lab";
+  const characterImage = isLabRoom ? phaseToLabImage[phase] : phaseToImage[phase];
+  
   return (
     <div className="flex flex-col items-center space-y-2 mt-4 z-10">
       <Card className={cn(
@@ -34,8 +51,8 @@ export const UterooCharacter = ({ phase }: { phase: Phase }) => {
       )}>
         <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden flex items-center justify-center bg-white/80 backdrop-blur-sm">
           <img 
-            src={phaseToImage[phase]} 
-            alt={`Uteroo in ${phase} phase`} 
+            src={characterImage} 
+            alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
             className="w-full h-full object-contain animate-bounce-slow drop-shadow-lg"
           />
         </div>
