@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -5,7 +6,7 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
+const TOAST_LIMIT = 0 // Changed from 1 to 0 to prevent any toasts from showing
 const TOAST_REMOVE_DELAY = 1000000
 
 type ToasterToast = ToastProps & {
@@ -149,6 +150,7 @@ function toast({ ...props }: Toast) {
     })
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
 
+  // Still dispatch the toast, but it won't be rendered due to TOAST_LIMIT set to 0
   dispatch({
     type: "ADD_TOAST",
     toast: {
