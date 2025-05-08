@@ -1,5 +1,7 @@
 
 import { cn } from "@/lib/utils";
+import { Heart } from "lucide-react";
+import { useState, useEffect } from "react";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -40,6 +42,14 @@ interface UterooCharacterProps {
   onClick?: () => void;
 }
 
+// Interface for floating hearts
+interface FloatingHeart {
+  id: string;
+  x: number;
+  y: number;
+  opacity: number;
+}
+
 export const UterooCharacter = ({ 
   phase, 
   currentRoom = "", 
@@ -55,35 +65,106 @@ export const UterooCharacter = ({
   const sizeClasses = {
     small: "w-28 h-28",
     medium: "w-32 h-32",
-    large: "w-36 h-36 sm:w-40 sm:h-40"
+    large: "w-40 h-40 sm:w-48 sm:h-48"
+  };
+  
+  // State for automatic floating hearts
+  const [autoHearts, setAutoHearts] = useState<FloatingHeart[]>([]);
+  
+  // Handle auto-generated floating hearts
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Create a new heart with random position
+      const newHeart: FloatingHeart = {
+        id: `auto-${Date.now()}-${Math.random()}`,
+        x: Math.random() * 40 - 20, // Random offset -20 to +20px
+        y: -30, // Start position above character
+        opacity: 1,
+      };
+      
+      setAutoHearts(prev => [...prev, newHeart]);
+      
+      // Remove the heart after animation completes
+      setTimeout(() => {
+        setAutoHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
+      }, 2000);
+    }, 2000); // Every 2 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Handle click on character
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
   };
   
   if (minimal) {
     // Minimal version without message bubble - just the character
     return (
-      <img 
-        src={characterImage} 
-        alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
-        className={cn(
-          sizeClasses[size],
-          "object-contain drop-shadow-md cursor-pointer"
-        )}
-        onClick={onClick}
-      />
+      <div className="relative inline-block">
+        <img 
+          src={characterImage} 
+          alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
+          className={cn(
+            sizeClasses[size],
+            "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
+          )}
+          onClick={handleClick}
+        />
+        
+        {/* Auto-generated floating hearts */}
+        {autoHearts.map(heart => (
+          <div
+            key={heart.id}
+            className="absolute pointer-events-none"
+            style={{
+              transform: `translate(${heart.x}px, ${heart.y}px)`,
+              animation: 'float-up 2s ease-out forwards'
+            }}
+          >
+            <div className="flex items-center">
+              <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
+              <span className="text-xs font-bold text-white bg-pink-500 rounded-full px-1 ml-0.5">+1</span>
+            </div>
+          </div>
+        ))}
+      </div>
     );
   }
   
   return (
     <div className="flex items-center">
-      <img 
-        src={characterImage} 
-        alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
-        className={cn(
-          sizeClasses[size],
-          "object-contain drop-shadow-md cursor-pointer"
-        )}
-        onClick={onClick}
-      />
+      <div className="relative">
+        <img 
+          src={characterImage} 
+          alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
+          className={cn(
+            sizeClasses[size],
+            "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
+          )}
+          onClick={handleClick}
+        />
+        
+        {/* Auto-generated floating hearts */}
+        {autoHearts.map(heart => (
+          <div
+            key={heart.id}
+            className="absolute pointer-events-none"
+            style={{
+              transform: `translate(${heart.x}px, ${heart.y}px)`,
+              animation: 'float-up 2s ease-out forwards'
+            }}
+          >
+            <div className="flex items-center">
+              <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
+              <span className="text-xs font-bold text-white bg-pink-500 rounded-full px-1 ml-0.5">+1</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      
       <div className={cn(
         "ml-2 font-medium tracking-wide text-white drop-shadow-md bg-gradient-to-r rounded-full backdrop-blur-sm border border-white/30 px-3 py-1.5",
         size === "small" ? "text-xs max-w-[150px]" : "text-sm max-w-[200px]",

@@ -42,6 +42,108 @@ interface FloatingHeart {
   y: number; // y position offset
 }
 
+// Science-backed boosters data
+const scienceBoosters = {
+  bedroom: [
+    {
+      id: "red_light",
+      name: "Red Light Therapy",
+      type: "energy" as const,
+      icon: "/lovable-uploads/5456ad76-fc4d-41bf-af80-f17afa7e0ff8.png",
+      boost: 25,
+      cost: 30,
+      costType: "hearts" as const,
+      tooltip: {
+        title: "Red Light Therapy",
+        description: "Scientific studies show that red light therapy can reduce menstrual pain by improving blood circulation and reducing inflammation.",
+        learnMoreUrl: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7003061/"
+      }
+    }
+  ],
+  bathroom: [
+    {
+      id: "epsom_salt",
+      name: "Epsom Salt Soak",
+      type: "hygiene" as const,
+      icon: "/lovable-uploads/861f1be0-201e-4269-be4e-3b74dbb8e136.png",
+      boost: 20,
+      cost: 20,
+      costType: "hearts" as const,
+      tooltip: {
+        title: "Epsom Salt Soak",
+        description: "Magnesium in Epsom salts can be absorbed through the skin and may help reduce cramps by relaxing smooth muscle tissue.",
+        learnMoreUrl: "https://www.medicalnewstoday.com/articles/epsom-salt-for-pain"
+      }
+    }
+  ],
+  games: [
+    {
+      id: "dance_breaks",
+      name: "Dance Breaks",
+      type: "happiness" as const,
+      icon: "/lovable-uploads/c00b6791-8007-435f-a0fd-63104a0d898b.png",
+      boost: 25,
+      cost: 15,
+      costType: "hearts" as const,
+      tooltip: {
+        title: "Dance Breaks",
+        description: "Dancing triggers endorphin release, which can help alleviate menstrual pain and boost mood naturally.",
+        learnMoreUrl: "https://www.sciencedirect.com/science/article/abs/pii/S0965229919308040"
+      }
+    }
+  ],
+  workstation: [
+    {
+      id: "pomodoro_timer",
+      name: "Pomodoro Timer",
+      type: "energy" as const,
+      icon: "/lovable-uploads/959696ca-9468-41f5-92f4-34af0b40294b.png",
+      boost: 20,
+      cost: 25,
+      costType: "hearts" as const,
+      tooltip: {
+        title: "Pomodoro Timer",
+        description: "The Pomodoro Technique helps balance cortisol levels by preventing burnout and maintaining focus during different phases of your cycle.",
+        learnMoreUrl: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6999883/"
+      }
+    }
+  ],
+  exercise: [
+    {
+      id: "pms_yoga",
+      name: "Yoga for PMS",
+      type: "energy" as const,
+      icon: "/lovable-uploads/de0368a0-d48f-46c5-99c6-fec67d055986.png",
+      boost: 30,
+      cost: 30,
+      costType: "hearts" as const,
+      onClick: (currentPhase: string, openYogaPoses: () => void) => openYogaPoses(),
+      tooltip: {
+        title: "Yoga for PMS",
+        description: "Specific yoga poses can help relieve bloating and cramps by improving circulation to the pelvic region and releasing tension.",
+        learnMoreUrl: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6746411/"
+      }
+    }
+  ],
+  lab: [
+    {
+      id: "cycle_analytics",
+      name: "Cycle Analytics",
+      type: "energy" as const,
+      icon: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png",
+      boost: 35,
+      cost: 50,
+      costType: "hearts" as const,
+      bloodworkAnalysis: true,
+      tooltip: {
+        title: "Cycle Analytics",
+        description: "Advanced hormone tracking can help predict symptoms and optimize lifestyle choices based on your unique cycle patterns.",
+        learnMoreUrl: "https://www.tandfonline.com/doi/abs/10.1080/03007995.2016.1215413"
+      }
+    }
+  ],
+};
+
 const enemies = {
   menstruation: [
     { id: "cramps", name: "Cramps", hp: 3, icon: "/lovable-uploads/52b8fe36-6c7e-4397-b705-b055fa4d0c62.png", suggestion: "Warm tea" },
@@ -403,7 +505,10 @@ const PouGame = () => {
   const [showTutorial, setShowTutorial] = useState(false);
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
   const [heartClicks, setHeartClicks] = useState(0);
-
+  const [consecutiveClicks, setConsecutiveClicks] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [showHeartBonus, setShowHeartBonus] = useState(false);
+  
   // Load streak from localStorage on component mount
   useEffect(() => {
     const savedStreak = localStorage.getItem('uterooStreak');
@@ -798,15 +903,77 @@ const PouGame = () => {
     );
   };
 
+  // Render science-based boosters for current room
+  const renderScienceBoosters = () => {
+    const currentRoom = rooms[currentRoomIndex];
+    const scienceBoostersForRoom = scienceBoosters[currentRoom.id as keyof typeof scienceBoosters] || [];
+    
+    if (scienceBoostersForRoom.length === 0) return null;
+    
+    return (
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-sm flex items-center gap-1">
+            <span>Science Boosters</span>
+            <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full">New!</span>
+          </h3>
+        </div>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-white/50 backdrop-blur-sm p-3 rounded-xl border border-purple-200 shadow-sm">
+          {scienceBoostersForRoom.map((booster) => (
+            <TooltipProvider key={booster.id}>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <div 
+                    onClick={() => handleBoosterClick(booster)}
+                    className="flex flex-col items-center p-2 bg-white/70 rounded-lg shadow-sm border border-purple-100 cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <div className="relative">
+                      <img 
+                        src={booster.icon} 
+                        alt={booster.name}
+                        className="w-12 h-12 object-contain mb-1 animate-pulse-slow"
+                      />
+                      <div className="absolute -top-1 -right-1 flex items-center gap-0.5 bg-pink-500 text-white text-xs rounded-full px-1.5 py-0.5 font-semibold shadow-sm">
+                        <Heart className="h-3 w-3" />
+                        <span>{booster.cost}</span>
+                      </div>
+                    </div>
+                    <span className="text-xs font-medium text-center">{booster.name}</span>
+                    <div className="text-2xs text-purple-700 mt-1">🧪 Science-based</div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="bg-white/95 backdrop-blur-sm p-3 max-w-[250px]">
+                  <h4 className="font-semibold mb-1">{booster.tooltip?.title}</h4>
+                  <p className="text-xs">{booster.tooltip?.description}</p>
+                  {booster.tooltip?.learnMoreUrl && (
+                    <a 
+                      href={booster.tooltip.learnMoreUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-2xs text-purple-700 mt-1 underline block"
+                    >
+                      Read scientific research
+                    </a>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Completely redesigned compact stats panel with hearts
   const renderStatsPanel = () => {
     return (
       <div className="fixed top-2 right-2 z-50">
-        <div className="flex items-center gap-2 px-2 py-1 bg-white/50 backdrop-blur-sm rounded-full shadow-sm">
-          {/* Heart counter */}
+        <div className="flex items-center gap-2 px-2 py-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm">
+          {/* Heart counter - now more prominent */}
           <div className="flex items-center gap-1">
-            <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
-            <span className="text-xs font-semibold">{stats.hearts}</span>
+            <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
+            <span className="text-sm font-semibold">{stats.hearts}</span>
           </div>
           
           {/* Coins counter */}
@@ -847,12 +1014,35 @@ const PouGame = () => {
 
   // Handle click on Uteroo character to add hearts
   const handleUterooClick = useCallback(() => {
-    // Increment heart clicks
-    setHeartClicks(prev => prev + 1);
+    const now = Date.now();
+    let heartsToAdd = 1;
     
-    // Add hearts based on current clicks (more clicks = more hearts)
-    const heartsToAdd = Math.max(1, Math.floor(heartClicks / 10) + 1);
+    // Check if this is a consecutive click (within 2 seconds of last click)
+    if (now - lastClickTime < 2000) {
+      const newConsecutiveClicks = consecutiveClicks + 1;
+      setConsecutiveClicks(newConsecutiveClicks);
+      
+      // Award bonus hearts for 10+ consecutive clicks
+      if (newConsecutiveClicks >= 10) {
+        heartsToAdd = 5;
+        setShowHeartBonus(true);
+        setTimeout(() => setShowHeartBonus(false), 2000);
+        
+        // Play celebration sound
+        const audio = new Audio('/lovable-uploads/52bb0557-2423-47d1-9bfb-2c0316ac26ce.png'); // This is just a placeholder, you'd need to add an actual sound file
+        audio.play().catch(e => console.log("Audio play failed:", e));
+        
+        // Reset consecutive clicks after bonus
+        setConsecutiveClicks(0);
+      }
+    } else {
+      // Reset consecutive clicks if too much time has passed
+      setConsecutiveClicks(1);
+    }
     
+    setLastClickTime(now);
+    
+    // Increment hearts
     setStats(prev => ({
       ...prev,
       hearts: prev.hearts + heartsToAdd
@@ -875,10 +1065,10 @@ const PouGame = () => {
     // Show toast for hearts earned
     toast({
       title: `+${heartsToAdd} Heart${heartsToAdd > 1 ? 's' : ''}!`,
-      description: "Keep going for more hearts!",
+      description: heartsToAdd > 1 ? "Bonus hearts for quick clicks!" : "Hearts = love for yourself! Spend them to feel better. 💖",
       duration: 1500,
     });
-  }, [heartClicks, toast]);
+  }, [heartClicks, toast, consecutiveClicks, lastClickTime]);
 
   return (
     <div className="min-h-screen relative">
@@ -1024,6 +1214,13 @@ const PouGame = () => {
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
+              {/* Heart bonus indicator */}
+              {showHeartBonus && (
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-12 bg-pink-500 text-white rounded-full px-3 py-1 text-sm font-bold animate-bounce-slow z-20">
+                  +5 Hearts Bonus! 💗
+                </div>
+              )}
+              
               {/* Floating hearts animation */}
               {floatingHearts.map(heart => (
                 <div
@@ -1082,7 +1279,10 @@ const PouGame = () => {
               <span>🔥 {streak}-Day Streak • Continue (+10 pts)</span>
             </Button>
             
-            {/* Items/boosters for current room */}
+            {/* Science boosters */}
+            {renderScienceBoosters()}
+            
+            {/* Regular boosters */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-sm">Boosters</h3>
