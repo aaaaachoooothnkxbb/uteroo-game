@@ -63,9 +63,9 @@ export const UterooCharacter = ({
   
   // Size classes based on the size prop - made larger as requested
   const sizeClasses = {
-    small: "w-28 h-28",
-    medium: "w-32 h-32",
-    large: "w-40 h-40 sm:w-48 sm:h-48"
+    small: "w-36 h-36",
+    medium: "w-44 h-44",
+    large: "w-52 h-52 sm:w-64 sm:h-64"
   };
   
   // State for automatic floating hearts
@@ -78,7 +78,7 @@ export const UterooCharacter = ({
       const newHeart: FloatingHeart = {
         id: `auto-${Date.now()}-${Math.random()}`,
         x: Math.random() * 40 - 20, // Random offset -20 to +20px
-        y: -30, // Start position above character
+        y: 0, // Start position at the center of character
         opacity: 1,
       };
       
@@ -103,39 +103,41 @@ export const UterooCharacter = ({
   if (minimal) {
     // Minimal version without message bubble - just the character
     return (
-      <div className="relative inline-block">
-        <img 
-          src={characterImage} 
-          alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
-          className={cn(
-            sizeClasses[size],
-            "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
-          )}
-          onClick={handleClick}
-        />
-        
-        {/* Auto-generated floating hearts */}
-        {autoHearts.map(heart => (
-          <div
-            key={heart.id}
-            className="absolute pointer-events-none"
-            style={{
-              transform: `translate(${heart.x}px, ${heart.y}px)`,
-              animation: 'float-up 2s ease-out forwards'
-            }}
-          >
-            <div className="flex items-center">
-              <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
-              <span className="text-xs font-bold text-white bg-pink-500 rounded-full px-1 ml-0.5">+1</span>
+      <div className="relative flex flex-col items-center">
+        <div className="relative">
+          <img 
+            src={characterImage} 
+            alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
+            className={cn(
+              sizeClasses[size],
+              "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
+            )}
+            onClick={handleClick}
+          />
+          
+          {/* Auto-generated floating hearts */}
+          {autoHearts.map(heart => (
+            <div
+              key={heart.id}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 pointer-events-none"
+              style={{
+                transform: `translate(calc(-50% + ${heart.x}px), calc(-50% + ${heart.y}px))`,
+                animation: 'float-up 2s ease-out forwards'
+              }}
+            >
+              <div className="flex items-center">
+                <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
+                <span className="text-xs font-bold text-white bg-pink-500 rounded-full px-1 ml-0.5">+1</span>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   }
   
   return (
-    <div className="flex items-center">
+    <div className="flex flex-col items-center">
       <div className="relative">
         <img 
           src={characterImage} 
@@ -147,13 +149,13 @@ export const UterooCharacter = ({
           onClick={handleClick}
         />
         
-        {/* Auto-generated floating hearts */}
+        {/* Auto-generated floating hearts - positioned from center of Uteroo */}
         {autoHearts.map(heart => (
           <div
             key={heart.id}
-            className="absolute pointer-events-none"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 pointer-events-none"
             style={{
-              transform: `translate(${heart.x}px, ${heart.y}px)`,
+              transform: `translate(calc(-50% + ${heart.x}px), calc(-50% + ${heart.y}px))`,
               animation: 'float-up 2s ease-out forwards'
             }}
           >
@@ -166,7 +168,7 @@ export const UterooCharacter = ({
       </div>
       
       <div className={cn(
-        "ml-2 font-medium tracking-wide text-white drop-shadow-md bg-gradient-to-r rounded-full backdrop-blur-sm border border-white/30 px-3 py-1.5",
+        "mt-4 font-medium tracking-wide text-white drop-shadow-md bg-gradient-to-r rounded-full backdrop-blur-sm border border-white/30 px-3 py-1.5",
         size === "small" ? "text-xs max-w-[150px]" : "text-sm max-w-[200px]",
         phase === "menstruation" ? "from-pink-500 to-pink-400" :
         phase === "follicular" ? "from-green-500 to-green-400" :
@@ -181,3 +183,4 @@ export const UterooCharacter = ({
     </div>
   );
 };
+
