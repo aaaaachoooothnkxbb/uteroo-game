@@ -919,14 +919,14 @@ const PouGame = () => {
           </h3>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 rounded-xl border border-purple-200 shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {scienceBoostersForRoom.map((booster) => (
             <TooltipProvider key={booster.id}>
               <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
                   <div 
                     onClick={() => handleBoosterClick(booster)}
-                    className="flex flex-col items-center p-2 rounded-lg border border-purple-100 cursor-pointer hover:shadow-md transition-shadow"
+                    className="flex flex-col items-center p-2 cursor-pointer hover:shadow-md transition-shadow"
                   >
                     <div className="relative">
                       <img 
