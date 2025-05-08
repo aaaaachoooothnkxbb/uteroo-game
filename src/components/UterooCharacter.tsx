@@ -37,23 +37,25 @@ interface UterooCharacterProps {
   currentRoom?: string;
   size?: "small" | "medium" | "large";
   minimal?: boolean;
+  onClick?: () => void;
 }
 
 export const UterooCharacter = ({ 
   phase, 
   currentRoom = "", 
-  size = "medium",
-  minimal = false 
+  size = "medium", 
+  minimal = false,
+  onClick
 }: UterooCharacterProps) => {
   // Use lab coat image if in lab room
   const isLabRoom = currentRoom === "lab";
   const characterImage = isLabRoom ? phaseToLabImage[phase] : phaseToImage[phase];
   
-  // Size classes based on the size prop
+  // Size classes based on the size prop - made larger as requested
   const sizeClasses = {
-    small: "w-20 h-20",
-    medium: "w-24 h-24",
-    large: "w-28 h-28 sm:w-32 sm:h-32"
+    small: "w-28 h-28",
+    medium: "w-32 h-32",
+    large: "w-36 h-36 sm:w-40 sm:h-40"
   };
   
   if (minimal) {
@@ -64,8 +66,9 @@ export const UterooCharacter = ({
         alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
         className={cn(
           sizeClasses[size],
-          "object-contain drop-shadow-md"
+          "object-contain drop-shadow-md cursor-pointer"
         )}
+        onClick={onClick}
       />
     );
   }
@@ -77,8 +80,9 @@ export const UterooCharacter = ({
         alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
         className={cn(
           sizeClasses[size],
-          "object-contain drop-shadow-md"
+          "object-contain drop-shadow-md cursor-pointer"
         )}
+        onClick={onClick}
       />
       <div className={cn(
         "ml-2 font-medium tracking-wide text-white drop-shadow-md bg-gradient-to-r rounded-full backdrop-blur-sm border border-white/30 px-3 py-1.5",

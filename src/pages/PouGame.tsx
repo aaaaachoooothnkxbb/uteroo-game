@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -379,7 +379,8 @@ const PouGame = () => {
     hygiene: 90,
     energy: 60,
     happiness: 85,
-    coins: 200
+    coins: 200,
+    hearts: 0  // Added hearts as a new stat
   });
   const [streak, setStreak] = useState(0);
   const [lastBoosterUsed, setLastBoosterUsed] = useState<string | null>(null);
@@ -393,6 +394,8 @@ const PouGame = () => {
   const [showJournalingModal, setShowJournalingModal] = useState(false);
   const [showBloodworkModal, setShowBloodworkModal] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
+  const [heartClicks, setHeartClicks] = useState(0);
 
   // Load streak from localStorage on component mount
   useEffect(() => {
@@ -788,19 +791,30 @@ const PouGame = () => {
     );
   };
 
-  // Completely redesigned compact stats panel
+  // Completely redesigned compact stats panel with hearts
   const renderStatsPanel = () => {
     return (
       <div className="fixed top-2 right-2 z-50">
         <div className="flex items-center gap-2 px-2 py-1 bg-white/50 backdrop-blur-sm rounded-full shadow-sm">
+          {/* Heart counter */}
           <div className="flex items-center gap-1">
-            <Flame className="h-4 w-4 text-orange-500" />
-            <span className="text-xs font-semibold">{streak}d</span>
+            <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
+            <span className="text-xs font-semibold">{stats.hearts}</span>
           </div>
+          
+          {/* Coins counter */}
           <div className="flex items-center gap-1">
             <CoinsIcon className="h-4 w-4 text-yellow-500" />
             <span className="text-xs font-semibold">{stats.coins}</span>
           </div>
+          
+          {/* Streak counter */}
+          <div className="flex items-center gap-1">
+            <Flame className="h-4 w-4 text-orange-500" />
+            <span className="text-xs font-semibold">{streak}d</span>
+          </div>
+          
+          {/* Other stats (only visible on larger screens) */}
           <div className="hidden sm:flex items-center gap-1">
             <div className="w-1 h-6 border-r border-gray-300"></div>
             <Apple className="h-3 w-3 text-red-500" />
@@ -823,6 +837,41 @@ const PouGame = () => {
       </div>
     );
   };
+
+  // Handle click on Uteroo character to add hearts
+  const handleUterooClick = useCallback(() => {
+    // Increment heart clicks
+    setHeartClicks(prev => prev + 1);
+    
+    // Add hearts based on current clicks (more clicks = more hearts)
+    const heartsToAdd = Math.max(1, Math.floor(heartClicks / 10) + 1);
+    
+    setStats(prev => ({
+      ...prev,
+      hearts: prev.hearts + heartsToAdd
+    }));
+    
+    // Create a new floating heart
+    const newHeart: FloatingHeart = {
+      id: `heart-${Date.now()}-${Math.random()}`,
+      x: Math.random() * 40 - 20, // Random offset for x position
+      y: -20 - Math.random() * 30, // Start position above character
+    };
+    
+    setFloatingHearts(prev => [...prev, newHeart]);
+    
+    // Remove the heart after animation completes
+    setTimeout(() => {
+      setFloatingHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
+    }, 1500);
+    
+    // Show toast for hearts earned
+    toast({
+      title: `+${heartsToAdd} Heart${heartsToAdd > 1 ? 's' : ''}!`,
+      description: "Keep going for more hearts!",
+      duration: 1500,
+    });
+  }, [heartClicks, toast]);
 
   return (
     <div className="min-h-screen relative">
@@ -962,13 +1011,36 @@ const PouGame = () => {
               </Button>
             </div>
             
-            {/* Character area with proper spacing */}
+            {/* Character area with improved centering and click handler */}
             <div 
-              className="relative flex justify-center mb-4 mx-auto max-w-xs"
+              className="relative flex justify-center mb-4 mx-auto"
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
-              <UterooCharacter phase={currentPhase} currentRoom={currentRoom.id} size="small" minimal={false} />
+              {/* Floating hearts animation */}
+              {floatingHearts.map(heart => (
+                <div
+                  key={heart.id}
+                  className="absolute pointer-events-none"
+                  style={{
+                    transform: `translate(${heart.x}px, ${heart.y}px)`,
+                    animation: 'float-up 1.5s ease-out forwards'
+                  }}
+                >
+                  <div className="flex items-center">
+                    <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
+                    <span className="text-xs font-bold text-white bg-pink-500 rounded-full px-1 ml-0.5">+1</span>
+                  </div>
+                </div>
+              ))}
+              
+              <UterooCharacter 
+                phase={currentPhase} 
+                currentRoom={currentRoom.id} 
+                size="large" 
+                minimal={false} 
+                onClick={handleUterooClick}
+              />
               
               {showBoostIndicator && (
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-bold text-white animate-boost z-20">
