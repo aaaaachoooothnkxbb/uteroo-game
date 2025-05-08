@@ -35,6 +35,13 @@ import { PhaseVideos } from "@/components/PhaseVideos";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
+// Define the FloatingHeart interface
+interface FloatingHeart {
+  id: string;
+  x: number; // x position offset
+  y: number; // y position offset
+}
+
 const enemies = {
   menstruation: [
     { id: "cramps", name: "Cramps", hp: 3, icon: "/lovable-uploads/52b8fe36-6c7e-4397-b705-b055fa4d0c62.png", suggestion: "Warm tea" },
