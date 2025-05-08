@@ -37,20 +37,20 @@ type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
 const enemies = {
   menstruation: [
-    { id: "cramps", name: "Cramps", hp: 3, icon: "/lovable-uploads/52b8fe36-6c7e-4397-b705-b055fa4d0c62.png" },
-    { id: "fatigue", name: "Fatigue", hp: 2, icon: "/lovable-uploads/d67a2349-3eb7-47bf-b2b7-e52514f533f2.png" }
+    { id: "cramps", name: "Cramps", hp: 3, icon: "/lovable-uploads/52b8fe36-6c7e-4397-b705-b055fa4d0c62.png", suggestion: "Warm tea" },
+    { id: "fatigue", name: "Fatigue", hp: 2, icon: "/lovable-uploads/d67a2349-3eb7-47bf-b2b7-e52514f533f2.png", suggestion: "10-min rest" }
   ],
   follicular: [
-    { id: "anxiety", name: "Anxiety", hp: 2, icon: "/lovable-uploads/d53d93fd-3fa3-4ab3-aa9a-f36a2f184218.png" },
-    { id: "migraine", name: "Migraine", hp: 3, icon: "/lovable-uploads/61451e82-27fc-4110-94e4-a08167b4d8db.png" }
+    { id: "anxiety", name: "Anxiety", hp: 2, icon: "/lovable-uploads/d53d93fd-3fa3-4ab3-aa9a-f36a2f184218.png", suggestion: "Deep breathing" },
+    { id: "migraine", name: "Migraine", hp: 3, icon: "/lovable-uploads/61451e82-27fc-4110-94e4-a08167b4d8db.png", suggestion: "Dim lights" }
   ],
   ovulatory: [
-    { id: "sensitivity", name: "Sensitivity", hp: 2, icon: "/lovable-uploads/5456ad76-fc4d-41bf-af80-f17afa7e0ff8.png" },
-    { id: "migraine", name: "Migraine", hp: 3, icon: "/lovable-uploads/4a7e6242-abfe-4345-9727-07fd2c60357a.png" }
+    { id: "sensitivity", name: "Sensitivity", hp: 2, icon: "/lovable-uploads/5456ad76-fc4d-41bf-af80-f17afa7e0ff8.png", suggestion: "Quiet time" },
+    { id: "migraine", name: "Migraine", hp: 3, icon: "/lovable-uploads/4a7e6242-abfe-4345-9727-07fd2c60357a.png", suggestion: "Cold compress" }
   ],
   luteal: [
-    { id: "irritability", name: "Irritability", hp: 3, icon: "/lovable-uploads/d400493e-b747-4572-9f72-d3e592cc4a3f.png" },
-    { id: "sadness", name: "Sadness", hp: 3, icon: "/lovable-uploads/b63fbdb8-0dd0-463d-9269-7bce9726d517.png" }
+    { id: "irritability", name: "Irritability", hp: 3, icon: "/lovable-uploads/d400493e-b747-4572-9f72-d3e592cc4a3f.png", suggestion: "Meditation" },
+    { id: "sadness", name: "Sadness", hp: 3, icon: "/lovable-uploads/b63fbdb8-0dd0-463d-9269-7bce9726d517.png", suggestion: "Self-care" }
   ]
 };
 
@@ -59,7 +59,9 @@ const phaseInfo = {
     name: "Level 1",
     subtitle: "MENSTRUATION",
     icon: Moon,
+    emoji: "🌸",
     color: "purple",
+    nextPhase: "follicular",
     background: "bg-menstruation-bg",
     description: "Time for rest and self-care",
     recommendedActivities: ["Gentle yoga", "Warm bath", "Meditation"],
@@ -75,7 +77,9 @@ const phaseInfo = {
     name: "Level 2",
     subtitle: "FOLLICULAR",
     icon: Leaf,
+    emoji: "🌱",
     color: "green",
+    nextPhase: "ovulatory",
     background: "bg-follicular-bg",
     description: "Rising energy and creativity",
     recommendedActivities: ["Strength training", "Brain games", "Social activities"],
@@ -91,7 +95,9 @@ const phaseInfo = {
     name: "Level 3",
     subtitle: "OVULATORY",
     icon: Sun,
+    emoji: "☀️",
     color: "yellow",
+    nextPhase: "luteal",
     background: "bg-ovulatory-bg",
     description: "Peak energy and confidence",
     recommendedActivities: ["Cardio", "Social games", "Creative projects"],
@@ -107,7 +113,9 @@ const phaseInfo = {
     name: "Level 4",
     subtitle: "LUTEAL",
     icon: Brain,
+    emoji: "🍂",
     color: "orange",
+    nextPhase: "menstruation",
     background: "bg-luteal-bg",
     description: "Winding down and nesting",
     recommendedActivities: ["Gentle movement", "Stress relief", "Self-care"],
@@ -723,52 +731,51 @@ const PouGame = () => {
     );
   };
 
-  // Enhanced phase progress indicator with compact design
+  // Enhanced phase progress indicator - completely redesigned
   const renderPhaseProgress = () => {
     // This is a simplified version - in a real implementation, you'd calculate actual days
     const currentDay = 2; // Assuming day 2 of the phase for demonstration
     const phaseDuration = 7; // Assuming 7 days per phase for demonstration
-    const nextPhase = currentPhase === 'menstruation' ? 'follicular' : 
-                     currentPhase === 'follicular' ? 'ovulatory' :
-                     currentPhase === 'ovulatory' ? 'luteal' : 'menstruation';
-    
+    const nextPhase = phase.nextPhase as Phase;
     const nextPhaseInfo = phaseInfo[nextPhase];
-    const NextPhaseIcon = nextPhaseInfo.icon;
     
     return (
       <div className="mx-auto max-w-xs">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className={cn(
-            "text-lg font-bold tracking-wide",
-            currentPhase === "menstruation" ? "text-menstruation-primary" :
-            currentPhase === "follicular" ? "text-follicular-primary" :
-            currentPhase === "ovulatory" ? "text-ovulatory-primary" :
-            "text-luteal-primary"
-          )}>
-            {phaseInfo[currentPhase].subtitle} • Day {currentDay}/{phaseDuration}
-          </h2>
+        <div className="flex items-center mb-1 justify-between">
+          <div className="flex items-center">
+            <span className="mr-1 text-xl">{phase.emoji}</span>
+            <h2 className={cn(
+              "text-base font-bold tracking-wider uppercase",
+              currentPhase === "menstruation" ? "text-pink-600" :
+              currentPhase === "follicular" ? "text-green-600" :
+              currentPhase === "ovulatory" ? "text-yellow-600" :
+              "text-orange-600"
+            )}>
+              {phase.subtitle} <span className="font-normal">• DAY {currentDay}/{phaseDuration}</span>
+            </h2>
+          </div>
         </div>
         
-        <div className="relative mb-3">
+        <div className="relative mb-1">
           <Progress 
             value={(currentDay/phaseDuration) * 100} 
             indicatorClassName={cn(
-              "h-3 rounded-full",
-              currentPhase === "menstruation" ? "bg-menstruation-primary" :
-              currentPhase === "follicular" ? "bg-follicular-primary" :
-              currentPhase === "ovulatory" ? "bg-ovulatory-primary" :
-              "bg-luteal-primary"
+              "h-2 rounded-full",
+              currentPhase === "menstruation" ? "bg-pink-500" :
+              currentPhase === "follicular" ? "bg-green-500" :
+              currentPhase === "ovulatory" ? "bg-yellow-500" :
+              "bg-orange-500"
             )}
-            className="h-3 rounded-full bg-gray-200"
+            className="h-2 rounded-full bg-gray-200"
           />
           <div className="absolute top-0 left-0 w-full h-full flex items-center justify-start pointer-events-none">
             <div 
               className={cn(
-                "h-5 w-5 rounded-full border-2 bg-white shadow-md absolute",
-                currentPhase === "menstruation" ? "border-menstruation-primary" :
-                currentPhase === "follicular" ? "border-follicular-primary" :
-                currentPhase === "ovulatory" ? "border-ovulatory-primary" :
-                "border-luteal-primary"
+                "h-4 w-4 rounded-full border-2 bg-white shadow-md absolute",
+                currentPhase === "menstruation" ? "border-pink-600" :
+                currentPhase === "follicular" ? "border-green-600" :
+                currentPhase === "ovulatory" ? "border-yellow-600" :
+                "border-orange-600"
               )}
               style={{left: `${(currentDay/phaseDuration) * 100}%`, transform: 'translateX(-50%)'}}
             />
@@ -776,10 +783,9 @@ const PouGame = () => {
           <div className="flex justify-end mt-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center text-xs text-gray-600 gap-1">
-                  <span>Next:</span>
-                  <NextPhaseIcon className="h-3 w-3" />
-                  <span>{nextPhaseInfo.subtitle} in {phaseDuration - currentDay}d</span>
+                <div className="flex items-center text-xs text-gray-600 gap-1 bg-white/80 px-2 py-0.5 rounded-full">
+                  <span>⬤</span>
+                  <span>Next: {nextPhaseInfo.subtitle} in {phaseDuration - currentDay}d</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="bg-white p-2">
@@ -792,64 +798,96 @@ const PouGame = () => {
     );
   };
 
-  // Compact stats panel
+  // Completely redesigned compact stats panel
   const renderStatsPanel = () => {
     return (
       <div className="fixed top-2 right-2 z-50">
-        <Card className="p-2 bg-white/80 backdrop-blur-sm shadow-md border-0">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <Flame className="h-4 w-4 text-orange-500" />
-              <span className="text-xs font-mono font-semibold">{streak}d</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CoinsIcon className="h-4 w-4 text-yellow-500" />
-              <span className="text-xs font-mono font-semibold">{stats.coins}</span>
-            </div>
+        <div className="flex items-center gap-2 px-2 py-1 bg-white/50 backdrop-blur-sm rounded-full shadow-sm">
+          <div className="flex items-center gap-1">
+            <Flame className="h-4 w-4 text-orange-500" />
+            <span className="text-xs font-semibold">{streak}d</span>
           </div>
-          
-          <div className="grid grid-cols-2 gap-1 mt-2">
-            <div className="flex items-center gap-1">
-              <Apple className="h-3 w-3 text-red-500" />
-              <Progress 
-                value={stats.hunger} 
-                className={cn(getProgressColor(stats.hunger))} 
-                size="xs"
-                style={{ width: '40px' }}
-              />
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <Droplet className="h-3 w-3 text-blue-500" />
-              <Progress 
-                value={stats.hygiene} 
-                className={cn(getProgressColor(stats.hygiene))} 
-                size="xs"
-                style={{ width: '40px' }}
-              />
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <BatteryFull className="h-3 w-3 text-green-500" />
-              <Progress 
-                value={stats.energy} 
-                className={cn(getProgressColor(stats.energy))} 
-                size="xs"
-                style={{ width: '40px' }}
-              />
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <Heart className="h-3 w-3 text-pink-500" />
-              <Progress 
-                value={stats.happiness} 
-                className={cn(getProgressColor(stats.happiness))} 
-                size="xs"
-                style={{ width: '40px' }}
-              />
-            </div>
+          <div className="flex items-center gap-1">
+            <CoinsIcon className="h-4 w-4 text-yellow-500" />
+            <span className="text-xs font-semibold">{stats.coins}</span>
           </div>
-        </Card>
+          <div className="hidden sm:flex items-center gap-1">
+            <div className="w-1 h-6 border-r border-gray-300"></div>
+            <Apple className="h-3 w-3 text-red-500" />
+            <Progress 
+              value={stats.hunger} 
+              className="h-1 w-8 rounded-full"
+              indicatorClassName={cn(getProgressColor(stats.hunger))}
+              size="xs"
+            />
+            
+            <Droplet className="h-3 w-3 text-blue-500 ml-1" />
+            <Progress 
+              value={stats.hygiene} 
+              className="h-1 w-8 rounded-full"
+              indicatorClassName={cn(getProgressColor(stats.hygiene))}
+              size="xs"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Redesigned enemy/symptom cards
+  const renderEnemies = () => {
+    if (currentEnemies.length === 0) return null;
+    
+    return (
+      <div className="flex gap-3 mb-4 overflow-x-auto pb-2 snap-x">
+        {currentEnemies.map((enemy) => (
+          <Card 
+            key={enemy.id} 
+            className={cn(
+              "relative p-3 bg-white/80 backdrop-blur-md shadow-sm border-l-4 rounded-lg snap-center flex-shrink-0",
+              "min-w-[140px] max-w-[160px]",
+              enemy.id === "cramps" || enemy.id === "fatigue" ? "border-l-red-500" :
+              enemy.id === "anxiety" || enemy.id === "migraine" ? "border-l-yellow-500" :
+              "border-l-orange-500"
+            )}
+          >
+            <TooltipProvider>
+              <Tooltip delayDuration={300}>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2 cursor-help">
+                    <div className="w-9 h-9 flex-shrink-0">
+                      <img 
+                        src={enemy.icon} 
+                        alt={enemy.name}
+                        className="w-full h-full object-contain drop-shadow-md"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="font-bold uppercase text-sm tracking-wider">{enemy.name}</h4>
+                      <div className="flex items-center gap-1 text-xs text-gray-600">
+                        <span className="text-xs">→</span>
+                        <span>{enemy.suggestion}</span>
+                      </div>
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent 
+                  side="top" 
+                  className="max-w-[200px] p-3 bg-white/95 backdrop-blur-sm text-left z-50"
+                >
+                  {getEnemyTooltip(enemy.id) ? (
+                    <>
+                      <h4 className="font-semibold mb-1 text-xs">{getEnemyTooltip(enemy.id)?.title}</h4>
+                      <p className="text-xs">{getEnemyTooltip(enemy.id)?.description}</p>
+                    </>
+                  ) : (
+                    <p className="text-xs">Este síntoma está relacionado con los cambios hormonales de tu ciclo.</p>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </Card>
+        ))}
       </div>
     );
   };
@@ -870,18 +908,18 @@ const PouGame = () => {
       
       {/* Phase-themed color overlay */}
       <div className={cn(
-        "fixed inset-0 opacity-30 transition-colors duration-500",
-        currentPhase === "menstruation" ? "bg-menstruation-light" :
-        currentPhase === "follicular" ? "bg-follicular-light" :
-        currentPhase === "ovulatory" ? "bg-ovulatory-light" :
-        "bg-luteal-light"
+        "fixed inset-0 opacity-25 transition-colors duration-500",
+        currentPhase === "menstruation" ? "bg-pink-400" :
+        currentPhase === "follicular" ? "bg-green-400" :
+        currentPhase === "ovulatory" ? "bg-yellow-400" :
+        "bg-orange-400"
       )} />
       
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Streamlined header */}
-        <div className="fixed top-0 left-0 right-0 bg-white/70 shadow-lg backdrop-blur-md z-30 pt-4 pb-2 px-4">
+        <div className="fixed top-0 left-0 right-0 bg-white/60 shadow-sm backdrop-blur-sm z-30 pt-4 pb-2 px-4">
           <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between">
               <Button 
                 variant="ghost" 
                 size="sm"
@@ -903,10 +941,10 @@ const PouGame = () => {
                       className={cn(
                         "w-8 h-8 p-0 rounded-full",
                         currentPhase === phaseName && 
-                          (phaseName === "menstruation" ? "bg-menstruation-primary border-menstruation-primary/30" :
-                           phaseName === "follicular" ? "bg-follicular-primary border-follicular-primary/30" :
-                           phaseName === "ovulatory" ? "bg-ovulatory-primary border-ovulatory-primary/30" :
-                           "bg-luteal-primary border-luteal-primary/30")
+                          (phaseName === "menstruation" ? "bg-pink-500 border-pink-300" :
+                           phaseName === "follicular" ? "bg-green-500 border-green-300" :
+                           phaseName === "ovulatory" ? "bg-yellow-500 border-yellow-300" :
+                           "bg-orange-500 border-orange-300")
                       )}
                     >
                       <PhaseIconComponent className="h-4 w-4" />
@@ -924,30 +962,30 @@ const PouGame = () => {
         {renderStatsPanel()}
 
         {/* Main content area with better spacing and sizing */}
-        <div className="flex-1 pt-32 pb-20 px-4">
+        <div className="flex-1 pt-28 pb-6 px-4">
           <div className="max-w-md mx-auto">
             {/* Improved room navigation */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-4">
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handlePreviousRoom}
-                className="bg-white/90 hover:bg-white h-8 w-8 p-0 rounded-full shadow"
+                className="bg-white/80 hover:bg-white h-8 w-8 p-0 rounded-full shadow-sm"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span className="sr-only">Previous Room</span>
               </Button>
               
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
+                <div className="flex items-center gap-1 px-3 py-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm">
                   <RoomIcon className={cn(
-                    "h-5 w-5",
-                    currentPhase === "menstruation" ? "text-menstruation-primary" :
-                    currentPhase === "follicular" ? "text-follicular-primary" :
-                    currentPhase === "ovulatory" ? "text-ovulatory-primary" :
-                    "text-luteal-primary"
+                    "h-4 w-4",
+                    currentPhase === "menstruation" ? "text-pink-500" :
+                    currentPhase === "follicular" ? "text-green-500" :
+                    currentPhase === "ovulatory" ? "text-yellow-500" :
+                    "text-orange-500"
                   )} />
-                  <h2 className="text-base font-medium">{currentRoom.name}</h2>
+                  <h2 className="text-sm font-medium">{currentRoom.name}</h2>
                 </div>
                 
                 <DropdownMenu>
@@ -955,13 +993,13 @@ const PouGame = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="bg-white/90 hover:bg-white h-8 w-8 p-0 rounded-full shadow"
+                      className="bg-white/80 hover:bg-white h-8 w-8 p-0 rounded-full shadow-sm"
                     >
                       <span className="sr-only">Show rooms</span>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-white/95 backdrop-blur-sm border-none shadow-lg">
+                  <DropdownMenuContent className="bg-white/95 backdrop-blur-sm shadow-md border-0 rounded-lg">
                     {rooms.map((room, index) => {
                       const IconComponent = room.icon;
                       return (
@@ -986,25 +1024,20 @@ const PouGame = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={handleNextRoom}
-                className="bg-white/90 hover:bg-white h-8 w-8 p-0 rounded-full shadow"
+                className="bg-white/80 hover:bg-white h-8 w-8 p-0 rounded-full shadow-sm"
               >
                 <ArrowRight className="h-4 w-4" />
                 <span className="sr-only">Next Room</span>
               </Button>
             </div>
             
-            {/* Symptoms section */}
-            {renderEnemies()}
-            
             {/* Character area with proper spacing */}
             <div 
-              className="relative flex justify-center mb-6"
+              className="relative flex justify-center mb-4 mx-auto max-w-xs"
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
-              <div className="relative z-10">
-                <UterooCharacter phase={currentPhase} currentRoom={currentRoom.id} size="small" />
-              </div>
+              <UterooCharacter phase={currentPhase} currentRoom={currentRoom.id} size="small" minimal={false} />
               
               {showBoostIndicator && (
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-bold text-white animate-boost z-20">
@@ -1021,30 +1054,33 @@ const PouGame = () => {
               )}
             </div>
             
+            {/* Symptoms section */}
+            {renderEnemies()}
+            
             {/* Continue streak button */}
             <Button 
               className={cn(
-                "w-full mb-6 shadow-md border-2 bg-gradient-to-r",
-                currentPhase === "menstruation" ? "from-menstruation-primary to-menstruation-secondary border-menstruation-primary/20" :
-                currentPhase === "follicular" ? "from-follicular-primary to-follicular-secondary border-follicular-primary/20" :
-                currentPhase === "ovulatory" ? "from-ovulatory-primary to-ovulatory-secondary border-ovulatory-primary/20" :
-                "from-luteal-primary to-luteal-secondary border-luteal-primary/20"
+                "w-full mb-4 shadow-sm border-0 bg-gradient-to-r text-sm",
+                currentPhase === "menstruation" ? "from-pink-500 to-pink-400" :
+                currentPhase === "follicular" ? "from-green-500 to-green-400" :
+                currentPhase === "ovulatory" ? "from-yellow-500 to-yellow-400" :
+                "from-orange-500 to-orange-400"
               )}
               onClick={() => updateStreak()}
             >
               <Flame className="h-4 w-4 mr-1" />
-              <span>Continue Streak (+10 pts)</span>
+              <span>🔥 {streak}-Day Streak • Continue (+10 pts)</span>
             </Button>
             
             {/* Items/boosters for current room */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-sm">Boosters</h3>
-                <div className="text-xs px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full">
+                <div className="text-xs px-2 py-0.5 bg-white/70 backdrop-blur-sm rounded-full">
                   Tap to use
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-white/50 shadow-md">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-white/50 backdrop-blur-sm p-3 rounded-xl border border-white/30 shadow-sm">
                 {currentRoomBoosters.map((booster) => (
                   booster.isPhaseRecipe ? (
                     <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
@@ -1052,12 +1088,12 @@ const PouGame = () => {
                     <div 
                       key={booster.id}
                       onClick={() => handleBoosterClick(booster)}
-                      className="flex flex-col items-center p-2 bg-white/80 rounded-lg shadow-sm border border-white/50 cursor-pointer hover:shadow-md transition-shadow"
+                      className="flex flex-col items-center p-2 bg-white/70 rounded-lg shadow-sm border border-white/50 cursor-pointer hover:shadow-md transition-shadow"
                     >
                       <img 
                         src={booster.icon} 
                         alt={booster.name}
-                        className="w-12 h-12 object-contain mb-1"
+                        className="w-10 h-10 object-contain mb-1 animate-pulse-slow"
                       />
                       <span className="text-xs font-medium text-center">{booster.name}</span>
                       {booster.cost && (
