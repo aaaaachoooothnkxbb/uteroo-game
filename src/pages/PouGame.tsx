@@ -22,6 +22,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card } from "@/components/ui/card";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 import { RecipeRoulette } from "@/components/RecipeRoulette";
 import { PhaseRecipeRoulette } from "@/components/PhaseRecipeRoulette";
 import { VideoPlayer } from "@/components/VideoPlayer";
@@ -649,65 +655,72 @@ const PouGame = () => {
     return tooltips[enemyId] || null;
   };
 
-  // Enhanced enemy rendering with improved spacing
+  // Enhanced enemy rendering with symptom cards
   const renderEnemies = () => {
-    return currentEnemies.map((enemy) => (
-      <Card key={enemy.id} className="relative p-2 bg-white/90 backdrop-blur-md shadow-lg border-2 border-white/50 rounded-xl w-24 z-20">
-        <div className="flex flex-col items-center space-y-1">
-          <TooltipProvider>
-            <Tooltip delayDuration={300}>
-              <TooltipTrigger asChild>
-                <div className="relative cursor-help group">
-                  <div className={cn(
-                    "relative w-12 h-12 flex items-center justify-center",
-                    enemy.id === "cramps" ? "animate-pulse" : enemy.id === "fatigue" ? "animate-float" : ""
-                  )}>
-                    <img 
-                      src={enemy.icon} 
-                      alt={enemy.name}
-                      className="w-full h-full object-contain pixelated drop-shadow-md"
-                    />
-                  </div>
-                  <div className="absolute -top-1 -right-1">
-                    <div className="bg-white rounded-full p-0.5 shadow-md group-hover:bg-primary/20 transition-colors">
-                      <HelpCircle className="h-3 w-3 text-primary" />
+    if (currentEnemies.length === 0) return null;
+    
+    return (
+      <div className="flex flex-wrap justify-center gap-3 mb-4">
+        {currentEnemies.map((enemy) => (
+          <Card 
+            key={enemy.id} 
+            className={cn(
+              "relative p-3 bg-white/90 backdrop-blur-md shadow-lg border-l-4 rounded-lg w-full max-w-[180px]",
+              enemy.id === "cramps" || enemy.id === "fatigue" ? "border-l-red-500" :
+              enemy.id === "anxiety" || enemy.id === "migraine" ? "border-l-yellow-500" :
+              "border-l-orange-500"
+            )}
+          >
+            <div className="flex flex-col items-center">
+              <TooltipProvider>
+                <Tooltip delayDuration={300}>
+                  <TooltipTrigger asChild>
+                    <div className="relative cursor-help group">
+                      <div className="w-12 h-12 flex items-center justify-center">
+                        <img 
+                          src={enemy.icon} 
+                          alt={enemy.name}
+                          className="w-full h-full object-contain pixelated drop-shadow-md"
+                        />
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent 
-                side="top" 
-                className="max-w-[200px] p-3 bg-white/95 backdrop-blur-sm text-left z-50"
-              >
-                {getEnemyTooltip(enemy.id) ? (
-                  <>
-                    <h4 className="font-semibold mb-1 text-xs">{getEnemyTooltip(enemy.id)?.title}</h4>
-                    <p className="text-xs">{getEnemyTooltip(enemy.id)?.description}</p>
-                  </>
-                ) : (
-                  <p className="text-xs">Este síntoma está relacionado con los cambios hormonales de tu ciclo.</p>
-                )}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <div className="text-center">
-            <h4 className="font-bold text-xs uppercase tracking-wide">{enemy.name}</h4>
-            <div className="flex items-center justify-center mt-0.5 space-x-0.5">
-              {Array.from({length: enemy.hp}).map((_, i) => (
-                <div key={i} className="w-1.5 h-1.5 bg-red-500 rounded-full" />
-              ))}
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    side="top" 
+                    className="max-w-[200px] p-3 bg-white/95 backdrop-blur-sm text-left z-50"
+                  >
+                    {getEnemyTooltip(enemy.id) ? (
+                      <>
+                        <h4 className="font-semibold mb-1 text-xs">{getEnemyTooltip(enemy.id)?.title}</h4>
+                        <p className="text-xs">{getEnemyTooltip(enemy.id)?.description}</p>
+                      </>
+                    ) : (
+                      <p className="text-xs">Este síntoma está relacionado con los cambios hormonales de tu ciclo.</p>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <div className="text-center mt-1">
+                <h4 className="font-bold text-sm uppercase tracking-wide">{enemy.name}</h4>
+                <p className="text-xs text-gray-600 mt-1">
+                  Try {enemy.id === "fatigue" ? "an energy booster!" : 
+                      enemy.id === "cramps" ? "a warm tea!" :
+                      enemy.id === "anxiety" ? "meditation!" :
+                      "self-care!"}
+                </p>
+              </div>
             </div>
-          </div>
-          
-          {showDamage && (
-            <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs text-red-500 font-bold animate-bounce bg-white/80 px-1.5 py-0.5 rounded-md">
-              -1
-            </span>
-          )}
-        </div>
-      </Card>
-    ));
+            
+            {showDamage && (
+              <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs text-red-500 font-bold animate-bounce bg-white/80 px-1.5 py-0.5 rounded-md">
+                -1
+              </span>
+            )}
+          </Card>
+        ))}
+      </div>
+    );
   };
 
   // Enhanced phase progress indicator with compact design
@@ -723,36 +736,58 @@ const PouGame = () => {
     const NextPhaseIcon = nextPhaseInfo.icon;
     
     return (
-      <div className="mb-2 px-2">
-        <div className="flex justify-between items-center text-xs mb-1">
-          <div className="flex items-center space-x-1">
-            <div className={cn(
-              "px-2 py-0.5 rounded-full font-medium",
-              currentPhase === "menstruation" ? "bg-menstruation-primary/20 text-menstruation-primary" :
-              currentPhase === "follicular" ? "bg-follicular-primary/20 text-follicular-primary" :
-              currentPhase === "ovulatory" ? "bg-ovulatory-primary/20 text-ovulatory-primary" :
-              "bg-luteal-primary/20 text-luteal-primary"
-            )}>
-              Day {currentDay}/{phaseDuration}
-            </div>
-            <span className="font-medium">{phaseInfo[currentPhase].subtitle}</span>
+      <div className="mx-auto max-w-xs">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className={cn(
+            "text-lg font-bold tracking-wide",
+            currentPhase === "menstruation" ? "text-menstruation-primary" :
+            currentPhase === "follicular" ? "text-follicular-primary" :
+            currentPhase === "ovulatory" ? "text-ovulatory-primary" :
+            "text-luteal-primary"
+          )}>
+            {phaseInfo[currentPhase].subtitle} • Day {currentDay}/{phaseDuration}
+          </h2>
+        </div>
+        
+        <div className="relative mb-3">
+          <Progress 
+            value={(currentDay/phaseDuration) * 100} 
+            indicatorClassName={cn(
+              "h-3 rounded-full",
+              currentPhase === "menstruation" ? "bg-menstruation-primary" :
+              currentPhase === "follicular" ? "bg-follicular-primary" :
+              currentPhase === "ovulatory" ? "bg-ovulatory-primary" :
+              "bg-luteal-primary"
+            )}
+            className="h-3 rounded-full bg-gray-200"
+          />
+          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-start pointer-events-none">
+            <div 
+              className={cn(
+                "h-5 w-5 rounded-full border-2 bg-white shadow-md absolute",
+                currentPhase === "menstruation" ? "border-menstruation-primary" :
+                currentPhase === "follicular" ? "border-follicular-primary" :
+                currentPhase === "ovulatory" ? "border-ovulatory-primary" :
+                "border-luteal-primary"
+              )}
+              style={{left: `${(currentDay/phaseDuration) * 100}%`, transform: 'translateX(-50%)'}}
+            />
           </div>
-          <div className="flex items-center space-x-1 text-2xs">
-            <span>Next:</span>
-            <NextPhaseIcon className="h-3 w-3" />
-            <span>{nextPhaseInfo.subtitle} in {phaseDuration - currentDay}d</span>
+          <div className="flex justify-end mt-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center text-xs text-gray-600 gap-1">
+                  <span>Next:</span>
+                  <NextPhaseIcon className="h-3 w-3" />
+                  <span>{nextPhaseInfo.subtitle} in {phaseDuration - currentDay}d</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-white p-2">
+                <p>Your cycle will progress to {nextPhaseInfo.subtitle} in {phaseDuration - currentDay} days</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
-        <Progress 
-          value={(currentDay/phaseDuration) * 100} 
-          size="xs"
-          indicatorClassName={cn(
-            currentPhase === "menstruation" ? "bg-menstruation-primary" :
-            currentPhase === "follicular" ? "bg-follicular-primary" :
-            currentPhase === "ovulatory" ? "bg-ovulatory-primary" :
-            "bg-luteal-primary"
-          )}
-        />
       </div>
     );
   };
@@ -760,56 +795,61 @@ const PouGame = () => {
   // Compact stats panel
   const renderStatsPanel = () => {
     return (
-      <div className="fixed top-20 right-0 p-2 flex items-center gap-4 z-20 rounded-l-lg">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <Apple className="h-3.5 w-3.5 text-red-500 shrink-0" />
-            <Progress 
-              value={stats.hunger} 
-              className={cn(getProgressColor(stats.hunger))} 
-              size="xs"
-              style={{ width: '60px' }}
-            />
+      <div className="fixed top-2 right-2 z-50">
+        <Card className="p-2 bg-white/80 backdrop-blur-sm shadow-md border-0">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <Flame className="h-4 w-4 text-orange-500" />
+              <span className="text-xs font-mono font-semibold">{streak}d</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CoinsIcon className="h-4 w-4 text-yellow-500" />
+              <span className="text-xs font-mono font-semibold">{stats.coins}</span>
+            </div>
           </div>
           
-          <div className="flex items-center gap-1">
-            <Droplet className="h-3.5 w-3.5 text-blue-500 shrink-0" />
-            <Progress 
-              value={stats.hygiene} 
-              className={cn(getProgressColor(stats.hygiene))} 
-              size="xs"
-              style={{ width: '60px' }}
-            />
-          </div>
-          
-          <div className="flex items-center gap-1">
-            <BatteryFull className="h-3.5 w-3.5 text-green-500 shrink-0" />
-            <Progress 
-              value={stats.energy} 
-              className={cn(getProgressColor(stats.energy))} 
-              size="xs"
-              style={{ width: '60px' }}
-            />
-          </div>
-          
-          <div className="flex items-center gap-1">
-            <Heart className="h-3.5 w-3.5 text-pink-500 shrink-0" />
-            <Progress 
-              value={stats.happiness} 
-              className={cn(getProgressColor(stats.happiness))} 
-              size="xs"
-              style={{ width: '60px' }}
-            />
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <CoinsIcon className="h-3.5 w-3.5 text-yellow-500" />
-            <span className="text-xs font-mono font-semibold">{stats.coins}</span>
+          <div className="grid grid-cols-2 gap-1 mt-2">
+            <div className="flex items-center gap-1">
+              <Apple className="h-3 w-3 text-red-500" />
+              <Progress 
+                value={stats.hunger} 
+                className={cn(getProgressColor(stats.hunger))} 
+                size="xs"
+                style={{ width: '40px' }}
+              />
+            </div>
             
-            <Flame className="h-3.5 w-3.5 text-orange-500 ml-1" />
-            <span className="text-xs font-mono font-semibold">{streak}</span>
+            <div className="flex items-center gap-1">
+              <Droplet className="h-3 w-3 text-blue-500" />
+              <Progress 
+                value={stats.hygiene} 
+                className={cn(getProgressColor(stats.hygiene))} 
+                size="xs"
+                style={{ width: '40px' }}
+              />
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <BatteryFull className="h-3 w-3 text-green-500" />
+              <Progress 
+                value={stats.energy} 
+                className={cn(getProgressColor(stats.energy))} 
+                size="xs"
+                style={{ width: '40px' }}
+              />
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <Heart className="h-3 w-3 text-pink-500" />
+              <Progress 
+                value={stats.happiness} 
+                className={cn(getProgressColor(stats.happiness))} 
+                size="xs"
+                style={{ width: '40px' }}
+              />
+            </div>
           </div>
-        </div>
+        </Card>
       </div>
     );
   };
@@ -838,67 +878,45 @@ const PouGame = () => {
       )} />
       
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Compact header */}
-        <div className="fixed top-0 left-0 right-0 bg-white/70 shadow-lg backdrop-blur-md z-40 px-2 py-3">
+        {/* Streamlined header */}
+        <div className="fixed top-0 left-0 right-0 bg-white/70 shadow-lg backdrop-blur-md z-30 pt-4 pb-2 px-4">
           <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className={cn(
-                  "text-lg font-bold",
-                  currentPhase === "menstruation" ? "text-menstruation-primary" :
-                  currentPhase === "follicular" ? "text-follicular-primary" :
-                  currentPhase === "ovulatory" ? "text-ovulatory-primary" :
-                  "text-luteal-primary"
-                )}>{phase.name}</h1>
-                
-                <div className="flex items-center gap-1 mt-0.5">
-                  <PhaseIcon className={cn(
-                    "h-4 w-4",
-                    currentPhase === "menstruation" ? "text-menstruation-primary" :
-                    currentPhase === "follicular" ? "text-follicular-primary" :
-                    currentPhase === "ovulatory" ? "text-ovulatory-primary" :
-                    "text-luteal-primary"
-                  )} />
-                  <h2 className="text-sm font-semibold">{phase.subtitle}</h2>
-                </div>
-              </div>
-              
+            <div className="flex items-center justify-between mb-3">
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="rounded-full bg-white/70 hover:bg-white shadow-sm h-8 w-8 p-0"
+                className="rounded-full bg-white/80 hover:bg-white shadow-sm h-8 w-8 p-0"
                 onClick={() => setShowTutorial(true)}
               >
                 <HelpCircle className="h-4 w-4" />
               </Button>
+              
+              <div className="flex gap-2">
+                {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
+                  const PhaseIconComponent = phaseInfo[phaseName].icon;
+                  return (
+                    <Button
+                      key={phaseName}
+                      variant={currentPhase === phaseName ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handlePhaseChange(phaseName)}
+                      className={cn(
+                        "w-8 h-8 p-0 rounded-full",
+                        currentPhase === phaseName && 
+                          (phaseName === "menstruation" ? "bg-menstruation-primary border-menstruation-primary/30" :
+                           phaseName === "follicular" ? "bg-follicular-primary border-follicular-primary/30" :
+                           phaseName === "ovulatory" ? "bg-ovulatory-primary border-ovulatory-primary/30" :
+                           "bg-luteal-primary border-luteal-primary/30")
+                      )}
+                    >
+                      <PhaseIconComponent className="h-4 w-4" />
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
             
             {renderPhaseProgress()}
-            
-            <div className="flex justify-center gap-2 px-2 phase-buttons">
-              {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
-                const PhaseIconComponent = phaseInfo[phaseName].icon;
-                return (
-                  <Button
-                    key={phaseName}
-                    variant={currentPhase === phaseName ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handlePhaseChange(phaseName)}
-                    className={cn(
-                      "relative flex items-center gap-1 border-2 h-8 px-3",
-                      currentPhase === phaseName && 
-                        (phaseName === "menstruation" ? "bg-menstruation-primary border-menstruation-primary/30" :
-                         phaseName === "follicular" ? "bg-follicular-primary border-follicular-primary/30" :
-                         phaseName === "ovulatory" ? "bg-ovulatory-primary border-ovulatory-primary/30" :
-                         "bg-luteal-primary border-luteal-primary/30")
-                    )}
-                  >
-                    <PhaseIconComponent className="h-4 w-4" />
-                    <span className="hidden sm:inline text-xs">{phaseInfo[phaseName].subtitle}</span>
-                  </Button>
-                );
-              })}
-            </div>
           </div>
         </div>
 
@@ -906,60 +924,86 @@ const PouGame = () => {
         {renderStatsPanel()}
 
         {/* Main content area with better spacing and sizing */}
-        <div className="flex-1 pt-44 pb-20 px-4">
+        <div className="flex-1 pt-32 pb-20 px-4">
           <div className="max-w-md mx-auto">
-            <div className="flex justify-between items-center mb-4">
+            {/* Improved room navigation */}
+            <div className="flex justify-between items-center mb-6">
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handlePreviousRoom}
-                className="bg-white/90 border-white/40 hover:bg-white/90 h-8 px-2 z-20"
+                className="bg-white/90 hover:bg-white h-8 w-8 p-0 rounded-full shadow"
               >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                <span className="text-xs">Prev</span>
+                <ArrowLeft className="h-4 w-4" />
+                <span className="sr-only">Previous Room</span>
               </Button>
               
-              <div className="flex items-center gap-1 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm z-20">
-                <RoomIcon className={cn(
-                  "h-4 w-4",
-                  currentPhase === "menstruation" ? "text-menstruation-primary" :
-                  currentPhase === "follicular" ? "text-follicular-primary" :
-                  currentPhase === "ovulatory" ? "text-ovulatory-primary" :
-                  "text-luteal-primary"
-                )} />
-                <h2 className="text-sm font-medium">{currentRoom.name}</h2>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
+                  <RoomIcon className={cn(
+                    "h-5 w-5",
+                    currentPhase === "menstruation" ? "text-menstruation-primary" :
+                    currentPhase === "follicular" ? "text-follicular-primary" :
+                    currentPhase === "ovulatory" ? "text-ovulatory-primary" :
+                    "text-luteal-primary"
+                  )} />
+                  <h2 className="text-base font-medium">{currentRoom.name}</h2>
+                </div>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="bg-white/90 hover:bg-white h-8 w-8 p-0 rounded-full shadow"
+                    >
+                      <span className="sr-only">Show rooms</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-white/95 backdrop-blur-sm border-none shadow-lg">
+                    {rooms.map((room, index) => {
+                      const IconComponent = room.icon;
+                      return (
+                        <DropdownMenuItem 
+                          key={room.id}
+                          onClick={() => setCurrentRoomIndex(index)}
+                          className={cn(
+                            "flex items-center gap-2 cursor-pointer",
+                            currentRoomIndex === index && "bg-gray-100 font-medium"
+                          )}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                          {room.name}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleNextRoom}
-                className="bg-white/90 border-white/40 hover:bg-white/90 h-8 px-2 z-20"
+                className="bg-white/90 hover:bg-white h-8 w-8 p-0 rounded-full shadow"
               >
-                <span className="text-xs">Next</span>
-                <ArrowRight className="h-4 w-4 ml-1" />
+                <ArrowRight className="h-4 w-4" />
+                <span className="sr-only">Next Room</span>
               </Button>
             </div>
             
+            {/* Symptoms section */}
+            {renderEnemies()}
+            
             {/* Character area with proper spacing */}
             <div 
-              className="relative flex flex-col items-center justify-center min-h-[240px] bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30 shadow-lg mb-4"
+              className="relative flex justify-center mb-6"
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
-              {/* Success message for tracking symptoms */}
-              {currentEnemies.length > 0 && (
-                <div className="absolute top-2 left-1/2 transform -translate-x-1/2 bg-white/90 px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm animate-fade-in z-10">
-                  Good job tracking {currentEnemies.length} symptoms!
-                </div>
-              )}
-            
-              <div className="mb-4 flex space-x-4 justify-center">
-                {renderEnemies()}
-              </div>
-              
               <div className="relative z-10">
-                <UterooCharacter phase={currentPhase} currentRoom={currentRoom.id} />
+                <UterooCharacter phase={currentPhase} currentRoom={currentRoom.id} size="small" />
               </div>
               
               {showBoostIndicator && (
@@ -977,65 +1021,55 @@ const PouGame = () => {
               )}
             </div>
             
+            {/* Continue streak button */}
+            <Button 
+              className={cn(
+                "w-full mb-6 shadow-md border-2 bg-gradient-to-r",
+                currentPhase === "menstruation" ? "from-menstruation-primary to-menstruation-secondary border-menstruation-primary/20" :
+                currentPhase === "follicular" ? "from-follicular-primary to-follicular-secondary border-follicular-primary/20" :
+                currentPhase === "ovulatory" ? "from-ovulatory-primary to-ovulatory-secondary border-ovulatory-primary/20" :
+                "from-luteal-primary to-luteal-secondary border-luteal-primary/20"
+              )}
+              onClick={() => updateStreak()}
+            >
+              <Flame className="h-4 w-4 mr-1" />
+              <span>Continue Streak (+10 pts)</span>
+            </Button>
+            
             {/* Items/boosters for current room */}
-            <div className="mt-3">
+            <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-sm">Available Items</h3>
+                <h3 className="font-semibold text-sm">Boosters</h3>
                 <div className="text-xs px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full">
-                  Drag items to Uteroo!
+                  Tap to use
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-white/50 backdrop-blur-sm p-3 rounded-xl border border-white/50 shadow-md z-20">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-white/50 shadow-md">
                 {currentRoomBoosters.map((booster) => (
                   booster.isPhaseRecipe ? (
                     <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
                   ) : (
-                    <DraggableItem 
+                    <div 
                       key={booster.id}
-                      id={booster.id}
-                      type={booster.type}
-                      icon={booster.icon}
-                      boost={booster.boost}
-                      onDrop={() => {}}
                       onClick={() => handleBoosterClick(booster)}
-                      meditationPlaylist={booster.meditationPlaylist}
-                      journalingItem={booster.journalingItem}
-                      tooltip={booster.tooltip}
-                    />
+                      className="flex flex-col items-center p-2 bg-white/80 rounded-lg shadow-sm border border-white/50 cursor-pointer hover:shadow-md transition-shadow"
+                    >
+                      <img 
+                        src={booster.icon} 
+                        alt={booster.name}
+                        className="w-12 h-12 object-contain mb-1"
+                      />
+                      <span className="text-xs font-medium text-center">{booster.name}</span>
+                      {booster.cost && (
+                        <div className="flex items-center gap-1 mt-1 text-2xs bg-yellow-100 px-1.5 py-0.5 rounded-full">
+                          <CoinsIcon className="h-3 w-3 text-yellow-500" />
+                          <span>{booster.cost}</span>
+                        </div>
+                      )}
+                    </div>
                   )
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Room navigation footer - improved layout */}
-        <div className="fixed bottom-0 left-0 right-0 p-2 bg-white/70 backdrop-blur-md shadow-lg z-40">
-          <div className="max-w-md mx-auto">
-            <div className="flex justify-center flex-wrap gap-2">
-              {rooms.map((room, index) => {
-                const RoomIconComponent = room.icon;
-                return (
-                  <Button
-                    key={room.id}
-                    variant={currentRoomIndex === index ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCurrentRoomIndex(index)}
-                    className={cn(
-                      "min-w-[40px] h-9 p-2 border-2",
-                      currentRoomIndex === index && (
-                        currentPhase === "menstruation" ? "bg-menstruation-primary border-menstruation-primary/30" :
-                        currentPhase === "follicular" ? "bg-follicular-primary border-follicular-primary/30" :
-                        currentPhase === "ovulatory" ? "bg-ovulatory-primary border-ovulatory-primary/30" :
-                        "bg-luteal-primary border-luteal-primary/30"
-                      )
-                    )}
-                  >
-                    <RoomIconComponent className="h-4 w-4" />
-                    <span className="sr-only">{room.name}</span>
-                  </Button>
-                );
-              })}
             </div>
           </div>
         </div>

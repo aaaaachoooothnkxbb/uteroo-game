@@ -25,34 +25,42 @@ const phaseToMessage = {
   luteal: "Comfort and self-care are key"
 };
 
-const phaseToGradient = {
-  menstruation: "from-pink-200 to-transparent",
-  follicular: "from-green-200 to-transparent",
-  ovulatory: "from-yellow-200 to-transparent",
-  luteal: "from-orange-200 to-transparent"
-};
-
 interface UterooCharacterProps {
   phase: Phase;
   currentRoom?: string;
+  size?: "small" | "medium" | "large";
 }
 
-export const UterooCharacter = ({ phase, currentRoom = "" }: UterooCharacterProps) => {
+export const UterooCharacter = ({ 
+  phase, 
+  currentRoom = "", 
+  size = "medium" 
+}: UterooCharacterProps) => {
   // Use lab coat image if in lab room
   const isLabRoom = currentRoom === "lab";
   const characterImage = isLabRoom ? phaseToLabImage[phase] : phaseToImage[phase];
   
+  // Size classes based on the size prop
+  const sizeClasses = {
+    small: "w-24 h-24",
+    medium: "w-28 h-28 sm:w-32 sm:h-32",
+    large: "w-32 h-32 sm:w-40 sm:h-40"
+  };
+  
   return (
-    <div className="flex flex-col items-center space-y-2 mt-4 z-10">
-      {/* Removed Card and background */}
-      <div className="w-36 h-36 sm:w-48 sm:h-48 flex items-center justify-center">
-        <img 
-          src={characterImage} 
-          alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
-          className="w-full h-full object-contain animate-bounce-slow drop-shadow-lg"
-        />
-      </div>
-      <p className="text-center text-xs sm:text-sm font-medium tracking-wide text-white drop-shadow-lg bg-pink-400/80 px-4 py-1.5 rounded-full backdrop-blur-sm border border-white/30">
+    <div className="flex items-center justify-center">
+      <img 
+        src={characterImage} 
+        alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
+        className={cn(
+          sizeClasses[size],
+          "object-contain animate-bounce-slow drop-shadow-lg"
+        )}
+      />
+      <p className={cn(
+        "ml-3 font-medium tracking-wide text-white drop-shadow-lg bg-pink-400/80 px-3 py-1 rounded-full backdrop-blur-sm border border-white/30",
+        size === "small" ? "text-xs" : "text-sm"
+      )}>
         {phaseToMessage[phase]}
       </p>
     </div>
