@@ -2,6 +2,10 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
 interface VideoPlayerProps {
   src: string;
@@ -12,6 +16,11 @@ interface VideoPlayerProps {
   width?: string | number;
   height?: string | number;
   className?: string;
+  allowUpload?: boolean;
+}
+
+interface UploadFormValues {
+  mediaSource: string;
 }
 
 export const VideoPlayer = ({
@@ -23,9 +32,18 @@ export const VideoPlayer = ({
   width = "100%",
   height = "auto",
   className = "",
+  allowUpload = false,
 }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [mediaSource, setMediaSource] = useState(src);
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  
+  const form = useForm<UploadFormValues>({
+    defaultValues: {
+      mediaSource: ""
+    }
+  });
 
   const togglePlayPause = () => {
     if (videoRef.current) {
@@ -38,22 +56,44 @@ export const VideoPlayer = ({
     }
   };
 
+  const handleFormSubmit = (values: UploadFormValues) => {
+    if (values.mediaSource) {
+      setMediaSource(values.mediaSource);
+      setShowUploadForm(false);
+    }
+  };
+
+  const isVideo = mediaSource.match(/\.(mp4|webm|ogg|mov)($|\?)/i) || 
+                  mediaSource.includes('vimeo.com') || 
+                  mediaSource.includes('youtube.com') ||
+                  mediaSource.includes('player.vimeo.com');
+
   return (
     <Card className={`overflow-hidden ${className}`}>
       <div className="relative">
-        <video
-          ref={videoRef}
-          src={src}
-          autoPlay={autoPlay}
-          controls={controls}
-          width={width}
-          height={height}
-          className="w-full"
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-        />
+        {isVideo ? (
+          <video
+            ref={videoRef}
+            src={mediaSource}
+            autoPlay={autoPlay}
+            controls={controls}
+            width={width}
+            height={height}
+            className="w-full"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+          />
+        ) : (
+          <img 
+            src={mediaSource} 
+            alt={title || "Media content"} 
+            className="w-full" 
+            width={width} 
+            height={height}
+          />
+        )}
         
-        {!controls && (
+        {isVideo && !controls && (
           <div className="absolute bottom-4 left-4 z-10">
             <Button 
               variant="outline" 
@@ -76,12 +116,51 @@ export const VideoPlayer = ({
         )}
       </div>
 
-      {(title || description) && (
-        <div className="p-4">
-          {title && <h3 className="text-lg font-medium mb-1">{title}</h3>}
-          {description && <p className="text-gray-500 text-sm">{description}</p>}
-        </div>
-      )}
+      <div className="p-4">
+        {(title || description) && (
+          <div className="mb-4">
+            {title && <h3 className="text-lg font-medium mb-1">{title}</h3>}
+            {description && <p className="text-gray-500 text-sm">{description}</p>}
+          </div>
+        )}
+        
+        {allowUpload && (
+          <div className="mt-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowUploadForm(!showUploadForm)}
+              className="w-full"
+            >
+              {showUploadForm ? "Cancel" : "Attach Media"}
+            </Button>
+            
+            {showUploadForm && (
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 mt-4">
+                  <FormField
+                    control={form.control}
+                    name="mediaSource"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Media URL</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter image or video URL" 
+                            {...field} 
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full">
+                    Attach
+                  </Button>
+                </form>
+              </Form>
+            )}
+          </div>
+        )}
+      </div>
     </Card>
   );
 };
