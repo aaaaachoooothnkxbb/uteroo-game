@@ -134,55 +134,55 @@ const rooms = [
     id: "bedroom", 
     name: "Bedroom", 
     icon: Bed,
-    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+    background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
   { 
     id: "bathroom", 
     name: "Bathroom", 
     icon: Bath,
-    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+    background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
   { 
     id: "kitchen", 
     name: "Kitchen", 
     icon: UtensilsCrossed,
-    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+    background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
   { 
     id: "exercise", 
     name: "Exercise Room", 
     icon: Dumbbell,
-    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+    background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
   { 
     id: "games", 
     name: "Game Room", 
     icon: Gamepad,
-    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+    background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
   { 
     id: "workstation", 
     name: "Work Station", 
     icon: Laptop,
-    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+    background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
   { 
     id: "shop", 
     name: "Shop", 
     icon: ShoppingBag,
-    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+    background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
   { 
     id: "lab", 
     name: "The Lab", 
     icon: Beaker,
-    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+    background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
   { 
     id: "cycle_sanctuary", 
     name: "Cycle Sanctuary", 
     icon: Calendar,
-    background: "/lovable-uploads/d0cfdfa2-4df7-4fdb-9606-8ddcfd8dffe8.png"
+    background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
 ];
 
@@ -832,9 +832,8 @@ const PouGame = () => {
         style={{ 
           backgroundImage: currentRoom.background 
             ? `url('${currentRoom.background}')`
-            : "url('/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png')",
+            : "url('/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png')",
           backgroundSize: 'cover',
-          imageRendering: 'pixelated'
         }}
       />
       
