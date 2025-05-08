@@ -968,7 +968,7 @@ const PouGame = () => {
   // Completely redesigned compact stats panel with hearts
   const renderStatsPanel = () => {
     return (
-      <div className="fixed top-16 right-2 z-50">
+      <div className="max-w-md mx-auto mt-2 mb-4">
         <div className="flex items-center gap-2 px-2 py-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm">
           {/* Heart counter - now more prominent */}
           <div className="flex items-center gap-1">
@@ -1135,9 +1135,6 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Stats display */}
-        {renderStatsPanel()}
-
         {/* Main content area with better spacing and sizing */}
         <div className="flex-1 pt-28 pb-6 px-4">
           <div className="max-w-md mx-auto">
@@ -1207,6 +1204,9 @@ const PouGame = () => {
                 <span className="sr-only">Next Room</span>
               </Button>
             </div>
+            
+            {/* Stats panel moved here - below the room bar */}
+            {renderStatsPanel()}
             
             {/* Character area with improved centering and click handler */}
             <div 
