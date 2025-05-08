@@ -1,5 +1,4 @@
 
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
