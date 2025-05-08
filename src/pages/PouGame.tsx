@@ -1170,7 +1170,7 @@ const PouGame = () => {
                       className="bg-white/80 hover:bg-white h-8 w-8 p-0 rounded-full shadow-sm"
                     >
                       <span className="sr-only">Show rooms</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                      <svg xmlns="http://www3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-white/95 backdrop-blur-sm shadow-md border-0 rounded-lg">
@@ -1282,7 +1282,7 @@ const PouGame = () => {
             {/* Science boosters */}
             {renderScienceBoosters()}
             
-            {/* Regular boosters */}
+            {/* Regular boosters - removed background */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-sm">Boosters</h3>
@@ -1290,7 +1290,7 @@ const PouGame = () => {
                   Tap to use
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-white/50 backdrop-blur-sm p-3 rounded-xl border border-white/30 shadow-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-xl">
                 {currentRoomBoosters.map((booster) => (
                   booster.isPhaseRecipe ? (
                     <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
@@ -1298,7 +1298,7 @@ const PouGame = () => {
                     <div 
                       key={booster.id}
                       onClick={() => handleBoosterClick(booster)}
-                      className="flex flex-col items-center p-2 bg-white/70 rounded-lg shadow-sm border border-white/50 cursor-pointer hover:shadow-md transition-shadow"
+                      className="flex flex-col items-center p-2 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
                     >
                       <img 
                         src={booster.icon} 
