@@ -968,7 +968,7 @@ const PouGame = () => {
   // Completely redesigned compact stats panel with hearts
   const renderStatsPanel = () => {
     return (
-      <div className="fixed top-2 right-2 z-50">
+      <div className="fixed top-16 right-2 z-50">
         <div className="flex items-center gap-2 px-2 py-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm">
           {/* Heart counter - now more prominent */}
           <div className="flex items-center gap-1">
