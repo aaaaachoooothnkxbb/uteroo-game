@@ -1141,8 +1141,8 @@ const PouGame = () => {
         {/* Main content area with better spacing and sizing */}
         <div className="flex-1 pt-28 pb-6 px-4">
           <div className="max-w-md mx-auto">
-            {/* Improved room navigation */}
-            <div className="flex justify-between items-center mb-4">
+            {/* Improved room navigation - adding more top margin (mt-6) to push it down */}
+            <div className="flex justify-between items-center mb-4 mt-6">
               <Button 
                 variant="outline" 
                 size="sm" 
