@@ -71,27 +71,8 @@ export const UterooCharacter = ({
   // State for automatic floating hearts
   const [autoHearts, setAutoHearts] = useState<FloatingHeart[]>([]);
   
-  // Handle auto-generated floating hearts
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Create a new heart with random position
-      const newHeart: FloatingHeart = {
-        id: `auto-${Date.now()}-${Math.random()}`,
-        x: Math.random() * 40 - 20, // Random offset -20 to +20px
-        y: 0, // Start position at the center of character
-        opacity: 1,
-      };
-      
-      setAutoHearts(prev => [...prev, newHeart]);
-      
-      // Remove the heart after animation completes
-      setTimeout(() => {
-        setAutoHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
-      }, 2000);
-    }, 2000); // Every 2 seconds
-    
-    return () => clearInterval(interval);
-  }, []);
+  // Removed the auto-generated floating hearts effect
+  // The useEffect that was creating automatic hearts has been removed
   
   // Handle click on character
   const handleClick = () => {
@@ -115,22 +96,7 @@ export const UterooCharacter = ({
             onClick={handleClick}
           />
           
-          {/* Auto-generated floating hearts */}
-          {autoHearts.map(heart => (
-            <div
-              key={heart.id}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 pointer-events-none"
-              style={{
-                transform: `translate(calc(-50% + ${heart.x}px), calc(-50% + ${heart.y}px))`,
-                animation: 'float-up 2s ease-out forwards'
-              }}
-            >
-              <div className="flex items-center">
-                <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
-                <span className="text-xs font-bold text-white bg-pink-500 rounded-full px-1 ml-0.5">+1</span>
-              </div>
-            </div>
-          ))}
+          {/* Auto-generated floating hearts - now disabled */}
         </div>
       </div>
     );
@@ -149,22 +115,7 @@ export const UterooCharacter = ({
           onClick={handleClick}
         />
         
-        {/* Auto-generated floating hearts - positioned from center of Uteroo */}
-        {autoHearts.map(heart => (
-          <div
-            key={heart.id}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 pointer-events-none"
-            style={{
-              transform: `translate(calc(-50% + ${heart.x}px), calc(-50% + ${heart.y}px))`,
-              animation: 'float-up 2s ease-out forwards'
-            }}
-          >
-            <div className="flex items-center">
-              <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
-              <span className="text-xs font-bold text-white bg-pink-500 rounded-full px-1 ml-0.5">+1</span>
-            </div>
-          </div>
-        ))}
+        {/* Auto-generated floating hearts - now disabled */}
       </div>
       
       <div className={cn(
@@ -183,4 +134,3 @@ export const UterooCharacter = ({
     </div>
   );
 };
-
