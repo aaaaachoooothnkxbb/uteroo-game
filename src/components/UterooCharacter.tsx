@@ -45,18 +45,14 @@ export const UterooCharacter = ({ phase, currentRoom = "" }: UterooCharacterProp
   
   return (
     <div className="flex flex-col items-center space-y-2 mt-4 z-10">
-      <Card className={cn(
-        "p-3 rounded-full w-fit shadow-lg bg-gradient-radial border-2 border-pink-200", 
-        phaseToGradient[phase]
-      )}>
-        <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden flex items-center justify-center bg-white/80 backdrop-blur-sm">
-          <img 
-            src={characterImage} 
-            alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
-            className="w-full h-full object-contain animate-bounce-slow drop-shadow-lg"
-          />
-        </div>
-      </Card>
+      {/* Removed Card and background */}
+      <div className="w-36 h-36 sm:w-48 sm:h-48 flex items-center justify-center">
+        <img 
+          src={characterImage} 
+          alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
+          className="w-full h-full object-contain animate-bounce-slow drop-shadow-lg"
+        />
+      </div>
       <p className="text-center text-xs sm:text-sm font-medium tracking-wide text-white drop-shadow-lg bg-pink-400/80 px-4 py-1.5 rounded-full backdrop-blur-sm border border-white/30">
         {phaseToMessage[phase]}
       </p>
