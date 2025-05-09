@@ -926,7 +926,7 @@ const PouGame = () => {
                 <TooltipTrigger asChild>
                   <div 
                     onClick={() => handleBoosterClick(booster)}
-                    className="flex flex-col items-center p-2 cursor-pointer hover:shadow-md transition-shadow"
+                    className="flex flex-col items-center p-2 cursor-pointer transition-shadow"
                   >
                     <div className="relative">
                       <img 
@@ -969,7 +969,7 @@ const PouGame = () => {
   const renderStatsPanel = () => {
     return (
       <div className="max-w-md mx-auto mt-2 mb-4">
-        <div className="flex items-center gap-2 px-2 py-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm">
+        <div className="flex items-center gap-2 px-2 py-1.5 backdrop-blur-sm rounded-full">
           {/* Heart counter - now more prominent */}
           <div className="flex items-center gap-1">
             <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
@@ -1094,13 +1094,13 @@ const PouGame = () => {
       
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Streamlined header */}
-        <div className="fixed top-0 left-0 right-0 bg-white/60 shadow-sm backdrop-blur-sm z-30 pt-4 pb-2 px-4">
+        <div className="fixed top-0 left-0 right-0 backdrop-blur-sm z-30 pt-4 pb-2 px-4">
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between">
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="rounded-full bg-white/80 hover:bg-white shadow-sm h-8 w-8 p-0"
+                className="rounded-full h-8 w-8 p-0"
                 onClick={() => setShowTutorial(true)}
               >
                 <HelpCircle className="h-4 w-4" />
@@ -1144,14 +1144,14 @@ const PouGame = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={handlePreviousRoom}
-                className="bg-white/80 hover:bg-white h-8 w-8 p-0 rounded-full shadow-sm"
+                className="h-8 w-8 p-0 rounded-full"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span className="sr-only">Previous Room</span>
               </Button>
               
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 px-3 py-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm">
+                <div className="flex items-center gap-1 px-3 py-1.5 backdrop-blur-sm rounded-full">
                   <RoomIcon className={cn(
                     "h-4 w-4",
                     currentPhase === "menstruation" ? "text-pink-500" :
@@ -1167,13 +1167,13 @@ const PouGame = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="bg-white/80 hover:bg-white h-8 w-8 p-0 rounded-full shadow-sm"
+                      className="h-8 w-8 p-0 rounded-full"
                     >
                       <span className="sr-only">Show rooms</span>
                       <svg xmlns="http://www3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-white/95 backdrop-blur-sm shadow-md border-0 rounded-lg">
+                  <DropdownMenuContent className="bg-white/95 backdrop-blur-sm border-0 rounded-lg">
                     {rooms.map((room, index) => {
                       const IconComponent = room.icon;
                       return (
@@ -1198,7 +1198,7 @@ const PouGame = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={handleNextRoom}
-                className="bg-white/80 hover:bg-white h-8 w-8 p-0 rounded-full shadow-sm"
+                className="h-8 w-8 p-0 rounded-full"
               >
                 <ArrowRight className="h-4 w-4" />
                 <span className="sr-only">Next Room</span>
@@ -1267,7 +1267,7 @@ const PouGame = () => {
             {/* Continue streak button */}
             <Button 
               className={cn(
-                "w-full mb-4 shadow-sm border-0 bg-gradient-to-r text-sm",
+                "w-full mb-4 border-0 bg-gradient-to-r text-sm",
                 currentPhase === "menstruation" ? "from-pink-500 to-pink-400" :
                 currentPhase === "follicular" ? "from-green-500 to-green-400" :
                 currentPhase === "ovulatory" ? "from-yellow-500 to-yellow-400" :
@@ -1286,7 +1286,7 @@ const PouGame = () => {
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-sm">Boosters</h3>
-                <div className="text-xs px-2 py-0.5 bg-white/70 backdrop-blur-sm rounded-full">
+                <div className="text-xs px-2 py-0.5 backdrop-blur-sm rounded-full">
                   Tap to use
                 </div>
               </div>
@@ -1298,7 +1298,7 @@ const PouGame = () => {
                     <div 
                       key={booster.id}
                       onClick={() => handleBoosterClick(booster)}
-                      className="flex flex-col items-center p-2 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+                      className="flex flex-col items-center p-2 rounded-lg cursor-pointer transition-shadow"
                     >
                       <img 
                         src={booster.icon} 
