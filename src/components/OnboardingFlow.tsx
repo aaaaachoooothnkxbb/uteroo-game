@@ -32,19 +32,19 @@ const formOptions: Record<string, FormOption[]> = {
   ],
   lastPeriod: [
     {
-      value: "less-than-week",
-      label: "Less than a week ago",
-      recommendation: "You might still feel a little tired or low-energy right now, which is normal after your period. Estrogen is starting to rise, and soon you'll likely feel more energized and clear-headed."
+      value: "currently",
+      label: "I'm currently on my period",
+      recommendation: "Since you're currently on your period, your estrogen levels are at their lowest. This is why you might be feeling tired or having mood fluctuations. Taking it easy and practicing self-care is important right now."
     },
     {
-      value: "1-2-weeks",
-      label: "1 to 2 weeks ago",
-      recommendation: "This is the follicular phase, where your body is gearing up for ovulation. Rising estrogen may make you feel more energetic, social, and even motivated!"
+      value: "one-month",
+      label: "One month ago",
+      recommendation: "Your next period might be approaching soon. During this phase, progesterone rises which can sometimes lead to feeling more introspective or experiencing PMS symptoms like mood changes or bloating."
     },
     {
-      value: "more-than-2-weeks",
-      label: "More than 2 weeks ago",
-      recommendation: "You might be entering the luteal phase, when progesterone rises. It's normal to feel more introspective, tired, or even experience mood shifts during this time."
+      value: "more-than-month",
+      label: "More than a month ago",
+      recommendation: "If it's been more than a month since your last period, there could be many factors at play including stress, lifestyle changes, or hormonal fluctuations. Consider tracking your cycle to identify patterns."
     }
   ],
   cycleLength: [
@@ -145,17 +145,17 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     const mood = formOptions.mood.find(o => o.value === formData.mood);
 
     let phase = "";
-    if (period?.value === "less-than-week") phase = "menstrual phase";
-    if (period?.value === "1-2-weeks") phase = "follicular phase";
-    if (period?.value === "more-than-2-weeks") phase = "luteal phase";
+    if (period?.value === "currently") phase = "menstrual phase";
+    if (period?.value === "one-month") phase = "luteal phase";
+    if (period?.value === "more-than-month") phase = "follicular phase";
 
     let phaseInfo = "";
     if (phase === "menstrual phase") {
-      phaseInfo = "your estrogen levels are starting to rise";
+      phaseInfo = "your estrogen levels are lower, which might affect your energy levels";
     } else if (phase === "follicular phase") {
-      phaseInfo = "your estrogen levels are increasing, which often brings more energy";
+      phaseInfo = "your estrogen levels are likely increasing, which often brings more energy";
     } else if (phase === "luteal phase") {
-      phaseInfo = "your progesterone levels are rising, which might make you feel more reflective";
+      phaseInfo = "your progesterone levels may be rising, which might make you feel more reflective";
     }
 
     const summary = `Welcome to Uteroo! Based on your answers, it looks like you're in your ${phase}. During this time, ${phaseInfo}.
@@ -371,7 +371,9 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
               {QuestionGroups[questionsScreen].map((field) => (
                 <div key={field} className="space-y-3">
                   <h3 className="font-medium text-lg capitalize text-black">
-                    {field.replace(/([A-Z])/g, ' $1').trim()}?
+                    {field === "lastPeriod" 
+                      ? "When was the start of your last period?"
+                      : field.replace(/([A-Z])/g, ' $1').trim() + "?"}
                   </h3>
                   <div className="grid grid-cols-1 gap-2">
                     {formOptions[field].map((option) => (
