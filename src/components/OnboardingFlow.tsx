@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { PhaseExplanation } from "@/components/PhaseExplanation";
+import { Heart } from "lucide-react";
 
 type FormOption = {
   value: string;
@@ -116,8 +117,15 @@ const formOptions: Record<string, FormOption[]> = {
   ]
 };
 
+const QuestionGroups = [
+  ["age", "lastPeriod"],
+  ["cycleLength", "symptoms"],
+  ["mood", "cravings"]
+];
+
 export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(1);
+  const [questionsScreen, setQuestionsScreen] = useState(0);
   const [formData, setFormData] = useState({
     age: "",
     lastPeriod: "",
@@ -126,7 +134,10 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     mood: "",
     cravings: "",
   });
+  const [heartPoints, setHeartPoints] = useState(0);
+  const [floatingHearts, setFloatingHearts] = useState<{id: number, top: number, left: number}[]>([]);
   const { toast } = useToast();
+  const [nextHeartId, setNextHeartId] = useState(1);
 
   const generateSummary = () => {
     const period = formOptions.lastPeriod.find(o => o.value === formData.lastPeriod);
@@ -160,11 +171,49 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
 
   const handleOptionSelect = (field: string, option: FormOption) => {
     setFormData({ ...formData, [field]: option.value });
+    
+    // Create a floating heart
+    const randomLeft = 50 + (Math.random() * 30 - 15); // Between 35-65% to keep it near the center
+    setFloatingHearts(prev => [...prev, {
+      id: nextHeartId, 
+      top: 70, // Start position 
+      left: randomLeft
+    }]);
+    setNextHeartId(prev => prev + 1);
+    
+    // Increment heart points
+    setHeartPoints(prev => prev + 1);
+    
+    // Show recommendation toast
     toast({
       title: "Great choice!",
       description: option.recommendation,
     });
+
+    // Auto advance to next screen if both questions on current screen are answered
+    const currentGroup = QuestionGroups[questionsScreen];
+    const allAnswered = currentGroup.every(field => 
+      formData[field as keyof typeof formData] !== "" || field === field && option.value !== ""
+    );
+    
+    if (allAnswered && questionsScreen < 2) {
+      // Wait a moment for the animation to complete
+      setTimeout(() => {
+        setQuestionsScreen(prev => prev + 1);
+      }, 500);
+    }
   };
+
+  // Remove floating hearts after animation completes
+  useEffect(() => {
+    if (floatingHearts.length === 0) return;
+    
+    const timer = setTimeout(() => {
+      setFloatingHearts(prev => prev.slice(1));
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [floatingHearts]);
 
   const calculateProgress = () => {
     const totalFields = Object.keys(formData).length;
@@ -208,7 +257,35 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl p-6 space-y-6 bg-white border shadow-md">
+      <Card className="w-full max-w-4xl p-6 space-y-6 bg-white border shadow-md relative">
+        {/* Floating hearts animation container */}
+        {floatingHearts.map(heart => (
+          <div 
+            key={heart.id}
+            className="absolute z-10 pointer-events-none"
+            style={{
+              left: `${heart.left}%`,
+              top: `${heart.top}%`,
+              animation: 'float-up 1s ease-out forwards'
+            }}
+          >
+            <div className="flex items-center font-bold text-[#FF69B4]">
+              <Heart fill="#FF69B4" className="animate-heart-squish mr-1" size={20} />
+              <span>+1</span>
+            </div>
+          </div>
+        ))}
+
+        {step === 3 && (
+          <div className="flex items-center mb-2 gap-2">
+            <Progress value={calculateProgress()} className="w-full rounded-full" />
+            <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
+              <Heart fill="#FF69B4" className="animate-pulse" size={16} />
+              <span>{heartPoints}</span>
+            </div>
+          </div>
+        )}
+        
         {step === 1 ? (
           <div className="text-center space-y-6">
             <img
@@ -263,7 +340,18 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
           </div>
         ) : (
           <div className="space-y-6">
-            <Progress value={calculateProgress()} className="w-full rounded-full" />
+            {/* Top bar with hearts and progress */}
+            <div className="flex items-center justify-between mb-2">
+              <Progress 
+                value={calculateProgress()} 
+                className="w-full rounded-full" 
+                size={questionsScreen === 0 ? "xs" : questionsScreen === 1 ? "sm" : "default"}
+              />
+              <div className="flex items-center gap-1 text-[#FF69B4] font-bold ml-2">
+                <Heart fill="#FF69B4" className="animate-pulse" size={20} />
+                <span>{heartPoints}</span>
+              </div>
+            </div>
             
             <div className="text-center mb-8">
               <h2 className="text-2xl text-[#FF69B4] font-bold mb-2">
@@ -272,16 +360,19 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
               <p className="text-gray-700 italic">
                 Your answers help us provide personalized support throughout your journey
               </p>
+              <p className="text-gray-500 text-sm mt-2">
+                Screen {questionsScreen + 1} of 3
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {Object.entries(formOptions).map(([field, options]) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
+              {QuestionGroups[questionsScreen].map((field) => (
                 <div key={field} className="space-y-3">
                   <h3 className="font-medium text-lg capitalize text-black">
                     {field.replace(/([A-Z])/g, ' $1').trim()}?
                   </h3>
                   <div className="grid grid-cols-1 gap-2">
-                    {options.map((option) => (
+                    {formOptions[field].map((option) => (
                       <Button
                         key={option.value}
                         onClick={() => handleOptionSelect(field, option)}
@@ -301,18 +392,35 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
             </div>
 
             <div className="flex gap-4 justify-between mt-8">
+              {questionsScreen > 0 ? (
+                <Button
+                  onClick={() => setQuestionsScreen(questionsScreen - 1)}
+                  variant="outline"
+                  className="text-[#9370DB] hover:bg-pink-50 rounded-full"
+                >
+                  Back
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSkip}
+                  variant="outline"
+                  className="text-[#FF69B4] hover:bg-pink-50 rounded-full"
+                >
+                  Skip for now
+                </Button>
+              )}
+              
               <Button
-                onClick={handleSkip}
-                variant="outline"
-                className="text-[#FF69B4] hover:bg-pink-50 rounded-full"
-              >
-                Skip for now
-              </Button>
-              <Button
-                onClick={handleNext}
+                onClick={() => {
+                  if (questionsScreen < 2) {
+                    setQuestionsScreen(questionsScreen + 1);
+                  } else {
+                    handleNext();
+                  }
+                }}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
               >
-                Submit
+                {questionsScreen === 2 ? "Submit" : "Next"}
               </Button>
             </div>
           </div>
