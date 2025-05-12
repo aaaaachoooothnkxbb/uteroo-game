@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { 
@@ -480,17 +480,25 @@ const roomBoosters = {
 
 const PouGame = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
-  const [currentPhase, setCurrentPhase] = useState<Phase>("menstruation");
+  
+  // Get the initial phase from the location state or default to menstruation
+  const [currentPhase, setCurrentPhase] = useState<Phase>(() => {
+    const initialPhase = location.state?.initialPhase as Phase;
+    return initialPhase || "menstruation";
+  });
+  
   const [stats, setStats] = useState({
     hunger: 75,
     hygiene: 90,
     energy: 60,
     happiness: 85,
     coins: 200,
-    hearts: 0  // Added hearts as a new stat
+    hearts: 0
   });
+  
   const [streak, setStreak] = useState(0);
   const [lastBoosterUsed, setLastBoosterUsed] = useState<string | null>(null);
   const [showBoostIndicator, setShowBoostIndicator] = useState(false);
@@ -509,27 +517,20 @@ const PouGame = () => {
   const [lastClickTime, setLastClickTime] = useState(0);
   const [showHeartBonus, setShowHeartBonus] = useState(false);
   
-  // Load streak from localStorage on component mount
+  // Log the initial phase when component mounts
   useEffect(() => {
-    const savedStreak = localStorage.getItem('uterooStreak');
-    const lastUsedTimestamp = localStorage.getItem('lastBoosterTimestamp');
+    console.log("Initial phase from navigation:", location.state?.initialPhase);
     
-    if (savedStreak) {
-      setStreak(parseInt(savedStreak));
+    // Show a toast to indicate which phase we're starting with
+    if (location.state?.initialPhase) {
+      const phaseData = phaseInfo[location.state.initialPhase as Phase];
+      toast({
+        title: `Starting in ${phaseData.subtitle} phase`,
+        description: `${phaseData.emoji} ${phaseData.description}`,
+        duration: 3000,
+      });
     }
-    
-    // Reset streak if it's been more than 24 hours since last booster use
-    if (lastUsedTimestamp) {
-      const lastUsed = new Date(lastUsedTimestamp);
-      const now = new Date();
-      const hoursDiff = (now.getTime() - lastUsed.getTime()) / (1000 * 60 * 60);
-      
-      if (hoursDiff > 24) {
-        setStreak(0);
-        localStorage.setItem('uterooStreak', '0');
-      }
-    }
-  }, []);
+  }, [location.state, toast]);
 
   useEffect(() => {
     setCurrentEnemies(enemies[currentPhase]);
