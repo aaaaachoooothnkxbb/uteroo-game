@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -280,7 +281,7 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
           <div className="flex items-center mb-2 gap-2">
             <Progress value={calculateProgress()} className="w-full rounded-full" />
             <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
-              <Heart fill="#FF69B4" className="animate-pulse" size={16} />
+              <Heart fill="#FF69B4" size={16} />
               <span>{heartPoints}</span>
             </div>
           </div>
@@ -342,14 +343,16 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
           <div className="space-y-6">
             {/* Top bar with hearts and progress */}
             <div className="flex items-center justify-between mb-2">
-              <Progress 
-                value={calculateProgress()} 
-                className="w-full rounded-full" 
-                size={questionsScreen === 0 ? "xs" : questionsScreen === 1 ? "sm" : "default"}
-              />
-              <div className="flex items-center gap-1 text-[#FF69B4] font-bold ml-2">
-                <Heart fill="#FF69B4" className="animate-pulse" size={20} />
-                <span>{heartPoints}</span>
+              <div className="flex items-center gap-2 w-full">
+                <Progress 
+                  value={calculateProgress()} 
+                  className="flex-1 rounded-full" 
+                  size={questionsScreen === 0 ? "xs" : questionsScreen === 1 ? "sm" : "default"}
+                />
+                <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
+                  <Heart fill="#FF69B4" size={20} />
+                  <span>{heartPoints}</span>
+                </div>
               </div>
             </div>
             
