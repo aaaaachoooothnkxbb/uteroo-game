@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -213,9 +212,9 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
         {step === 1 ? (
           <div className="text-center space-y-6">
             <img
-              src="public/lovable-uploads/8a03ffae-f3c5-4921-ad3e-3683380ae120.png"
+              src="public/lovable-uploads/0d497106-a6a3-4251-ac48-6e002ce44c94.png"
               alt="Welcome"
-              className="w-64 h-48 mx-auto"
+              className="w-64 h-auto mx-auto animate-bounce-slow"
             />
             <h1 className="text-2xl font-bold text-black">Hi!</h1>
             <p className="text-lg text-black">
