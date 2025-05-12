@@ -14,6 +14,7 @@ import {
 import { format } from "date-fns";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useNavigate } from "react-router-dom";
 
 type FormOption = {
   value: string;
@@ -197,6 +198,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [floatingHearts, setFloatingHearts] = useState<{id: number, top: number, left: number}[]>([]);
   const { toast } = useToast();
   const [nextHeartId, setNextHeartId] = useState(1);
+  const navigate = useNavigate();
 
   const generateSummary = () => {
     // Determine phase based on period start
@@ -426,7 +428,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         duration: 10000,
       });
       
-      onComplete();
+      navigate("/dashboard");
     }
   };
 
@@ -435,7 +437,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       title: "Welcome to Uteroo!",
       description: "You can always complete your profile later in settings.",
     });
-    onComplete();
+    navigate("/dashboard");
   };
 
   // Function to render the calendar popover for date selection
@@ -742,13 +744,13 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                       description: "Here's your personalized hormonal insights! +25 ❤️",
                     });
                   } else {
-                    // Submit and complete onboarding
+                    // Submit and navigate to dashboard
                     handleNext();
                   }
                 }}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
               >
-                {questionsScreen === 3 ? "Continue" : questionsScreen === 2 ? "Get My Diagnosis" : "Next"}
+                {questionsScreen === 3 ? "Continue to Game" : questionsScreen === 2 ? "Get My Diagnosis" : "Next"}
               </Button>
             </div>
           </div>
