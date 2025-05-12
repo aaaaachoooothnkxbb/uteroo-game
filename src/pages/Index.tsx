@@ -90,15 +90,14 @@ const Index = () => {
         <div className="space-y-4 mt-8">
           <div 
             onClick={() => navigate("/pou-game")}
-            className="w-full h-40 relative cursor-pointer group"
+            className="w-full relative cursor-pointer group"
           >
-            <div className="absolute inset-0">
-              {/* Removed the cloud background div */}
-              <div className="absolute inset-0 flex items-center justify-center text-center">
-                <span className="text-gray-800 text-2xl font-bold group-hover:scale-110 transition-transform duration-300">
-                  TRY IT FIRST
-                </span>
-              </div>
+            <div className="flex justify-center">
+              <Button
+                className="rounded-full bg-pink-100 text-gray-800 text-2xl font-bold py-5 px-10 hover:scale-105 transition-transform duration-300"
+              >
+                TRY IT FIRST
+              </Button>
             </div>
           </div>
 
