@@ -784,7 +784,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                       description: "Here's your personalized hormonal insights! +25 ❤️",
                     });
                   } else {
-                    // Submit and navigate to dashboard
+                    // Submit and navigate to game screen
                     handleNext();
                   }
                 }}
