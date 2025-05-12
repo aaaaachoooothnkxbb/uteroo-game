@@ -212,7 +212,7 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
         {step === 1 ? (
           <div className="text-center space-y-6">
             <img
-              src="/lovable-uploads/1d83cfe8-2a8b-4ac7-b7db-8749d5e367e7.png"
+              src="public/lovable-uploads/8a03ffae-f3c5-4921-ad3e-3683380ae120.png"
               alt="Welcome"
               className="w-64 h-48 mx-auto"
             />
