@@ -72,12 +72,12 @@ const Index = () => {
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="flex flex-col items-center space-y-4 mt-48">
           <img 
-            src="public/lovable-uploads/dbcd75af-1cf4-4a08-9b8b-a042e6812749.png"
+            src="/lovable-uploads/dbcd75af-1cf4-4a08-9b8b-a042e6812749.png"
             alt="Uteroo Character"
             className="w-[500px] h-[500px] object-contain animate-[bounce_2s_ease-in-out_infinite]"
           />
           <img
-            src="lovable-uploads/790172fa-27b1-4ab3-a3ef-3f10cdac5181.png"
+            src="/lovable-uploads/790172fa-27b1-4ab3-a3ef-3f10cdac5181.png"
             alt="Uteroo"
             className="h-40 w-auto object-contain animate-pulse transition-all duration-3000 hover:scale-125 ease-in-out"
           />
