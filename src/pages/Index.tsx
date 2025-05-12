@@ -79,7 +79,7 @@ const Index = () => {
           <img
             src="lovable-uploads/790172fa-27b1-4ab3-a3ef-3f10cdac5181.png"
             alt="Uteroo"
-            className="h-32 w-auto object-contain animate-float hover:scale-110 transition-transform duration-300"
+            className="h-40 w-auto object-contain animate-pulse transition-all duration-3000 hover:scale-125 ease-in-out"
           />
         </div>
 
