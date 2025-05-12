@@ -93,9 +93,9 @@ const Index = () => {
             className="w-full h-40 relative cursor-pointer group"
           >
             <div className="absolute inset-0">
-              <div className="absolute inset-0 bg-[url('lovable-uploads/e47907e6-61da-4860-97dc-47179e32bcf8.png')] bg-cover bg-center bg-no-repeat scale-y-[-1] hover:scale-105 transition-transform duration-300 rounded-full" />
+              {/* Removed the cloud background div */}
               <div className="absolute inset-0 flex items-center justify-center text-center">
-                <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
+                <span className="text-gray-800 text-2xl font-bold group-hover:scale-110 transition-transform duration-300">
                   TRY IT FIRST
                 </span>
               </div>
@@ -106,13 +106,7 @@ const Index = () => {
             onClick={() => setShowOnboarding(true)}
             className="w-full h-32 relative cursor-pointer group"
           >
-            <div 
-              className="absolute inset-0 bg-[url('lovable-uploads/896173af-7204-467f-986c-a542cc467697.png')] bg-contain bg-center bg-no-repeat hover:scale-105 transition-transform duration-300 rounded-full flex items-center justify-center"
-            >
-              <span className="text-white text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
-                SIGN UP
-              </span>
-            </div>
+            {/* Removed this entire button */}
           </div>
 
           <div className="relative w-full space-y-4">
