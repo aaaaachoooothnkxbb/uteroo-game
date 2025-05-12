@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -207,8 +208,8 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
   };
 
   return (
-    <div className="min-h-screen bg-[#FF69B4] flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl p-6 space-y-6 bg-transparent border-0 backdrop-blur-sm">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <Card className="w-full max-w-4xl p-6 space-y-6 bg-white border shadow-md">
         {step === 1 ? (
           <div className="text-center space-y-6">
             <img
@@ -216,26 +217,26 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
               alt="Welcome"
               className="w-64 h-48 mx-auto"
             />
-            <h1 className="text-2xl font-bold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">Hi!</h1>
-            <p className="text-lg text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
-              I'm <span className="text-[#FF69B4] font-bold bg-white/80 px-2 rounded">Uteroo</span> your loyal companion through every twist and turn of your hormonal journey.
+            <h1 className="text-2xl font-bold text-black">Hi!</h1>
+            <p className="text-lg text-black">
+              I'm <span className="text-[#FF69B4] font-bold bg-pink-50 px-2 rounded-full">Uteroo</span> your loyal companion through every twist and turn of your hormonal journey.
             </p>
-            <p className="text-gray-100 drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+            <p className="text-gray-700">
               Together, we'll navigate the ups and downs, making sure you feel supported and understood every step of the way
             </p>
-            <h2 className="text-xl font-bold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+            <h2 className="text-xl font-bold text-black">
               Who's up for this journey?
             </h2>
             <div className="flex gap-4 justify-center">
               <Button
                 onClick={() => setStep(3)}
-                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8"
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 rounded-full"
               >
                 Me!
               </Button>
               <Button
                 onClick={() => setStep(2)}
-                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8"
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 rounded-full"
               >
                 I'm new to this...
               </Button>
@@ -243,10 +244,10 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
           </div>
         ) : step === 2 ? (
           <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-center text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+            <h1 className="text-3xl font-bold text-center text-black">
               UNDERSTANDING YOUR CYCLE
             </h1>
-            <p className="text-lg text-center text-white mb-8 drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+            <p className="text-lg text-center text-gray-700 mb-8">
               Your hormones, including Estrogen, Progesterone, Luteinizing hormone (LH), and 
               Follicle-stimulating hormone (FSH), play a crucial role in your cycle. They influence 
               your mood, energy, and overall well-being.
@@ -255,7 +256,7 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
             <div className="flex justify-center mt-8">
               <Button
                 onClick={() => setStep(3)}
-                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8"
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 rounded-full"
               >
                 Next
               </Button>
@@ -263,13 +264,13 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
           </div>
         ) : (
           <div className="space-y-6">
-            <Progress value={calculateProgress()} className="w-full" />
+            <Progress value={calculateProgress()} className="w-full rounded-full" />
             
             <div className="text-center mb-8">
               <h2 className="text-2xl text-[#FF69B4] font-bold mb-2">
                 Let's Get to Know You Better
               </h2>
-              <p className="text-gray-600 italic">
+              <p className="text-gray-700 italic">
                 Your answers help us provide personalized support throughout your journey
               </p>
             </div>
@@ -277,7 +278,7 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {Object.entries(formOptions).map(([field, options]) => (
                 <div key={field} className="space-y-3">
-                  <h3 className="font-medium text-lg capitalize">
+                  <h3 className="font-medium text-lg capitalize text-black">
                     {field.replace(/([A-Z])/g, ' $1').trim()}?
                   </h3>
                   <div className="grid grid-cols-1 gap-2">
@@ -286,7 +287,11 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
                         key={option.value}
                         onClick={() => handleOptionSelect(field, option)}
                         variant={formData[field as keyof typeof formData] === option.value ? "default" : "outline"}
-                        className="w-full justify-start text-left h-auto py-3 px-4"
+                        className={`w-full justify-start text-left h-auto py-3 px-4 rounded-full ${
+                          formData[field as keyof typeof formData] === option.value 
+                            ? "bg-[#9370DB] text-white" 
+                            : "text-black hover:bg-pink-50"
+                        }`}
                       >
                         {option.label}
                       </Button>
@@ -300,13 +305,13 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
               <Button
                 onClick={handleSkip}
                 variant="outline"
-                className="text-[#FF69B4] hover:bg-pink-50"
+                className="text-[#FF69B4] hover:bg-pink-50 rounded-full"
               >
                 Skip for now
               </Button>
               <Button
                 onClick={handleNext}
-                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white"
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
               >
                 Submit
               </Button>
