@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { PhaseExplanation } from "@/components/PhaseExplanation";
-import { Heart, Calendar, Info } from "lucide-react";
+import { Heart, Calendar, Info, Copy } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
@@ -203,52 +202,91 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     // Determine phase based on period start
     let phase = "";
     let phaseInfo = "";
+    let phaseEmoji = "";
+    let phaseColor = "";
+    let daysUntilNextPeriod = "";
     
     if (formData.lastPeriodStart === "current") {
       phase = "menstrual phase";
-      phaseInfo = "your estrogen levels are lower, which might affect your energy levels";
+      phaseInfo = "your body is resetting! Estrogen and progesterone are at their lowest. Rest is your superpower right now. 💤";
+      phaseEmoji = "🌑";
+      phaseColor = "text-[#FF69B4]";
     } else if (formData.lastPeriodStart === "calendar" && selectedDate) {
       // Calculate days since period started
       const today = new Date();
       const daysSince = Math.floor((today.getTime() - selectedDate.getTime()) / (1000 * 60 * 60 * 24));
       
-      if (daysSince <= 7) {
+      // Determine the phase and relevant information
+      if (daysSince <= 5) {
         phase = "menstrual phase";
-        phaseInfo = "your estrogen levels are lower, which might affect your energy levels";
+        phaseInfo = "your body is resetting! Estrogen and progesterone are at their lowest. Rest is your superpower right now. 💤";
+        phaseEmoji = "🌑";
+        phaseColor = "text-[#FF69B4]";
       } else if (daysSince <= 14) {
         phase = "follicular phase";
-        phaseInfo = "your estrogen levels are likely increasing, which often brings more energy";
+        phaseInfo = "energy and creativity are peaking. Perfect time for new projects or workouts!";
+        phaseEmoji = "🌱";
+        phaseColor = "text-[#9370DB]";
+      } else if (daysSince <= 17) {
+        phase = "ovulatory phase";
+        phaseInfo = "testosterone and estrogen are high—you might feel extra confident or social. Baby-making or not, this is your glow phase.";
+        phaseEmoji = "🌕";
+        phaseColor = "text-yellow-500";
       } else {
         phase = "luteal phase";
-        phaseInfo = "your progesterone levels may be rising, which might make you feel more reflective";
+        phaseInfo = "progesterone is running the show now. Bloating, mood swings, or cravings? Totally normal! Your body preps for either pregnancy or a fresh cycle.";
+        phaseEmoji = "🌗";
+        phaseColor = "text-[#8A2BE2]";
+        
+        // Calculate days until next period (assuming 28-day cycle)
+        const cycleDays = formData.cyclePredictability === "clockwork" ? 28 : 
+                         formData.cyclePredictability === "regular-varies" ? 30 : 32;
+        const daysLeft = cycleDays - daysSince;
+        if (daysLeft > 0) {
+          daysUntilNextPeriod = `Your next period may start in ~${daysLeft} days.`;
+        }
       }
     } else {
       // Default if we can't determine
-      phase = "current cycle phase";
-      phaseInfo = "your hormones influence your energy, mood, and physical comfort";
+      phase = "unique cycle pattern";
+      phaseInfo = "your cycle plays by its own rules! Tracking symptoms (like cramps or mood) will help us predict your phases better. No stress—we'll learn together. 🌈";
+      phaseEmoji = "🌈";
+      phaseColor = "text-[#9370DB]";
     }
 
-    // Get worst symptom recommendation
-    const worstSymptom = formOptions.worstSymptom.find(s => s.value === formData.worstSymptom);
-    let recommendationText = "";
+    // Get nutrient/symptom insights based on worst symptom
+    let symptomAdvice = "";
+    let boosterSuggestion = "";
     
-    if (worstSymptom?.value === "cramps") {
-      recommendationText = "Try using a heat pack on your lower abdomen and consider gentle stretching.";
-    } else if (worstSymptom?.value === "mood") {
-      recommendationText = "Our mindfulness rooms can help balance your emotions during hormonal fluctuations.";
-    } else if (worstSymptom?.value === "fatigue") {
-      recommendationText = "Focus on iron-rich foods like spinach, lentils, and lean meats to boost your energy.";
-    } else {
-      recommendationText = "Tracking your symptoms regularly will help us provide more personalized recommendations.";
+    if (formData.worstSymptom === "cramps") {
+      symptomAdvice = "Magnesium could be your bestie! Try leafy greens, nuts, or a warm Epsom salt bath to ease muscles. 🛁";
+      boosterSuggestion = "Unlock the Heat Pack booster in your Bedroom to soothe cramps. Cost: 15 ❤️";
+    } else if (formData.worstSymptom === "mood") {
+      symptomAdvice = "Your serotonin might need love! Omega-3s (salmon, flaxseeds) and vitamin B6 (bananas, chickpeas) can help stabilize moods. 🧠";
+      boosterSuggestion = "Try the Mindfulness Room booster to help balance your emotions. Cost: 10 ❤️";
+    } else if (formData.worstSymptom === "fatigue") {
+      symptomAdvice = "Focus on iron-rich foods like spinach, lentils, and lean meats to boost your energy. B vitamins from whole grains can help too! ⚡";
+      boosterSuggestion = "The Energy Boost booster might be perfect right now. Cost: 15 ❤️";
+    }
+    
+    // Check for bloating in premenstrual symptoms
+    if (formData.premenstrualSymptoms === "bloated") {
+      if (symptomAdvice) symptomAdvice += " ";
+      symptomAdvice += "Hydration + potassium (avocados, sweet potatoes) fight water retention. Psst—your Bathroom boosters are primed for this! 💧";
+      if (!boosterSuggestion) boosterSuggestion = "Try the Anti-Bloat Bathroom booster for relief! Cost: 20 ❤️";
     }
 
-    const summary = `Welcome to Uteroo! Based on your answers, it looks like you're in your ${phase}. During this time, ${phaseInfo}.
+    const summary = `
+You're likely in your ${phaseEmoji} <span class="${phaseColor} font-bold">**${phase}**</span> — ${phaseInfo}
 
-To support your body right now:
-• ${recommendationText}
-• Remember that your symptoms are a normal response to hormonal changes.
+${symptomAdvice || "Keep tracking your symptoms daily to get more personalized advice!"}
 
-Thanks for trusting Uteroo! We'll use this to predict your phases and suggest boosters tailored to YOU. 💖`;
+${boosterSuggestion || "Keep earning hearts to unlock personalized boosters for your cycle!"}
+
+${daysUntilNextPeriod}
+
+Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you sync with it. Track daily to unlock even smarter tips! 🌸
+    `;
 
     return summary;
   };
@@ -543,63 +581,110 @@ Thanks for trusting Uteroo! We'll use this to predict your phases and suggest bo
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
-              {QuestionGroups[questionsScreen].map((field) => (
-                <div key={field} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-lg text-black">
-                      {field === "lastPeriodStart" 
-                        ? "When did your last period start?" 
-                        : field === "periodLength" 
-                        ? "How long do your periods usually last?" 
-                        : field === "cyclePredictability" 
-                        ? "How predictable is your cycle?" 
-                        : field === "ovulationSigns" 
-                        ? "Do you notice any signs around ovulation?" 
-                        : field === "premenstrualSymptoms" 
-                        ? "How do you feel 5-7 days before your period?" 
-                        : "What's your most annoying symptom?"}
-                    </h3>
+            {questionsScreen < 3 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
+                {QuestionGroups[questionsScreen].map((field) => (
+                  <div key={field} className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-lg text-black">
+                        {field === "lastPeriodStart" 
+                          ? "When did your last period start?" 
+                          : field === "periodLength" 
+                          ? "How long do your periods usually last?" 
+                          : field === "cyclePredictability" 
+                          ? "How predictable is your cycle?" 
+                          : field === "ovulationSigns" 
+                          ? "Do you notice any signs around ovulation?" 
+                          : field === "premenstrualSymptoms" 
+                          ? "How do you feel 5-7 days before your period?" 
+                          : "What's your most annoying symptom?"}
+                      </h3>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info size={16} className="text-[#9370DB] cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>{formOptions[field][0].tooltip}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                      {field === "lastPeriodStart" && formOptions[field][0].value === "calendar" && (
+                        renderCalendarPopover()
+                      )}
+                      
+                      {formOptions[field].map((option, index) => (
+                        option.value !== "calendar" && (
+                          <Button
+                            key={option.value}
+                            onClick={() => handleOptionSelect(field, option)}
+                            variant={formData[field as keyof typeof formData] === option.value ? "default" : "outline"}
+                            className={`w-full justify-start text-left h-auto py-3 px-4 rounded-full ${
+                              formData[field as keyof typeof formData] === option.value 
+                                ? "bg-[#9370DB] text-white" 
+                                : "text-black hover:bg-pink-50"
+                            }`}
+                          >
+                            {option.icon && <span className="mr-2">{option.icon}</span>}
+                            {option.label}
+                          </Button>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Diagnostic summary screen
+              <div className="max-w-2xl mx-auto animate-fade-in">
+                <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-xl shadow-sm border border-pink-100">
+                  <div className="flex justify-between mb-4">
+                    <h3 className="text-xl font-bold text-[#9370DB]">Your Hormonal Diagnosis</h3>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex items-center gap-1"
+                      onClick={() => {
+                        navigator.clipboard.writeText(generateSummary().replace(/<[^>]*>/g, ''));
+                        toast({
+                          title: "Copied to clipboard",
+                          description: "You can share this with your healthcare provider",
+                        });
+                      }}
+                    >
+                      <Copy size={14} /> 
+                      <span className="text-xs">Copy</span>
+                    </Button>
+                  </div>
+                  
+                  <div 
+                    className="prose text-left text-gray-700 space-y-3" 
+                    dangerouslySetInnerHTML={{ __html: generateSummary() }} 
+                  />
+                  
+                  <div className="mt-6 pt-4 border-t border-pink-100 flex items-center gap-2">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info size={16} className="text-[#9370DB] cursor-help" />
+                          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-[#9370DB]">
+                            <Info size={14} />
+                            <span className="text-xs">Why this phase?</span>
+                          </Button>
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
-                          <p>{formOptions[field][0].tooltip}</p>
+                          <p>This is based on your cycle start date and usual length. Hormones like estrogen and progesterone fluctuate through your cycle, affecting energy, mood, and physical symptoms.</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <div className="grid grid-cols-1 gap-2">
-                    {field === "lastPeriodStart" && formOptions[field][0].value === "calendar" && (
-                      renderCalendarPopover()
-                    )}
-                    
-                    {formOptions[field].map((option, index) => (
-                      option.value !== "calendar" && (
-                        <Button
-                          key={option.value}
-                          onClick={() => handleOptionSelect(field, option)}
-                          variant={formData[field as keyof typeof formData] === option.value ? "default" : "outline"}
-                          className={`w-full justify-start text-left h-auto py-3 px-4 rounded-full ${
-                            formData[field as keyof typeof formData] === option.value 
-                              ? "bg-[#9370DB] text-white" 
-                              : "text-black hover:bg-pink-50"
-                          }`}
-                        >
-                          {option.icon && <span className="mr-2">{option.icon}</span>}
-                          {option.label}
-                        </Button>
-                      )
-                    ))}
-                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
 
             <div className="flex gap-4 justify-between mt-8">
-              {questionsScreen > 0 ? (
+              {questionsScreen > 0 && questionsScreen < 3 ? (
                 <Button
                   onClick={() => setQuestionsScreen(questionsScreen - 1)}
                   variant="outline"
@@ -647,13 +732,23 @@ Thanks for trusting Uteroo! We'll use this to predict your phases and suggest bo
                         variant: "destructive",
                       });
                     }
+                  } else if (questionsScreen === 2) {
+                    // Show diagnostic summary
+                    setQuestionsScreen(3);
+                    setHeartPoints(prev => prev + 25);
+                    
+                    toast({
+                      title: "Diagnosis complete!",
+                      description: "Here's your personalized hormonal insights! +25 ❤️",
+                    });
                   } else {
+                    // Submit and complete onboarding
                     handleNext();
                   }
                 }}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
               >
-                {questionsScreen === 2 ? "Submit" : "Next"}
+                {questionsScreen === 3 ? "Continue" : questionsScreen === 2 ? "Get My Diagnosis" : "Next"}
               </Button>
             </div>
           </div>
