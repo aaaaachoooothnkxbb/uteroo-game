@@ -200,6 +200,45 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [nextHeartId, setNextHeartId] = useState(1);
   const navigate = useNavigate();
 
+  const determineGameScreen = () => {
+    // Default to dashboard if we can't determine phase
+    let gameRoute = "/dashboard";
+    
+    if (formData.lastPeriodStart === "current") {
+      // User is in menstrual phase, direct to yoga for relief
+      gameRoute = "/yoga";
+    } else if (formData.lastPeriodStart === "calendar" && selectedDate) {
+      // Calculate days since period started
+      const today = new Date();
+      const daysSince = Math.floor((today.getTime() - selectedDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysSince <= 5) {
+        // Menstruation phase - yoga for relief
+        gameRoute = "/yoga";
+      } else if (daysSince <= 14) {
+        // Follicular phase - pou-game for energy
+        gameRoute = "/pou-game";
+      } else if (daysSince <= 17) {
+        // Ovulatory phase - videos for social/learning
+        gameRoute = "/videos";
+      } else {
+        // Luteal phase - recipe for nutrition support
+        gameRoute = "/recipe";
+      }
+    } else if (formData.worstSymptom === "cramps") {
+      // If main symptom is cramps, direct to yoga
+      gameRoute = "/yoga";
+    } else if (formData.worstSymptom === "mood") {
+      // If main symptom is mood swings, direct to videos for distraction
+      gameRoute = "/videos";
+    } else if (formData.worstSymptom === "fatigue") {
+      // If main symptom is fatigue, direct to recipe for nutrition support
+      gameRoute = "/recipe";
+    }
+    
+    return gameRoute;
+  };
+
   const generateSummary = () => {
     // Determine phase based on period start
     let phase = "";
@@ -428,7 +467,8 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         duration: 10000,
       });
       
-      navigate("/dashboard");
+      // Navigate to the appropriate game screen based on diagnosed phase
+      navigate(determineGameScreen());
     }
   };
 
