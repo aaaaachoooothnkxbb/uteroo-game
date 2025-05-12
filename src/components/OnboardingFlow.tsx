@@ -1,175 +1,264 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { PhaseExplanation } from "@/components/PhaseExplanation";
-import { Heart } from "lucide-react";
+import { Heart, Calendar, Info } from "lucide-react";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
+import { format } from "date-fns";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type FormOption = {
   value: string;
   label: string;
+  icon?: string;
   recommendation: string;
+  tooltip?: string;
 };
 
 const formOptions: Record<string, FormOption[]> = {
-  age: [
+  lastPeriodStart: [
     {
-      value: "10-15",
-      label: "10-15",
-      recommendation: "Hey there! You're likely still getting used to your cycle, which can feel confusing at times. Hormones like estrogen and progesterone fluctuate a lot during these years, which can cause mood swings and changes in your energy levels. Be kind to yourself, and remember that what you're experiencing is normal."
+      value: "calendar",
+      label: "Tap to select",
+      icon: "📅",
+      recommendation: "Thanks for sharing your cycle date! This helps us provide more accurate predictions for your future cycles.",
+      tooltip: "Knowing when your period started helps us calculate which hormonal phase you're in right now."
     },
     {
-      value: "15-25",
-      label: "15-25",
-      recommendation: "Hello! At your age, cycles can become more predictable, but things like stress, sleep, and even diet can influence how you feel. Hormones like estrogen and serotonin work together, so mood swings or cravings could be linked to hormonal changes."
+      value: "current",
+      label: "I'm on it right now!",
+      icon: "🩸",
+      recommendation: "Since you're currently on your period, your estrogen levels are at their lowest. This is why you might be feeling tired or having mood fluctuations. Taking it easy and practicing self-care is important right now.",
+      tooltip: "During menstruation, both estrogen and progesterone are at their lowest, which can cause fatigue and mood changes."
     },
     {
-      value: "25-45",
-      label: "25-45",
-      recommendation: "Welcome! You're in a stage where life and hormones might throw you some curveballs. Cravings, mood changes, and energy dips can all be influenced by fluctuating estrogen and progesterone levels, especially if your cycle is irregular."
+      value: "unknown",
+      label: "I don't remember - remind me next time",
+      icon: "🤷",
+      recommendation: "No problem! We'll remind you to track your next period. For now, we'll use general recommendations based on other answers you provide.",
+      tooltip: "You can always update this later when you remember or when your next period starts."
     }
   ],
-  lastPeriod: [
+  periodLength: [
     {
-      value: "currently",
-      label: "I'm currently on my period",
-      recommendation: "Since you're currently on your period, your estrogen levels are at their lowest. This is why you might be feeling tired or having mood fluctuations. Taking it easy and practicing self-care is important right now."
+      value: "3-5",
+      label: "3-5 days",
+      recommendation: "A 3-5 day period is common for many people. During this time, your uterine lining sheds as estrogen levels begin to rise again.",
+      tooltip: "About 70% of people have periods lasting 3-5 days. This is considered the typical duration."
     },
     {
-      value: "one-month",
-      label: "One month ago",
-      recommendation: "Your next period might be approaching soon. During this phase, progesterone rises which can sometimes lead to feeling more introspective or experiencing PMS symptoms like mood changes or bloating."
+      value: "6-7",
+      label: "6-7 days",
+      recommendation: "Having a 6-7 day period is perfectly normal. Your body might take a bit longer to shed the uterine lining, which can sometimes mean slightly different hormonal patterns.",
+      tooltip: "Longer periods can sometimes indicate thicker uterine lining or slower shedding processes."
     },
     {
-      value: "more-than-month",
-      label: "More than a month ago",
-      recommendation: "If it's been more than a month since your last period, there could be many factors at play including stress, lifestyle changes, or hormonal fluctuations. Consider tracking your cycle to identify patterns."
+      value: "8+",
+      label: "8+ days",
+      recommendation: "Periods lasting 8+ days can sometimes indicate hormonal fluctuations. If you experience very heavy bleeding or severe symptoms, consider checking with a healthcare provider.",
+      tooltip: "While longer periods can be normal for some, they can sometimes be related to conditions like PCOS or endometriosis."
+    },
+    {
+      value: "varies",
+      label: "It varies a lot",
+      icon: "♾️",
+      recommendation: "Having variable period lengths is actually quite common! Factors like stress, sleep, diet, and exercise can all influence your cycle length.",
+      tooltip: "Variation in period length is normal and can be influenced by lifestyle factors, stress, and hormonal changes."
     }
   ],
-  cycleLength: [
+  cyclePredictability: [
     {
-      value: "less-than-21",
-      label: "Less than 21 days",
-      recommendation: "It sounds like you might have a shorter cycle. This means your body goes through hormonal changes faster than average, which can sometimes feel intense."
+      value: "clockwork",
+      label: "Like clockwork!",
+      icon: "⏱️",
+      recommendation: "Having a predictable cycle makes tracking easier! Your hormones likely follow a fairly consistent pattern, which can help you plan activities around your cycle phases.",
+      tooltip: "Regular cycles often indicate balanced hormones and can make predicting future periods more accurate."
     },
     {
-      value: "21-35",
-      label: "21 to 35 days",
-      recommendation: "Your cycle length is typical, and it means your body likely follows a balanced rhythm. Hormonal fluctuations can still cause mood swings, fatigue, or cravings."
+      value: "regular-varies",
+      label: "Usually 25-35 days",
+      icon: "🔄",
+      recommendation: "Your cycle has some variability, which is completely normal! This slight variation can be due to factors like stress, travel, or even changes in your diet.",
+      tooltip: "Variation of a few days is normal and considered a healthy cycle pattern."
     },
     {
-      value: "more-than-35",
-      label: "More than 35 days",
-      recommendation: "Longer cycles mean you might have more time in each hormonal phase, which can come with unique challenges. Tracking your symptoms can help you better predict what's coming."
+      value: "irregular",
+      label: "Complete surprise every month",
+      icon: "🌪️",
+      recommendation: "Irregular cycles are more common than you might think. Factors like stress, PCOS, thyroid conditions, and even intensive exercise can all affect cycle regularity.",
+      tooltip: "Unpredictable cycles can make planning difficult, but tracking symptoms can still help identify patterns."
     }
   ],
-  symptoms: [
+  ovulationSigns: [
     {
-      value: "cramps-mood-fatigue",
-      label: "Cramps, mood swings, fatigue",
-      recommendation: "Cramps and fatigue are common during the luteal and menstrual phases, when progesterone and estrogen drop. Mood swings are often linked to serotonin changes."
+      value: "discharge",
+      label: "Egg-white discharge",
+      icon: "🥚",
+      recommendation: "That egg-white discharge is cervical mucus, which becomes more stretchy and clear during ovulation to help sperm travel to the egg. It's a great natural fertility sign!",
+      tooltip: "This stretchy discharge is produced due to rising estrogen levels around ovulation."
     },
     {
-      value: "bloating-headaches-acne",
-      label: "Bloating, headaches, acne",
-      recommendation: "These symptoms often happen when estrogen levels fluctuate or when your body retains water during the luteal phase."
-    },
-    {
-      value: "nausea-back-insomnia",
-      label: "Nausea, back pain, insomnia",
-      recommendation: "Nausea and back pain are common PMS symptoms linked to prostaglandins, which cause uterine contractions. Insomnia can happen when progesterone drops."
-    }
-  ],
-  mood: [
-    {
-      value: "good-stable",
-      label: "Good/Stable",
-      recommendation: "That's great to hear! Your hormones may have been in balance, which is why you felt good overall."
-    },
-    {
-      value: "moody-anxious",
-      label: "Moody/Anxious",
-      recommendation: "Moodiness and anxiety can be linked to fluctuations in estrogen and serotonin. If this happened during your luteal phase, it's completely normal."
-    },
-    {
-      value: "irritable-sad",
-      label: "Irritable/Sad",
-      recommendation: "Feeling irritable or sad could be linked to low serotonin levels, especially in the premenstrual phase. Be kind to yourself."
-    }
-  ],
-  cravings: [
-    {
-      value: "salty",
-      label: "Yes, salty foods",
-      recommendation: "Craving salty foods can happen when your body retains water or during stress. It's okay to indulge a little, but also try potassium-rich foods."
-    },
-    {
-      value: "sweet",
-      label: "Yes, sweets or chocolate",
-      recommendation: "Craving sweets is common when estrogen and serotonin dip. Dark chocolate is a great choice—it contains magnesium, which helps with mood and muscle relaxation."
+      value: "energy",
+      label: "Energy boost",
+      icon: "⚡",
+      recommendation: "That energy surge is common during the follicular phase as estrogen rises! Many people feel more social, creative, and energetic around ovulation.",
+      tooltip: "Higher estrogen levels can boost serotonin and dopamine, giving you more energy and improved mood."
     },
     {
       value: "none",
-      label: "No, no cravings",
-      recommendation: "No cravings? That's great! It likely means your blood sugar and hormones have been balanced."
+      label: "No signs",
+      icon: "🚫",
+      recommendation: "Not everyone notices ovulation signs, and that's completely normal! Some people experience subtle changes that they might not connect to their cycle.",
+      tooltip: "Ovulation can sometimes happen with minimal noticeable symptoms."
+    }
+  ],
+  premenstrualSymptoms: [
+    {
+      value: "irritable",
+      label: "Irritable/sensitive",
+      icon: "🌋",
+      recommendation: "Feeling irritable before your period is linked to progesterone peaking and then dropping, which affects serotonin levels. You're definitely not alone in feeling this way!",
+      tooltip: "About 75% of menstruating people experience some form of emotional changes before their period."
+    },
+    {
+      value: "bloated",
+      label: "Bloated/craving carbs",
+      icon: "🥨",
+      recommendation: "Bloating and carb cravings happen when progesterone rises! Your body retains more water, and serotonin dips can trigger cravings for comfort foods that boost mood.",
+      tooltip: "Carb cravings are your body's way of trying to increase serotonin when levels naturally drop before your period."
+    },
+    {
+      value: "fine",
+      label: "Totally fine, no changes!",
+      icon: "🌈",
+      recommendation: "Lucky you! Some people don't experience significant PMS symptoms. This could be due to more stable hormonal transitions or how your body processes these hormones.",
+      tooltip: "About 20-30% of people report minimal PMS symptoms - it can be related to genetics and hormone sensitivity."
+    }
+  ],
+  worstSymptom: [
+    {
+      value: "cramps",
+      label: "Cramps",
+      icon: "🤕",
+      recommendation: "Cramps happen when your uterus contracts to shed its lining. Heat, gentle movement, and foods rich in magnesium and omega-3s can help ease the discomfort.",
+      tooltip: "Prostaglandins cause uterine contractions, which can result in pain. Anti-inflammatory foods can help reduce their production."
+    },
+    {
+      value: "mood",
+      label: "Mood swings",
+      icon: "😤",
+      recommendation: "Mood swings are caused by fluctuating hormones affecting neurotransmitters like serotonin. Mindfulness practices and regular exercise can help stabilize your mood.",
+      tooltip: "Estrogen and progesterone influence brain chemicals that regulate mood - these fluctuations are real physiological changes!"
+    },
+    {
+      value: "fatigue",
+      label: "Fatigue",
+      icon: "🥱",
+      recommendation: "Period fatigue can be related to iron loss during menstruation or hormonal shifts. Foods rich in iron, vitamin B12, and staying hydrated can help boost your energy.",
+      tooltip: "Blood loss can lead to lower iron levels, and hormonal changes can affect your sleep quality and energy levels."
     }
   ]
 };
 
 const QuestionGroups = [
-  ["age", "lastPeriod"],
-  ["cycleLength", "symptoms"],
-  ["mood", "cravings"]
+  ["lastPeriodStart", "periodLength"],
+  ["cyclePredictability", "ovulationSigns"],
+  ["premenstrualSymptoms", "worstSymptom"]
+];
+
+// Screen rewards configuration
+const screenRewards = [
+  { points: 10, message: "Great start! +10 ❤️ added to your profile." },
+  { points: 15, message: "You've unlocked Cycle Tracker Tooltip! +15 ❤️ added to your profile." },
+  { points: 20, message: "You're a cycle pro! Here's your first booster 🎁 +20 ❤️ added to your profile." }
 ];
 
 export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(1);
   const [questionsScreen, setQuestionsScreen] = useState(0);
   const [formData, setFormData] = useState({
-    age: "",
-    lastPeriod: "",
-    cycleLength: "",
-    symptoms: "",
-    mood: "",
-    cravings: "",
+    lastPeriodStart: "",
+    periodLength: "",
+    cyclePredictability: "",
+    ovulationSigns: "",
+    premenstrualSymptoms: "",
+    worstSymptom: "",
   });
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [heartPoints, setHeartPoints] = useState(0);
   const [floatingHearts, setFloatingHearts] = useState<{id: number, top: number, left: number}[]>([]);
   const { toast } = useToast();
   const [nextHeartId, setNextHeartId] = useState(1);
 
   const generateSummary = () => {
-    const period = formOptions.lastPeriod.find(o => o.value === formData.lastPeriod);
-    const symptoms = formOptions.symptoms.find(o => o.value === formData.symptoms);
-    const mood = formOptions.mood.find(o => o.value === formData.mood);
-
+    // Determine phase based on period start
     let phase = "";
-    if (period?.value === "currently") phase = "menstrual phase";
-    if (period?.value === "one-month") phase = "luteal phase";
-    if (period?.value === "more-than-month") phase = "follicular phase";
-
     let phaseInfo = "";
-    if (phase === "menstrual phase") {
+    
+    if (formData.lastPeriodStart === "current") {
+      phase = "menstrual phase";
       phaseInfo = "your estrogen levels are lower, which might affect your energy levels";
-    } else if (phase === "follicular phase") {
-      phaseInfo = "your estrogen levels are likely increasing, which often brings more energy";
-    } else if (phase === "luteal phase") {
-      phaseInfo = "your progesterone levels may be rising, which might make you feel more reflective";
+    } else if (formData.lastPeriodStart === "calendar" && selectedDate) {
+      // Calculate days since period started
+      const today = new Date();
+      const daysSince = Math.floor((today.getTime() - selectedDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysSince <= 7) {
+        phase = "menstrual phase";
+        phaseInfo = "your estrogen levels are lower, which might affect your energy levels";
+      } else if (daysSince <= 14) {
+        phase = "follicular phase";
+        phaseInfo = "your estrogen levels are likely increasing, which often brings more energy";
+      } else {
+        phase = "luteal phase";
+        phaseInfo = "your progesterone levels may be rising, which might make you feel more reflective";
+      }
+    } else {
+      // Default if we can't determine
+      phase = "current cycle phase";
+      phaseInfo = "your hormones influence your energy, mood, and physical comfort";
+    }
+
+    // Get worst symptom recommendation
+    const worstSymptom = formOptions.worstSymptom.find(s => s.value === formData.worstSymptom);
+    let recommendationText = "";
+    
+    if (worstSymptom?.value === "cramps") {
+      recommendationText = "Try using a heat pack on your lower abdomen and consider gentle stretching.";
+    } else if (worstSymptom?.value === "mood") {
+      recommendationText = "Our mindfulness rooms can help balance your emotions during hormonal fluctuations.";
+    } else if (worstSymptom?.value === "fatigue") {
+      recommendationText = "Focus on iron-rich foods like spinach, lentils, and lean meats to boost your energy.";
+    } else {
+      recommendationText = "Tracking your symptoms regularly will help us provide more personalized recommendations.";
     }
 
     const summary = `Welcome to Uteroo! Based on your answers, it looks like you're in your ${phase}. During this time, ${phaseInfo}.
 
 To support your body right now:
-• ${symptoms?.recommendation.split('.')[0]}.
-• ${mood?.recommendation.split('.')[0]}.
+• ${recommendationText}
+• Remember that your symptoms are a normal response to hormonal changes.
 
-Remember, every cycle is unique, and Uteroo is here to guide you every step of the way. You've got this! 💖`;
+Thanks for trusting Uteroo! We'll use this to predict your phases and suggest boosters tailored to YOU. 💖`;
 
     return summary;
   };
 
   const handleOptionSelect = (field: string, option: FormOption) => {
+    if (field === "lastPeriodStart" && option.value === "calendar") {
+      // Just open the calendar, don't set the value yet
+      return;
+    }
+    
     setFormData({ ...formData, [field]: option.value });
     
     // Create a floating heart
@@ -181,9 +270,6 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
     }]);
     setNextHeartId(prev => prev + 1);
     
-    // Increment heart points
-    setHeartPoints(prev => prev + 1);
-    
     // Show recommendation toast
     toast({
       title: "Great choice!",
@@ -192,13 +278,72 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
 
     // Auto advance to next screen if both questions on current screen are answered
     const currentGroup = QuestionGroups[questionsScreen];
-    const allAnswered = currentGroup.every(field => 
-      formData[field as keyof typeof formData] !== "" || field === field && option.value !== ""
-    );
+    const allAnswered = currentGroup.every(field => {
+      // Special case for calendar option
+      if (field === "lastPeriodStart" && formData[field as keyof typeof formData] === "calendar") {
+        return !!selectedDate;
+      }
+      return formData[field as keyof typeof formData] !== "" || field === field && option.value !== "";
+    });
     
     if (allAnswered && questionsScreen < 2) {
       // Wait a moment for the animation to complete
       setTimeout(() => {
+        // Award points for completing the screen
+        const reward = screenRewards[questionsScreen];
+        setHeartPoints(prev => prev + reward.points);
+        
+        toast({
+          title: "Screen completed!",
+          description: reward.message,
+        });
+        
+        setQuestionsScreen(prev => prev + 1);
+      }, 500);
+    }
+  };
+
+  // Special handler for calendar date selection
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return;
+    
+    setSelectedDate(date);
+    setFormData({ ...formData, lastPeriodStart: "calendar" });
+    
+    // Create a floating heart
+    const randomLeft = 50 + (Math.random() * 30 - 15);
+    setFloatingHearts(prev => [...prev, {
+      id: nextHeartId, 
+      top: 70,
+      left: randomLeft
+    }]);
+    setNextHeartId(prev => prev + 1);
+    
+    // Show recommendation
+    const option = formOptions.lastPeriodStart.find(o => o.value === "calendar");
+    if (option) {
+      toast({
+        title: "Date selected!",
+        description: option.recommendation,
+      });
+    }
+    
+    // Check if this completes the screen
+    const currentGroup = QuestionGroups[questionsScreen];
+    const otherField = currentGroup.find(f => f !== "lastPeriodStart");
+    const allAnswered = otherField ? formData[otherField as keyof typeof formData] !== "" : true;
+    
+    if (allAnswered && questionsScreen < 2) {
+      setTimeout(() => {
+        // Award points for completing the screen
+        const reward = screenRewards[questionsScreen];
+        setHeartPoints(prev => prev + reward.points);
+        
+        toast({
+          title: "Screen completed!",
+          description: reward.message,
+        });
+        
         setQuestionsScreen(prev => prev + 1);
       }, 500);
     }
@@ -253,6 +398,38 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
       description: "You can always complete your profile later in settings.",
     });
     onComplete();
+  };
+
+  // Function to render the calendar popover for date selection
+  const renderCalendarPopover = () => {
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={formData.lastPeriodStart === "calendar" ? "default" : "outline"}
+            className={`w-full justify-start text-left h-auto py-3 px-4 rounded-full ${
+              formData.lastPeriodStart === "calendar" 
+                ? "bg-[#9370DB] text-white" 
+                : "text-black hover:bg-pink-50"
+            }`}
+          >
+            <Calendar className="mr-2 h-4 w-4" />
+            {selectedDate 
+              ? `Selected: ${format(selectedDate, "PPP")}`
+              : formOptions.lastPeriodStart[0].label
+            }
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <CalendarComponent
+            mode="single"
+            selected={selectedDate}
+            onSelect={handleDateSelect}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+    );
   };
 
   return (
@@ -340,13 +517,15 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Top bar with hearts and progress */}
+            {/* Top progress bar with hearts and screen indicator */}
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 w-full">
+              <div className="flex items-center gap-3 w-full">
+                <div className="text-gray-500 text-sm font-medium">
+                  Screen {questionsScreen + 1} of 3
+                </div>
                 <Progress 
-                  value={calculateProgress()} 
-                  className="flex-1 rounded-full" 
-                  size={questionsScreen === 0 ? "xs" : questionsScreen === 1 ? "sm" : "default"}
+                  value={(questionsScreen + 1) / 3 * 100} 
+                  className="flex-1 rounded-full"
                 />
                 <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
                   <Heart fill="#FF69B4" size={20} />
@@ -357,38 +536,62 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
             
             <div className="text-center mb-8">
               <h2 className="text-2xl text-[#FF69B4] font-bold mb-2">
-                Let's Get to Know You Better
+                Let's Get to Know Your Cycle
               </h2>
               <p className="text-gray-700 italic">
-                Your answers help us provide personalized support throughout your journey
-              </p>
-              <p className="text-gray-500 text-sm mt-2">
-                Screen {questionsScreen + 1} of 3
+                Your answers help us provide personalized hormonal insights
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
               {QuestionGroups[questionsScreen].map((field) => (
                 <div key={field} className="space-y-3">
-                  <h3 className="font-medium text-lg capitalize text-black">
-                    {field === "lastPeriod" 
-                      ? "When was the start of your last period?"
-                      : field.replace(/([A-Z])/g, ' $1').trim() + "?"}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium text-lg text-black">
+                      {field === "lastPeriodStart" 
+                        ? "When did your last period start?" 
+                        : field === "periodLength" 
+                        ? "How long do your periods usually last?" 
+                        : field === "cyclePredictability" 
+                        ? "How predictable is your cycle?" 
+                        : field === "ovulationSigns" 
+                        ? "Do you notice any signs around ovulation?" 
+                        : field === "premenstrualSymptoms" 
+                        ? "How do you feel 5-7 days before your period?" 
+                        : "What's your most annoying symptom?"}
+                    </h3>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info size={16} className="text-[#9370DB] cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>{formOptions[field][0].tooltip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <div className="grid grid-cols-1 gap-2">
-                    {formOptions[field].map((option) => (
-                      <Button
-                        key={option.value}
-                        onClick={() => handleOptionSelect(field, option)}
-                        variant={formData[field as keyof typeof formData] === option.value ? "default" : "outline"}
-                        className={`w-full justify-start text-left h-auto py-3 px-4 rounded-full ${
-                          formData[field as keyof typeof formData] === option.value 
-                            ? "bg-[#9370DB] text-white" 
-                            : "text-black hover:bg-pink-50"
-                        }`}
-                      >
-                        {option.label}
-                      </Button>
+                    {field === "lastPeriodStart" && formOptions[field][0].value === "calendar" && (
+                      renderCalendarPopover()
+                    )}
+                    
+                    {formOptions[field].map((option, index) => (
+                      option.value !== "calendar" && (
+                        <Button
+                          key={option.value}
+                          onClick={() => handleOptionSelect(field, option)}
+                          variant={formData[field as keyof typeof formData] === option.value ? "default" : "outline"}
+                          className={`w-full justify-start text-left h-auto py-3 px-4 rounded-full ${
+                            formData[field as keyof typeof formData] === option.value 
+                              ? "bg-[#9370DB] text-white" 
+                              : "text-black hover:bg-pink-50"
+                          }`}
+                        >
+                          {option.icon && <span className="mr-2">{option.icon}</span>}
+                          {option.label}
+                        </Button>
+                      )
                     ))}
                   </div>
                 </div>
@@ -417,7 +620,33 @@ Remember, every cycle is unique, and Uteroo is here to guide you every step of t
               <Button
                 onClick={() => {
                   if (questionsScreen < 2) {
-                    setQuestionsScreen(questionsScreen + 1);
+                    // Check if all questions on current screen are answered
+                    const currentGroup = QuestionGroups[questionsScreen];
+                    const allAnswered = currentGroup.every(field => {
+                      if (field === "lastPeriodStart" && formData[field] === "calendar") {
+                        return !!selectedDate;
+                      }
+                      return formData[field as keyof typeof formData] !== "";
+                    });
+                    
+                    if (allAnswered) {
+                      // Award points for completing the screen
+                      const reward = screenRewards[questionsScreen];
+                      setHeartPoints(prev => prev + reward.points);
+                      
+                      toast({
+                        title: "Screen completed!",
+                        description: reward.message,
+                      });
+                      
+                      setQuestionsScreen(questionsScreen + 1);
+                    } else {
+                      toast({
+                        title: "Please answer all questions",
+                        description: "We need this information to personalize your experience",
+                        variant: "destructive",
+                      });
+                    }
                   } else {
                     handleNext();
                   }
