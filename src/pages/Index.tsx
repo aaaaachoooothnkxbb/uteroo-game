@@ -70,7 +70,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-black relative overflow-hidden bg-white">
       <div className="w-full max-w-md space-y-8 relative z-10">
-        <div className="flex flex-col items-center space-y-4 mt-48">
+        <div className="flex flex-col items-center space-y-4 mt-12">
           <img 
             src="/lovable-uploads/dbcd75af-1cf4-4a08-9b8b-a042e6812749.png"
             alt="Uteroo Character"
