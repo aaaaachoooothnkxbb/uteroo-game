@@ -103,9 +103,15 @@ const Index = () => {
 
           <div 
             onClick={() => setShowOnboarding(true)}
-            className="w-full h-32 relative cursor-pointer group"
+            className="w-full relative cursor-pointer group"
           >
-            {/* Removed this entire button */}
+            <div className="flex justify-center">
+              <Button
+                className="rounded-full bg-pink-300 text-gray-800 text-2xl font-bold py-5 px-10 hover:scale-105 transition-transform duration-300"
+              >
+                CREATE AN ACCOUNT
+              </Button>
+            </div>
           </div>
 
           <div className="relative w-full space-y-4">
