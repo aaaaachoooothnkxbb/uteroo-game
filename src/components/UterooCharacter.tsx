@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -118,16 +119,16 @@ export const UterooCharacter = ({
       </div>
       
       <div className={cn(
-        "mt-4 font-medium tracking-wide text-white drop-shadow-md bg-gradient-to-r rounded-full backdrop-blur-sm border border-white/30 px-3 py-1.5",
-        size === "small" ? "text-xs max-w-[150px]" : "text-sm max-w-[200px]",
+        "mt-4 font-medium tracking-wide text-white drop-shadow-md bg-gradient-to-r rounded-full backdrop-blur-sm border border-white/30 px-4 py-2",
+        size === "small" ? "text-sm min-w-[180px]" : "text-base min-w-[220px]",
         phase === "menstruation" ? "from-pink-500 to-pink-400" :
         phase === "follicular" ? "from-green-500 to-green-400" :
         phase === "ovulatory" ? "from-yellow-500 to-yellow-400" :
         "from-orange-500 to-orange-400"
       )}>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2 justify-center whitespace-normal">
           <span>{phaseToEmoji[phase]}</span>
-          <span className="truncate">{phaseToMessage[phase]}</span>
+          <span>{phaseToMessage[phase]}</span>
         </div>
       </div>
     </div>
