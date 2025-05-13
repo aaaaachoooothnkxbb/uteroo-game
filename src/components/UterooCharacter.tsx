@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -6,18 +5,18 @@ import { useState, useEffect } from "react";
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
 const phaseToImage = {
-  menstruation: "/lovable-uploads/9ceb35ec-281c-4e4f-bad4-279fd2c1aedf.png",
-  follicular: "/lovable-uploads/9ceb35ec-281c-4e4f-bad4-279fd2c1aedf.png",
-  ovulatory: "/lovable-uploads/9ceb35ec-281c-4e4f-bad4-279fd2c1aedf.png",
-  luteal: "/lovable-uploads/9ceb35ec-281c-4e4f-bad4-279fd2c1aedf.png"
+  menstruation: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  follicular: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  ovulatory: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  luteal: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"
 };
 
 // Lab coat version for lab room
 const phaseToLabImage = {
-  menstruation: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png",
-  follicular: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png",
-  ovulatory: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png",
-  luteal: "/lovable-uploads/84ff2a58-b513-46b4-8065-c5d7b219f365.png"
+  menstruation: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  follicular: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  ovulatory: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  luteal: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"
 };
 
 const phaseToEmoji = {
