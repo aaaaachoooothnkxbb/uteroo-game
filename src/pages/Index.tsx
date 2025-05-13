@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -69,11 +70,11 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-black relative overflow-hidden bg-white">
       <div className="w-full max-w-md space-y-8 relative z-10">
-        <div className="flex flex-col items-center space-y-4 mt-12">
+        <div className="flex flex-col items-center space-y-4">
           <img 
             src="/lovable-uploads/dbcd75af-1cf4-4a08-9b8b-a042e6812749.png"
             alt="Uteroo Character"
-            className="w-[500px] h-[500px] object-contain animate-[bounce_2s_ease-in-out_infinite] mt-20"
+            className="w-[500px] h-[500px] object-contain animate-[bounce_2s_ease-in-out_infinite] mt-60"
           />
           <img
             src="/lovable-uploads/790172fa-27b1-4ab3-a3ef-3f10cdac5181.png"
