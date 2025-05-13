@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -789,12 +790,13 @@ const PouGame = () => {
           <Card 
             key={enemy.id} 
             className={cn(
-              "relative p-3 bg-white/80 backdrop-blur-md shadow-sm border-l-4 rounded-lg snap-center flex-shrink-0",
+              "relative p-3 backdrop-blur-md shadow-sm border-l-4 rounded-lg snap-center flex-shrink-0",
               "min-w-[140px] max-w-[160px]",
               enemy.id === "cramps" || enemy.id === "fatigue" ? "border-l-red-500" :
               enemy.id === "anxiety" || enemy.id === "migraine" ? "border-l-yellow-500" :
               "border-l-orange-500"
             )}
+            style={{ background: "transparent" }}
           >
             <TooltipProvider>
               <Tooltip delayDuration={300}>
