@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -33,6 +32,8 @@ import { RecipeRoulette } from "@/components/RecipeRoulette";
 import { PhaseRecipeRoulette } from "@/components/PhaseRecipeRoulette";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { PhaseVideos } from "@/components/PhaseVideos";
+import { AudioToggle } from "@/components/AudioToggle";
+import { audioService } from "@/utils/audioService";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -664,7 +665,11 @@ const PouGame = () => {
   };
 
   const handlePhaseChange = (newPhase: Phase) => {
-    setCurrentPhase(newPhase);
+    // Only play sound if actually changing phases
+    if (newPhase !== currentPhase) {
+      audioService.play('levelup');
+      setCurrentPhase(newPhase);
+    }
   };
 
   const currentRoom = rooms[currentRoomIndex];
@@ -672,6 +677,9 @@ const PouGame = () => {
   const currentRoomBoosters = roomBoosters[currentRoom.id as keyof typeof roomBoosters] || [];
 
   const handleBoosterClick = (booster: any) => {
+    // Play sound effect
+    audioService.play('boost');
+    
     if (booster.journalingItem) {
       setShowJournalingModal(true);
       // Don't count journaling as streak until completed
@@ -1032,8 +1040,7 @@ const PouGame = () => {
         setTimeout(() => setShowHeartBonus(false), 2000);
         
         // Play celebration sound
-        const audio = new Audio('/lovable-uploads/52bb0557-2423-47d1-9bfb-2c0316ac26ce.png'); // This is just a placeholder, you'd need to add an actual sound file
-        audio.play().catch(e => console.log("Audio play failed:", e));
+        audioService.play('bonus');
         
         // Reset consecutive clicks after bonus
         setConsecutiveClicks(0);
@@ -1051,14 +1058,15 @@ const PouGame = () => {
       hearts: prev.hearts + heartsToAdd
     }));
     
+    // Play heart sound
+    audioService.play('heart');
+    
     // Create a new floating heart
     const newHeart: FloatingHeart = {
       id: `heart-${Date.now()}-${Math.random()}`,
       x: Math.random() * 40 - 20, // Random offset for x position
       y: -20 - Math.random() * 30, // Start position above character
     };
-    
-    setFloatingHearts(prev => [...prev, newHeart]);
     
     // Remove the heart after animation completes
     setTimeout(() => {
@@ -1096,18 +1104,21 @@ const PouGame = () => {
       )} />
       
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Streamlined header */}
+        {/* Streamlined header - updated with audio toggle */}
         <div className="fixed top-0 left-0 right-0 backdrop-blur-sm z-30 pt-4 pb-2 px-4">
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="rounded-full h-8 w-8 p-0"
-                onClick={() => setShowTutorial(true)}
-              >
-                <HelpCircle className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="rounded-full h-8 w-8 p-0"
+                  onClick={() => setShowTutorial(true)}
+                >
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+                <AudioToggle />
+              </div>
               
               <div className="flex gap-2">
                 {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
@@ -1267,7 +1278,7 @@ const PouGame = () => {
             {/* Symptoms section */}
             {renderSymptomCards()}
             
-            {/* Continue streak button */}
+            {/* Continue streak button - updated with sound */}
             <Button 
               className={cn(
                 "w-full mb-4 border-0 bg-gradient-to-r text-sm",
@@ -1276,7 +1287,10 @@ const PouGame = () => {
                 currentPhase === "ovulatory" ? "from-yellow-500 to-yellow-400" :
                 "from-orange-500 to-orange-400"
               )}
-              onClick={() => updateStreak()}
+              onClick={() => {
+                audioService.play('click');
+                updateStreak();
+              }}
             >
               <Flame className="h-4 w-4 mr-1" />
               <span>🔥 {streak}-Day Streak • Continue (+10 pts)</span>

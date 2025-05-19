@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { ChefHat, Dice1 } from "lucide-react";
+import { audioService } from "@/utils/audioService";
 
 interface Recipe {
   recipe_name: string;
@@ -40,10 +42,17 @@ export const RecipeRoulette = ({ phase = "menstruation" }) => {
   });
 
   const handleSpin = () => {
+    // Play spin sound
+    audioService.play('click');
+    
     setIsSpinning(true);
     setTimeout(() => {
       setIsSpinning(false);
       setShowRecipe(true);
+      
+      // Play success sound
+      audioService.play('bonus');
+      
       toast({
         title: "🎲 Recipe Found!",
         description: "Your perfect recipe match has been selected.",

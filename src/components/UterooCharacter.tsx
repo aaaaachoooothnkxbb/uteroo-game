@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect } from "react";
+import { audioService } from "@/utils/audioService";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -71,11 +72,11 @@ export const UterooCharacter = ({
   // State for automatic floating hearts
   const [autoHearts, setAutoHearts] = useState<FloatingHeart[]>([]);
   
-  // Removed the auto-generated floating hearts effect
-  // The useEffect that was creating automatic hearts has been removed
-  
-  // Handle click on character
+  // Handle click on character with sound
   const handleClick = () => {
+    // Play click sound
+    audioService.play('heart');
+    
     if (onClick) {
       onClick();
     }
