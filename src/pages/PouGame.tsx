@@ -518,6 +518,7 @@ const PouGame = () => {
   const [consecutiveClicks, setConsecutiveClicks] = useState(0);
   const [lastClickTime, setLastClickTime] = useState(0);
   const [showHeartBonus, setShowHeartBonus] = useState(false);
+  const [lastStreakUpdateTime, setLastStreakUpdateTime] = useState(0);
   
   // Log the initial phase when component mounts
   useEffect(() => {
@@ -596,6 +597,50 @@ const PouGame = () => {
       fetchYogaPoses();
     }
   }, [currentPhase, showYogaPoses, toast]);
+
+  // Implement the updateStreak function to handle streak updates
+  const updateStreak = useCallback(() => {
+    const now = Date.now();
+    
+    // Only update streak once every 20 seconds to prevent abuse
+    if (now - lastStreakUpdateTime < 20000) {
+      return;
+    }
+    
+    setLastStreakUpdateTime(now);
+    setStreak(prevStreak => prevStreak + 1);
+    
+    // Give bonus coins for streak milestones
+    if ((streak + 1) % 10 === 0) {
+      const bonus = Math.floor((streak + 1) / 10) * 50; // 50 coins per 10 days
+      setStats(prev => ({
+        ...prev,
+        coins: prev.coins + bonus,
+      }));
+      
+      // Play celebration sound
+      audioService.play('bonus');
+      
+      // Show achievement toast
+      toast({
+        title: `🎉 ${streak + 1}-Day Streak Milestone!`,
+        description: `You earned ${bonus} bonus coins for your dedication!`,
+        duration: 5000,
+      });
+    } else {
+      // Regular streak update
+      setStats(prev => ({
+        ...prev,
+        coins: prev.coins + 10, // 10 coins per regular streak update
+      }));
+      
+      toast({
+        title: `Streak continued: ${streak + 1} days`,
+        description: "Great job taking care of yourself! +10 coins",
+        duration: 2000,
+      });
+    }
+  }, [streak, lastStreakUpdateTime, toast]);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -780,7 +825,7 @@ const PouGame = () => {
       },
       "migraine": {
         title: "Migraña menstrual", 
-        description: "Las migrañas pueden ser desencadenadas por la caída de estrógeno antes de la menstruación. La hidratación y evitar desencadenantes ayuda a prevenirlas."
+        description: "Las migrañas pueden ser desencadenadas por la caída de estrógeno antes de la menstruación. La hidrataci��n y evitar desencadenantes ayuda a prevenirlas."
       },
       "sensitivity": {
         title: "Sensibilidad aumentada", 
