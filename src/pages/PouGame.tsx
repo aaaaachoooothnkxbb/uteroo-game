@@ -531,6 +531,9 @@ const PouGame = () => {
         description: `${phaseData.emoji} ${phaseData.description}`,
         duration: 3000,
       });
+
+      // Play phase sound when starting
+      audioService.playPhaseSound(location.state.initialPhase);
     }
   }, [location.state, toast]);
 
@@ -604,15 +607,19 @@ const PouGame = () => {
       switch (itemType) {
         case "hunger":
           newStats.hunger = Math.min(100, prev.hunger + boost);
+          audioService.play('water'); // Food/hydration sound
           break;
         case "hygiene":
           newStats.hygiene = Math.max(0, prev.hygiene + boost);
+          audioService.play('click'); // Clean sound
           break;
         case "energy":
           newStats.energy = Math.max(0, prev.energy + boost);
+          audioService.play('boost'); // Energizing sound
           break;
         case "happiness":
           newStats.happiness = Math.max(0, prev.happiness + boost);
+          audioService.play('bonus'); // Happy sound
           break;
       }
       return newStats;
@@ -635,14 +642,6 @@ const PouGame = () => {
     });
   };
 
-  // Update streak counter
-  const updateStreak = () => {
-    const newStreak = streak + 1;
-    setStreak(newStreak);
-    localStorage.setItem('uterooStreak', newStreak.toString());
-    localStorage.setItem('lastBoosterTimestamp', new Date().toISOString());
-  };
-
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
@@ -657,10 +656,12 @@ const PouGame = () => {
   };
 
   const handleNextRoom = () => {
+    audioService.play('click');
     setCurrentRoomIndex((prev) => (prev === rooms.length - 1 ? 0 : prev + 1));
   };
 
   const handlePreviousRoom = () => {
+    audioService.play('click');
     setCurrentRoomIndex((prev) => (prev === 0 ? rooms.length - 1 : prev - 1));
   };
 
@@ -668,6 +669,7 @@ const PouGame = () => {
     // Only play sound if actually changing phases
     if (newPhase !== currentPhase) {
       audioService.play('levelup');
+      audioService.playPhaseSound(newPhase);
       setCurrentPhase(newPhase);
     }
   };
@@ -677,8 +679,16 @@ const PouGame = () => {
   const currentRoomBoosters = roomBoosters[currentRoom.id as keyof typeof roomBoosters] || [];
 
   const handleBoosterClick = (booster: any) => {
-    // Play sound effect
-    audioService.play('boost');
+    // Play sound effect based on booster type
+    if (booster.type === 'hygiene') {
+      audioService.play('water'); 
+    } else if (booster.type === 'energy') {
+      audioService.play('boost');
+    } else if (booster.type === 'happiness') {
+      audioService.play('bonus');
+    } else {
+      audioService.play('click');
+    }
     
     if (booster.journalingItem) {
       setShowJournalingModal(true);
@@ -708,6 +718,7 @@ const PouGame = () => {
 
     if (booster.cost) {
       if (stats.coins < booster.cost) {
+        audioService.play('click'); // Error sound
         toast({
           title: "Not enough coins!",
           description: `You need ${booster.cost} coins to buy ${booster.name}`,
@@ -1113,7 +1124,10 @@ const PouGame = () => {
                   variant="ghost" 
                   size="sm"
                   className="rounded-full h-8 w-8 p-0"
-                  onClick={() => setShowTutorial(true)}
+                  onClick={() => {
+                    audioService.play('click');
+                    setShowTutorial(true);
+                  }}
                 >
                   <HelpCircle className="h-4 w-4" />
                 </Button>
@@ -1149,10 +1163,10 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Main content area with better spacing and sizing */}
+        {/* Main content area */}
         <div className="flex-1 pt-28 pb-6 px-4">
           <div className="max-w-md mx-auto">
-            {/* Improved room navigation - adding more top margin (mt-6) to push it down */}
+            {/* Improved room navigation */}
             <div className="flex justify-between items-center mb-4 mt-6">
               <Button 
                 variant="outline" 
@@ -1182,6 +1196,7 @@ const PouGame = () => {
                       variant="outline" 
                       size="sm"
                       className="h-8 w-8 p-0 rounded-full"
+                      onClick={() => audioService.play('click')}
                     >
                       <span className="sr-only">Show rooms</span>
                       <svg xmlns="http://www3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
@@ -1193,7 +1208,10 @@ const PouGame = () => {
                       return (
                         <DropdownMenuItem 
                           key={room.id}
-                          onClick={() => setCurrentRoomIndex(index)}
+                          onClick={() => {
+                            audioService.play('click');
+                            setCurrentRoomIndex(index);
+                          }}
                           className={cn(
                             "flex items-center gap-2 cursor-pointer",
                             currentRoomIndex === index && "bg-gray-100 font-medium"
@@ -1219,10 +1237,10 @@ const PouGame = () => {
               </Button>
             </div>
             
-            {/* Stats panel moved here - below the room bar */}
+            {/* Stats panel */}
             {renderStatsPanel()}
             
-            {/* Character area with improved centering and click handler */}
+            {/* Character area */}
             <div 
               className="relative flex justify-center mb-4 mx-auto"
               onDrop={handleDrop}
@@ -1278,7 +1296,7 @@ const PouGame = () => {
             {/* Symptoms section */}
             {renderSymptomCards()}
             
-            {/* Continue streak button - updated with sound */}
+            {/* Continue streak button */}
             <Button 
               className={cn(
                 "w-full mb-4 border-0 bg-gradient-to-r text-sm",
@@ -1288,7 +1306,7 @@ const PouGame = () => {
                 "from-orange-500 to-orange-400"
               )}
               onClick={() => {
-                audioService.play('click');
+                audioService.play('bonus');
                 updateStreak();
               }}
             >
@@ -1299,7 +1317,7 @@ const PouGame = () => {
             {/* Science boosters */}
             {renderScienceBoosters()}
             
-            {/* Regular boosters - removed background */}
+            {/* Regular boosters */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-sm">Boosters</h3>
@@ -1337,34 +1355,49 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Modals - keep existing code */}
+        {/* Modals */}
         <YogaPoseModal
           isOpen={showYogaPoses}
-          onClose={() => setShowYogaPoses(false)}
+          onClose={() => {
+            audioService.play('click');
+            setShowYogaPoses(false);
+          }}
           poses={yogaPoses}
           phase={currentPhase}
         />
         
         <ProductivityTipsModal
           isOpen={showProductivityTips}
-          onClose={() => setShowProductivityTips(false)}
+          onClose={() => {
+            audioService.play('click');
+            setShowProductivityTips(false);
+          }}
           phase={currentPhase}
         />
         
         <JournalingModal
           isOpen={showJournalingModal}
-          onClose={() => setShowJournalingModal(false)}
+          onClose={() => {
+            audioService.play('click');
+            setShowJournalingModal(false);
+          }}
           phase={currentPhase}
         />
         
         <BloodworkModal
           isOpen={showBloodworkModal}
-          onClose={() => setShowBloodworkModal(false)}
+          onClose={() => {
+            audioService.play('click');
+            setShowBloodworkModal(false);
+          }}
           phase={currentPhase}
         />
         
         {showTutorial && (
-          <UterooTutorial onClose={() => setShowTutorial(false)} />
+          <UterooTutorial onClose={() => {
+            audioService.play('click');
+            setShowTutorial(false);
+          }} />
         )}
         
         {currentRoom.id === 'cycle_sanctuary' && (

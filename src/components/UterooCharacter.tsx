@@ -35,6 +35,14 @@ const phaseToMessage = {
   luteal: "Focus on self-care & rest"
 };
 
+// Phase to sound mapping for character interactions
+const phaseToSound = {
+  menstruation: "menstruation",
+  follicular: "follicular",
+  ovulatory: "ovulatory",
+  luteal: "luteal"
+};
+
 interface UterooCharacterProps {
   phase: Phase;
   currentRoom?: string;
@@ -74,13 +82,19 @@ export const UterooCharacter = ({
   
   // Handle click on character with sound
   const handleClick = () => {
-    // Play click sound
+    // Play appropriate sound based on phase
     audioService.play('heart');
+    audioService.play(phaseToSound[phase]);
     
     if (onClick) {
       onClick();
     }
   };
+
+  // Update audio service with current phase
+  useEffect(() => {
+    audioService.setPhase(phase);
+  }, [phase]);
   
   if (minimal) {
     // Minimal version without message bubble - just the character
