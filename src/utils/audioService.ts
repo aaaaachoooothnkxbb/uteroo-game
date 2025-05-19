@@ -8,6 +8,8 @@ interface Sound {
   volume: number;
   category: SoundCategory;
   description?: string;
+  phase?: string; // Associate sounds with specific cycle phases
+  emotion?: string; // Associate sounds with specific emotions
 }
 
 class AudioService {
@@ -24,6 +26,7 @@ class AudioService {
     ambient: 0.3
   };
   private currentPhase: string = 'menstruation';
+  private audioElements: Map<string, HTMLAudioElement> = new Map();
 
   // Initialize with default game sounds
   constructor() {
@@ -35,21 +38,39 @@ class AudioService {
       heart: { url: "https://assets.mixkit.co/active_storage/sfx/2/2-preview.mp3", volume: 0.5, category: 'ui' },
       bonus: { url: "https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3", volume: 0.6, category: 'ui' },
       
-      // Phase transition sounds
+      // Phase transition sounds - more emotionally matched to each phase
       levelup: { url: "https://assets.mixkit.co/active_storage/sfx/1993/1993-preview.mp3", volume: 0.5, category: 'ambient' },
-      menstruation: { url: "https://assets.mixkit.co/active_storage/sfx/209/209-preview.mp3", volume: 0.4, category: 'ambient' },
-      follicular: { url: "https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3", volume: 0.4, category: 'ambient' },
-      ovulatory: { url: "https://assets.mixkit.co/active_storage/sfx/220/220-preview.mp3", volume: 0.4, category: 'ambient' },
-      luteal: { url: "https://assets.mixkit.co/active_storage/sfx/211/211-preview.mp3", volume: 0.4, category: 'ambient' },
+      menstruation: { url: "https://assets.mixkit.co/active_storage/sfx/209/209-preview.mp3", volume: 0.4, category: 'ambient', phase: 'menstruation', description: 'Deep gong for menstruation phase' },
+      follicular: { url: "https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3", volume: 0.4, category: 'ambient', phase: 'follicular', description: 'Rising, energetic tone for follicular phase' },
+      ovulatory: { url: "https://assets.mixkit.co/active_storage/sfx/220/220-preview.mp3", volume: 0.4, category: 'ambient', phase: 'ovulatory', description: 'Wind chimes for ovulatory phase' },
+      luteal: { url: "https://assets.mixkit.co/active_storage/sfx/211/211-preview.mp3", volume: 0.4, category: 'ambient', phase: 'luteal', description: 'Gentle decrease for luteal phase' },
       
       // Healing/Self-care sounds
-      water: { url: "https://assets.mixkit.co/active_storage/sfx/1349/1349-preview.mp3", volume: 0.5, category: 'ui' },
-      fire: { url: "https://assets.mixkit.co/active_storage/sfx/239/239-preview.mp3", volume: 0.3, category: 'ambient', description: 'Crackling fire for heating pad' },
+      water: { url: "https://assets.mixkit.co/active_storage/sfx/1349/1349-preview.mp3", volume: 0.5, category: 'ui', description: 'Water droplet sound for hydration' },
+      fire: { url: "https://assets.mixkit.co/active_storage/sfx/239/239-preview.mp3", volume: 0.3, category: 'ambient', description: 'Crackling fire for heating pad', phase: 'menstruation' },
       yoga: { url: "https://assets.mixkit.co/active_storage/sfx/2448/2448-preview.mp3", volume: 0.3, category: 'ambient' },
       
+      // Room-specific sounds
+      bedroom: { url: "https://assets.mixkit.co/active_storage/sfx/2301/2301-preview.mp3", volume: 0.3, category: 'ui', description: 'Soft bedroom sound' },
+      bathroom: { url: "https://assets.mixkit.co/active_storage/sfx/177/177-preview.mp3", volume: 0.3, category: 'ui', description: 'Bathroom ambience' },
+      kitchen: { url: "https://assets.mixkit.co/active_storage/sfx/156/156-preview.mp3", volume: 0.3, category: 'ui', description: 'Kitchen sounds' },
+      lab: { url: "https://assets.mixkit.co/active_storage/sfx/3200/3200-preview.mp3", volume: 0.4, category: 'ui', description: 'Laboratory beep sound' },
+      
+      // Mood sounds - emotional sounds for mood selection
+      mood_happy: { url: "https://assets.mixkit.co/active_storage/sfx/1647/1647-preview.mp3", volume: 0.4, category: 'ui', emotion: 'happy', description: 'Bright chime for happy mood' },
+      mood_calm: { url: "https://assets.mixkit.co/active_storage/sfx/2448/2448-preview.mp3", volume: 0.4, category: 'ui', emotion: 'calm', description: 'Calm tone for relaxed mood' },
+      mood_sad: { url: "https://assets.mixkit.co/active_storage/sfx/131/131-preview.mp3", volume: 0.4, category: 'ui', emotion: 'sad', description: 'Gentle hum for sad mood' },
+      mood_angry: { url: "https://assets.mixkit.co/active_storage/sfx/166/166-preview.mp3", volume: 0.4, category: 'ui', emotion: 'angry', description: 'Low tone for angry mood' },
+      
+      // Symptom tracking sounds
+      symptom_cramps: { url: "https://assets.mixkit.co/active_storage/sfx/149/149-preview.mp3", volume: 0.4, category: 'ui', description: 'Low throb for cramp tracking' },
+      symptom_headache: { url: "https://assets.mixkit.co/active_storage/sfx/146/146-preview.mp3", volume: 0.4, category: 'ui', description: 'Pulse sound for headache tracking' },
+      
       // Voice feedback samples (placeholders - would use 11Labs in production)
-      voice_welcome: { url: "https://assets.mixkit.co/active_storage/sfx/2203/2203-preview.mp3", volume: 0.7, category: 'voice' },
-      voice_goodjob: { url: "https://assets.mixkit.co/active_storage/sfx/2/2-preview.mp3", volume: 0.7, category: 'voice' },
+      voice_welcome: { url: "https://assets.mixkit.co/active_storage/sfx/2203/2203-preview.mp3", volume: 0.7, category: 'voice', description: 'Welcome back message' },
+      voice_goodjob: { url: "https://assets.mixkit.co/active_storage/sfx/2/2-preview.mp3", volume: 0.7, category: 'voice', description: 'Positive reinforcement' },
+      voice_streak: { url: "https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3", volume: 0.7, category: 'voice', description: 'Streak milestone celebration' },
+      voice_booster: { url: "https://assets.mixkit.co/active_storage/sfx/1993/1993-preview.mp3", volume: 0.7, category: 'voice', description: 'Booster recommendation' },
     };
 
     // Preload all sounds
@@ -74,11 +95,21 @@ class AudioService {
   // Load a sound into memory
   loadSound(name: string, sound: Sound): void {
     this.sounds.set(name, sound);
+    
+    // Preload audio element to reduce latency on first play
+    const audio = new Audio(sound.url);
+    audio.load();
+    this.audioElements.set(name, audio);
   }
 
   // Add a new sound to the library
-  addSound(name: string, url: string, category: SoundCategory = 'ui', volume: number = 0.5): void {
-    this.loadSound(name, { url, volume, category });
+  addSound(name: string, url: string, category: SoundCategory = 'ui', volume: number = 0.5, options?: Partial<Sound>): void {
+    this.loadSound(name, { 
+      url, 
+      volume, 
+      category,
+      ...options
+    });
   }
 
   // Play a sound by name
@@ -94,9 +125,22 @@ class AudioService {
     // Check if the sound's category is muted
     if (this.categoryMutes[sound.category]) return;
     
-    // Create a clone to allow overlapping sounds
-    const audio = new Audio(sound.url);
-    audio.volume = sound.volume * this.volumes[sound.category]; // Apply both sound-specific and category volume
+    // Check if we have a preloaded audio element
+    let audio = this.audioElements.get(name);
+    
+    // If the audio is currently playing, create a new instance
+    if (audio && !audio.paused) {
+      audio = new Audio(sound.url);
+    } else if (!audio) {
+      // If no audio element exists, create one
+      audio = new Audio(sound.url);
+      this.audioElements.set(name, audio);
+    }
+    
+    // Apply both sound-specific and category volume
+    audio.volume = sound.volume * this.volumes[sound.category]; 
+    
+    // Play the sound
     audio.play().catch(e => console.log("Error playing sound:", e));
   }
 
@@ -104,6 +148,33 @@ class AudioService {
   playPhaseSound(phase: string): void {
     this.currentPhase = phase;
     this.play(phase);
+  }
+
+  // Play a room-specific sound
+  playRoomSound(room: string): void {
+    // If the sound exists for this room, play it
+    if (this.sounds.has(room)) {
+      this.play(room);
+    } else {
+      // Fallback to click sound
+      this.play('click');
+    }
+  }
+
+  // Play a mood-specific sound
+  playMoodSound(mood: string): void {
+    const moodSound = `mood_${mood.toLowerCase()}`;
+    if (this.sounds.has(moodSound)) {
+      this.play(moodSound);
+    }
+  }
+
+  // Play a symptom-specific sound
+  playSymptomSound(symptom: string): void {
+    const symptomSound = `symptom_${symptom.toLowerCase()}`;
+    if (this.sounds.has(symptomSound)) {
+      this.play(symptomSound);
+    }
   }
 
   // Set the current cycle phase
@@ -114,6 +185,31 @@ class AudioService {
   // Get the current cycle phase
   getPhase(): string {
     return this.currentPhase;
+  }
+
+  // Get sounds specific to a phase
+  getPhaseSounds(phase: string): Sound[] {
+    return Array.from(this.sounds.values()).filter(sound => sound.phase === phase);
+  }
+
+  // Get sounds for an emotion
+  getEmotionSounds(emotion: string): Sound[] {
+    return Array.from(this.sounds.values()).filter(sound => sound.emotion === emotion);
+  }
+
+  // Play welcome message specific to the current phase
+  playWelcomeMessage(): void {
+    this.play('voice_welcome');
+    // After a delay, play the current phase sound
+    setTimeout(() => {
+      this.play(this.currentPhase);
+    }, 1000);
+  }
+
+  // Play streak milestone celebration
+  playStreakMilestone(streakCount: number): void {
+    this.play('voice_streak');
+    this.play('bonus');
   }
 
   // Mute/unmute all sounds
@@ -179,4 +275,3 @@ class AudioService {
 
 // Export a singleton instance
 export const audioService = new AudioService();
-

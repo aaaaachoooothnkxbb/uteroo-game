@@ -1,7 +1,6 @@
-
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { audioService } from "@/utils/audioService";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
@@ -78,24 +77,58 @@ export const UterooCharacter = ({
   };
   
   // State for automatic floating hearts
-  const [autoHearts, setAutoHearts] = useState<FloatingHeart[]>([]);
+  const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
+  const [currentMessage, setCurrentMessage] = useState(phaseToMessage[phase]);
+  
+  // Play room-specific sound when character changes rooms
+  useEffect(() => {
+    if (currentRoom) {
+      audioService.playRoomSound(currentRoom);
+    }
+  }, [currentRoom]);
+  
+  // Update message when phase changes
+  useEffect(() => {
+    setCurrentMessage(phaseToMessage[phase]);
+    
+    // Play phase transition sound when phase changes
+    audioService.playPhaseSound(phase);
+  }, [phase]);
   
   // Handle click on character with sound
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     // Play appropriate sound based on phase
     audioService.play('heart');
-    audioService.play(phaseToSound[phase]);
+    
+    // Add a random variation to make the interaction more emotional
+    if (Math.random() > 0.7) {
+      // Occasionally play the voice feedback
+      audioService.play('voice_goodjob');
+    } else {
+      // Otherwise play phase-specific sound
+      audioService.play(phaseToSound[phase]);
+    }
+    
+    // Create a new floating heart
+    const newHeart: FloatingHeart = {
+      id: `heart-${Date.now()}-${Math.random()}`,
+      x: Math.random() * 40 - 20, // Random offset for x position
+      y: -20 - Math.random() * 30, // Start position above character
+      opacity: 1
+    };
+    
+    setFloatingHearts(prev => [...prev, newHeart]);
+    
+    // Remove the heart after animation completes
+    setTimeout(() => {
+      setFloatingHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
+    }, 1500);
     
     if (onClick) {
       onClick();
     }
-  };
+  }, [phase, onClick]);
 
-  // Update audio service with current phase
-  useEffect(() => {
-    audioService.setPhase(phase);
-  }, [phase]);
-  
   if (minimal) {
     // Minimal version without message bubble - just the character
     return (
@@ -111,7 +144,19 @@ export const UterooCharacter = ({
             onClick={handleClick}
           />
           
-          {/* Auto-generated floating hearts - now disabled */}
+          {/* Floating hearts animation */}
+          {floatingHearts.map(heart => (
+            <div
+              key={heart.id}
+              className="absolute pointer-events-none"
+              style={{
+                transform: `translate(${heart.x}px, ${heart.y}px)`,
+                animation: 'float-up 1.5s ease-out forwards'
+              }}
+            >
+              <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -130,7 +175,19 @@ export const UterooCharacter = ({
           onClick={handleClick}
         />
         
-        {/* Auto-generated floating hearts - now disabled */}
+        {/* Floating hearts animation */}
+        {floatingHearts.map(heart => (
+          <div
+            key={heart.id}
+            className="absolute pointer-events-none"
+            style={{
+              transform: `translate(${heart.x}px, ${heart.y}px)`,
+              animation: 'float-up 1.5s ease-out forwards'
+            }}
+          >
+            <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
+          </div>
+        ))}
       </div>
       
       <div className={cn(
@@ -143,7 +200,7 @@ export const UterooCharacter = ({
       )}>
         <div className="flex items-center gap-2 justify-center whitespace-normal">
           <span>{phaseToEmoji[phase]}</span>
-          <span>{phaseToMessage[phase]}</span>
+          <span>{currentMessage}</span>
         </div>
       </div>
     </div>

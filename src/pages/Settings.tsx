@@ -3,11 +3,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Settings as SettingsIcon, Upload, User } from "lucide-react";
+import { ArrowLeft, Settings as SettingsIcon, Upload, User, Volume2, VolumeX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { AudioToggle } from "@/components/AudioToggle";
+import { audioService } from "@/utils/audioService";
+import { Switch } from "@/components/ui/switch";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -17,6 +20,7 @@ const Settings = () => {
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(!audioService.getMuted());
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -60,12 +64,18 @@ const Settings = () => {
     };
 
     fetchUserProfile();
+    
+    // Play a sound when the settings page loads
+    audioService.play('click');
   }, [navigate, toast]);
 
   const handleProfileUpdate = async () => {
     if (!userId) return;
 
     try {
+      // Play a sound when updating profile
+      audioService.play('bonus');
+      
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -107,6 +117,9 @@ const Settings = () => {
         throw new Error('You must select an image to upload.');
       }
 
+      // Play sound when starting upload
+      audioService.play('click');
+
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
       const filePath = `${userId}/${Math.random()}.${fileExt}`;
@@ -133,6 +146,10 @@ const Settings = () => {
       }
 
       setAvatarUrl(publicUrl);
+      
+      // Play success sound after upload completes
+      audioService.play('bonus');
+      
       toast({
         title: "Success!",
         description: "Profile picture updated successfully.",
@@ -149,10 +166,27 @@ const Settings = () => {
     }
   };
 
+  const toggleSoundEnabled = () => {
+    const newState = !soundEnabled;
+    setSoundEnabled(newState);
+    audioService.setMute(!newState);
+    
+    // Play a sound if we're enabling sounds
+    if (newState) {
+      audioService.play('click');
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg p-4 shadow-sm">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+        <Button 
+          variant="ghost" 
+          onClick={() => {
+            audioService.play('click');
+            navigate("/dashboard");
+          }}
+        >
           <ArrowLeft className="mr-2" /> Back to Dashboard
         </Button>
       </header>
@@ -209,7 +243,11 @@ const Settings = () => {
                     <Input
                       id="username"
                       value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={(e) => {
+                        setUsername(e.target.value);
+                        // Play subtle UI sound when typing
+                        if (Math.random() > 0.7) audioService.play('click');
+                      }}
                       placeholder="Enter your username"
                     />
                   </div>
@@ -218,13 +256,48 @@ const Settings = () => {
                     <Input
                       id="fullName"
                       value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
+                      onChange={(e) => {
+                        setFullName(e.target.value);
+                        // Play subtle UI sound when typing
+                        if (Math.random() > 0.7) audioService.play('click');
+                      }}
                       placeholder="Enter your full name"
                     />
                   </div>
-                  <Button onClick={handleProfileUpdate}>
+                  <Button 
+                    onClick={() => {
+                      audioService.play('click');
+                      handleProfileUpdate();
+                    }}
+                  >
                     Save Changes
                   </Button>
+                </div>
+              </div>
+
+              {/* Sound Settings Section */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">Accessibility Settings</h2>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="sound-toggle" className="flex items-center gap-2">
+                      {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                      <span>Sound Effects</span>
+                    </Label>
+                    <Switch 
+                      id="sound-toggle" 
+                      checked={soundEnabled}
+                      onCheckedChange={toggleSoundEnabled}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Sound effects help provide feedback and make the app more accessible.
+                  </p>
+                  
+                  <div className="mt-4">
+                    <AudioToggle />
+                    <span className="ml-2 text-sm">Advanced sound settings</span>
+                  </div>
                 </div>
               </div>
 
@@ -232,16 +305,32 @@ const Settings = () => {
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold">General Settings</h2>
                 <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => audioService.play('click')}
+                  >
                     Notifications
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => audioService.play('click')}
+                  >
                     Privacy
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => audioService.play('click')}
+                  >
                     Account
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => audioService.play('click')}
+                  >
                     Help & Support
                   </Button>
                 </div>
