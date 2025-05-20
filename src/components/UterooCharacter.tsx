@@ -97,16 +97,13 @@ export const UterooCharacter = ({
   
   // Handle click on character with sound
   const handleClick = useCallback(() => {
-    // Play appropriate sound based on phase
-    audioService.play('heart');
+    // Play a cute bubble pop sound instead of the heart sound
+    audioService.play('bubble');
     
     // Add a random variation to make the interaction more emotional
     if (Math.random() > 0.7) {
-      // Occasionally play the voice feedback
+      // Occasionally play the voice feedback with a cute sound
       audioService.play('voice_goodjob');
-    } else {
-      // Otherwise play phase-specific sound
-      audioService.play(phaseToSound[phase]);
     }
     
     // Create a new floating heart

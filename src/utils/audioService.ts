@@ -1,4 +1,3 @@
-
 // Sound service for managing sound effects in the game with phase-awareness and accessibility
 
 type SoundCategory = 'ui' | 'voice' | 'ambient';
@@ -36,6 +35,7 @@ class AudioService {
       click: { url: "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3", volume: 0.4, category: 'ui' },
       boost: { url: "https://assets.mixkit.co/active_storage/sfx/933/933-preview.mp3", volume: 0.5, category: 'ui' },
       heart: { url: "https://assets.mixkit.co/active_storage/sfx/2/2-preview.mp3", volume: 0.5, category: 'ui' },
+      bubble: { url: "https://assets.mixkit.co/active_storage/sfx/2199/2199-preview.mp3", volume: 0.5, category: 'ui', description: 'Cute bubble pop sound' },
       bonus: { url: "https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3", volume: 0.6, category: 'ui' },
       
       // Phase transition sounds - more emotionally matched to each phase
