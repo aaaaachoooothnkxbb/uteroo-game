@@ -32,20 +32,13 @@ const App = () => {
     }
   };
 
-  // Optional: Store a flag in localStorage so the splash only shows on first visit
+  // Always show splash screen on app load, removing the localStorage check
   useEffect(() => {
-    const hasSeenSplash = localStorage.getItem('uteroo_has_seen_splash');
-    if (hasSeenSplash) {
-      setShowSplash(false);
-      
-      // Start ambient background music immediately if splash is skipped
-      if (!audioService.getMuted() && !audioService.getCategoryMuted('ambient') && !audioService.isAmbientBackgroundPlaying()) {
-        audioService.startAmbientBackground('cute_bell');
-      }
-    } else {
-      localStorage.setItem('uteroo_has_seen_splash', 'true');
+    // Start ambient background music immediately if splash is skipped
+    if (!showSplash && !audioService.getMuted() && !audioService.getCategoryMuted('ambient') && !audioService.isAmbientBackgroundPlaying()) {
+      audioService.startAmbientBackground('cute_bell');
     }
-  }, []);
+  }, [showSplash]);
 
   return (
     <QueryClientProvider client={queryClient}>
