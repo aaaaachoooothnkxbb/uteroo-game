@@ -35,6 +35,14 @@ const phaseToMessage = {
   luteal: "Focus on self-care & rest"
 };
 
+// Phase symptoms for thought bubbles
+const phaseToSymptoms = {
+  menstruation: ["I have cramps", "I feel so tired", "My back hurts"],
+  follicular: ["I'm feeling anxious", "I have a headache", "I feel restless"],
+  ovulatory: ["I'm extra sensitive today", "I have a migraine", "I feel bloated"],
+  luteal: ["I'm so irritable", "I feel sad", "I have no energy"]
+};
+
 // Phase to sound mapping for character interactions
 const phaseToSound = {
   menstruation: "menstruation",
@@ -72,14 +80,16 @@ export const UterooCharacter = ({
   
   // Size classes based on the size prop - made larger as requested
   const sizeClasses = {
-    small: "w-36 h-36",
-    medium: "w-44 h-44",
-    large: "w-52 h-52 sm:w-64 sm:h-64"
+    small: "w-40 h-40",
+    medium: "w-52 h-52",
+    large: "w-64 h-64 sm:w-72 sm:h-72"
   };
   
   // State for automatic floating hearts
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
   const [currentMessage, setCurrentMessage] = useState(phaseToMessage[phase]);
+  const [activeSymptom, setActiveSymptom] = useState<string | null>(null);
+  const [showSymptoms, setShowSymptoms] = useState(false);
   
   // Play room-specific sound when character changes rooms
   useEffect(() => {
@@ -95,6 +105,27 @@ export const UterooCharacter = ({
     // Play phase transition sound when phase changes
     audioService.playPhaseSound(phase);
   }, [phase]);
+
+  // Randomly show symptoms occasionally
+  useEffect(() => {
+    const symptoms = phaseToSymptoms[phase];
+    
+    // Set up interval to occasionally show a symptom
+    const symptomInterval = setInterval(() => {
+      if (!showSymptoms && Math.random() > 0.7) {
+        const randomSymptom = symptoms[Math.floor(Math.random() * symptoms.length)];
+        setActiveSymptom(randomSymptom);
+        setShowSymptoms(true);
+        
+        // Hide symptom after a few seconds
+        setTimeout(() => {
+          setShowSymptoms(false);
+        }, 4000);
+      }
+    }, 8000);
+    
+    return () => clearInterval(symptomInterval);
+  }, [phase, showSymptoms]);
   
   // Handle click on character with sound
   const handleClick = useCallback(() => {
@@ -121,6 +152,19 @@ export const UterooCharacter = ({
     setTimeout(() => {
       setFloatingHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
     }, 1500);
+
+    // Show a random symptom when clicked with higher probability
+    const symptoms = phaseToSymptoms[phase];
+    if (Math.random() > 0.3) {
+      const randomSymptom = symptoms[Math.floor(Math.random() * symptoms.length)];
+      setActiveSymptom(randomSymptom);
+      setShowSymptoms(true);
+      
+      // Hide symptom after a few seconds
+      setTimeout(() => {
+        setShowSymptoms(false);
+      }, 4000);
+    }
     
     if (onClick) {
       onClick();
@@ -163,6 +207,30 @@ export const UterooCharacter = ({
   return (
     <div className="flex flex-col items-center">
       <div className="relative">
+        {/* Symptom thought bubble */}
+        {showSymptoms && activeSymptom && (
+          <div className={cn(
+            "absolute z-10 -top-16 -right-8 max-w-[180px] text-sm px-4 py-3 rounded-xl",
+            "bg-white/90 shadow-md backdrop-blur-sm animate-bounce-slow",
+            "before:content-[''] before:absolute before:bottom-0 before:right-6 before:w-4 before:h-4",
+            "before:bg-white/90 before:rotate-45 before:translate-y-2",
+            phase === "menstruation" ? "before:bg-pink-100/90 bg-pink-100/90 text-pink-800" :
+            phase === "follicular" ? "before:bg-green-100/90 bg-green-100/90 text-green-800" :
+            phase === "ovulatory" ? "before:bg-yellow-100/90 bg-yellow-100/90 text-yellow-800" :
+            "before:bg-orange-100/90 bg-orange-100/90 text-orange-800"
+          )}>
+            <div className="flex items-center gap-2">
+              <span role="img" aria-label="Symptom" className="text-lg">
+                {phase === "menstruation" ? "😣" :
+                 phase === "follicular" ? "😰" :
+                 phase === "ovulatory" ? "😵" :
+                 "😤"}
+              </span>
+              <span className="font-medium italic">{activeSymptom}</span>
+            </div>
+          </div>
+        )}
+        
         <img 
           src={characterImage} 
           alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
