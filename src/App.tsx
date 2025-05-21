@@ -15,6 +15,7 @@ import PouGame from "./pages/PouGame";
 import Videos from "./pages/Videos";
 import { SplashScreen } from "./components/SplashScreen";
 import { audioService } from "./utils/audioService";
+import { AuthProvider } from "./components/AuthProvider";
 import "./styles/typewriter.css";
 
 const queryClient = new QueryClient();
@@ -43,28 +44,30 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen w-full flex items-center justify-center bg-white">
-          <div className="w-full h-screen overflow-hidden relative z-10">
-            {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
-            <div className={`h-full overflow-auto transition-opacity duration-500 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/dashboard" element={<Navigate to="/" replace />} />
-                  <Route path="/yoga" element={<YogaGame />} />
-                  <Route path="/recipe" element={<RecipeGame />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/rewards" element={<Rewards />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/pou-game" element={<PouGame />} />
-                  <Route path="/videos" element={<Videos />} />
-                </Routes>
-              </BrowserRouter>
+        <AuthProvider>
+          <div className="min-h-screen w-full flex items-center justify-center bg-white">
+            <div className="w-full h-screen overflow-hidden relative z-10">
+              {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+              <div className={`h-full overflow-auto transition-opacity duration-500 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/dashboard" element={<Navigate to="/" replace />} />
+                    <Route path="/yoga" element={<YogaGame />} />
+                    <Route path="/recipe" element={<RecipeGame />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/rewards" element={<Rewards />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/pou-game" element={<PouGame />} />
+                    <Route path="/videos" element={<Videos />} />
+                  </Routes>
+                </BrowserRouter>
+              </div>
             </div>
           </div>
-        </div>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

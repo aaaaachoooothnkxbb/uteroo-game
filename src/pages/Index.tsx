@@ -11,12 +11,33 @@ import { Provider } from "@supabase/supabase-js";
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState<'google' | 'facebook' | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('Background Image URL:', '/lovable-uploads/a585fafe-c555-4646-816f-5f58fe5c005f.png');
-  }, []);
+    // Check for auth session on page load and handle redirects from OAuth
+    const checkSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (data?.session) {
+        // User is already logged in
+        navigate("/dashboard");
+        toast({
+          title: "Welcome back!",
+          description: "You are already logged in"
+        });
+      }
+
+      // Check if we're handling an OAuth redirect
+      const { data: authData } = await supabase.auth.getUser();
+      if (authData?.user && window.location.hash.includes("access_token")) {
+        navigate("/dashboard");
+      }
+    };
+
+    checkSession();
+  }, [navigate, toast]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
@@ -26,10 +47,15 @@ const Index = () => {
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     try {
       setIsLoading(true);
+      setLoadingProvider(provider);
+      
+      // Get the current URL for proper redirect
+      const redirectTo = `${window.location.origin}/dashboard`;
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider as Provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -44,13 +70,15 @@ const Index = () => {
           title: "Authentication error",
           description: error.message
         });
-      } else if (data) {
-        console.log('Auth successful:', data);
+      } else if (!data.url) {
         toast({
-          title: "Success",
-          description: "Successfully logged in!"
+          variant: "destructive",
+          title: "Authentication error",
+          description: "Failed to initialize login flow"
         });
       }
+      
+      // If we have a URL, we don't need to handle more here since the browser will redirect
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -60,6 +88,7 @@ const Index = () => {
       });
     } finally {
       setIsLoading(false);
+      setLoadingProvider(null);
     }
   };
 
@@ -122,7 +151,11 @@ const Index = () => {
                 onClick={() => handleSocialLogin('google')}
                 disabled={isLoading}
               >
-                <Icons.google className="h-8 w-8" />
+                {loadingProvider === 'google' ? (
+                  <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-gray-800" />
+                ) : (
+                  <Icons.google className="h-8 w-8" />
+                )}
               </Button>
               <Button
                 variant="outline"
@@ -130,7 +163,11 @@ const Index = () => {
                 onClick={() => handleSocialLogin('facebook')}
                 disabled={isLoading}
               >
-                <Icons.facebook className="h-8 w-8" />
+                {loadingProvider === 'facebook' ? (
+                  <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-white" />
+                ) : (
+                  <Icons.facebook className="h-8 w-8" />
+                )}
               </Button>
             </div>
           </div>
