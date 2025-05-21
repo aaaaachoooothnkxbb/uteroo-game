@@ -1,13 +1,13 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { UterooCharacter } from '@/components/UterooCharacter';
 import { Room } from '@/components/Room';
-import { Item } from '@/components/Item';
+import { Item, ItemType } from '@/components/Item';
 import { Modal } from '@/components/Modal';
-import { Heart } from 'lucide-react';
+import { Heart, Apple, Droplet, BatteryFull, Coins as CoinsIcon } from 'lucide-react';
 import { audioService } from '@/utils/audioService';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
+import { Progress } from "@/components/ui/progress";
 
 // Define types for stats and items
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
@@ -266,6 +266,7 @@ const PouGame = () => {
           </h3>
           <div className="flex items-center gap-2">
             <div className="flex items-center bg-yellow-100/70 px-2 py-0.5 rounded-full">
+              <CoinsIcon className="h-3.5 w-3.5 text-yellow-500 mr-1" />
               <span className="text-xs font-medium text-yellow-800">{stats.coins || 0}</span>
             </div>
             
@@ -280,7 +281,33 @@ const PouGame = () => {
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs">Hunger</span>
+              <Apple className="h-3.5 w-3.5 text-red-500" />
             </div>
+            <Progress value={stats.hunger} className="h-2 mb-2" indicatorClassName={getProgressColor(stats.hunger)} />
+          </div>
+          
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs">Hygiene</span>
+              <Droplet className="h-3.5 w-3.5 text-blue-500" />
+            </div>
+            <Progress value={stats.hygiene} className="h-2 mb-2" indicatorClassName={getProgressColor(stats.hygiene)} />
+          </div>
+          
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs">Energy</span>
+              <BatteryFull className="h-3.5 w-3.5 text-green-500" />
+            </div>
+            <Progress value={stats.energy} className="h-2 mb-2" indicatorClassName={getProgressColor(stats.energy)} />
+          </div>
+          
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs">Happiness</span>
+              <Heart className="h-3.5 w-3.5 text-pink-500" />
+            </div>
+            <Progress value={stats.happiness} className="h-2 mb-2" indicatorClassName={getProgressColor(stats.happiness)} />
           </div>
         </div>
       </div>
