@@ -240,6 +240,7 @@ const phaseInfo = {
   }
 };
 
+// Updated rooms array with new shop room background
 const rooms = [
   { 
     id: "bedroom", 
@@ -295,6 +296,244 @@ const rooms = [
     icon: Calendar,
     background: "/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png"
   },
+];
+
+// Define shop categories
+const shopCategories = [
+  {
+    id: "hormone_helpers",
+    name: "Hormone Helpers",
+    emoji: "🌿",
+    color: "bg-[#F2FCE2]", // Sage Green
+    textColor: "text-green-800",
+    borderColor: "border-green-300",
+    description: "Natural supplements for your cycle"
+  },
+  {
+    id: "period_underwear",
+    name: "Period Underwear",
+    emoji: "🩲",
+    color: "bg-[#FFDEE2]", // Dusty Pink
+    textColor: "text-pink-800",
+    borderColor: "border-pink-300",
+    description: "Comfortable & sustainable protection"
+  },
+  {
+    id: "cycle_selfcare",
+    name: "Cycle Self-Care",
+    emoji: "💆‍♀️",
+    color: "bg-[#E5DEFF]", // Lavender
+    textColor: "text-purple-800",
+    borderColor: "border-purple-300",
+    description: "Phase-specific wellness rituals"
+  },
+  {
+    id: "sleep_stress",
+    name: "Sleep & Stress",
+    emoji: "🛏️",
+    color: "bg-[#D3E4FD]", // Soft Blue
+    textColor: "text-blue-800",
+    borderColor: "border-blue-300",
+    description: "Rest & relaxation essentials"
+  },
+  {
+    id: "eco_essentials",
+    name: "Eco Essentials",
+    emoji: "💧",
+    color: "bg-[#F2FCE2]", // Seafoam
+    textColor: "text-emerald-800",
+    borderColor: "border-emerald-300",
+    description: "Sustainable period products"
+  }
+];
+
+// Shop items by category
+const shopItems = {
+  hormone_helpers: [
+    {
+      id: "flo_vitamins",
+      name: "FLO PMS Gummy Vitamins",
+      brand: "FLO",
+      price: 29.99,
+      description: "Cycle-synced gummies for PMS relief with Chasteberry & Vitamin B6",
+      bestForPhase: "luteal",
+      image: "/lovable-uploads/c5a3a3fe-1f7c-43fd-af31-47b307feb425.png",
+      rating: 4.8,
+      reviews: 487,
+      boost: 30,
+      type: "energy" as const,
+      communityProof: "92% of users reported reduced bloating"
+    },
+    {
+      id: "rae_mood",
+      name: "Hormone Balance Capsules",
+      brand: "Rae Wellness",
+      price: 19.99,
+      description: "Adaptogenic blend to support hormone regulation & mood balance",
+      bestForPhase: "all",
+      image: "/lovable-uploads/79e01f75-20fb-4814-a2d3-219a420a385b.png",
+      rating: 4.5,
+      reviews: 312,
+      boost: 25,
+      type: "happiness" as const,
+      communityProof: "78% felt more emotionally stable within 30 days"
+    }
+  ],
+  period_underwear: [
+    {
+      id: "thinx_briefs",
+      name: "Super Absorbent Period Underwear",
+      brand: "Thinx",
+      price: 34.99,
+      description: "Holds up to 5 tampons worth & keeps you dry all day",
+      bestForPhase: "menstruation",
+      image: "/lovable-uploads/8e841183-dbb4-442b-a052-1e662e6b5e62.png",
+      rating: 4.9,
+      reviews: 1243,
+      boost: 35,
+      type: "hygiene" as const,
+      communityProof: "95% of users switched from disposable products"
+    },
+    {
+      id: "ruby_love_sleep",
+      name: "Overnight Sleep Shorts",
+      brand: "Ruby Love",
+      price: 39.99,
+      description: "Leakproof protection for heavy flow nights with built-in absorbent gusset",
+      bestForPhase: "menstruation",
+      image: "/lovable-uploads/8e841183-dbb4-442b-a052-1e662e6b5e62.png",
+      rating: 4.7,
+      reviews: 892,
+      boost: 30,
+      type: "hygiene" as const,
+      communityProof: "9 out of 10 users report better sleep during periods"
+    }
+  ],
+  cycle_selfcare: [
+    {
+      id: "delune_tincture",
+      name: "Cramp Relief Tincture",
+      brand: "De Lune",
+      price: 32.00,
+      description: "Anti-inflammatory herbal blend with ginger & cramp bark",
+      bestForPhase: "menstruation",
+      image: "/lovable-uploads/861f1be0-201e-4269-be4e-3b74dbb8e136.png",
+      rating: 4.6,
+      reviews: 758,
+      boost: 35,
+      type: "energy" as const,
+      communityProof: "85% reported decreased pain within 30 minutes"
+    },
+    {
+      id: "moon_juice_dusts",
+      name: "Power Dust Adaptogen Blend",
+      brand: "Moon Juice",
+      price: 42.00,
+      description: "Energy-boosting adaptogenic herbs for follicular phase power",
+      bestForPhase: "follicular",
+      image: "/lovable-uploads/c00b6791-8007-435f-a0fd-63104a0d898b.png",
+      rating: 4.4,
+      reviews: 632,
+      boost: 25,
+      type: "energy" as const,
+      communityProof: "3x energy lift reported by users in follicular phase"
+    }
+  ],
+  sleep_stress: [
+    {
+      id: "opositiv_calm",
+      name: "Magnesium Sleep Blend",
+      brand: "Opositiv",
+      price: 27.99,
+      description: "Stress-reducing magnesium & L-theanine blend for deep sleep",
+      bestForPhase: "luteal",
+      image: "/lovable-uploads/3f7be505-d8c4-43e8-b44e-92332022c3f1.png",
+      rating: 4.7,
+      reviews: 891,
+      boost: 30,
+      type: "happiness" as const,
+      communityProof: "89% of users report falling asleep faster"
+    },
+    {
+      id: "ritual_stress",
+      name: "Luteal Phase Calm Capsules",
+      brand: "Ritual",
+      price: 35.00,
+      description: "Ashwagandha & B vitamin blend to reduce premenstrual anxiety",
+      bestForPhase: "luteal",
+      image: "/lovable-uploads/db737ae2-ab52-4d61-af92-95a81616243d.png",
+      rating: 4.6,
+      reviews: 745,
+      boost: 25,
+      type: "happiness" as const,
+      communityProof: "77% felt less irritable during PMS week"
+    }
+  ],
+  eco_essentials: [
+    {
+      id: "saalt_cup",
+      name: "Reusable Menstrual Cup",
+      brand: "Saalt",
+      price: 29.00,
+      description: "Medical-grade silicone cup with 12-hour protection",
+      bestForPhase: "menstruation",
+      image: "/lovable-uploads/8e841183-dbb4-442b-a052-1e662e6b5e62.png",
+      rating: 4.8,
+      reviews: 2154,
+      boost: 40,
+      type: "hygiene" as const,
+      communityProof: "Over 98% would never go back to disposables"
+    },
+    {
+      id: "daye_cbd_tampons",
+      name: "CBD-Infused Organic Tampons",
+      brand: "Daye",
+      price: 24.00,
+      description: "Lab-tested organic cotton with pain-relieving CBD core",
+      bestForPhase: "menstruation",
+      image: "/lovable-uploads/8e841183-dbb4-442b-a052-1e662e6b5e62.png",
+      rating: 4.9,
+      reviews: 876,
+      boost: 30,
+      type: "hygiene" as const,
+      communityProof: "86% experienced reduced cramp intensity"
+    }
+  ]
+};
+
+// Quiz questions for product matching
+const quizQuestions = [
+  {
+    id: "symptom",
+    question: "What's your most bothersome symptom?",
+    options: [
+      { id: "cramps", label: "Cramps & pain" },
+      { id: "mood", label: "Mood swings" },
+      { id: "fatigue", label: "Low energy/fatigue" },
+      { id: "sleep", label: "Sleep issues" },
+      { id: "bloating", label: "Bloating" }
+    ]
+  },
+  {
+    id: "phase",
+    question: "Which phase do you struggle with most?",
+    options: [
+      { id: "menstruation", label: "Menstruation" },
+      { id: "follicular", label: "Follicular" },
+      { id: "ovulatory", label: "Ovulatory" },
+      { id: "luteal", label: "Luteal (PMS)" }
+    ]
+  },
+  {
+    id: "priority",
+    question: "What's most important to you?",
+    options: [
+      { id: "natural", label: "All-natural ingredients" },
+      { id: "eco", label: "Eco-friendly" },
+      { id: "science", label: "Science-backed" },
+      { id: "fast", label: "Fast-acting" }
+    ]
+  }
 ];
 
 const roomBoosters = {
@@ -426,43 +665,8 @@ const roomBoosters = {
       }
     }
   ],
-  shop: [
-    {
-      id: "energy_potion",
-      name: "Energy Potion",
-      type: "energy" as const,
-      icon: "/lovable-uploads/c5a3a3fe-1f7c-43fd-af31-47b307feb425.png",
-      boost: 30,
-      cost: 50,
-      tooltip: {
-        title: "Impulso energético",
-        description: "La fatiga durante la menstruación se debe a la pérdida de hierro. Los suplementos naturales pueden ayudar a reponer tus niveles de energía."
-      }
-    },
-    {
-      id: "happiness_crystal",
-      name: "Happiness Crystal",
-      type: "happiness" as const,
-      icon: "/lovable-uploads/79e01f75-20fb-4814-a2d3-219a420a385b.png",
-      boost: 25,
-      cost: 40,
-      tooltip: {
-        description: "Los cambios de humor pueden ser causados por fluctuaciones en los niveles de serotonina durante tu ciclo. Ciertas actividades pueden ayudar a estabilizarla."
-      }
-    },
-    {
-      id: "hygiene_kit",
-      name: "Hygiene Kit",
-      type: "hygiene" as const,
-      icon: "/lovable-uploads/8e841183-dbb4-442b-a052-1e662e6b5e62.png",
-      boost: 35,
-      cost: 45,
-      tooltip: {
-        title: "Cuidado íntimo",
-        description: "El pH vaginal cambia durante tu ciclo. Es importante usar productos suaves y naturales, especialmente durante la menstruación."
-      }
-    }
-  ],
+  // The shop room boosters have been removed as we're replacing the entire shop experience
+  shop: [],
   lab: [
     {
       id: "bloodwork",
@@ -519,6 +723,16 @@ const PouGame = () => {
   const [lastClickTime, setLastClickTime] = useState(0);
   const [showHeartBonus, setShowHeartBonus] = useState(false);
   const [lastStreakUpdateTime, setLastStreakUpdateTime] = useState(0);
+  
+  // New shop-related state
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [flippedCards, setFlippedCards] = useState<string[]>([]);
+  const [quickAddAnimation, setQuickAddAnimation] = useState<string | null>(null);
+  const [showFindMyMatchQuiz, setShowFindMyMatchQuiz] = useState(false);
+  const [quizResults, setQuizResults] = useState<any | null>(null);
+  const [quizStep, setQuizStep] = useState(0);
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
+  const [showShopEmptyState, setShowShopEmptyState] = useState(true);
   
   // Log the initial phase when component mounts
   useEffect(() => {
@@ -703,11 +917,23 @@ const PouGame = () => {
   const handleNextRoom = () => {
     audioService.play('click');
     setCurrentRoomIndex((prev) => (prev === rooms.length - 1 ? 0 : prev + 1));
+    // Reset shop state when navigating away from shop
+    if (rooms[currentRoomIndex].id === 'shop') {
+      setSelectedCategory(null);
+      setFlippedCards([]);
+      setShowShopEmptyState(true);
+    }
   };
 
   const handlePreviousRoom = () => {
     audioService.play('click');
     setCurrentRoomIndex((prev) => (prev === 0 ? rooms.length - 1 : prev - 1));
+    // Reset shop state when navigating away from shop
+    if (rooms[currentRoomIndex].id === 'shop') {
+      setSelectedCategory(null);
+      setFlippedCards([]);
+      setShowShopEmptyState(true);
+    }
   };
 
   const handlePhaseChange = (newPhase: Phase) => {
@@ -722,6 +948,188 @@ const PouGame = () => {
   const currentRoom = rooms[currentRoomIndex];
   const RoomIcon = currentRoom.icon;
   const currentRoomBoosters = roomBoosters[currentRoom.id as keyof typeof roomBoosters] || [];
+
+  // Handle card flip animation in shop
+  const handleCardFlip = (itemId: string) => {
+    audioService.play('click');
+    setFlippedCards(prev => {
+      if (prev.includes(itemId)) {
+        return prev.filter(id => id !== itemId);
+      } else {
+        return [...prev, itemId];
+      }
+    });
+  };
+
+  // Handle quick add animation and purchase
+  const handleQuickAdd = (item: any) => {
+    // Check if user has enough coins
+    if (stats.coins < item.price) {
+      audioService.play('click'); // Error sound
+      toast({
+        title: "Not enough coins!",
+        description: `You need ${item.price} coins to purchase ${item.name}`,
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Purchase success
+    audioService.play('bonus'); // "cha-ching" sound
+    setStats(prev => ({
+      ...prev,
+      coins: prev.coins - item.price,
+      [item.type]: Math.min(100, prev[item.type as keyof typeof prev] + item.boost)
+    }));
+
+    // Show animation
+    setQuickAddAnimation(item.id);
+    setTimeout(() => setQuickAddAnimation(null), 1000);
+
+    // Show success toast
+    toast({
+      title: `Purchased ${item.name}!`,
+      description: `+${item.boost} ${item.type} points! Supporting female founders 💪`,
+      duration: 3000,
+    });
+
+    // Update streak
+    updateStreak();
+
+    // Check for rewards
+    if (stats.coins >= 50) {
+      toast({
+        title: "Achievement Unlocked!",
+        description: "You've earned the 'Wellness Explorer' badge for supporting hormone wellness!",
+        duration: 5000,
+      });
+    }
+  };
+
+  // Handle category selection in shop
+  const handleCategorySelect = (categoryId: string) => {
+    audioService.play('click');
+    setSelectedCategory(categoryId);
+    setShowShopEmptyState(false);
+    
+    // When a category is selected, show a helpful toast
+    const category = shopCategories.find(cat => cat.id === categoryId);
+    if (category) {
+      toast({
+        title: `${category.emoji} ${category.name}`,
+        description: category.description,
+        duration: 3000,
+      });
+    }
+  };
+
+  // Handle quiz selection and results
+  const handleQuizAnswer = (questionId: string, answerId: string) => {
+    audioService.play('click');
+    setQuizAnswers(prev => ({
+      ...prev,
+      [questionId]: answerId
+    }));
+    
+    // Move to next question or show results
+    if (quizStep < quizQuestions.length - 1) {
+      setQuizStep(prev => prev + 1);
+    } else {
+      // Calculate quiz results based on answers
+      const recommendations = getQuizRecommendations(quizAnswers);
+      setQuizResults(recommendations);
+      
+      // Play success sound
+      audioService.play('bonus');
+      
+      toast({
+        title: "Your personalized recommendations!",
+        description: "Based on your answers, we've found your perfect hormone helpers!",
+        duration: 4000,
+      });
+    }
+  };
+
+  // Function to get quiz recommendations
+  const getQuizRecommendations = (answers: Record<string, string>) => {
+    // Simplified matching algorithm - would be more sophisticated in real app
+    const symptom = answers.symptom;
+    const phase = answers.phase;
+    const priority = answers.priority;
+    
+    let bestMatches: any[] = [];
+    
+    // Combine all products
+    let allProducts = [
+      ...shopItems.hormone_helpers,
+      ...shopItems.period_underwear,
+      ...shopItems.cycle_selfcare,
+      ...shopItems.sleep_stress,
+      ...shopItems.eco_essentials
+    ];
+    
+    // Filter by symptom
+    if (symptom === 'cramps') {
+      bestMatches = allProducts.filter(p => 
+        p.description.toLowerCase().includes('cramp') || 
+        p.description.toLowerCase().includes('pain')
+      );
+    } else if (symptom === 'mood') {
+      bestMatches = allProducts.filter(p => 
+        p.description.toLowerCase().includes('mood') || 
+        p.description.toLowerCase().includes('anxiety')
+      );
+    } else if (symptom === 'fatigue') {
+      bestMatches = allProducts.filter(p => 
+        p.description.toLowerCase().includes('energy') || 
+        p.description.toLowerCase().includes('fatigue')
+      );
+    } else if (symptom === 'sleep') {
+      bestMatches = allProducts.filter(p => 
+        p.description.toLowerCase().includes('sleep')
+      );
+    } else if (symptom === 'bloating') {
+      bestMatches = allProducts.filter(p => 
+        p.description.toLowerCase().includes('bloat')
+      );
+    }
+    
+    // If no matches by symptom, match by phase
+    if (bestMatches.length === 0) {
+      bestMatches = allProducts.filter(p => p.bestForPhase === phase);
+    }
+    
+    // If still no matches, return top rated items
+    if (bestMatches.length === 0) {
+      bestMatches = allProducts.sort((a, b) => b.rating - a.rating).slice(0, 2);
+    }
+    
+    // Sort by match percentage (simplified calculation)
+    return bestMatches.map(product => {
+      // Calculate match percentage based on how well it matches criteria
+      let matchPercentage = 70; // Base percentage
+      
+      if (product.bestForPhase === phase) matchPercentage += 15;
+      if (product.description.toLowerCase().includes(symptom)) matchPercentage += 10;
+      if (priority === 'eco' && product.description.toLowerCase().includes('organic')) matchPercentage += 5;
+      if (priority === 'natural' && product.description.toLowerCase().includes('natural')) matchPercentage += 5;
+      if (priority === 'science' && product.description.toLowerCase().includes('lab')) matchPercentage += 5;
+      
+      return {
+        ...product,
+        matchPercentage: Math.min(98, matchPercentage) // Cap at 98%
+      };
+    }).sort((a, b) => b.matchPercentage - a.matchPercentage);
+  };
+
+  // Reset quiz
+  const handleResetQuiz = () => {
+    setQuizStep(0);
+    setQuizAnswers({});
+    setQuizResults(null);
+    setShowFindMyMatchQuiz(false);
+  };
 
   const handleBoosterClick = (booster: any) => {
     // Play sound effect based on booster type
@@ -1339,64 +1747,71 @@ const PouGame = () => {
             </div>
             
             {/* Symptoms section */}
-            {renderSymptomCards()}
+            {currentRoom.id !== 'shop' && renderSymptomCards()}
             
-            {/* Continue streak button */}
-            <Button 
-              className={cn(
-                "w-full mb-4 border-0 bg-gradient-to-r text-sm",
-                currentPhase === "menstruation" ? "from-pink-500 to-pink-400" :
-                currentPhase === "follicular" ? "from-green-500 to-green-400" :
-                currentPhase === "ovulatory" ? "from-yellow-500 to-yellow-400" :
-                "from-orange-500 to-orange-400"
-              )}
-              onClick={() => {
-                audioService.play('bonus');
-                updateStreak();
-              }}
-            >
-              <Flame className="h-4 w-4 mr-1" />
-              <span>🔥 {streak}-Day Streak • Continue (+10 pts)</span>
-            </Button>
+            {/* Continue streak button - hide in shop room */}
+            {currentRoom.id !== 'shop' && (
+              <Button 
+                className={cn(
+                  "w-full mb-4 border-0 bg-gradient-to-r text-sm",
+                  currentPhase === "menstruation" ? "from-pink-500 to-pink-400" :
+                  currentPhase === "follicular" ? "from-green-500 to-green-400" :
+                  currentPhase === "ovulatory" ? "from-yellow-500 to-yellow-400" :
+                  "from-orange-500 to-orange-400"
+                )}
+                onClick={() => {
+                  audioService.play('bonus');
+                  updateStreak();
+                }}
+              >
+                <Flame className="h-4 w-4 mr-1" />
+                <span>🔥 {streak}-Day Streak • Continue (+10 pts)</span>
+              </Button>
+            )}
             
-            {/* Science boosters */}
-            {renderScienceBoosters()}
+            {/* Render shop room interface */}
+            {renderShopRoom()}
             
-            {/* Regular boosters */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-sm">Boosters</h3>
-                <div className="text-xs px-2 py-0.5 backdrop-blur-sm rounded-full">
-                  Tap to use
+            {/* Science boosters - hide in shop room */}
+            {currentRoom.id !== 'shop' && renderScienceBoosters()}
+            
+            {/* Regular boosters - hide in shop room */}
+            {currentRoom.id !== 'shop' && currentRoomBoosters.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-sm">Boosters</h3>
+                  <div className="text-xs px-2 py-0.5 backdrop-blur-sm rounded-full">
+                    Tap to use
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-xl">
+                  {currentRoomBoosters.map((booster) => (
+                    booster.isPhaseRecipe ? (
+                      <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
+                    ) : (
+                      <div 
+                        key={booster.id}
+                        onClick={() => handleBoosterClick(booster)}
+                        className="flex flex-col items-center p-2 rounded-lg cursor-pointer transition-shadow"
+                      >
+                        <img 
+                          src={booster.icon} 
+                          alt={booster.name}
+                          className="w-10 h-10 object-contain mb-1 animate-pulse-slow"
+                        />
+                        <span className="text-xs font-medium text-center">{booster.name}</span>
+                        {booster.cost && (
+                          <div className="flex items-center gap-1 mt-1 text-2xs bg-yellow-100 px-1.5 py-0.5 rounded-full">
+                            <CoinsIcon className="h-3 w-3 text-yellow-500" />
+                            <span>{booster.cost}</span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-xl">
-                {currentRoomBoosters.map((booster) => (
-                  booster.isPhaseRecipe ? (
-                    <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
-                  ) : (
-                    <div 
-                      key={booster.id}
-                      onClick={() => handleBoosterClick(booster)}
-                      className="flex flex-col items-center p-2 rounded-lg cursor-pointer transition-shadow"
-                    >
-                      <img 
-                        src={booster.icon} 
-                        alt={booster.name}
-                        className="w-10 h-10 object-contain mb-1 animate-pulse-slow"
-                      />
-                      <span className="text-xs font-medium text-center">{booster.name}</span>
-                      {booster.cost && (
-                        <div className="flex items-center gap-1 mt-1 text-2xs bg-yellow-100 px-1.5 py-0.5 rounded-full">
-                          <CoinsIcon className="h-3 w-3 text-yellow-500" />
-                          <span>{booster.cost}</span>
-                        </div>
-                      )}
-                    </div>
-                  )
-                ))}
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -1452,6 +1867,50 @@ const PouGame = () => {
           />
         )}
       </div>
+      
+      {/* Add custom keyframe animations for shop interactions */}
+      <style jsx global>{`
+        @keyframes rotate-y-180 {
+          0% { transform: rotateY(0deg); }
+          100% { transform: rotateY(180deg); }
+        }
+        
+        @keyframes rotate-y-0 {
+          0% { transform: rotateY(180deg); }
+          100% { transform: rotateY(0deg); }
+        }
+        
+        @keyframes float-up {
+          0% { transform: translateY(0); opacity: 1; }
+          100% { transform: translateY(-50px); opacity: 0; }
+        }
+        
+        @keyframes bounce-once {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse-slow {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+        
+        .rotate-y-0 {
+          transform: rotateY(0deg);
+        }
+        
+        .animate-bounce-once {
+          animation: bounce-once 0.6s ease-in-out;
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse-slow 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };
