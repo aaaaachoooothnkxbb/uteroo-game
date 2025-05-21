@@ -1,3 +1,4 @@
+
 // Sound service for managing sound effects in the game with phase-awareness and accessibility
 
 type SoundCategory = 'ui' | 'voice' | 'ambient';
@@ -9,6 +10,7 @@ interface Sound {
   description?: string;
   phase?: string; // Associate sounds with specific cycle phases
   emotion?: string; // Associate sounds with specific emotions
+  loopable?: boolean; // Whether the sound can be looped
 }
 
 class AudioService {
@@ -26,6 +28,12 @@ class AudioService {
   };
   private currentPhase: string = 'menstruation';
   private audioElements: Map<string, HTMLAudioElement> = new Map();
+  
+  // Background ambient music properties
+  private ambientBackgroundAudio: HTMLAudioElement | null = null;
+  private currentAmbientSound: string | null = null;
+  private isAmbientPlaying: boolean = false;
+  private defaultAmbientSound: string = 'cute_bell';
 
   // Initialize with default game sounds
   constructor() {
@@ -40,7 +48,7 @@ class AudioService {
       bubble: { url: "https://assets.mixkit.co/active_storage/sfx/2199/2199-preview.mp3", volume: 0.5, category: 'ui', description: 'Cute bubble pop sound' },
       cute_bubble: { url: "https://assets.mixkit.co/active_storage/sfx/990/990-preview.mp3", volume: 0.4, category: 'ui', description: 'Cute cartoon jump sound' },
       toy_squeak: { url: "https://assets.mixkit.co/active_storage/sfx/3176/3176-preview.mp3", volume: 0.4, category: 'ui', description: 'Cute toy squeak sound' },
-      cute_bell: { url: "https://assets.mixkit.co/active_storage/sfx/2310/2310-preview.mp3", volume: 0.4, category: 'ui', description: 'Cute bell notification sound' }, 
+      cute_bell: { url: "https://assets.mixkit.co/active_storage/sfx/2310/2310-preview.mp3", volume: 0.4, category: 'ambient', description: 'Cute bell notification sound', loopable: true }, 
       magic_sparkle: { url: "https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3", volume: 0.4, category: 'ui', description: 'Magical sparkle sound' },
       game_reward: { url: "https://assets.mixkit.co/active_storage/sfx/2307/2307-preview.mp3", volume: 0.4, category: 'ui', description: 'Game reward sound like Duolingo' },
       
@@ -48,15 +56,15 @@ class AudioService {
       
       // Phase transition sounds - more emotionally matched to each phase
       levelup: { url: "https://assets.mixkit.co/active_storage/sfx/1993/1993-preview.mp3", volume: 0.5, category: 'ambient' },
-      menstruation: { url: "https://assets.mixkit.co/active_storage/sfx/209/209-preview.mp3", volume: 0.4, category: 'ambient', phase: 'menstruation', description: 'Deep gong for menstruation phase' },
-      follicular: { url: "https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3", volume: 0.4, category: 'ambient', phase: 'follicular', description: 'Rising, energetic tone for follicular phase' },
-      ovulatory: { url: "https://assets.mixkit.co/active_storage/sfx/220/220-preview.mp3", volume: 0.4, category: 'ambient', phase: 'ovulatory', description: 'Wind chimes for ovulatory phase' },
-      luteal: { url: "https://assets.mixkit.co/active_storage/sfx/211/211-preview.mp3", volume: 0.4, category: 'ambient', phase: 'luteal', description: 'Gentle decrease for luteal phase' },
+      menstruation: { url: "https://assets.mixkit.co/active_storage/sfx/209/209-preview.mp3", volume: 0.4, category: 'ambient', phase: 'menstruation', description: 'Deep gong for menstruation phase', loopable: true },
+      follicular: { url: "https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3", volume: 0.4, category: 'ambient', phase: 'follicular', description: 'Rising, energetic tone for follicular phase', loopable: true },
+      ovulatory: { url: "https://assets.mixkit.co/active_storage/sfx/220/220-preview.mp3", volume: 0.4, category: 'ambient', phase: 'ovulatory', description: 'Wind chimes for ovulatory phase', loopable: true },
+      luteal: { url: "https://assets.mixkit.co/active_storage/sfx/211/211-preview.mp3", volume: 0.4, category: 'ambient', phase: 'luteal', description: 'Gentle decrease for luteal phase', loopable: true },
       
       // Healing/Self-care sounds
       water: { url: "https://assets.mixkit.co/active_storage/sfx/1349/1349-preview.mp3", volume: 0.5, category: 'ui', description: 'Water droplet sound for hydration' },
-      fire: { url: "https://assets.mixkit.co/active_storage/sfx/239/239-preview.mp3", volume: 0.3, category: 'ambient', description: 'Crackling fire for heating pad', phase: 'menstruation' },
-      yoga: { url: "https://assets.mixkit.co/active_storage/sfx/2448/2448-preview.mp3", volume: 0.3, category: 'ambient' },
+      fire: { url: "https://assets.mixkit.co/active_storage/sfx/239/239-preview.mp3", volume: 0.3, category: 'ambient', description: 'Crackling fire for heating pad', phase: 'menstruation', loopable: true },
+      yoga: { url: "https://assets.mixkit.co/active_storage/sfx/2448/2448-preview.mp3", volume: 0.3, category: 'ambient', loopable: true },
       
       // Room-specific sounds
       bedroom: { url: "https://assets.mixkit.co/active_storage/sfx/2301/2301-preview.mp3", volume: 0.3, category: 'ui', description: 'Soft bedroom sound' },
@@ -94,6 +102,7 @@ class AudioService {
         this.isMuted = settings.isMuted ?? false;
         this.categoryMutes = settings.categoryMutes ?? this.categoryMutes;
         this.volumes = settings.volumes ?? this.volumes;
+        this.currentAmbientSound = settings.currentAmbientSound ?? this.defaultAmbientSound;
       }
     } catch (e) {
       console.warn('Could not restore sound settings:', e);
@@ -150,6 +159,97 @@ class AudioService {
     
     // Play the sound
     audio.play().catch(e => console.log("Error playing sound:", e));
+  }
+
+  // Start playing ambient background music
+  startAmbientBackground(soundName: string = this.defaultAmbientSound): void {
+    // Don't start if already playing the same sound
+    if (this.isAmbientPlaying && this.currentAmbientSound === soundName) return;
+    
+    // Check if sound exists and is loopable
+    const sound = this.sounds.get(soundName);
+    if (!sound || !sound.loopable) {
+      console.warn(`Sound "${soundName}" not found or not loopable`);
+      return;
+    }
+
+    // Stop current ambient sound if playing
+    this.stopAmbientBackground(true);
+
+    // Create new audio element for the ambient background
+    this.ambientBackgroundAudio = new Audio(sound.url);
+    
+    // Set looping
+    this.ambientBackgroundAudio.loop = true;
+    
+    // Apply volume settings
+    const calculatedVolume = Math.min(sound.volume * this.volumes[sound.category], 0.3);
+    this.ambientBackgroundAudio.volume = calculatedVolume;
+
+    // Play only if not muted
+    if (!this.isMuted && !this.categoryMutes.ambient) {
+      this.ambientBackgroundAudio.play()
+        .catch(e => console.log("Error playing ambient sound:", e));
+      this.isAmbientPlaying = true;
+    }
+    
+    this.currentAmbientSound = soundName;
+    this.saveSettings();
+  }
+
+  // Stop ambient background music
+  stopAmbientBackground(immediate: boolean = false): void {
+    if (!this.ambientBackgroundAudio) return;
+    
+    if (immediate) {
+      this.ambientBackgroundAudio.pause();
+      this.ambientBackgroundAudio = null;
+      this.isAmbientPlaying = false;
+    } else {
+      // Fade out
+      const fadeOutInterval = setInterval(() => {
+        if (this.ambientBackgroundAudio) {
+          if (this.ambientBackgroundAudio.volume > 0.05) {
+            this.ambientBackgroundAudio.volume -= 0.05;
+          } else {
+            this.ambientBackgroundAudio.pause();
+            this.ambientBackgroundAudio = null;
+            this.isAmbientPlaying = false;
+            clearInterval(fadeOutInterval);
+          }
+        } else {
+          clearInterval(fadeOutInterval);
+        }
+      }, 100);
+    }
+  }
+
+  // Get current ambient sound name
+  getCurrentAmbientSound(): string | null {
+    return this.currentAmbientSound;
+  }
+  
+  // Check if ambient sound is playing
+  isAmbientBackgroundPlaying(): boolean {
+    return this.isAmbientPlaying;
+  }
+  
+  // Get loopable ambient sounds
+  getLoopableAmbientSounds(): string[] {
+    return Array.from(this.sounds.entries())
+      .filter(([_, sound]) => sound.loopable && sound.category === 'ambient')
+      .map(([name]) => name);
+  }
+
+  // Update ambient volume based on current settings
+  updateAmbientVolume(): void {
+    if (!this.ambientBackgroundAudio || !this.currentAmbientSound) return;
+    
+    const sound = this.sounds.get(this.currentAmbientSound);
+    if (!sound) return;
+    
+    const calculatedVolume = Math.min(sound.volume * this.volumes.ambient, 0.3);
+    this.ambientBackgroundAudio.volume = calculatedVolume;
   }
 
   // Play a phase-specific sound
@@ -223,13 +323,38 @@ class AudioService {
   // Mute/unmute all sounds
   toggleMute(): boolean {
     this.isMuted = !this.isMuted;
+    
+    // Update ambient background if it exists
+    if (this.ambientBackgroundAudio) {
+      if (this.isMuted) {
+        this.ambientBackgroundAudio.pause();
+        this.isAmbientPlaying = false;
+      } else if (!this.categoryMutes.ambient && this.currentAmbientSound) {
+        this.ambientBackgroundAudio.play().catch(e => console.log("Error playing ambient sound:", e));
+        this.isAmbientPlaying = true;
+      }
+    }
+    
     this.saveSettings();
     return this.isMuted;
   }
 
   // Set mute state explicitly
   setMute(muted: boolean): void {
+    if (this.isMuted === muted) return;
     this.isMuted = muted;
+    
+    // Update ambient background if it exists
+    if (this.ambientBackgroundAudio) {
+      if (this.isMuted) {
+        this.ambientBackgroundAudio.pause();
+        this.isAmbientPlaying = false;
+      } else if (!this.categoryMutes.ambient && this.currentAmbientSound) {
+        this.ambientBackgroundAudio.play().catch(e => console.log("Error playing ambient sound:", e));
+        this.isAmbientPlaying = true;
+      }
+    }
+    
     this.saveSettings();
   }
 
@@ -241,13 +366,38 @@ class AudioService {
   // Toggle mute for a specific category
   toggleCategoryMute(category: SoundCategory): boolean {
     this.categoryMutes[category] = !this.categoryMutes[category];
+    
+    // Update ambient background if category is ambient
+    if (category === 'ambient' && this.ambientBackgroundAudio) {
+      if (this.categoryMutes.ambient) {
+        this.ambientBackgroundAudio.pause();
+        this.isAmbientPlaying = false;
+      } else if (!this.isMuted && this.currentAmbientSound) {
+        this.ambientBackgroundAudio.play().catch(e => console.log("Error playing ambient sound:", e));
+        this.isAmbientPlaying = true;
+      }
+    }
+    
     this.saveSettings();
     return this.categoryMutes[category];
   }
 
   // Set mute state for a specific category
   setCategoryMute(category: SoundCategory, muted: boolean): void {
+    if (this.categoryMutes[category] === muted) return;
     this.categoryMutes[category] = muted;
+    
+    // Update ambient background if category is ambient
+    if (category === 'ambient' && this.ambientBackgroundAudio) {
+      if (muted) {
+        this.ambientBackgroundAudio.pause();
+        this.isAmbientPlaying = false;
+      } else if (!this.isMuted && this.currentAmbientSound) {
+        this.ambientBackgroundAudio.play().catch(e => console.log("Error playing ambient sound:", e));
+        this.isAmbientPlaying = true;
+      }
+    }
+    
     this.saveSettings();
   }
 
@@ -259,6 +409,12 @@ class AudioService {
   // Set volume for a specific category
   setCategoryVolume(category: SoundCategory, volume: number): void {
     this.volumes[category] = Math.max(0, Math.min(1, volume)); // Clamp between 0-1
+    
+    // Update ambient volume if category is ambient
+    if (category === 'ambient') {
+      this.updateAmbientVolume();
+    }
+    
     this.saveSettings();
   }
 
@@ -273,7 +429,8 @@ class AudioService {
       localStorage.setItem('uteroo_sound_settings', JSON.stringify({
         isMuted: this.isMuted,
         categoryMutes: this.categoryMutes,
-        volumes: this.volumes
+        volumes: this.volumes,
+        currentAmbientSound: this.currentAmbientSound
       }));
     } catch (e) {
       console.warn('Could not save sound settings:', e);

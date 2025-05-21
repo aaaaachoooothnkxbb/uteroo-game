@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Volume2, VolumeX, Settings, Volume1, Headphones, Music } from "lucide-react";
+import { Volume2, VolumeX, Settings, Volume1, Headphones, Music, Play, Pause } from "lucide-react";
 import { audioService } from "@/utils/audioService";
 import { 
   Dialog, 
@@ -16,6 +16,16 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import { 
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export const AudioToggle = () => {
   const [isMuted, setIsMuted] = useState(false);
@@ -26,6 +36,10 @@ export const AudioToggle = () => {
   const [voiceVolume, setVoiceVolume] = useState(0.7);
   const [ambientVolume, setAmbientVolume] = useState(0.3);
   const [showAccessibilityTip, setShowAccessibilityTip] = useState(true);
+  const [ambientSounds, setAmbientSounds] = useState<string[]>([]);
+  const [currentAmbientSound, setCurrentAmbientSound] = useState<string | null>(null);
+  const [isAmbientPlaying, setIsAmbientPlaying] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     // Initialize state from audio service
@@ -37,6 +51,19 @@ export const AudioToggle = () => {
     setVoiceVolume(audioService.getCategoryVolume('voice'));
     setAmbientVolume(audioService.getCategoryVolume('ambient'));
     
+    // Get available loopable ambient sounds
+    setAmbientSounds(audioService.getLoopableAmbientSounds());
+    
+    // Set current ambient sound
+    setCurrentAmbientSound(audioService.getCurrentAmbientSound());
+    setIsAmbientPlaying(audioService.isAmbientBackgroundPlaying());
+    
+    // Start default ambient sound if not playing already
+    if (!audioService.isAmbientBackgroundPlaying() && !audioService.getMuted() && !audioService.getCategoryMuted('ambient')) {
+      audioService.startAmbientBackground();
+      setIsAmbientPlaying(true);
+    }
+    
     // Check if we've shown the accessibility tip before
     const tipShown = localStorage.getItem('uteroo_accessibility_tip_shown');
     if (tipShown) {
@@ -47,6 +74,9 @@ export const AudioToggle = () => {
   const toggleMute = () => {
     const newMutedState = audioService.toggleMute();
     setIsMuted(newMutedState);
+    
+    // Update ambient playing state
+    setIsAmbientPlaying(audioService.isAmbientBackgroundPlaying());
     
     // Play a test sound when unmuting
     if (!newMutedState) {
@@ -78,9 +108,13 @@ export const AudioToggle = () => {
     audioService.setCategoryMute('ambient', checked);
     setAmbientMuted(checked);
     
-    // Play test ambient sound if unmuting
-    if (!checked && !isMuted) {
-      audioService.play('yoga');
+    // Update ambient playing state
+    setIsAmbientPlaying(audioService.isAmbientBackgroundPlaying());
+    
+    // If unmuting, restart ambient if we have one selected
+    if (!checked && !isMuted && currentAmbientSound) {
+      audioService.startAmbientBackground(currentAmbientSound);
+      setIsAmbientPlaying(true);
     }
   };
 
@@ -111,15 +145,33 @@ export const AudioToggle = () => {
     audioService.setCategoryVolume('ambient', newVolume);
     setAmbientVolume(newVolume);
     
-    // Play test ambient sound if volume is high enough
-    if (!isMuted && !ambientMuted && newVolume > 0.1) {
-      audioService.play('yoga');
-    }
+    // No need to play test sound as the ambient background will update automatically
   };
 
   const dismissAccessibilityTip = () => {
     setShowAccessibilityTip(false);
     localStorage.setItem('uteroo_accessibility_tip_shown', 'true');
+  };
+
+  const handleAmbientSoundChange = (value: string) => {
+    setCurrentAmbientSound(value);
+    audioService.startAmbientBackground(value);
+    setIsAmbientPlaying(true);
+  };
+
+  const toggleAmbientPlayback = () => {
+    if (isAmbientPlaying) {
+      audioService.stopAmbientBackground();
+      setIsAmbientPlaying(false);
+    } else if (currentAmbientSound) {
+      audioService.startAmbientBackground(currentAmbientSound);
+      setIsAmbientPlaying(true);
+    } else {
+      // Default to cute_bell if no sound selected
+      audioService.startAmbientBackground();
+      setCurrentAmbientSound('cute_bell');
+      setIsAmbientPlaying(true);
+    }
   };
 
   // Function to get the volume icon based on volume level
@@ -149,6 +201,21 @@ export const AudioToggle = () => {
     return <Volume2 className="h-4 w-4" />;
   };
 
+  // Get friendly name for ambient sound
+  const getAmbientSoundName = (soundKey: string): string => {
+    const soundMap: Record<string, string> = {
+      'cute_bell': 'Wind Chimes',
+      'menstruation': 'Deep Gong',
+      'follicular': 'Rising Energy',
+      'ovulatory': 'Bright Chimes',
+      'luteal': 'Gentle Tones',
+      'fire': 'Crackling Fire',
+      'yoga': 'Relaxing Meditation'
+    };
+    
+    return soundMap[soundKey] || soundKey;
+  };
+
   return (
     <div className="flex items-center gap-2">
       <Button
@@ -164,14 +231,30 @@ export const AudioToggle = () => {
         {getVolumeIcon()}
       </Button>
       
-      <Dialog>
+      <Button
+        variant="outline"
+        size="sm"
+        className={cn(
+          "h-8 w-8 p-0 rounded-full",
+          isAmbientPlaying && !isMuted && !ambientMuted && "bg-pink-50"
+        )}
+        onClick={toggleAmbientPlayback}
+        aria-label={isAmbientPlaying ? "Pause ambient sound" : "Play ambient sound"}
+      >
+        {isAmbientPlaying && !isMuted && !ambientMuted ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+      </Button>
+      
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
             size="sm"
             className="h-8 w-8 p-0 rounded-full"
             aria-label="Audio settings"
-            onClick={() => audioService.play('click')}
+            onClick={() => {
+              audioService.play('click');
+              setDialogOpen(true);
+            }}
           >
             <Settings className="h-4 w-4" />
           </Button>
@@ -217,9 +300,52 @@ export const AudioToggle = () => {
                 onCheckedChange={(checked) => {
                   audioService.setMute(!checked);
                   setIsMuted(!checked);
+                  setIsAmbientPlaying(audioService.isAmbientBackgroundPlaying());
                   if (checked) audioService.play('click');
                 }}
               />
+            </div>
+            
+            {/* Ambient Background Sound Selection */}
+            <div className="border-t pt-4 mb-4">
+              <h3 className="text-sm font-medium mb-3">Ambient Background Sound</h3>
+              <div className="space-y-4">
+                <Select
+                  value={currentAmbientSound || ''}
+                  onValueChange={handleAmbientSoundChange}
+                  disabled={isMuted || ambientMuted}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select background sound" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Ambient Sounds</SelectLabel>
+                      {ambientSounds.map((sound) => (
+                        <SelectItem key={sound} value={sound}>
+                          {getAmbientSoundName(sound)}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Playback</span>
+                  <Button 
+                    variant={isAmbientPlaying && !isMuted && !ambientMuted ? "default" : "outline"}
+                    size="sm"
+                    onClick={toggleAmbientPlayback}
+                    disabled={isMuted || ambientMuted || !currentAmbientSound}
+                  >
+                    {isAmbientPlaying && !isMuted && !ambientMuted ? (
+                      <><Pause className="h-4 w-4 mr-2" /> Pause</>
+                    ) : (
+                      <><Play className="h-4 w-4 mr-2" /> Play</>
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
             
             <div className="space-y-5">

@@ -14,6 +14,7 @@ import Settings from "./pages/Settings";
 import PouGame from "./pages/PouGame";
 import Videos from "./pages/Videos";
 import { SplashScreen } from "./components/SplashScreen";
+import { audioService } from "./utils/audioService";
 import "./styles/typewriter.css";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,11 @@ const App = () => {
   // Handle splash screen completion
   const handleSplashComplete = () => {
     setShowSplash(false);
+    
+    // Start ambient background music after splash screen completes
+    if (!audioService.getMuted() && !audioService.getCategoryMuted('ambient') && !audioService.isAmbientBackgroundPlaying()) {
+      audioService.startAmbientBackground('cute_bell');
+    }
   };
 
   // Optional: Store a flag in localStorage so the splash only shows on first visit
@@ -31,6 +37,11 @@ const App = () => {
     const hasSeenSplash = localStorage.getItem('uteroo_has_seen_splash');
     if (hasSeenSplash) {
       setShowSplash(false);
+      
+      // Start ambient background music immediately if splash is skipped
+      if (!audioService.getMuted() && !audioService.getCategoryMuted('ambient') && !audioService.isAmbientBackgroundPlaying()) {
+        audioService.startAmbientBackground('cute_bell');
+      }
     } else {
       localStorage.setItem('uteroo_has_seen_splash', 'true');
     }
