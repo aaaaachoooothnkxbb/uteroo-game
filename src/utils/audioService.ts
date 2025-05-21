@@ -1,4 +1,3 @@
-
 // Sound service for managing sound effects in the game with phase-awareness and accessibility
 
 type SoundCategory = 'ui' | 'voice' | 'ambient';
@@ -33,7 +32,7 @@ class AudioService {
   private ambientBackgroundAudio: HTMLAudioElement | null = null;
   private currentAmbientSound: string | null = null;
   private isAmbientPlaying: boolean = false;
-  private defaultAmbientSound: string = 'cute_bell';
+  private defaultAmbientSound: string = 'calm_loop'; // Changed from 'cute_bell' to the new calming sound
 
   // Initialize with default game sounds
   constructor() {
@@ -53,6 +52,11 @@ class AudioService {
       game_reward: { url: "https://assets.mixkit.co/active_storage/sfx/2307/2307-preview.mp3", volume: 0.4, category: 'ui', description: 'Game reward sound like Duolingo' },
       
       bonus: { url: "https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3", volume: 0.6, category: 'ui' },
+      
+      // New calming ambient background options that are more continuous
+      calm_loop: { url: "https://cdn.freesound.org/previews/437/437871_4256189-lq.mp3", volume: 0.3, category: 'ambient', description: 'Soft continuous ambient music', loopable: true },
+      nature_sounds: { url: "https://cdn.freesound.org/previews/518/518609_486527-lq.mp3", volume: 0.25, category: 'ambient', description: 'Gentle nature ambience', loopable: true },
+      soft_bells: { url: "https://cdn.freesound.org/previews/459/459145_9159316-lq.mp3", volume: 0.25, category: 'ambient', description: 'Soft melodic bells', loopable: true },
       
       // Phase transition sounds - more emotionally matched to each phase
       levelup: { url: "https://assets.mixkit.co/active_storage/sfx/1993/1993-preview.mp3", volume: 0.5, category: 'ambient' },
@@ -182,14 +186,40 @@ class AudioService {
     // Set looping
     this.ambientBackgroundAudio.loop = true;
     
-    // Apply volume settings
-    const calculatedVolume = Math.min(sound.volume * this.volumes[sound.category], 0.3);
+    // Apply volume settings - keep ambient sounds a bit softer for background
+    const calculatedVolume = Math.min(sound.volume * this.volumes[sound.category], 0.25);
     this.ambientBackgroundAudio.volume = calculatedVolume;
+
+    // Add event listener for when audio ends to ensure continuous playback
+    this.ambientBackgroundAudio.addEventListener('ended', () => {
+      if (this.ambientBackgroundAudio) {
+        this.ambientBackgroundAudio.currentTime = 0;
+        this.ambientBackgroundAudio.play()
+          .catch(e => console.log("Error restarting ambient sound:", e));
+      }
+    });
+    
+    // Add error handler
+    this.ambientBackgroundAudio.addEventListener('error', (e) => {
+      console.log("Error playing ambient sound:", e);
+      // Try to fall back to cute_bell if another sound fails
+      if (soundName !== 'cute_bell' && this.sounds.has('cute_bell')) {
+        console.log("Falling back to cute_bell sound");
+        setTimeout(() => this.startAmbientBackground('cute_bell'), 1000);
+      }
+    });
 
     // Play only if not muted
     if (!this.isMuted && !this.categoryMutes.ambient) {
       this.ambientBackgroundAudio.play()
-        .catch(e => console.log("Error playing ambient sound:", e));
+        .catch(e => {
+          console.log("Error playing ambient sound:", e);
+          // Try to fall back to cute_bell if another sound fails
+          if (soundName !== 'cute_bell' && this.sounds.has('cute_bell')) {
+            console.log("Falling back to cute_bell sound");
+            setTimeout(() => this.startAmbientBackground('cute_bell'), 1000);
+          }
+        });
       this.isAmbientPlaying = true;
     }
     

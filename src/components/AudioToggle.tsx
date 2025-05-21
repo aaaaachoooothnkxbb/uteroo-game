@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Volume2, VolumeX, Settings, Volume1, Headphones, Music, Play, Pause } from "lucide-react";
@@ -167,9 +166,9 @@ export const AudioToggle = () => {
       audioService.startAmbientBackground(currentAmbientSound);
       setIsAmbientPlaying(true);
     } else {
-      // Default to cute_bell if no sound selected
+      // Default to calm_loop if no sound selected
       audioService.startAmbientBackground();
-      setCurrentAmbientSound('cute_bell');
+      setCurrentAmbientSound('calm_loop');
       setIsAmbientPlaying(true);
     }
   };
@@ -204,6 +203,9 @@ export const AudioToggle = () => {
   // Get friendly name for ambient sound
   const getAmbientSoundName = (soundKey: string): string => {
     const soundMap: Record<string, string> = {
+      'calm_loop': 'Soft Ambient Music',
+      'nature_sounds': 'Nature Sounds',
+      'soft_bells': 'Gentle Bells',
       'cute_bell': 'Wind Chimes',
       'menstruation': 'Deep Gong',
       'follicular': 'Rising Energy',

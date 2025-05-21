@@ -28,7 +28,7 @@ const App = () => {
     
     // Start ambient background music after splash screen completes
     if (!audioService.getMuted() && !audioService.getCategoryMuted('ambient') && !audioService.isAmbientBackgroundPlaying()) {
-      audioService.startAmbientBackground('cute_bell');
+      audioService.startAmbientBackground('calm_loop'); // Use the new calming sound
     }
   };
 
@@ -36,7 +36,7 @@ const App = () => {
   useEffect(() => {
     // Start ambient background music immediately if splash is skipped
     if (!showSplash && !audioService.getMuted() && !audioService.getCategoryMuted('ambient') && !audioService.isAmbientBackgroundPlaying()) {
-      audioService.startAmbientBackground('cute_bell');
+      audioService.startAmbientBackground('calm_loop'); // Use the new calming sound
     }
   }, [showSplash]);
 
