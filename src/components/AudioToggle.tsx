@@ -149,40 +149,6 @@ export const AudioToggle = () => {
     // No need to play test sound as the ambient background will update automatically
   };
 
-  const handleUiMuteChange = (checked: boolean) => {
-    audioService.setCategoryMute('ui', checked);
-    setUiMuted(checked);
-    
-    // Play test sound if unmuting
-    if (!checked && !isMuted) {
-      audioService.play('click');
-    }
-  };
-
-  const handleVoiceMuteChange = (checked: boolean) => {
-    audioService.setCategoryMute('voice', checked);
-    setVoiceMuted(checked);
-    
-    // Play test voice sound if unmuting
-    if (!checked && !isMuted) {
-      audioService.play('voice_welcome');
-    }
-  };
-
-  const handleAmbientMuteChange = (checked: boolean) => {
-    audioService.setCategoryMute('ambient', checked);
-    setAmbientMuted(checked);
-    
-    // Update ambient playing state
-    setIsAmbientPlaying(audioService.isAmbientBackgroundPlaying());
-    
-    // If unmuting, restart ambient if we have one selected
-    if (!checked && !isMuted && currentAmbientSound) {
-      audioService.startAmbientBackground(currentAmbientSound);
-      setIsAmbientPlaying(true);
-    }
-  };
-
   const dismissAccessibilityTip = () => {
     setShowAccessibilityTip(false);
     localStorage.setItem('uteroo_accessibility_tip_shown', 'true');
