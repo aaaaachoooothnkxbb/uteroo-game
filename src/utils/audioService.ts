@@ -1,3 +1,4 @@
+
 // Sound service for managing sound effects in the game with phase-awareness and accessibility
 
 type SoundCategory = 'ui' | 'voice' | 'ambient';
@@ -54,9 +55,11 @@ class AudioService {
       bonus: { url: "https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3", volume: 0.6, category: 'ui' },
       
       // New calming ambient background options that are more continuous
-      calm_loop: { url: "https://cdn.freesound.org/previews/437/437871_4256189-lq.mp3", volume: 0.3, category: 'ambient', description: 'Soft continuous ambient music', loopable: true },
-      nature_sounds: { url: "https://cdn.freesound.org/previews/518/518609_486527-lq.mp3", volume: 0.25, category: 'ambient', description: 'Gentle nature ambience', loopable: true },
-      soft_bells: { url: "https://cdn.freesound.org/previews/459/459145_9159316-lq.mp3", volume: 0.25, category: 'ambient', description: 'Soft melodic bells', loopable: true },
+      // Updated to even more calming sounds
+      calm_loop: { url: "https://cdn.freesound.org/previews/417/417089_8377458-lq.mp3", volume: 0.25, category: 'ambient', description: 'Very soft piano ambient loop', loopable: true },
+      nature_sounds: { url: "https://cdn.freesound.org/previews/541/541252_5674468-lq.mp3", volume: 0.2, category: 'ambient', description: 'Gentle forest stream sounds', loopable: true },
+      soft_bells: { url: "https://cdn.freesound.org/previews/437/437142_8050743-lq.mp3", volume: 0.2, category: 'ambient', description: 'Extremely soft wind chimes', loopable: true },
+      gentle_waves: { url: "https://cdn.freesound.org/previews/479/479542_10348182-lq.mp3", volume: 0.2, category: 'ambient', description: 'Soft ocean waves', loopable: true },
       
       // Phase transition sounds - more emotionally matched to each phase
       levelup: { url: "https://assets.mixkit.co/active_storage/sfx/1993/1993-preview.mp3", volume: 0.5, category: 'ambient' },
@@ -202,10 +205,10 @@ class AudioService {
     // Add error handler
     this.ambientBackgroundAudio.addEventListener('error', (e) => {
       console.log("Error playing ambient sound:", e);
-      // Try to fall back to cute_bell if another sound fails
-      if (soundName !== 'cute_bell' && this.sounds.has('cute_bell')) {
-        console.log("Falling back to cute_bell sound");
-        setTimeout(() => this.startAmbientBackground('cute_bell'), 1000);
+      // Try to fall back to calm_loop if another sound fails
+      if (soundName !== 'calm_loop' && this.sounds.has('calm_loop')) {
+        console.log("Falling back to calm_loop sound");
+        setTimeout(() => this.startAmbientBackground('calm_loop'), 1000);
       }
     });
 
@@ -214,10 +217,10 @@ class AudioService {
       this.ambientBackgroundAudio.play()
         .catch(e => {
           console.log("Error playing ambient sound:", e);
-          // Try to fall back to cute_bell if another sound fails
-          if (soundName !== 'cute_bell' && this.sounds.has('cute_bell')) {
-            console.log("Falling back to cute_bell sound");
-            setTimeout(() => this.startAmbientBackground('cute_bell'), 1000);
+          // Try to fall back to calm_loop if another sound fails
+          if (soundName !== 'calm_loop' && this.sounds.has('calm_loop')) {
+            console.log("Falling back to calm_loop sound");
+            setTimeout(() => this.startAmbientBackground('calm_loop'), 1000);
           }
         });
       this.isAmbientPlaying = true;

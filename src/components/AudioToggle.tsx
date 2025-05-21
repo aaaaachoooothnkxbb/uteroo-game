@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Volume2, VolumeX, Settings, Volume1, Headphones, Music, Play, Pause } from "lucide-react";
@@ -203,9 +204,10 @@ export const AudioToggle = () => {
   // Get friendly name for ambient sound
   const getAmbientSoundName = (soundKey: string): string => {
     const soundMap: Record<string, string> = {
-      'calm_loop': 'Soft Ambient Music',
-      'nature_sounds': 'Nature Sounds',
-      'soft_bells': 'Gentle Bells',
+      'calm_loop': 'Soft Piano Ambient',
+      'nature_sounds': 'Forest Stream',
+      'soft_bells': 'Gentle Wind Chimes',
+      'gentle_waves': 'Ocean Waves',
       'cute_bell': 'Wind Chimes',
       'menstruation': 'Deep Gong',
       'follicular': 'Rising Energy',
