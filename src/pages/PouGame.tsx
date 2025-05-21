@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { UterooCharacter } from '@/components/UterooCharacter';
 import { Room } from '@/components/Room';
-import { Item, ItemType } from '@/components/Item';
+import { Item } from '@/components/Item';
 import { Modal } from '@/components/Modal';
 import { Heart, Apple, Droplet, BatteryFull, Coins as CoinsIcon } from 'lucide-react';
 import { audioService } from '@/utils/audioService';
@@ -21,7 +22,8 @@ type Stats = {
   coins?: number;
 };
 
-type ItemType = "food" | "hygiene" | "entertainment" | "energy";
+// Using the imported ItemType instead of redefining it
+import { ItemType } from '@/components/Item';
 
 type ItemData = {
   id: string;
