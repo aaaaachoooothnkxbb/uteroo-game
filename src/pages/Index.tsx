@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Icons } from "@/components/ui/icons";
 import { Provider } from "@supabase/supabase-js";
+import { useAuth } from "@/components/AuthProvider";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -13,6 +16,7 @@ const Index = () => {
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'facebook' | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { authError, clearAuthError } = useAuth();
 
   useEffect(() => {
     // Check for auth session on page load and handle redirects from OAuth
@@ -45,11 +49,14 @@ const Index = () => {
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     try {
+      clearAuthError();
       setIsLoading(true);
       setLoadingProvider(provider);
       
       // Get the current URL for proper redirect
       const redirectTo = `${window.location.origin}/dashboard`;
+      
+      console.log(`Attempting to sign in with ${provider}. Redirect URL: ${redirectTo}`);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider as Provider,
@@ -75,6 +82,8 @@ const Index = () => {
           title: "Authentication error",
           description: "Failed to initialize login flow"
         });
+      } else {
+        console.log(`Auth initialized. Redirecting to: ${data.url}`);
       }
       
       // If we have a URL, we don't need to handle more here since the browser will redirect
@@ -98,6 +107,14 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-black relative overflow-hidden bg-white">
       <div className="w-full max-w-md space-y-8 relative z-10">
+        {authError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Authentication Error</AlertTitle>
+            <AlertDescription>{authError}</AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex flex-col items-center space-y-4">
           <img 
             src="/lovable-uploads/dbcd75af-1cf4-4a08-9b8b-a042e6812749.png"
@@ -168,6 +185,9 @@ const Index = () => {
                   <Icons.facebook className="h-8 w-8" />
                 )}
               </Button>
+            </div>
+            <div className="text-center text-xs text-gray-500 mt-2">
+              In Dev mode: {window.location.origin}
             </div>
           </div>
         </div>

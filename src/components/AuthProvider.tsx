@@ -7,12 +7,16 @@ type AuthContextType = {
   session: Session | null;
   user: User | null;
   isLoading: boolean;
+  authError: string | null;
+  clearAuthError: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   isLoading: true,
+  authError: null,
+  clearAuthError: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -25,11 +29,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const clearAuthError = () => setAuthError(null);
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log('Auth state change event:', event);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         setIsLoading(false);
@@ -45,7 +53,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    supabase.auth.getSession().then(({ data: { session: currentSession }, error }) => {
+      if (error) {
+        console.error('Error getting session:', error);
+        setAuthError(error.message);
+      }
+      
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setIsLoading(false);
@@ -84,7 +97,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, isLoading }}>
+    <AuthContext.Provider value={{ session, user, isLoading, authError, clearAuthError }}>
       {children}
     </AuthContext.Provider>
   );
