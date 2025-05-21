@@ -639,32 +639,6 @@ const roomBoosters = {
       }
     }
   ],
-  games: [],
-  workstation: [
-    {
-      id: "calendar",
-      name: "Schedule Planning",
-      type: "energy" as const,
-      icon: "/lovable-uploads/959696ca-9468-41f5-92f4-34af0b40294b.png",
-      boost: 15,
-      onClick: () => window.open('https://docs.google.com/spreadsheets/d/1FcwVQGfEp9t6u00AUhgIr5wjmTwMXe2kIb3eWQbiq5o/edit?gid=0#gid=0', '_blank'),
-      tooltip: {
-        description: "Planificar actividades según tu fase del ciclo puede ayudarte a aprovechar tus fluctuaciones de energía naturales."
-      }
-    },
-    {
-      id: "productivity_tips",
-      name: "Productivity Tips",
-      type: "energy" as const,
-      icon: "/lovable-uploads/8a96a5ad-54d1-431d-816c-aaf25e1a3a99.png",
-      boost: 20,
-      onClick: (currentPhase: string, openProductivityTips: () => void) => openProductivityTips(),
-      tooltip: {
-        title: "Productividad cíclica",
-        description: "Tu productividad varía naturalmente con tu ciclo hormonal. Aprovecha la fase folicular para iniciar proyectos y la fase lútea para tareas detalladas."
-      }
-    }
-  ],
   // The shop room boosters have been removed as we're replacing the entire shop experience
   shop: [],
   lab: [
@@ -1233,7 +1207,7 @@ const PouGame = () => {
       },
       "migraine": {
         title: "Migraña menstrual", 
-        description: "Las migrañas pueden ser desencadenadas por la caída de estrógeno antes de la menstruación. La hidrataci��n y evitar desencadenantes ayuda a prevenirlas."
+        description: "Las migrañas pueden ser desencadenadas por la caída de estrógeno antes de la menstruación. La hidratación y evitar desencadenantes ayuda a prevenirlas."
       },
       "sensitivity": {
         title: "Sensibilidad aumentada", 
@@ -1378,540 +1352,435 @@ const PouGame = () => {
     );
   };
 
-  // Render science-based boosters for current room
-  const renderScienceBoosters = () => {
-    const currentRoom = rooms[currentRoomIndex];
-    const scienceBoostersForRoom = scienceBoosters[currentRoom.id as keyof typeof scienceBoosters] || [];
-    
-    if (scienceBoostersForRoom.length === 0) return null;
+  // Function to render the shop room interface
+  const renderShopRoom = () => {
+    if (currentRoom.id !== 'shop') return null;
     
     return (
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-sm flex items-center gap-1">
-            <span>Science Boosters</span>
-            <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full">New!</span>
-          </h3>
-        </div>
-        
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {scienceBoostersForRoom.map((booster) => (
-            <TooltipProvider key={booster.id}>
-              <Tooltip delayDuration={200}>
-                <TooltipTrigger asChild>
-                  <div 
-                    onClick={() => handleBoosterClick(booster)}
-                    className="flex flex-col items-center p-2 cursor-pointer transition-shadow"
-                  >
-                    <div className="relative">
-                      <img 
-                        src={booster.icon} 
-                        alt={booster.name}
-                        className="w-12 h-12 object-contain mb-1 animate-pulse-slow"
-                      />
-                      <div className="absolute -top-1 -right-1 flex items-center gap-0.5 bg-pink-500 text-white text-xs rounded-full px-1.5 py-0.5 font-semibold shadow-sm">
-                        <Heart className="h-3 w-3" />
-                        <span>{booster.cost}</span>
-                      </div>
-                    </div>
-                    <span className="text-xs font-medium text-center">{booster.name}</span>
-                    <div className="text-2xs text-purple-700 mt-1">🧪 Science-based</div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="bg-white/95 backdrop-blur-sm p-3 max-w-[250px]">
-                  <h4 className="font-semibold mb-1">{booster.tooltip?.title}</h4>
-                  <p className="text-xs">{booster.tooltip?.description}</p>
-                  {booster.tooltip?.learnMoreUrl && (
-                    <a 
-                      href={booster.tooltip.learnMoreUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-2xs text-purple-700 mt-1 underline block"
-                    >
-                      Read scientific research
-                    </a>
-                  )}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  // Completely redesigned compact stats panel with hearts
-  const renderStatsPanel = () => {
-    return (
-      <div className="max-w-md mx-auto mt-2 mb-4">
-        <div className="flex items-center gap-2 px-2 py-1.5 backdrop-blur-sm rounded-full">
-          {/* Heart counter - now more prominent */}
-          <div className="flex items-center gap-1">
-            <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
-            <span className="text-sm font-semibold">{stats.hearts}</span>
-          </div>
-          
-          {/* Coins counter */}
-          <div className="flex items-center gap-1">
-            <CoinsIcon className="h-4 w-4 text-yellow-500" />
-            <span className="text-xs font-semibold">{stats.coins}</span>
-          </div>
-          
-          {/* Streak counter */}
-          <div className="flex items-center gap-1">
-            <Flame className="h-4 w-4 text-orange-500" />
-            <span className="text-xs font-semibold">{streak}d</span>
-          </div>
-          
-          {/* Other stats (only visible on larger screens) */}
-          <div className="hidden sm:flex items-center gap-1">
-            <div className="w-1 h-6 border-r border-gray-300"></div>
-            <Apple className="h-3 w-3 text-red-500" />
-            <Progress 
-              value={stats.hunger} 
-              className="h-1 w-8 rounded-full"
-              indicatorClassName={cn(getProgressColor(stats.hunger))}
-              size="xs"
-            />
-            
-            <Droplet className="h-3 w-3 text-blue-500 ml-1" />
-            <Progress 
-              value={stats.hygiene} 
-              className="h-1 w-8 rounded-full"
-              indicatorClassName={cn(getProgressColor(stats.hygiene))}
-              size="xs"
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Handle click on Uteroo character to add hearts
-  const handleUterooClick = useCallback(() => {
-    const now = Date.now();
-    let heartsToAdd = 1;
-    
-    // Check if this is a consecutive click (within 2 seconds of last click)
-    if (now - lastClickTime < 2000) {
-      const newConsecutiveClicks = consecutiveClicks + 1;
-      setConsecutiveClicks(newConsecutiveClicks);
-      
-      // Award bonus hearts for 10+ consecutive clicks
-      if (newConsecutiveClicks >= 10) {
-        heartsToAdd = 5;
-        setShowHeartBonus(true);
-        setTimeout(() => setShowHeartBonus(false), 2000);
-        
-        // Play celebration sound
-        audioService.play('bonus');
-        
-        // Reset consecutive clicks after bonus
-        setConsecutiveClicks(0);
-      }
-    } else {
-      // Reset consecutive clicks if too much time has passed
-      setConsecutiveClicks(1);
-    }
-    
-    setLastClickTime(now);
-    
-    // Increment hearts
-    setStats(prev => ({
-      ...prev,
-      hearts: prev.hearts + heartsToAdd
-    }));
-    
-    // Play heart sound
-    audioService.play('heart');
-    
-    // Create a new floating heart
-    const newHeart: FloatingHeart = {
-      id: `heart-${Date.now()}-${Math.random()}`,
-      x: Math.random() * 40 - 20, // Random offset for x position
-      y: -20 - Math.random() * 30, // Start position above character
-    };
-    
-    // Remove the heart after animation completes
-    setTimeout(() => {
-      setFloatingHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
-    }, 1500);
-    
-    // Show toast for hearts earned
-    toast({
-      title: `+${heartsToAdd} Heart${heartsToAdd > 1 ? 's' : ''}!`,
-      description: heartsToAdd > 1 ? "Bonus hearts for quick clicks!" : "Hearts = love for yourself! Spend them to feel better. 💖",
-      duration: 1500,
-    });
-  }, [heartClicks, toast, consecutiveClicks, lastClickTime]);
-
-  return (
-    <div className="min-h-screen relative">
-      
-      <div 
-        className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-500"
-        style={{ 
-          backgroundImage: currentRoom.background 
-            ? `url('${currentRoom.background}')`
-            : "url('/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png')",
-          backgroundSize: 'cover',
-        }}
-      />
-      
-      {/* Phase-themed color overlay */}
-      <div className={cn(
-        "fixed inset-0 opacity-25 transition-colors duration-500",
-        currentPhase === "menstruation" ? "bg-pink-400" :
-        currentPhase === "follicular" ? "bg-green-400" :
-        currentPhase === "ovulatory" ? "bg-yellow-400" :
-        "bg-orange-400"
-      )} />
-      
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Streamlined header - updated with audio toggle */}
-        <div className="fixed top-0 left-0 right-0 backdrop-blur-sm z-30 pt-4 pb-2 px-4">
-          <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="rounded-full h-8 w-8 p-0"
-                  onClick={() => {
-                    audioService.play('click');
-                    setShowTutorial(true);
-                  }}
-                >
-                  <HelpCircle className="h-4 w-4" />
-                </Button>
-                <AudioToggle />
-              </div>
-              
-              <div className="flex gap-2">
-                {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
-                  const PhaseIconComponent = phaseInfo[phaseName].icon;
-                  return (
-                    <Button
-                      key={phaseName}
-                      variant={currentPhase === phaseName ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handlePhaseChange(phaseName)}
-                      className={cn(
-                        "w-8 h-8 p-0 rounded-full",
-                        currentPhase === phaseName && 
-                          (phaseName === "menstruation" ? "bg-pink-500 border-pink-300" :
-                           phaseName === "follicular" ? "bg-green-500 border-green-300" :
-                           phaseName === "ovulatory" ? "bg-yellow-500 border-yellow-300" :
-                           "bg-orange-500 border-orange-300")
-                      )}
-                    >
-                      <PhaseIconComponent className="h-4 w-4" />
-                    </Button>
-                  );
-                })}
-              </div>
+        {/* Shop Room Title */}
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold">Hormone Wellness Shop</h3>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 text-xs px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">
+              <CoinsIcon className="h-3 w-3" />
+              <span>{stats.coins} available</span>
             </div>
-            
-            {renderPhaseProgress()}
+            {!showFindMyMatchQuiz && (
+              <Button 
+                variant="ghost" 
+                className="h-7 text-xs px-2"
+                onClick={() => {
+                  audioService.play('click');
+                  setShowFindMyMatchQuiz(true);
+                  setShowShopEmptyState(false);
+                }}
+              >
+                Find My Match
+              </Button>
+            )}
           </div>
         </div>
-
-        {/* Main content area */}
-        <div className="flex-1 pt-28 pb-6 px-4">
-          <div className="max-w-md mx-auto">
-            {/* Improved room navigation */}
-            <div className="flex justify-between items-center mb-4 mt-6">
+        
+        {/* Shop Empty State */}
+        {showShopEmptyState && (
+          <div className="flex flex-col items-center justify-center p-6 text-center">
+            <div className="text-3xl mb-4">🌸</div>
+            <h3 className="text-lg font-medium mb-2">Your hormonal toolkit awaits!</h3>
+            <p className="text-sm text-gray-500 mb-4">Tap a category to start exploring female-founded wellness brands</p>
+            
+            {/* Category Icons */}
+            <div className="grid grid-cols-3 gap-4 w-full max-w-xs">
+              {shopCategories.map(category => (
+                <div
+                  key={category.id}
+                  onClick={() => handleCategorySelect(category.id)}
+                  className={`${category.color} ${category.textColor} border ${category.borderColor} p-3 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all hover:scale-105 animate-pulse-slow`}
+                >
+                  <div className="text-2xl mb-1">{category.emoji}</div>
+                  <span className="text-xs font-medium text-center">{category.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Category Products View */}
+        {selectedCategory && !showFindMyMatchQuiz && (
+          <div>
+            <div className="flex items-center gap-2 mb-2">
               <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handlePreviousRoom}
-                className="h-8 w-8 p-0 rounded-full"
+                variant="ghost" 
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => {
+                  audioService.play('click');
+                  setSelectedCategory(null);
+                  setShowShopEmptyState(true);
+                }}
               >
                 <ArrowLeft className="h-4 w-4" />
-                <span className="sr-only">Previous Room</span>
               </Button>
               
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 px-3 py-1.5 backdrop-blur-sm rounded-full">
-                  <RoomIcon className={cn(
-                    "h-4 w-4",
-                    currentPhase === "menstruation" ? "text-pink-500" :
-                    currentPhase === "follicular" ? "text-green-500" :
-                    currentPhase === "ovulatory" ? "text-yellow-500" :
-                    "text-orange-500"
-                  )} />
-                  <h2 className="text-sm font-medium">{currentRoom.name}</h2>
-                </div>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="h-8 w-8 p-0 rounded-full"
-                      onClick={() => audioService.play('click')}
-                    >
-                      <span className="sr-only">Show rooms</span>
-                      <svg xmlns="http://www3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-white/95 backdrop-blur-sm border-0 rounded-lg">
-                    {rooms.map((room, index) => {
-                      const IconComponent = room.icon;
-                      return (
-                        <DropdownMenuItem 
-                          key={room.id}
-                          onClick={() => {
-                            audioService.play('click');
-                            setCurrentRoomIndex(index);
-                          }}
-                          className={cn(
-                            "flex items-center gap-2 cursor-pointer",
-                            currentRoomIndex === index && "bg-gray-100 font-medium"
-                          )}
-                        >
-                          <IconComponent className="h-4 w-4" />
-                          {room.name}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <div className="flex items-center">
+                {(() => {
+                  const category = shopCategories.find(cat => cat.id === selectedCategory);
+                  return (
+                    <>
+                      <span className="text-xl mr-1">{category?.emoji}</span>
+                      <span className="font-medium">{category?.name}</span>
+                    </>
+                  );
+                })()}
               </div>
-              
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleNextRoom}
-                className="h-8 w-8 p-0 rounded-full"
-              >
-                <ArrowRight className="h-4 w-4" />
-                <span className="sr-only">Next Room</span>
-              </Button>
             </div>
             
-            {/* Stats panel */}
-            {renderStatsPanel()}
-            
-            {/* Character area */}
-            <div 
-              className="relative flex justify-center mb-4 mx-auto"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-            >
-              {/* Heart bonus indicator */}
-              {showHeartBonus && (
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-12 bg-pink-500 text-white rounded-full px-3 py-1 text-sm font-bold animate-bounce-slow z-20">
-                  +5 Hearts Bonus! 💗
-                </div>
-              )}
-              
-              {/* Floating hearts animation */}
-              {floatingHearts.map(heart => (
-                <div
-                  key={heart.id}
-                  className="absolute pointer-events-none"
-                  style={{
-                    transform: `translate(${heart.x}px, ${heart.y}px)`,
-                    animation: 'float-up 1.5s ease-out forwards'
-                  }}
+            <div className="grid grid-cols-1 gap-4">
+              {shopItems[selectedCategory as keyof typeof shopItems]?.map(item => (
+                <div 
+                  key={item.id}
+                  className={cn(
+                    "relative overflow-hidden rounded-xl transition-transform duration-500",
+                    flippedCards.includes(item.id) ? "rotate-y-180" : "rotate-y-0"
+                  )}
                 >
-                  <div className="flex items-center">
-                    <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
-                    <span className="text-xs font-bold text-white bg-pink-500 rounded-full px-1 ml-0.5">+1</span>
+                  {/* Front of card */}
+                  <div 
+                    className={cn(
+                      "bg-white/90 backdrop-blur-sm p-4 rounded-xl",
+                      flippedCards.includes(item.id) ? "hidden" : "block"
+                    )}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="h-20 w-20 flex-shrink-0 rounded-lg bg-gray-100 overflow-hidden">
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium text-sm">{item.name}</h4>
+                            <div className="text-xs text-gray-500">{item.brand}</div>
+                          </div>
+                          
+                          <div className="flex flex-col items-end">
+                            <div className="font-bold text-sm">${item.price}</div>
+                            <div className="flex items-center gap-1 mt-1">
+                              <span className="text-xs">★</span>
+                              <span className="text-xs font-medium">{item.rating}</span>
+                              <span className="text-xs text-gray-500">({item.reviews})</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {item.bestForPhase !== 'all' && (
+                          <div className="mt-1">
+                            <span className={cn(
+                              "text-xs px-2 py-0.5 rounded-full",
+                              item.bestForPhase === 'menstruation' ? "bg-pink-100 text-pink-800" :
+                              item.bestForPhase === 'follicular' ? "bg-green-100 text-green-800" :
+                              item.bestForPhase === 'ovulatory' ? "bg-yellow-100 text-yellow-800" :
+                              "bg-orange-100 text-orange-800"
+                            )}>
+                              Best for {item.bestForPhase}
+                            </span>
+                          </div>
+                        )}
+                        
+                        <div className="mt-2 flex items-center justify-between">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => handleCardFlip(item.id)}
+                          >
+                            More info
+                          </Button>
+                          
+                          <Button 
+                            size="sm"
+                            className="h-7"
+                            onClick={() => handleQuickAdd(item)}
+                          >
+                            <ShoppingBag className="h-3 w-3 mr-1" />
+                            <span className="text-xs">
+                              {quickAddAnimation === item.id ? "Added!" : "Quick Add"}
+                            </span>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Back of card */}
+                  <div 
+                    className={cn(
+                      "bg-white/90 backdrop-blur-sm p-4 rounded-xl",
+                      flippedCards.includes(item.id) ? "block rotate-y-180" : "hidden"
+                    )}
+                  >
+                    <div className="flex flex-col items-start">
+                      <div className="flex justify-between items-center w-full">
+                        <h4 className="font-medium">{item.name}</h4>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          onClick={() => handleCardFlip(item.id)}
+                        >
+                          <ArrowLeft className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="text-sm mt-2">{item.description}</div>
+                      
+                      <div className="mt-3 bg-purple-50 p-3 rounded-lg w-full">
+                        <div className="text-xs text-purple-800 font-medium">Community Proof</div>
+                        <div className="text-sm mt-1">"{item.communityProof}"</div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between w-full mt-4">
+                        <div className="flex items-center gap-1">
+                          <span>+{item.boost}</span>
+                          {item.type === 'energy' && <BatteryFull className="h-4 w-4 text-green-500" />}
+                          {item.type === 'happiness' && <Heart className="h-4 w-4 text-pink-500" />}
+                          {item.type === 'hygiene' && <Droplet className="h-4 w-4 text-blue-500" />}
+                        </div>
+                        
+                        <Button onClick={() => handleQuickAdd(item)}>
+                          ${item.price} • Buy Now
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Find My Match Quiz */}
+        {showFindMyMatchQuiz && !quizResults && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => {
+                  audioService.play('click');
+                  setShowFindMyMatchQuiz(false);
+                  setShowShopEmptyState(true);
+                  setQuizStep(0);
+                }}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              
+              <div>
+                <h3 className="font-medium">Find My Hormone Match</h3>
+                <p className="text-xs text-gray-500">Question {quizStep + 1} of {quizQuestions.length}</p>
+              </div>
+            </div>
+            
+            <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl mb-4">
+              <h4 className="font-medium mb-3">{quizQuestions[quizStep].question}</h4>
+              
+              <div className="space-y-2">
+                {quizQuestions[quizStep].options.map(option => (
+                  <Button
+                    key={option.id}
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start h-auto py-3 px-4",
+                      quizAnswers[quizQuestions[quizStep].id] === option.id && "border-2 border-purple-500"
+                    )}
+                    onClick={() => handleQuizAnswer(quizQuestions[quizStep].id, option.id)}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Quiz Results */}
+        {showFindMyMatchQuiz && quizResults && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => handleResetQuiz()}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              
+              <div>
+                <h3 className="font-medium">Your Personalized Matches</h3>
+                <p className="text-xs text-gray-500">Based on your unique needs</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              {quizResults.slice(0, 2).map((item, index) => (
+                <div 
+                  key={item.id}
+                  className="bg-white/90 backdrop-blur-sm p-4 rounded-xl relative overflow-hidden"
+                >
+                  {/* Match percentage badge */}
+                  <div className="absolute top-0 right-0 bg-purple-500 text-white px-2 py-1 rounded-bl-lg text-sm font-bold">
+                    {item.matchPercentage}% Match
+                  </div>
+                  
+                  <div className="flex items-start gap-3 pt-2">
+                    <div className="h-20 w-20 flex-shrink-0 rounded-lg bg-gray-100 overflow-hidden">
+                      <img 
+                        src={item.image} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{item.name}</h4>
+                      <div className="text-xs text-gray-500">{item.brand}</div>
+                      
+                      <div className="mt-1 text-xs text-gray-700">{item.description}</div>
+                      
+                      <div className="mt-2 flex items-center justify-between">
+                        <div className="font-bold text-sm">${item.price}</div>
+                        
+                        <Button 
+                          size="sm"
+                          className="h-7"
+                          onClick={() => handleQuickAdd(item)}
+                        >
+                          <ShoppingBag className="h-3 w-3 mr-1" />
+                          <span className="text-xs">Add to Toolkit</span>
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
               
-              <UterooCharacter 
-                phase={currentPhase} 
-                currentRoom={currentRoom.id} 
-                size="large" 
-                minimal={false} 
-                onClick={handleUterooClick}
-              />
-              
-              {showBoostIndicator && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-bold text-white animate-boost z-20">
-                  <span className={cn(
-                    "px-3 py-1.5 rounded-full shadow-lg",
-                    boostType === "hunger" ? "bg-red-500" :
-                    boostType === "hygiene" ? "bg-blue-500" :
-                    boostType === "energy" ? "bg-green-500" :
-                    "bg-pink-500"
-                  )}>
-                    +{boostType}!
-                  </span>
-                </div>
-              )}
-            </div>
-            
-            {/* Symptoms section */}
-            {currentRoom.id !== 'shop' && renderSymptomCards()}
-            
-            {/* Continue streak button - hide in shop room */}
-            {currentRoom.id !== 'shop' && (
-              <Button 
-                className={cn(
-                  "w-full mb-4 border-0 bg-gradient-to-r text-sm",
-                  currentPhase === "menstruation" ? "from-pink-500 to-pink-400" :
-                  currentPhase === "follicular" ? "from-green-500 to-green-400" :
-                  currentPhase === "ovulatory" ? "from-yellow-500 to-yellow-400" :
-                  "from-orange-500 to-orange-400"
-                )}
-                onClick={() => {
-                  audioService.play('bonus');
-                  updateStreak();
-                }}
+              <Button
+                onClick={() => handleResetQuiz()}
+                variant="outline"
+                className="w-full"
               >
-                <Flame className="h-4 w-4 mr-1" />
-                <span>🔥 {streak}-Day Streak • Continue (+10 pts)</span>
+                Take Quiz Again
               </Button>
-            )}
-            
-            {/* Render shop room interface */}
-            {renderShopRoom()}
-            
-            {/* Science boosters - hide in shop room */}
-            {currentRoom.id !== 'shop' && renderScienceBoosters()}
-            
-            {/* Regular boosters - hide in shop room */}
-            {currentRoom.id !== 'shop' && currentRoomBoosters.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-sm">Boosters</h3>
-                  <div className="text-xs px-2 py-0.5 backdrop-blur-sm rounded-full">
-                    Tap to use
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-xl">
-                  {currentRoomBoosters.map((booster) => (
-                    booster.isPhaseRecipe ? (
-                      <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
-                    ) : (
-                      <div 
-                        key={booster.id}
-                        onClick={() => handleBoosterClick(booster)}
-                        className="flex flex-col items-center p-2 rounded-lg cursor-pointer transition-shadow"
-                      >
-                        <img 
-                          src={booster.icon} 
-                          alt={booster.name}
-                          className="w-10 h-10 object-contain mb-1 animate-pulse-slow"
-                        />
-                        <span className="text-xs font-medium text-center">{booster.name}</span>
-                        {booster.cost && (
-                          <div className="flex items-center gap-1 mt-1 text-2xs bg-yellow-100 px-1.5 py-0.5 rounded-full">
-                            <CoinsIcon className="h-3 w-3 text-yellow-500" />
-                            <span>{booster.cost}</span>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  ))}
-                </div>
-              </div>
-            )}
+            </div>
           </div>
-        </div>
-
-        {/* Modals */}
-        <YogaPoseModal
-          isOpen={showYogaPoses}
-          onClose={() => {
-            audioService.play('click');
-            setShowYogaPoses(false);
-          }}
-          poses={yogaPoses}
-          phase={currentPhase}
-        />
-        
-        <ProductivityTipsModal
-          isOpen={showProductivityTips}
-          onClose={() => {
-            audioService.play('click');
-            setShowProductivityTips(false);
-          }}
-          phase={currentPhase}
-        />
-        
-        <JournalingModal
-          isOpen={showJournalingModal}
-          onClose={() => {
-            audioService.play('click');
-            setShowJournalingModal(false);
-          }}
-          phase={currentPhase}
-        />
-        
-        <BloodworkModal
-          isOpen={showBloodworkModal}
-          onClose={() => {
-            audioService.play('click');
-            setShowBloodworkModal(false);
-          }}
-          phase={currentPhase}
-        />
-        
-        {showTutorial && (
-          <UterooTutorial onClose={() => {
-            audioService.play('click');
-            setShowTutorial(false);
-          }} />
-        )}
-        
-        {currentRoom.id === 'cycle_sanctuary' && (
-          <CycleSanctuary 
-            currentPhase={currentPhase}
-            onPhaseChange={handlePhaseChange}
-          />
         )}
       </div>
       
-      {/* Add custom keyframe animations for shop interactions */}
-      <style jsx global>{`
-        @keyframes rotate-y-180 {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(180deg); }
-        }
-        
-        @keyframes rotate-y-0 {
-          0% { transform: rotateY(180deg); }
-          100% { transform: rotateY(0deg); }
-        }
-        
-        @keyframes float-up {
-          0% { transform: translateY(0); opacity: 1; }
-          100% { transform: translateY(-50px); opacity: 0; }
-        }
-        
-        @keyframes bounce-once {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        
-        @keyframes pulse-slow {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-        
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-        
-        .rotate-y-0 {
-          transform: rotateY(0deg);
-        }
-        
-        .animate-bounce-once {
-          animation: bounce-once 0.6s ease-in-out;
-        }
-        
-        .animate-pulse-slow {
-          animation: pulse-slow 2s ease-in-out infinite;
-        }
-      `}</style>
+      {/* Modals */}
+      <YogaPoseModal
+        isOpen={showYogaPoses}
+        onClose={() => {
+          audioService.play('click');
+          setShowYogaPoses(false);
+        }}
+        poses={yogaPoses}
+        phase={currentPhase}
+      />
+      
+      <ProductivityTipsModal
+        isOpen={showProductivityTips}
+        onClose={() => {
+          audioService.play('click');
+          setShowProductivityTips(false);
+        }}
+        phase={currentPhase}
+      />
+      
+      <JournalingModal
+        isOpen={showJournalingModal}
+        onClose={() => {
+          audioService.play('click');
+          setShowJournalingModal(false);
+        }}
+        phase={currentPhase}
+      />
+      
+      <BloodworkModal
+        isOpen={showBloodworkModal}
+        onClose={() => {
+          audioService.play('click');
+          setShowBloodworkModal(false);
+        }}
+        phase={currentPhase}
+      />
+      
+      {showTutorial && (
+        <UterooTutorial onClose={() => {
+          audioService.play('click');
+          setShowTutorial(false);
+        }} />
+      )}
+      
+      {currentRoom.id === 'cycle_sanctuary' && (
+        <CycleSanctuary 
+          currentPhase={currentPhase}
+          onPhaseChange={handlePhaseChange}
+        />
+      )}
     </div>
+    
+    {/* Add custom keyframe animations for shop interactions */}
+    <style>
+      {`
+      @keyframes rotate-y-180 {
+        0% { transform: rotateY(0deg); }
+        100% { transform: rotateY(180deg); }
+      }
+      
+      @keyframes rotate-y-0 {
+        0% { transform: rotateY(180deg); }
+        100% { transform: rotateY(0deg); }
+      }
+      
+      @keyframes float-up {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(-50px); opacity: 0; }
+      }
+      
+      @keyframes bounce-once {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      @keyframes pulse-slow {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      
+      .rotate-y-180 {
+        transform: rotateY(180deg);
+      }
+      
+      .rotate-y-0 {
+        transform: rotateY(0deg);
+      }
+      
+      .animate-bounce-once {
+        animation: bounce-once 0.6s ease-in-out;
+      }
+      
+      .animate-pulse-slow {
+        animation: pulse-slow 2s ease-in-out infinite;
+      }
+      `}
+    </style>
   );
 };
 
