@@ -1,10 +1,10 @@
 
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import YogaGame from "./pages/YogaGame";
 import RecipeGame from "./pages/RecipeGame";
@@ -13,35 +13,57 @@ import Rewards from "./pages/Rewards";
 import Settings from "./pages/Settings";
 import PouGame from "./pages/PouGame";
 import Videos from "./pages/Videos";
+import { SplashScreen } from "./components/SplashScreen";
+import "./styles/typewriter.css";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <div className="min-h-screen w-full flex items-center justify-center bg-white">
-        <div className="w-full h-screen overflow-hidden relative z-10">
-          <div className="h-full overflow-auto">
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Navigate to="/" replace />} />
-                <Route path="/yoga" element={<YogaGame />} />
-                <Route path="/recipe" element={<RecipeGame />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/rewards" element={<Rewards />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/pou-game" element={<PouGame />} />
-                <Route path="/videos" element={<Videos />} />
-              </Routes>
-            </BrowserRouter>
+const App = () => {
+  const [showSplash, setShowSplash] = useState(true);
+  
+  // Handle splash screen completion
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
+
+  // Optional: Store a flag in localStorage so the splash only shows on first visit
+  useEffect(() => {
+    const hasSeenSplash = localStorage.getItem('uteroo_has_seen_splash');
+    if (hasSeenSplash) {
+      setShowSplash(false);
+    } else {
+      localStorage.setItem('uteroo_has_seen_splash', 'true');
+    }
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <div className="min-h-screen w-full flex items-center justify-center bg-white">
+          <div className="w-full h-screen overflow-hidden relative z-10">
+            {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+            <div className={`h-full overflow-auto transition-opacity duration-500 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/dashboard" element={<Navigate to="/" replace />} />
+                  <Route path="/yoga" element={<YogaGame />} />
+                  <Route path="/recipe" element={<RecipeGame />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/rewards" element={<Rewards />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/pou-game" element={<PouGame />} />
+                  <Route path="/videos" element={<Videos />} />
+                </Routes>
+              </BrowserRouter>
+            </div>
           </div>
         </div>
-      </div>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
