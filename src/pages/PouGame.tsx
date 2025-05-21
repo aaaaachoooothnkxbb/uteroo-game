@@ -1025,6 +1025,14 @@ const PouGame = () => {
     }
   };
 
+  // Reset quiz
+  const handleResetQuiz = () => {
+    setQuizStep(0);
+    setQuizAnswers({});
+    setQuizResults(null);
+    setShowFindMyMatchQuiz(false);
+  };
+
   // Function to get quiz recommendations
   const getQuizRecommendations = (answers: Record<string, string>) => {
     // Simplified matching algorithm - would be more sophisticated in real app
@@ -1079,7 +1087,7 @@ const PouGame = () => {
       bestMatches = allProducts.sort((a, b) => b.rating - a.rating).slice(0, 2);
     }
     
-    // Sort by match percentage (simplified calculation)
+    // Sort by match percentage
     return bestMatches.map(product => {
       // Calculate match percentage based on how well it matches criteria
       let matchPercentage = 70; // Base percentage
@@ -1097,14 +1105,75 @@ const PouGame = () => {
     }).sort((a, b) => b.matchPercentage - a.matchPercentage);
   };
 
-  // Reset quiz
-  const handleResetQuiz = () => {
-    setQuizStep(0);
-    setQuizAnswers({});
-    setQuizResults(null);
-    setShowFindMyMatchQuiz(false);
+  // Handle Uteroo character clicks
+  const handleUterooClick = () => {
+    // Handle consecutive clicks for bonus hearts
+    const now = Date.now();
+    if (now - lastClickTime < 500) {
+      setConsecutiveClicks(prev => prev + 1);
+      
+      if (consecutiveClicks >= 4) {
+        audioService.play('bonus');
+        setShowHeartBonus(true);
+        
+        setStats(prev => ({
+          ...prev,
+          hearts: prev.hearts + 5
+        }));
+        
+        setTimeout(() => {
+          setShowHeartBonus(false);
+          setConsecutiveClicks(0);
+        }, 2000);
+      } 
+    } else {
+      setConsecutiveClicks(1);
+    }
+    
+    setLastClickTime(now);
+    
+    // Generate a floating heart
+    const randomX = Math.random() * 80 - 40; // -40 to 40
+    const randomY = Math.random() * -30 - 10; // -10 to -40
+    
+    const newHeart: FloatingHeart = {
+      id: `heart-${Date.now()}`,
+      x: randomX,
+      y: randomY
+    };
+    
+    setFloatingHearts(prev => [...prev, newHeart]);
+    
+    // Remove the heart after animation
+    setTimeout(() => {
+      setFloatingHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
+    }, 1500);
+    
+    // Increment hearts
+    setStats(prev => ({
+      ...prev,
+      hearts: prev.hearts + 1
+    }));
+    
+    setHeartClicks(prev => prev + 1);
+    
+    // Check if we should grant a coin bonus
+    if (heartClicks > 0 && heartClicks % 10 === 0) {
+      audioService.play('click');
+      setStats(prev => ({
+        ...prev,
+        coins: prev.coins + 5
+      }));
+      
+      toast({
+        title: "Love bonus!",
+        description: "You earned 5 coins for showing your Uteroo love!",
+        duration: 2000,
+      });
+    }
   };
 
+  // Handle booster clicks
   const handleBoosterClick = (booster: any) => {
     // Play sound effect based on booster type
     if (booster.type === 'hygiene') {
@@ -1226,7 +1295,7 @@ const PouGame = () => {
     return tooltips[enemyId] || null;
   };
 
-  // Simplified enemy rendering for symptom cards
+  // Render functions
   const renderSymptomCards = () => {
     if (currentEnemies.length === 0) return null;
     
@@ -1285,7 +1354,63 @@ const PouGame = () => {
     );
   };
 
-  // Enhanced phase progress indicator - completely redesigned
+  // Stats panel rendering
+  const renderStatsPanel = () => {
+    return (
+      <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-semibold">Uteroo Status</h3>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-yellow-100 px-2 py-0.5 rounded-full">
+              <CoinsIcon className="h-3.5 w-3.5 text-yellow-500 mr-1" />
+              <span className="text-xs font-medium text-yellow-800">{stats.coins}</span>
+            </div>
+            
+            <div className="flex items-center bg-pink-100 px-2 py-0.5 rounded-full">
+              <Heart className="h-3.5 w-3.5 text-pink-500 mr-1" />
+              <span className="text-xs font-medium text-pink-800">{stats.hearts}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs">Hunger</span>
+              <Apple className="h-3.5 w-3.5 text-red-500" />
+            </div>
+            <Progress value={stats.hunger} className="h-2 mb-2" indicatorClassName={getProgressColor(stats.hunger)} />
+          </div>
+          
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs">Hygiene</span>
+              <Droplet className="h-3.5 w-3.5 text-blue-500" />
+            </div>
+            <Progress value={stats.hygiene} className="h-2 mb-2" indicatorClassName={getProgressColor(stats.hygiene)} />
+          </div>
+          
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs">Energy</span>
+              <BatteryFull className="h-3.5 w-3.5 text-green-500" />
+            </div>
+            <Progress value={stats.energy} className="h-2 mb-2" indicatorClassName={getProgressColor(stats.energy)} />
+          </div>
+          
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs">Happiness</span>
+              <Heart className="h-3.5 w-3.5 text-pink-500" />
+            </div>
+            <Progress value={stats.happiness} className="h-2 mb-2" indicatorClassName={getProgressColor(stats.happiness)} />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Enhanced phase progress indicator
   const renderPhaseProgress = () => {
     // This is a simplified version - in a real implementation, you'd calculate actual days
     const currentDay = 2; // Assuming day 2 of the phase for demonstration
@@ -1347,6 +1472,69 @@ const PouGame = () => {
               </TooltipContent>
             </Tooltip>
           </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render science boosters
+  const renderScienceBoosters = () => {
+    const boosters = scienceBoosters[currentRoom.id as keyof typeof scienceBoosters];
+    
+    if (!boosters || boosters.length === 0) return null;
+    
+    return (
+      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-3 rounded-xl shadow-sm mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-sm flex items-center">
+            <Beaker className="h-4 w-4 mr-1 text-purple-500" />
+            <span>Science-Backed Boosters</span>
+          </h3>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          {boosters.map(booster => (
+            <TooltipProvider key={booster.id}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    onClick={() => handleBoosterClick(booster)}
+                    className="bg-white/80 p-3 rounded-lg flex flex-col items-center cursor-pointer hover:bg-white transition-colors"
+                  >
+                    <img 
+                      src={booster.icon} 
+                      alt={booster.name}
+                      className="w-12 h-12 object-contain mb-2"
+                    />
+                    <div className="text-xs font-medium text-center">{booster.name}</div>
+                    
+                    <div className="flex items-center gap-1 mt-1 text-2xs bg-purple-100 px-1.5 py-0.5 rounded-full">
+                      {booster.costType === "coins" ? (
+                        <CoinsIcon className="h-3 w-3 text-yellow-500" />
+                      ) : (
+                        <Heart className="h-3 w-3 text-pink-500" />
+                      )}
+                      <span>{booster.cost}</span>
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[200px] p-3 bg-white/95 backdrop-blur-sm z-50">
+                  <h4 className="font-semibold mb-1 text-xs">{booster.tooltip.title}</h4>
+                  <p className="text-xs">{booster.tooltip.description}</p>
+                  {booster.tooltip.learnMoreUrl && (
+                    <a 
+                      href={booster.tooltip.learnMoreUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-xs text-purple-600 underline mt-1 block"
+                    >
+                      Learn more
+                    </a>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
         </div>
       </div>
     );
@@ -1629,7 +1817,7 @@ const PouGame = () => {
             </div>
             
             <div className="space-y-4">
-              {quizResults.slice(0, 2).map((item, index) => (
+              {quizResults.slice(0, 2).map((item: any, index: number) => (
                 <div 
                   key={item.id}
                   className="bg-white/90 backdrop-blur-sm p-4 rounded-xl relative overflow-hidden"
@@ -1682,105 +1870,377 @@ const PouGame = () => {
           </div>
         )}
       </div>
-      
-      {/* Modals */}
-      <YogaPoseModal
-        isOpen={showYogaPoses}
-        onClose={() => {
-          audioService.play('click');
-          setShowYogaPoses(false);
+    );
+  };
+
+  return (
+    <div className="min-h-screen relative">
+      <div 
+        className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-500"
+        style={{ 
+          backgroundImage: currentRoom.background 
+            ? `url('${currentRoom.background}')`
+            : "url('/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png')",
+          backgroundSize: 'cover',
         }}
-        poses={yogaPoses}
-        phase={currentPhase}
       />
       
-      <ProductivityTipsModal
-        isOpen={showProductivityTips}
-        onClose={() => {
-          audioService.play('click');
-          setShowProductivityTips(false);
-        }}
-        phase={currentPhase}
-      />
+      {/* Phase-themed color overlay */}
+      <div className={cn(
+        "fixed inset-0 opacity-25 transition-colors duration-500",
+        currentPhase === "menstruation" ? "bg-pink-400" :
+        currentPhase === "follicular" ? "bg-green-400" :
+        currentPhase === "ovulatory" ? "bg-yellow-400" :
+        "bg-orange-400"
+      )} />
       
-      <JournalingModal
-        isOpen={showJournalingModal}
-        onClose={() => {
-          audioService.play('click');
-          setShowJournalingModal(false);
-        }}
-        phase={currentPhase}
-      />
-      
-      <BloodworkModal
-        isOpen={showBloodworkModal}
-        onClose={() => {
-          audioService.play('click');
-          setShowBloodworkModal(false);
-        }}
-        phase={currentPhase}
-      />
-      
-      {showTutorial && (
-        <UterooTutorial onClose={() => {
-          audioService.play('click');
-          setShowTutorial(false);
-        }} />
-      )}
-      
-      {currentRoom.id === 'cycle_sanctuary' && (
-        <CycleSanctuary 
-          currentPhase={currentPhase}
-          onPhaseChange={handlePhaseChange}
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* Header */}
+        <div className="fixed top-0 left-0 right-0 backdrop-blur-sm z-30 pt-4 pb-2 px-4">
+          <div className="max-w-md mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="rounded-full h-8 w-8 p-0"
+                  onClick={() => {
+                    audioService.play('click');
+                    setShowTutorial(true);
+                  }}
+                >
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+                <AudioToggle />
+              </div>
+              
+              <div className="flex gap-2">
+                {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
+                  const PhaseIconComponent = phaseInfo[phaseName].icon;
+                  return (
+                    <Button
+                      key={phaseName}
+                      variant={currentPhase === phaseName ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handlePhaseChange(phaseName)}
+                      className={cn(
+                        "w-8 h-8 p-0 rounded-full",
+                        currentPhase === phaseName && 
+                          (phaseName === "menstruation" ? "bg-pink-500 border-pink-300" :
+                           phaseName === "follicular" ? "bg-green-500 border-green-300" :
+                           phaseName === "ovulatory" ? "bg-yellow-500 border-yellow-300" :
+                           "bg-orange-500 border-orange-300")
+                      )}
+                    >
+                      <PhaseIconComponent className="h-4 w-4" />
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {renderPhaseProgress()}
+          </div>
+        </div>
+
+        {/* Main content area */}
+        <div className="flex-1 pt-28 pb-6 px-4">
+          <div className="max-w-md mx-auto">
+            {/* Room navigation */}
+            <div className="flex justify-between items-center mb-4 mt-6">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePreviousRoom}
+                className="h-8 w-8 p-0 rounded-full"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="sr-only">Previous Room</span>
+              </Button>
+              
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 px-3 py-1.5 backdrop-blur-sm rounded-full">
+                  <RoomIcon className={cn(
+                    "h-4 w-4",
+                    currentPhase === "menstruation" ? "text-pink-500" :
+                    currentPhase === "follicular" ? "text-green-500" :
+                    currentPhase === "ovulatory" ? "text-yellow-500" :
+                    "text-orange-500"
+                  )} />
+                  <h2 className="text-sm font-medium">{currentRoom.name}</h2>
+                </div>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="h-8 w-8 p-0 rounded-full"
+                      onClick={() => audioService.play('click')}
+                    >
+                      <span className="sr-only">Show rooms</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-white/95 backdrop-blur-sm border-0 rounded-lg">
+                    {rooms.map((room, index) => {
+                      const IconComponent = room.icon;
+                      return (
+                        <DropdownMenuItem 
+                          key={room.id}
+                          onClick={() => {
+                            audioService.play('click');
+                            setCurrentRoomIndex(index);
+                          }}
+                          className={cn(
+                            "flex items-center gap-2 cursor-pointer",
+                            currentRoomIndex === index && "bg-gray-100 font-medium"
+                          )}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                          {room.name}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleNextRoom}
+                className="h-8 w-8 p-0 rounded-full"
+              >
+                <ArrowRight className="h-4 w-4" />
+                <span className="sr-only">Next Room</span>
+              </Button>
+            </div>
+            
+            {/* Stats panel */}
+            {renderStatsPanel()}
+            
+            {/* Character area */}
+            <div 
+              className="relative flex justify-center mb-4 mx-auto"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+            >
+              {/* Heart bonus indicator */}
+              {showHeartBonus && (
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-12 bg-pink-500 text-white rounded-full px-3 py-1 text-sm font-bold animate-bounce-slow z-20">
+                  +5 Hearts Bonus! 💗
+                </div>
+              )}
+              
+              {/* Floating hearts animation */}
+              {floatingHearts.map(heart => (
+                <div
+                  key={heart.id}
+                  className="absolute pointer-events-none"
+                  style={{
+                    transform: `translate(${heart.x}px, ${heart.y}px)`,
+                    animation: 'float-up 1.5s ease-out forwards'
+                  }}
+                >
+                  <div className="flex items-center">
+                    <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
+                    <span className="text-xs font-bold text-white bg-pink-500 rounded-full px-1 ml-0.5">+1</span>
+                  </div>
+                </div>
+              ))}
+              
+              <UterooCharacter 
+                phase={currentPhase} 
+                currentRoom={currentRoom.id} 
+                size="large" 
+                minimal={false} 
+                onClick={handleUterooClick}
+              />
+              
+              {showBoostIndicator && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-bold text-white animate-boost z-20">
+                  <span className={cn(
+                    "px-3 py-1.5 rounded-full shadow-lg",
+                    boostType === "hunger" ? "bg-red-500" :
+                    boostType === "hygiene" ? "bg-blue-500" :
+                    boostType === "energy" ? "bg-green-500" :
+                    "bg-pink-500"
+                  )}>
+                    +{boostType}!
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            {/* Symptoms section */}
+            {currentRoom.id !== 'shop' && renderSymptomCards()}
+            
+            {/* Continue streak button - hide in shop room */}
+            {currentRoom.id !== 'shop' && (
+              <Button 
+                className={cn(
+                  "w-full mb-4 border-0 bg-gradient-to-r text-sm",
+                  currentPhase === "menstruation" ? "from-pink-500 to-pink-400" :
+                  currentPhase === "follicular" ? "from-green-500 to-green-400" :
+                  currentPhase === "ovulatory" ? "from-yellow-500 to-yellow-400" :
+                  "from-orange-500 to-orange-400"
+                )}
+                onClick={() => {
+                  audioService.play('bonus');
+                  updateStreak();
+                }}
+              >
+                <Flame className="h-4 w-4 mr-1" />
+                <span>🔥 {streak}-Day Streak • Continue (+10 pts)</span>
+              </Button>
+            )}
+            
+            {/* Render shop room interface */}
+            {renderShopRoom()}
+            
+            {/* Science boosters - hide in shop room */}
+            {currentRoom.id !== 'shop' && renderScienceBoosters()}
+            
+            {/* Regular boosters - hide in shop room */}
+            {currentRoom.id !== 'shop' && currentRoomBoosters.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-sm">Boosters</h3>
+                  <div className="text-xs px-2 py-0.5 backdrop-blur-sm rounded-full">
+                    Tap to use
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-xl">
+                  {currentRoomBoosters.map((booster) => (
+                    booster.isPhaseRecipe ? (
+                      <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
+                    ) : (
+                      <div 
+                        key={booster.id}
+                        onClick={() => handleBoosterClick(booster)}
+                        className="flex flex-col items-center p-2 rounded-lg cursor-pointer transition-shadow"
+                      >
+                        <img 
+                          src={booster.icon} 
+                          alt={booster.name}
+                          className="w-10 h-10 object-contain mb-1 animate-pulse-slow"
+                        />
+                        <span className="text-xs font-medium text-center">{booster.name}</span>
+                        {booster.cost && (
+                          <div className="flex items-center gap-1 mt-1 text-2xs bg-yellow-100 px-1.5 py-0.5 rounded-full">
+                            <CoinsIcon className="h-3 w-3 text-yellow-500" />
+                            <span>{booster.cost}</span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Modals */}
+        <YogaPoseModal
+          isOpen={showYogaPoses}
+          onClose={() => {
+            audioService.play('click');
+            setShowYogaPoses(false);
+          }}
+          poses={yogaPoses}
+          phase={currentPhase}
         />
-      )}
+        
+        <ProductivityTipsModal
+          isOpen={showProductivityTips}
+          onClose={() => {
+            audioService.play('click');
+            setShowProductivityTips(false);
+          }}
+          phase={currentPhase}
+        />
+        
+        <JournalingModal
+          isOpen={showJournalingModal}
+          onClose={() => {
+            audioService.play('click');
+            setShowJournalingModal(false);
+          }}
+          phase={currentPhase}
+        />
+        
+        <BloodworkModal
+          isOpen={showBloodworkModal}
+          onClose={() => {
+            audioService.play('click');
+            setShowBloodworkModal(false);
+          }}
+          phase={currentPhase}
+        />
+        
+        {showTutorial && (
+          <UterooTutorial onClose={() => {
+            audioService.play('click');
+            setShowTutorial(false);
+          }} />
+        )}
+        
+        {currentRoom.id === 'cycle_sanctuary' && (
+          <CycleSanctuary 
+            currentPhase={currentPhase}
+            onPhaseChange={handlePhaseChange}
+          />
+        )}
+      </div>
+      
+      {/* Custom animations */}
+      <style>
+        {`
+        @keyframes rotate-y-180 {
+          0% { transform: rotateY(0deg); }
+          100% { transform: rotateY(180deg); }
+        }
+        
+        @keyframes rotate-y-0 {
+          0% { transform: rotateY(180deg); }
+          100% { transform: rotateY(0deg); }
+        }
+        
+        @keyframes float-up {
+          0% { transform: translateY(0); opacity: 1; }
+          100% { transform: translateY(-50px); opacity: 0; }
+        }
+        
+        @keyframes bounce-once {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse-slow {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+        
+        .rotate-y-0 {
+          transform: rotateY(0deg);
+        }
+        
+        .animate-bounce-once {
+          animation: bounce-once 0.6s ease-in-out;
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse-slow 2s ease-in-out infinite;
+        }
+        `}
+      </style>
     </div>
-    
-    {/* Add custom keyframe animations for shop interactions */}
-    <style>
-      {`
-      @keyframes rotate-y-180 {
-        0% { transform: rotateY(0deg); }
-        100% { transform: rotateY(180deg); }
-      }
-      
-      @keyframes rotate-y-0 {
-        0% { transform: rotateY(180deg); }
-        100% { transform: rotateY(0deg); }
-      }
-      
-      @keyframes float-up {
-        0% { transform: translateY(0); opacity: 1; }
-        100% { transform: translateY(-50px); opacity: 0; }
-      }
-      
-      @keyframes bounce-once {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-      }
-      
-      @keyframes pulse-slow {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-      }
-      
-      .rotate-y-180 {
-        transform: rotateY(180deg);
-      }
-      
-      .rotate-y-0 {
-        transform: rotateY(0deg);
-      }
-      
-      .animate-bounce-once {
-        animation: bounce-once 0.6s ease-in-out;
-      }
-      
-      .animate-pulse-slow {
-        animation: pulse-slow 2s ease-in-out infinite;
-      }
-      `}
-    </style>
   );
 };
 
