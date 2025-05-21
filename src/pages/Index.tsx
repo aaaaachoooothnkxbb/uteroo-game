@@ -54,7 +54,7 @@ const Index = () => {
       setLoadingProvider(provider);
       
       // Get the current URL for proper redirect
-      const redirectTo = `${window.location.origin}/dashboard`;
+      const redirectTo = `${window.location.origin}/pou-game`;
       
       console.log(`Attempting to sign in with ${provider}. Redirect URL: ${redirectTo}`);
       
