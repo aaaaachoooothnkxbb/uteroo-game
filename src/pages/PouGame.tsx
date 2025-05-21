@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { UterooCharacter } from '@/components/UterooCharacter';
 import { Room } from '@/components/Room';
@@ -5,15 +6,19 @@ import { Item } from '@/components/Item';
 import { Modal } from '@/components/Modal';
 import { Heart } from 'lucide-react';
 import { audioService } from '@/utils/audioService';
-import { useRouter } from 'next/router';
-import { useToast } from "@/components/ui/use-toast"
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useToast } from "@/components/ui/use-toast";
 
 // Define types for stats and items
+type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
+
 type Stats = {
   hunger: number;
   hygiene: number;
   energy: number;
   happiness: number;
+  hearts?: number;
+  coins?: number;
 };
 
 type ItemType = "food" | "hygiene" | "entertainment" | "energy";
@@ -74,7 +79,7 @@ const items: ItemData[] = [
 ];
 
 // Data for rooms
-const rooms = [
+const gameRooms = [
   {
     id: "bedroom",
     name: "Bedroom",
@@ -105,7 +110,7 @@ const rooms = [
   },
 ];
 
-const phases = ["menstruation", "follicular", "ovulatory", "luteal"];
+const phases: Phase[] = ["menstruation", "follicular", "ovulatory", "luteal"];
 
 // Interface for floating hearts
 interface FloatingHeart {
@@ -120,9 +125,11 @@ const PouGame = () => {
     hygiene: 50,
     energy: 50,
     happiness: 50,
+    hearts: 0,
+    coins: 0,
   });
-  const [currentRoom, setCurrentRoom] = useState(rooms[0]);
-  const [currentPhase, setCurrentPhase] = useState(phases[0]);
+  const [currentRoom, setCurrentRoom] = useState(gameRooms[0]);
+  const [currentPhase, setCurrentPhase] = useState<Phase>(phases[0]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
   const [draggedItem, setDraggedItem] = useState<ItemData | null>(null);
@@ -131,8 +138,8 @@ const PouGame = () => {
   const [boostIndicator, setBoostIndicator] = useState<{ item: string; type: string } | null>(null);
   const [showPhaseModal, setShowPhaseModal] = useState(false);
   const [phaseModalContent, setPhaseModalContent] = useState<React.ReactNode>(null);
-  const router = useRouter();
-  const { toast } = useToast()
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Function to handle phase transition
   const handlePhaseTransition = useCallback(() => {
@@ -237,31 +244,59 @@ const PouGame = () => {
   };
 
   // Function to handle room change
-  const changeRoom = (room: { id: any; }) => {
+  const changeRoom = (room: typeof gameRooms[number]) => {
     setCurrentRoom(room);
   };
 
-  // Function to render stats panel
-  const renderStatsPanel = () => (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-md p-4 mb-4">
-      <h3 className="text-lg font-semibold mb-2">Stats</h3>
-      <p>Hunger: {stats.hunger}</p>
-      <p>Hygiene: {stats.hygiene}</p>
-      <p>Energy: {stats.energy}</p>
-      <p>Happiness: {stats.happiness}</p>
-    </div>
-  );
+  // Function to get progress color based on value
+  const getProgressColor = (value: number) => {
+    if (value < 30) return "bg-red-500";
+    if (value < 60) return "bg-yellow-500";
+    return "bg-green-500";
+  };
+
+  // Stats panel rendering with updated styling - transparent and cute
+  const renderStatsPanel = () => {
+    return (
+      <div className="bg-gradient-to-r from-pink-50/30 to-purple-50/30 backdrop-blur-sm p-4 rounded-2xl border border-white/30 shadow-sm mb-4 animate-pulse-slow">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold flex items-center">
+            <span className="text-lg mr-1">✨</span> 
+            Uteroo Status
+          </h3>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-yellow-100/70 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-medium text-yellow-800">{stats.coins || 0}</span>
+            </div>
+            
+            <div className="flex items-center bg-pink-100/70 px-2 py-0.5 rounded-full">
+              <Heart className="h-3.5 w-3.5 text-pink-500 mr-1 animate-bounce-slow" />
+              <span className="text-xs font-medium text-pink-800">{stats.hearts || 0}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs">Hunger</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Drag and Drop Handlers
   const handleDragStart = (item: ItemData) => {
     setDraggedItem(item);
   };
 
-  const handleDragOver = (e: any) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e: any) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (draggedItem) {
       useItem(draggedItem);
@@ -306,7 +341,7 @@ const PouGame = () => {
         <header className="absolute top-0 left-0 w-full bg-white/50 backdrop-blur-sm border-b border-white/30 h-24 flex items-center justify-between px-6">
           <h1 className="text-2xl font-bold text-black drop-shadow-md">Uteroo Game</h1>
           <nav>
-            <button onClick={() => router.push('/about')} className="bg-blue-500 text-white rounded-full px-4 py-2">About</button>
+            <button onClick={() => navigate('/about')} className="bg-blue-500 text-white rounded-full px-4 py-2">About</button>
           </nav>
         </header>
 
@@ -315,7 +350,7 @@ const PouGame = () => {
           <div className="max-w-md mx-auto">
             {/* Room navigation */}
             <div className="flex justify-between mb-4">
-              {rooms.map((room) => (
+              {gameRooms.map((room) => (
                 <button
                   key={room.id}
                   onClick={() => changeRoom(room)}
@@ -412,8 +447,8 @@ const PouGame = () => {
         </Modal>
       </div>
       
-      {/* Styling */}
-      <style jsx>{`
+      <style>
+        {`
         /* Floating animation for hearts */
         @keyframes float-up {
           0% {
@@ -438,7 +473,8 @@ const PouGame = () => {
             transform: translateY(-5px);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
