@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ChefHat, Apple, Carrot, Egg, Broccoli } from "lucide-react";
+import { ChefHat, Apple, Carrot, Egg, Leaf } from "lucide-react";
 import { audioService } from "@/utils/audioService";
 
 // Define the phase-specific biases for different food categories
@@ -41,9 +41,9 @@ const HORMONE_PHASES = {
 // Define the food ingredients categories
 const INGREDIENTS = {
   vegetables: [
-    { name: 'Broccoli', emoji: '🥦', benefit: 'Estrogen balance', icon: <Broccoli className="h-5 w-5" /> },
+    { name: 'Broccoli', emoji: '🥦', benefit: 'Estrogen balance', icon: <Leaf className="h-5 w-5" /> },
     { name: 'Spinach', emoji: '🍃', benefit: 'Iron boost', icon: <Carrot className="h-5 w-5" /> },
-    { name: 'Kale', emoji: '🥬', benefit: 'Vitamin K', icon: <Broccoli className="h-5 w-5" /> },
+    { name: 'Kale', emoji: '🥬', benefit: 'Vitamin K', icon: <Leaf className="h-5 w-5" /> },
     { name: 'Avocado', emoji: '🥑', benefit: 'Healthy fats', icon: <Apple className="h-5 w-5" /> },
   ],
   proteins: [
