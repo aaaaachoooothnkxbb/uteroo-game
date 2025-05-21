@@ -19,6 +19,7 @@ import { BloodworkModal } from "@/components/BloodworkModal";
 import { UterooTutorial } from "@/components/UterooTutorial";
 import { CycleSanctuary } from "@/components/CycleSanctuary";
 import { KitchenRoomInteraction } from "@/components/KitchenRoomInteraction";
+import { ShopRoom } from "@/components/ShopRoom";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -1132,6 +1133,74 @@ const PouGame = () => {
     });
   }, [heartClicks, toast, consecutiveClicks, lastClickTime]);
 
+  // Add a handler for purchases in the shop
+  const handlePurchase = (price: number, productName: string, productType: string) => {
+    // Deduct coins
+    setStats(prev => ({
+      ...prev,
+      coins: prev.coins - price
+    }));
+    
+    // Different effects based on product type
+    let boostType = "happiness";
+    let boostAmount = 15;
+    
+    if (productType === "hormone_helpers") {
+      boostType = "energy";
+      boostAmount = 20;
+    } else if (productType === "cycle_self_care") {
+      boostType = "happiness";
+      boostAmount = 25;
+    } else if (productType === "sleep_stress") {
+      boostType = "energy";
+      boostAmount = 30;
+    } else if (productType === "eco_essentials") {
+      boostType = "hygiene";
+      boostAmount = 25;
+    }
+    
+    // Apply the boost
+    setStats(prev => {
+      const newStats = { ...prev };
+      switch (boostType) {
+        case "hunger":
+          newStats.hunger = Math.min(100, prev.hunger + boostAmount);
+          break;
+        case "hygiene":
+          newStats.hygiene = Math.min(100, prev.hygiene + boostAmount);
+          break;
+        case "energy":
+          newStats.energy = Math.min(100, prev.energy + boostAmount);
+          break;
+        case "happiness":
+          newStats.happiness = Math.min(100, prev.happiness + boostAmount);
+          break;
+      }
+      return newStats;
+    });
+    
+    // Show boost indicator
+    setBoostType(boostType);
+    setShowBoostIndicator(true);
+    setTimeout(() => setShowBoostIndicator(false), 1000);
+    
+    // Add hearts for purchase
+    setStats(prev => ({
+      ...prev,
+      hearts: prev.hearts + 5
+    }));
+    
+    // Update streak
+    updateStreak();
+    
+    // Show toast notification
+    toast({
+      title: `Purchased ${productName}!`,
+      description: `You got a +${boostAmount} ${boostType} boost!`,
+      duration: 3000,
+    });
+  };
+
   return (
     <div className="min-h-screen relative">
       
@@ -1336,8 +1405,17 @@ const PouGame = () => {
               />
             )}
             
-            {/* Regular boosters - only show if not in kitchen */}
-            {currentRoom.id !== 'kitchen' && (
+            {/* Shop Room Content */}
+            {currentRoom.id === 'shop' && (
+              <ShopRoom
+                currentPhase={currentPhase}
+                stats={stats}
+                onPurchase={handlePurchase}
+              />
+            )}
+            
+            {/* Regular boosters - only show if not in kitchen or shop */}
+            {currentRoom.id !== 'kitchen' && currentRoom.id !== 'shop' && (
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-sm">Boosters</h3>
