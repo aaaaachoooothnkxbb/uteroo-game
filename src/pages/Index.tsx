@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -108,7 +107,7 @@ const Index = () => {
           <img
             src="/lovable-uploads/790172fa-27b1-4ab3-a3ef-3f10cdac5181.png"
             alt="Uteroo"
-            className="h-40 w-auto object-contain animate-pulse transition-all duration-3000 hover:scale-125 ease-in-out"
+            className="h-40 w-auto object-contain"
           />
         </div>
 
