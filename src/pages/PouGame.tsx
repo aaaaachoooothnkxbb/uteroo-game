@@ -1211,7 +1211,7 @@ const PouGame = () => {
         {/* Main content area */}
         <div className="flex-1 pt-28 pb-6 px-4">
           <div className="max-w-md mx-auto">
-            {/* Improved room navigation */}
+            {/* Improved room navigation - MODIFIED to remove text and show only icons */}
             <div className="flex justify-between items-center mb-4 mt-6">
               <Button 
                 variant="outline" 
@@ -1224,16 +1224,25 @@ const PouGame = () => {
               </Button>
               
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 px-3 py-1.5 backdrop-blur-sm rounded-full">
-                  <RoomIcon className={cn(
-                    "h-4 w-4",
-                    currentPhase === "menstruation" ? "text-pink-500" :
-                    currentPhase === "follicular" ? "text-green-500" :
-                    currentPhase === "ovulatory" ? "text-yellow-500" :
-                    "text-orange-500"
-                  )} />
-                  <h2 className="text-sm font-medium">{currentRoom.name}</h2>
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center justify-center px-3 py-1.5 backdrop-blur-sm rounded-full">
+                        <RoomIcon className={cn(
+                          "h-5 w-5",
+                          currentPhase === "menstruation" ? "text-pink-500" :
+                          currentPhase === "follicular" ? "text-green-500" :
+                          currentPhase === "ovulatory" ? "text-yellow-500" :
+                          "text-orange-500"
+                        )} />
+                        {/* Room name text removed, only icon remains */}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      {currentRoom.name}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
