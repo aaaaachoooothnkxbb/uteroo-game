@@ -18,6 +18,7 @@ import { JournalingModal } from "@/components/JournalingModal";
 import { BloodworkModal } from "@/components/BloodworkModal";
 import { UterooTutorial } from "@/components/UterooTutorial";
 import { CycleSanctuary } from "@/components/CycleSanctuary";
+import { KitchenRoomInteraction } from "@/components/KitchenRoomInteraction";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -1327,41 +1328,51 @@ const PouGame = () => {
             {/* Science boosters */}
             {renderScienceBoosters()}
             
-            {/* Regular boosters */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-sm">Boosters</h3>
-                <div className="text-xs px-2 py-0.5 backdrop-blur-sm rounded-full">
-                  Tap to use
+            {/* Kitchen Room Content */}
+            {currentRoom.id === 'kitchen' && (
+              <KitchenRoomInteraction 
+                currentPhase={currentPhase} 
+                updateStreak={updateStreak}
+              />
+            )}
+            
+            {/* Regular boosters - only show if not in kitchen */}
+            {currentRoom.id !== 'kitchen' && (
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-sm">Boosters</h3>
+                  <div className="text-xs px-2 py-0.5 backdrop-blur-sm rounded-full">
+                    Tap to use
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-xl">
+                  {currentRoomBoosters.map((booster) => (
+                    booster.isPhaseRecipe ? (
+                      <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
+                    ) : (
+                      <div 
+                        key={booster.id}
+                        onClick={() => handleBoosterClick(booster)}
+                        className="flex flex-col items-center p-2 rounded-lg cursor-pointer transition-shadow"
+                      >
+                        <img 
+                          src={booster.icon} 
+                          alt={booster.name}
+                          className="w-10 h-10 object-contain mb-1 animate-pulse-slow"
+                        />
+                        <span className="text-xs font-medium text-center">{booster.name}</span>
+                        {booster.cost && (
+                          <div className="flex items-center gap-1 mt-1 text-2xs bg-yellow-100 px-1.5 py-0.5 rounded-full">
+                            <CoinsIcon className="h-3 w-3 text-yellow-500" />
+                            <span>{booster.cost}</span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-xl">
-                {currentRoomBoosters.map((booster) => (
-                  booster.isPhaseRecipe ? (
-                    <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
-                  ) : (
-                    <div 
-                      key={booster.id}
-                      onClick={() => handleBoosterClick(booster)}
-                      className="flex flex-col items-center p-2 rounded-lg cursor-pointer transition-shadow"
-                    >
-                      <img 
-                        src={booster.icon} 
-                        alt={booster.name}
-                        className="w-10 h-10 object-contain mb-1 animate-pulse-slow"
-                      />
-                      <span className="text-xs font-medium text-center">{booster.name}</span>
-                      {booster.cost && (
-                        <div className="flex items-center gap-1 mt-1 text-2xs bg-yellow-100 px-1.5 py-0.5 rounded-full">
-                          <CoinsIcon className="h-3 w-3 text-yellow-500" />
-                          <span>{booster.cost}</span>
-                        </div>
-                      )}
-                    </div>
-                  )
-                ))}
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
