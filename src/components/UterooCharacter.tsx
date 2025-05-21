@@ -43,6 +43,14 @@ const phaseToSymptoms = {
   luteal: ["I'm so irritable", "I feel sad", "I have no energy"]
 };
 
+// Enemy images associated with each phase symptom
+const phaseToEnemyImages = {
+  menstruation: "/lovable-uploads/photo-1581091226825-a6a2a5aee158.jpeg",
+  follicular: "/lovable-uploads/photo-1461749280684-dccba630e2f6.jpeg",
+  ovulatory: "/lovable-uploads/photo-1485827404703-89b55fcc595e.jpeg",
+  luteal: "/lovable-uploads/photo-1526374965328-7f61d4dc18c5.jpeg"
+};
+
 // Updated Phase to sound mapping for character interactions - using gentler sounds
 const phaseToSound = {
   menstruation: "soft_bells",
@@ -90,6 +98,8 @@ export const UterooCharacter = ({
   const [currentMessage, setCurrentMessage] = useState(phaseToMessage[phase]);
   const [activeSymptom, setActiveSymptom] = useState<string | null>(null);
   const [showSymptoms, setShowSymptoms] = useState(false);
+  const [symptomStage, setSymptomStage] = useState<"text" | "image" | "none">("none");
+  const [bubbleSize, setBubbleSize] = useState(100); // 100% size initially
   
   // Play room-specific sound when character changes rooms
   useEffect(() => {
@@ -116,13 +126,25 @@ export const UterooCharacter = ({
         const randomSymptom = symptoms[Math.floor(Math.random() * symptoms.length)];
         setActiveSymptom(randomSymptom);
         setShowSymptoms(true);
+        setSymptomStage("text");
+        setBubbleSize(100); // Reset bubble size to 100%
         
-        // Hide symptom after a few seconds
+        // Transition from text to image after a few seconds
+        setTimeout(() => {
+          if (showSymptoms) {
+            setSymptomStage("image");
+            // Shrink bubble slightly for image phase
+            setBubbleSize(85);
+          }
+        }, 4000);
+        
+        // Hide symptom after more seconds
         setTimeout(() => {
           setShowSymptoms(false);
-        }, 4000);
+          setSymptomStage("none");
+        }, 8000);
       }
-    }, 8000);
+    }, 15000);
     
     return () => clearInterval(symptomInterval);
   }, [phase, showSymptoms]);
@@ -153,23 +175,40 @@ export const UterooCharacter = ({
       setFloatingHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
     }, 1500);
 
-    // Show a random symptom when clicked with higher probability
-    const symptoms = phaseToSymptoms[phase];
-    if (Math.random() > 0.3) {
-      const randomSymptom = symptoms[Math.floor(Math.random() * symptoms.length)];
-      setActiveSymptom(randomSymptom);
-      setShowSymptoms(true);
+    // When clicked, if showing symptoms, shrink the bubble further
+    if (showSymptoms) {
+      // Shrink the bubble size
+      setBubbleSize(prev => Math.max(prev - 15, 40)); // Min size of 40%
       
-      // Hide symptom after a few seconds
-      setTimeout(() => {
+      // If bubble size is small enough, hide the symptom
+      if (bubbleSize <= 55) {
         setShowSymptoms(false);
-      }, 4000);
+        setSymptomStage("none");
+      }
+    } else {
+      // Show a random symptom when clicked with higher probability
+      const symptoms = phaseToSymptoms[phase];
+      if (Math.random() > 0.3) {
+        const randomSymptom = symptoms[Math.floor(Math.random() * symptoms.length)];
+        setActiveSymptom(randomSymptom);
+        setShowSymptoms(true);
+        setSymptomStage("text");
+        setBubbleSize(100); // Reset bubble size to 100%
+        
+        // Transition from text to image after a few seconds
+        setTimeout(() => {
+          if (showSymptoms) {
+            setSymptomStage("image");
+            setBubbleSize(85);
+          }
+        }, 4000);
+      }
     }
     
     if (onClick) {
       onClick();
     }
-  }, [phase, onClick]);
+  }, [phase, onClick, showSymptoms, bubbleSize]);
 
   if (minimal) {
     // Minimal version without message bubble - just the character
@@ -208,26 +247,43 @@ export const UterooCharacter = ({
     <div className="flex flex-col items-center">
       <div className="relative">
         {/* Symptom thought bubble */}
-        {showSymptoms && activeSymptom && (
-          <div className={cn(
-            "absolute z-10 -top-16 -right-8 max-w-[180px] text-sm px-4 py-3 rounded-xl",
-            "bg-white/90 shadow-md backdrop-blur-sm animate-bounce-slow",
-            "before:content-[''] before:absolute before:bottom-0 before:right-6 before:w-4 before:h-4",
-            "before:bg-white/90 before:rotate-45 before:translate-y-2",
-            phase === "menstruation" ? "before:bg-pink-100/90 bg-pink-100/90 text-pink-800" :
-            phase === "follicular" ? "before:bg-green-100/90 bg-green-100/90 text-green-800" :
-            phase === "ovulatory" ? "before:bg-yellow-100/90 bg-yellow-100/90 text-yellow-800" :
-            "before:bg-orange-100/90 bg-orange-100/90 text-orange-800"
-          )}>
-            <div className="flex items-center gap-2">
-              <span role="img" aria-label="Symptom" className="text-lg">
-                {phase === "menstruation" ? "😣" :
-                 phase === "follicular" ? "😰" :
-                 phase === "ovulatory" ? "😵" :
-                 "😤"}
-              </span>
-              <span className="font-medium italic">{activeSymptom}</span>
-            </div>
+        {showSymptoms && (
+          <div 
+            className={cn(
+              "absolute z-10 -top-16 -right-8 text-sm px-4 py-3 rounded-xl",
+              "bg-white/90 shadow-md backdrop-blur-sm",
+              phase === "menstruation" ? "bg-pink-100/90 text-pink-800" :
+              phase === "follicular" ? "bg-green-100/90 text-green-800" :
+              phase === "ovulatory" ? "bg-yellow-100/90 text-yellow-800" :
+              "bg-orange-100/90 text-orange-800",
+              "before:content-[''] before:absolute before:bottom-0 before:right-6 before:w-4 before:h-4 before:rotate-45 before:translate-y-2",
+              phase === "menstruation" ? "before:bg-pink-100/90" :
+              phase === "follicular" ? "before:bg-green-100/90" :
+              phase === "ovulatory" ? "before:bg-yellow-100/90" :
+              "before:bg-orange-100/90"
+            )}
+            style={{
+              maxWidth: '180px',
+              transform: `scale(${bubbleSize / 100})`,
+              transformOrigin: 'bottom right',
+              transition: 'transform 0.5s ease'
+            }}
+          >
+            {symptomStage === "text" && (
+              <div className="flex items-center">
+                <span className="font-medium italic">{activeSymptom}</span>
+              </div>
+            )}
+            
+            {symptomStage === "image" && (
+              <div className="flex justify-center items-center">
+                <img 
+                  src={phaseToEnemyImages[phase]} 
+                  alt="Enemy" 
+                  className="w-full h-24 object-cover rounded" 
+                />
+              </div>
+            )}
           </div>
         )}
         
