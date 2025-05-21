@@ -8,6 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { audioService } from "@/utils/audioService";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { RecipeRoulette } from "@/components/RecipeRoulette";
+import { PhaseRecipeRoulette } from "@/components/PhaseRecipeRoulette";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -93,7 +96,7 @@ const groceryListsByPhase: Record<Phase, { goal: string; items: Omit<GroceryItem
 
 export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRoomInteractionProps) {
   const { toast } = useToast();
-  const [step, setStep] = useState<'food' | 'hydration' | 'grocery'>('food');
+  const [activeTab, setActiveTab] = useState<'food' | 'recipes' | 'grocery'>('food');
   const [foodSelected, setFoodSelected] = useState<string | null>(null);
   const [waterGlasses, setWaterGlasses] = useState<number>(0);
   const [groceryList, setGroceryList] = useState<GroceryItem[]>([]);
@@ -139,7 +142,7 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
   const handleFoodSelect = (food: string) => {
     audioService.play('click');
     setFoodSelected(food);
-    setStep('hydration');
+    setActiveTab('recipes');
   };
   
   const handleWaterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,7 +165,7 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
         duration: 3000,
       });
     }
-    setStep('grocery');
+    setActiveTab('grocery');
   };
   
   const toggleItem = (itemId: string) => {
@@ -181,7 +184,7 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
   };
   
   const resetInteraction = () => {
-    setStep('food');
+    setActiveTab('food');
     setFoodSelected(null);
     setWaterGlasses(0);
     setShowMessage(false);
@@ -189,10 +192,16 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
   
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-md">
-      {step === 'food' && (
-        <>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+        <TabsList className="grid grid-cols-3 mb-4">
+          <TabsTrigger value="food">Food Diary</TabsTrigger>
+          <TabsTrigger value="recipes">Recipes</TabsTrigger>
+          <TabsTrigger value="grocery">Shopping List</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="food">
           <h3 className="text-center font-semibold mb-4">What have you eaten today?</h3>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 mb-4">
             <Button 
               variant="outline" 
               onClick={() => handleFoodSelect('carbs')}
@@ -226,11 +235,7 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
               <span>Sweets/junk food</span>
             </Button>
           </div>
-        </>
-      )}
-      
-      {step === 'hydration' && (
-        <>
+          
           <h3 className="text-center font-semibold mb-4">How many glasses of water have you drunk? (250ml/glass)</h3>
           <div className="flex items-center justify-center gap-2 mb-4">
             <input
@@ -244,13 +249,23 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
             <span>glasses</span>
           </div>
           <div className="flex justify-center">
-            <Button onClick={handleSubmitHydration}>Next</Button>
+            <Button onClick={handleSubmitHydration}>Save & Continue</Button>
           </div>
-        </>
-      )}
-      
-      {step === 'grocery' && (
-        <>
+        </TabsContent>
+        
+        <TabsContent value="recipes" className="space-y-6">
+          <div className="mb-6">
+            <h3 className="font-semibold mb-2 text-center">Phase-Specific Recipe Roulette</h3>
+            <PhaseRecipeRoulette phase={currentPhase} />
+          </div>
+          
+          <div>
+            <h3 className="font-semibold mb-2 text-center">Database Recipes</h3>
+            <RecipeRoulette phase={currentPhase} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="grocery">
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-semibold">
               {currentPhase === "menstruation" ? "🩸 Menstrual Phase Groceries" :
@@ -307,8 +322,8 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
           <div className="text-xs text-center mt-3 text-gray-500">
             Buying these items will help defeat: {phaseList.enemies.join(" & ")}
           </div>
-        </>
-      )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

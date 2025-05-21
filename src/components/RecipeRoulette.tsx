@@ -60,7 +60,7 @@ export const RecipeRoulette = ({ phase = "menstruation" }) => {
     }, 2000);
   };
 
-  const currentRecipe = recipes?.[Math.floor(Math.random() * recipes.length)];
+  const currentRecipe = recipes?.[Math.floor(Math.random() * (recipes?.length || 1))];
 
   return (
     <>

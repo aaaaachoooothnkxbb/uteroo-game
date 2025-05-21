@@ -1,497 +1,324 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
-  DialogDescription 
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ChefHat, Sparkles, UtensilsCrossed, Apple, Fish, Cherry, Egg, Salad, Carrot } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { ChefHat, Apple, Carrot, Egg, Broccoli } from "lucide-react";
+import { audioService } from "@/utils/audioService";
 
-type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
-
-interface PhaseRecipeInfo {
-  phase: Phase;
-  keyGoals: string;
-  foodCategories: {
-    name: string;
-    percentage: number;
-    sources: string;
-    why: string;
-    color: string;
-  }[];
-}
-
-const phaseRecipes: Record<Phase, PhaseRecipeInfo> = {
-  menstruation: {
-    phase: "menstruation",
-    keyGoals: "Replenish iron, reduce inflammation, support detox",
-    foodCategories: [
-      {
-        name: "Iron-Rich Foods",
-        percentage: 40,
-        sources: "Red meat, lentils, spinach, blackstrap molasses",
-        why: "Compensates for blood loss (NIH, 2021)",
-        color: "#F87171" // red
-      },
-      {
-        name: "Omega-3s",
-        percentage: 25,
-        sources: "Salmon, chia seeds, walnuts",
-        why: "Lowers prostaglandins (pain triggers) (AJCN, 2019)",
-        color: "#60A5FA" // blue
-      },
-      {
-        name: "Complex Carbs",
-        percentage: 20,
-        sources: "Sweet potatoes, quinoa",
-        why: "Stabilizes serotonin (mood) during estrogen drop (NCBI, 2020)",
-        color: "#FBBF24" // yellow
-      },
-      {
-        name: "Probiotics",
-        percentage: 15,
-        sources: "Yogurt, kimchi",
-        why: "Gut health modulates estrogen excretion (Front. Endocrinol., 2022)",
-        color: "#34D399" // green
-      }
-    ]
+// Define the phase-specific biases for different food categories
+const HORMONE_PHASES = {
+  menstruation: { 
+    bias: { vegetables: 0.3, proteins: 0.4 }, 
+    color: '#FF6B9D',
+    emoji: '🌸'
   },
-  follicular: {
-    phase: "follicular",
-    keyGoals: "Support estrogen rise, energy, and follicle development",
-    foodCategories: [
-      {
-        name: "Cruciferous Veggies & Leafy Greens",
-        percentage: 35,
-        sources: "Broccoli, kale, arugula",
-        why: "Indole-3-carbinol aids estrogen metabolism (J. Nutr., 2020)",
-        color: "#10B981" // green
-      },
-      {
-        name: "Lean Protein",
-        percentage: 30,
-        sources: "Chicken, tofu, tempeh",
-        why: "Provides amino acids for tissue repair (Int. J. Sport Nutr., 2018)",
-        color: "#F87171" // red
-      },
-      {
-        name: "Seeds & Nuts",
-        percentage: 25,
-        sources: "Flaxseeds, pumpkin seeds",
-        why: "Lignans modulate estrogen (J. Clin. Endocrinol. Metab., 2021)",
-        color: "#FBBF24" // yellow
-      },
-      {
-        name: "Citrus",
-        percentage: 10,
-        sources: "Oranges, lemons",
-        why: "Vitamin C boosts iron absorption (NIH, 2022)",
-        color: "#FCD34D" // light yellow
-      }
-    ]
+  follicular: { 
+    bias: { proteins: 0.5, carbs: 0.2 }, 
+    color: '#7EC4CF',
+    emoji: '🌱'
   },
-  ovulatory: {
-    phase: "ovulatory",
-    keyGoals: "Reduce inflammation, support libido",
-    foodCategories: [
-      {
-        name: "Antioxidant-Rich Foods",
-        percentage: 40,
-        sources: "Berries, dark chocolate, artichokes",
-        why: "Counters oxidative stress from estrogen peak (Oxid. Med. Cell. Longev., 2020)",
-        color: "#EC4899" // pink
-      },
-      {
-        name: "Fiber",
-        percentage: 30,
-        sources: "Raspberries, avocados",
-        why: "Binds excess estrogen for excretion (Am. J. Clin. Nutr., 2019)",
-        color: "#10B981" // green
-      },
-      {
-        name: "Zinc Sources",
-        percentage: 20,
-        sources: "Oysters, cashews",
-        why: "Supports progesterone conversion (Nutrients, 2021)",
-        color: "#A1A1AA" // gray
-      },
-      {
-        name: "Spices",
-        percentage: 10,
-        sources: "Turmeric, cinnamon",
-        why: "Anti-inflammatory (J. Endocr. Soc., 2021)",
-        color: "#F97316" // orange
-      }
-    ]
+  ovulatory: { 
+    bias: { vegetables: 0.6, proteins: 0.3 }, 
+    color: '#FFD166',
+    emoji: '☀️'
   },
-  luteal: {
-    phase: "luteal",
-    keyGoals: "Balance progesterone, stabilize mood, curb cravings",
-    foodCategories: [
-      {
-        name: "Magnesium-Rich Foods",
-        percentage: 35,
-        sources: "Dark leafy greens, almonds, dark chocolate",
-        why: "Eases PMS and supports progesterone (PLoS One, 2020)",
-        color: "#10B981" // green
-      },
-      {
-        name: "Healthy Fats",
-        percentage: 30,
-        sources: "Avocados, olive oil, ghee",
-        why: "Cholesterol is a progesterone precursor (Endocrine Reviews, 2018)",
-        color: "#FBBF24" // yellow
-      },
-      {
-        name: "B-Vitamin Foods",
-        percentage: 25,
-        sources: "Eggs, nutritional yeast",
-        why: "B6 boosts serotonin (mood) (J. Women's Health, 2022)",
-        color: "#60A5FA" // blue
-      },
-      {
-        name: "Bitter Greens",
-        percentage: 10,
-        sources: "Dandelion greens, arugula",
-        why: "Supports liver detox of excess hormones (Nutr. Res., 2019)",
-        color: "#34D399" // green
-      }
-    ]
+  luteal: { 
+    bias: { sweets: 0.3, carbs: 0.4 }, 
+    color: '#9B5DE5',
+    emoji: '🍂'
   }
 };
 
+// Define the food ingredients categories
+const INGREDIENTS = {
+  vegetables: [
+    { name: 'Broccoli', emoji: '🥦', benefit: 'Estrogen balance', icon: <Broccoli className="h-5 w-5" /> },
+    { name: 'Spinach', emoji: '🍃', benefit: 'Iron boost', icon: <Carrot className="h-5 w-5" /> },
+    { name: 'Kale', emoji: '🥬', benefit: 'Vitamin K', icon: <Broccoli className="h-5 w-5" /> },
+    { name: 'Avocado', emoji: '🥑', benefit: 'Healthy fats', icon: <Apple className="h-5 w-5" /> },
+  ],
+  proteins: [
+    { name: 'Salmon', emoji: '🐟', benefit: 'Omega-3', icon: <Egg className="h-5 w-5" /> },
+    { name: 'Eggs', emoji: '🥚', benefit: 'Complete protein', icon: <Egg className="h-5 w-5" /> },
+    { name: 'Lentils', emoji: '🍲', benefit: 'Iron & protein', icon: <Apple className="h-5 w-5" /> },
+    { name: 'Greek Yogurt', emoji: '🥛', benefit: 'Probiotics', icon: <Apple className="h-5 w-5" /> },
+  ],
+  carbs: [
+    { name: 'Sweet Potato', emoji: '🍠', benefit: 'Complex carbs', icon: <Carrot className="h-5 w-5" /> },
+    { name: 'Quinoa', emoji: '🌾', benefit: 'Complete grain', icon: <Apple className="h-5 w-5" /> },
+    { name: 'Oats', emoji: '🥣', benefit: 'Sustained energy', icon: <Apple className="h-5 w-5" /> },
+    { name: 'Brown Rice', emoji: '🍚', benefit: 'Fiber rich', icon: <Apple className="h-5 w-5" /> },
+  ],
+  sweets: [
+    { name: 'Dark Chocolate', emoji: '🍫', benefit: 'Antioxidants', icon: <Apple className="h-5 w-5" /> },
+    { name: 'Berries', emoji: '🍓', benefit: 'Low glycemic', icon: <Apple className="h-5 w-5" /> },
+    { name: 'Dates', emoji: '🌴', benefit: 'Natural sweetener', icon: <Apple className="h-5 w-5" /> },
+    { name: 'Honey', emoji: '🍯', benefit: 'Anti-inflammatory', icon: <Apple className="h-5 w-5" /> },
+  ]
+};
+
 interface Recipe {
-  id: string;
-  recipe_name: string;
-  phase: Phase;
+  title: string;
   ingredients: string[];
   instructions: string[];
-  bonus_ingredients: string[];
-  cooking_tips: string[];
+  hormoneTip: string;
+  image?: string;
 }
 
-const foodCirclesData = [
-  { 
-    name: "Water", 
-    color: "#60A5FA", 
-    percentage: "25%",
-    icon: "💧",
-    description: "Stay hydrated!"
-  },
-  { 
-    name: "Fruits & Vegetables", 
-    color: "#34D399", 
-    percentage: "35%",
-    icon: "🥦",
-    description: "Eat the rainbow!"
-  },
-  { 
-    name: "Proteins", 
-    color: "#F87171", 
-    percentage: "20%",
-    icon: "🍗",
-    description: "Build strength!"
-  },
-  { 
-    name: "Whole Grains", 
-    color: "#FBBF24", 
-    percentage: "15%",
-    icon: "🌾",
-    description: "Fiber power!"
-  },
-  { 
-    name: "Healthy Fats", 
-    color: "#A78BFA", 
-    percentage: "5%",
-    icon: "🥑",
-    description: "Brain food!"
-  }
-];
+interface PhaseRecipeRouletteProps {
+  phase: string;
+}
 
-export const PhaseRecipeRoulette = ({ phase }: { phase: Phase }) => {
-  const [showRecipeWheel, setShowRecipeWheel] = useState(false);
-  const [showRecipeDetails, setShowRecipeDetails] = useState(false);
-  const [spinningWheel, setSpinningWheel] = useState(false);
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+const getPhaseEnemies = (phase: string) => {
+  const enemies = {
+    menstruation: "cramps and fatigue",
+    follicular: "brain fog and low energy",
+    ovulatory: "bloating and sensitivity",
+    luteal: "mood swings and cravings"
+  };
+  return enemies[phase as keyof typeof enemies] || "hormonal imbalance";
+};
+
+export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [showRecipe, setShowRecipe] = useState(false);
+  const [spinAngle, setSpinAngle] = useState(0);
+  const [currentRecipe, setCurrentRecipe] = useState<Recipe | null>(null);
+  const [selectedIngredients, setSelectedIngredients] = useState<any[]>([]);
+  const wheelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const { data: recipes, isLoading } = useQuery({
-    queryKey: ["phase-recipes", phase],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("recipe_roulette")
-        .select("*")
-        .eq("phase", phase);
+  const phaseColor = HORMONE_PHASES[phase as keyof typeof HORMONE_PHASES]?.color || '#9B87F5';
+  const phaseEmoji = HORMONE_PHASES[phase as keyof typeof HORMONE_PHASES]?.emoji || '🍽️';
 
-      if (error) throw error;
-      return data as Recipe[];
-    },
-  });
-
-  const getRandomRecipe = () => {
-    if (!recipes || recipes.length === 0) return null;
-    return recipes[Math.floor(Math.random() * recipes.length)];
+  const applyPhaseBias = () => {
+    const phaseBiases = HORMONE_PHASES[phase as keyof typeof HORMONE_PHASES]?.bias || {};
+    
+    // Create a weighted selection of ingredients
+    let allWeightedItems: { name: string; emoji: string; benefit: string; icon: JSX.Element; category: string; weight: number; }[] = [];
+    
+    Object.entries(INGREDIENTS).forEach(([category, items]) => {
+      const bias = phaseBiases[category as keyof typeof phaseBiases] || 0;
+      
+      items.forEach(item => {
+        allWeightedItems.push({
+          ...item,
+          category,
+          weight: Math.random() + bias
+        });
+      });
+    });
+    
+    // Sort by weight and take top items
+    allWeightedItems.sort((a, b) => b.weight - a.weight);
+    
+    // Select top items from different categories
+    const selected = [];
+    const categories = new Set();
+    
+    for (const item of allWeightedItems) {
+      if (!categories.has(item.category)) {
+        selected.push(item);
+        categories.add(item.category);
+      }
+      
+      if (selected.length >= 4) break;
+    }
+    
+    return selected;
   };
 
-  const handleSpinWheel = () => {
-    if (spinningWheel) return; // Prevent multiple spins at once
+  const generateRecipe = (ingredients: any[]) => {
+    const mainIngredient = ingredients[0];
+    const secondaryIngredients = ingredients.slice(1);
     
-    setSpinningWheel(true);
+    const getRandomInstructions = () => {
+      const instructions = [
+        `Prepare the ${mainIngredient.name} by washing thoroughly.`,
+        `Combine ${ingredients.map(i => i.name).join(", ")} in a bowl.`,
+        `Cook over medium heat for 10-15 minutes.`,
+        `Add your favorite herbs and seasonings.`,
+        `Let sit for 5 minutes before serving.`,
+      ];
+      return instructions;
+    };
+
+    return {
+      title: `${phaseEmoji} ${mainIngredient.name} Power Bowl`,
+      ingredients: ingredients.map(i => `${i.emoji} ${i.name} (${i.benefit})`),
+      instructions: getRandomInstructions(),
+      hormoneTip: `This combination helps support your ${phase} phase and fights ${getPhaseEnemies(phase)}!`
+    };
+  };
+
+  const handleSpin = () => {
+    // Play spin sound
+    audioService.play('click');
+    
+    setIsSpinning(true);
+    
+    // Generate random angle between 1440 and 1800 degrees (4-5 full spins)
+    const angle = 1440 + Math.floor(Math.random() * 360);
+    setSpinAngle(angle);
+    
+    // Select ingredients with phase bias
+    const selected = applyPhaseBias();
+    setSelectedIngredients(selected);
     
     setTimeout(() => {
-      setSpinningWheel(false);
-      const recipe = getRandomRecipe();
-      setSelectedRecipe(recipe);
-      setShowRecipeDetails(true);
+      setIsSpinning(false);
+      
+      // Play success sound
+      audioService.play('bonus');
+      
+      // Generate and display recipe
+      const recipe = generateRecipe(selected);
+      setCurrentRecipe(recipe);
+      setShowRecipe(true);
       
       toast({
-        title: "🍲 Recipe Found!",
+        title: "🎲 Recipe Found!",
         description: `Your perfect ${phase} phase recipe is ready!`,
       });
-    }, 3000); // Match this with CSS animation duration
-  };
-
-  const phaseColors = {
-    menstruation: "from-menstruation-primary to-menstruation-light",
-    follicular: "from-follicular-primary to-follicular-light",
-    ovulatory: "from-ovulatory-primary to-ovulatory-light",
-    luteal: "from-luteal-primary to-luteal-light"
-  };
-  
-  // Create concentric circles roulette
-  const createConcentricCircles = () => {
-    return (
-      <div className="relative w-[300px] h-[300px] mx-auto mt-4 mb-6">
-        {foodCirclesData.map((circle, index) => {
-          // Calculate circle sizes: 100%, 80%, 60%, 40%, 20% of container width
-          const size = 100 - (index * 20); 
-          
-          return (
-            <div 
-              key={index}
-              className={`absolute rounded-full flex items-center justify-center ${spinningWheel ? `spin-circle-${index + 1}` : ''}`}
-              style={{
-                top: `${(100 - size) / 2}%`,
-                left: `${(100 - size) / 2}%`,
-                width: `${size}%`,
-                height: `${size}%`,
-                backgroundColor: circle.color,
-                zIndex: 5 - index,
-                border: '4px solid white',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              }}
-            >
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-2">
-                <div className="text-2xl mb-1">{circle.icon}</div>
-                <div className="font-bold text-white text-shadow" style={{ fontSize: `${1.2 - (index * 0.15)}rem` }}>
-                  {circle.name}
-                </div>
-                <div className="text-white font-semibold" style={{ fontSize: `${1 - (index * 0.15)}rem` }}>
-                  {circle.percentage}
-                </div>
-                {index < 3 && (
-                  <div className="text-white text-xs" style={{ fontSize: `${0.7 - (index * 0.05)}rem` }}>
-                    {circle.description}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-        
-        {/* Center pin */}
-        <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white rounded-full shadow-lg -translate-x-1/2 -translate-y-1/2 z-20 flex items-center justify-center border-4 border-pink-300">
-          <ChefHat className="h-8 w-8 text-pink-500" />
-        </div>
-      </div>
-    );
+    }, 3000);
   };
 
   return (
     <>
-      {/* Recipe Roulette Icon with Shining Effect */}
-      <div 
-        className="relative cursor-pointer hover:scale-105 transition-transform duration-300"
-        onClick={() => setShowRecipeWheel(true)}
+      <Card 
+        className="overflow-hidden relative"
+        style={{ 
+          background: `linear-gradient(135deg, ${phaseColor}30, white)`,
+          borderColor: phaseColor
+        }}
       >
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r animate-pulse opacity-40 blur-sm from-pink-400 via-purple-500 to-indigo-500" />
-        <div className="absolute inset-0 rotate-45 rounded-full bg-gradient-to-r animate-pulse opacity-40 blur-sm from-yellow-400 via-red-500 to-pink-500" />
-        
-        <div className="relative z-10 w-16 h-16 bg-white rounded-full flex items-center justify-center overflow-hidden border-2 border-pink-200">
-          <img 
-            src="/lovable-uploads/8621b2b5-4f0d-4de1-8415-fadb4bb0eabe.png" 
-            alt="Recipe Roulette" 
-            className="w-full h-full object-contain"
-          />
-          
-          <div className="absolute top-1 right-1">
-            <Sparkles className="h-3 w-3 text-yellow-500 animate-bounce" />
-          </div>
-        </div>
-        
-        <div className="absolute -top-1 -right-1 z-20">
-          <div className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-yellow-400 opacity-75"></div>
-          <div className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></div>
-        </div>
-      </div>
-
-      {/* Recipe Wheel Modal */}
-      <Dialog open={showRecipeWheel} onOpenChange={setShowRecipeWheel}>
-        <DialogContent className="max-w-2xl bg-gradient-to-br from-pink-50 to-purple-50 border-2 border-pink-200 rounded-xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2">
-              <UtensilsCrossed className="h-6 w-6 text-pink-500" />
-              <span className={`bg-gradient-to-r ${phaseColors[phase]} bg-clip-text text-transparent`}>
-                Phase-Specific Recipe Roulette
-              </span>
-            </DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Spin the wheel to discover recipes optimized for your {phase} phase needs!
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="p-4 space-y-4">
-            <div className="text-center">
-              <h3 className="font-bold text-pink-600">Key Goals for {phase.charAt(0).toUpperCase() + phase.slice(1)} Phase:</h3>
-              <p className="text-gray-600">{phaseRecipes[phase].keyGoals}</p>
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <ChefHat className="w-5 h-5" style={{ color: phaseColor }} />
+              <h3 className="text-base font-medium">Phase Recipe Roulette</h3>
             </div>
             
-            {/* Concentric Circles Roulette */}
-            {createConcentricCircles()}
-            
-            <div className="flex justify-center mt-6">
-              <Button 
-                onClick={handleSpinWheel}
-                disabled={spinningWheel || isLoading}
-                className="relative overflow-hidden bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 hover:from-pink-500 hover:via-purple-500 hover:to-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-md"
-              >
-                {spinningWheel ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin mr-2 h-5 w-5 border-t-2 border-b-2 border-white rounded-full"></div>
-                    <span>Spinning...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <ChefHat className="h-5 w-5" />
-                    <span>Spin for Recipe</span>
-                  </div>
-                )}
-              </Button>
-            </div>
-            
-            <div className="space-y-3 mt-8">
-              <h3 className="font-medium text-pink-600 text-center">Recommended Food Distribution:</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {phaseRecipes[phase].foodCategories.map((category) => (
-                  <Card key={category.name} className="p-3 border-2 border-pink-100 bg-white/80 backdrop-blur-sm shadow-sm">
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium">{category.name}</span>
-                        <span>{category.percentage}%</span>
-                      </div>
-                      <Progress 
-                        value={category.percentage} 
-                        className="bg-gray-200"
-                        indicatorClassName="transition-all"
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <div className="text-xs text-gray-500 flex justify-between">
-                        <span>{category.sources}</span>
-                        <button 
-                          className="text-blue-500 hover:underline"
-                          onClick={() => toast({
-                            title: category.name,
-                            description: category.why,
-                          })}
-                        >
-                          Why?
-                        </button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+            <Button
+              onClick={handleSpin}
+              disabled={isSpinning}
+              className="transition-all duration-300"
+              style={{ 
+                backgroundColor: isSpinning ? '#999' : phaseColor,
+                transform: isSpinning ? 'scale(1.05)' : 'scale(1)'
+              }}
+            >
+              <div className="flex items-center gap-1">
+                <span 
+                  className={`transition-transform duration-700 ${
+                    isSpinning ? 'animate-spin' : ''
+                  }`}
+                >
+                  🎲
+                </span>
+                <span>{isSpinning ? 'Spinning...' : 'Spin for Recipe'}</span>
               </div>
+            </Button>
+          </div>
+          
+          <div 
+            ref={wheelRef} 
+            className="relative mx-auto w-64 h-64 mb-4 flex items-center justify-center"
+          >
+            {/* Roulette Wheel */}
+            <div 
+              className="absolute w-full h-full rounded-full transform transition-transform duration-[3000ms] ease-out"
+              style={{ 
+                transform: `rotate(${spinAngle}deg)`,
+                backgroundImage: `conic-gradient(
+                  #FF6B9D 0% 25%, 
+                  #7EC4CF 25% 50%, 
+                  #FFD166 50% 75%, 
+                  #9B5DE5 75% 100%
+                )`,
+                boxShadow: '0 0 10px rgba(0,0,0,0.2) inset'
+              }}
+            >
+              {/* Inner circles */}
+              <div className="absolute inset-2.5 rounded-full bg-white/60"></div>
+              <div className="absolute inset-10 rounded-full bg-white/80"></div>
+              <div className="absolute inset-20 rounded-full bg-white"></div>
+            </div>
+            
+            {/* Center decoration */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white z-10 border-4 flex items-center justify-center shadow-md"
+              style={{ borderColor: phaseColor }}
+            >
+              <span className="text-2xl">{phaseEmoji}</span>
+            </div>
+            
+            {/* Selection indicator */}
+            <div 
+              className="absolute -right-2 top-1/2 transform -translate-y-1/2 z-10 text-xl"
+              style={{ color: isSpinning ? 'red' : 'black' }}
+            >
+              ▶
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </Card>
 
-      {/* Recipe Details Modal */}
-      <Dialog open={showRecipeDetails} onOpenChange={setShowRecipeDetails}>
-        <DialogContent className="max-w-3xl bg-gradient-to-br from-pink-50 to-purple-50 border-2 border-pink-200 rounded-xl">
+      <Dialog open={showRecipe} onOpenChange={setShowRecipe}>
+        <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2">
-              <ChefHat className="h-6 w-6 text-pink-500" />
-              <span className={`bg-gradient-to-r ${phaseColors[phase]} bg-clip-text text-transparent`}>
-                {selectedRecipe?.recipe_name || "Phase Recipe"}
-              </span>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2" style={{ color: phaseColor }}>
+              <ChefHat className="w-6 h-6" />
+              {currentRecipe?.title}
             </DialogTitle>
           </DialogHeader>
           
-          {selectedRecipe && (
-            <div className="p-4 space-y-6">
-              <Carousel className="w-full">
-                <CarouselContent>
-                  <CarouselItem>
-                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-2 border-pink-100">
-                      <h4 className="font-medium text-lg mb-2 text-pink-600">Ingredients:</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        {selectedRecipe.ingredients.map((ingredient, index) => (
-                          <li key={index} className="text-gray-700">{ingredient}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </CarouselItem>
-                  
-                  <CarouselItem>
-                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-2 border-pink-100">
-                      <h4 className="font-medium text-lg mb-2 text-pink-600">Bonus Ingredients (Phase-Specific):</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        {selectedRecipe.bonus_ingredients.map((ingredient, index) => (
-                          <li key={index} className="text-green-600">{ingredient}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </CarouselItem>
-                  
-                  <CarouselItem>
-                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-2 border-pink-100">
-                      <h4 className="font-medium text-lg mb-2 text-pink-600">Instructions:</h4>
-                      <ol className="list-decimal list-inside space-y-2">
-                        {selectedRecipe.instructions.map((step, index) => (
-                          <li key={index} className="text-gray-700">{step}</li>
-                        ))}
-                      </ol>
-                    </div>
-                  </CarouselItem>
-                  
-                  <CarouselItem>
-                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-2 border-pink-100">
-                      <h4 className="font-medium text-lg mb-2 text-pink-600">Cooking Tips:</h4>
-                      <div className="bg-pink-50 p-4 rounded-lg">
-                        <ul className="list-disc list-inside space-y-1">
-                          {selectedRecipe.cooking_tips.map((tip, index) => (
-                            <li key={index} className="text-gray-700">{tip}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </CarouselItem>
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
+          <div className="space-y-6 p-4">
+            <div className="flex -space-x-3 mb-4">
+              {selectedIngredients.map((ingredient, idx) => (
+                <div 
+                  key={idx} 
+                  className="w-12 h-12 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center shadow-md"
+                >
+                  <span className="text-lg">{ingredient.emoji}</span>
+                </div>
+              ))}
             </div>
-          )}
+            
+            <div>
+              <h4 className="font-medium text-lg mb-2">Main Ingredients:</h4>
+              <ul className="list-disc list-inside space-y-1">
+                {currentRecipe?.ingredients.map((ingredient, index) => (
+                  <li key={index} className="text-gray-700">{ingredient}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-medium text-lg mb-2">Instructions:</h4>
+              <ol className="list-decimal list-inside space-y-2">
+                {currentRecipe?.instructions.map((step, index) => (
+                  <li key={index} className="text-gray-700">{step}</li>
+                ))}
+              </ol>
+            </div>
+
+            <div 
+              className="p-4 rounded-lg"
+              style={{ backgroundColor: `${phaseColor}20` }}
+            >
+              <h4 className="font-medium text-lg mb-2">Hormone Tip:</h4>
+              <p className="text-gray-700">{currentRecipe?.hormoneTip}</p>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>
