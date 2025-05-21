@@ -22,12 +22,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card } from "@/components/ui/card";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
 import { RecipeRoulette } from "@/components/RecipeRoulette";
 import { PhaseRecipeRoulette } from "@/components/PhaseRecipeRoulette";
 import { VideoPlayer } from "@/components/VideoPlayer";
@@ -1211,7 +1205,7 @@ const PouGame = () => {
         {/* Main content area */}
         <div className="flex-1 pt-28 pb-6 px-4">
           <div className="max-w-md mx-auto">
-            {/* Improved room navigation - MODIFIED to remove text and show only icons */}
+            {/* Room navigation - arrows only with icon in center */}
             <div className="flex justify-between items-center mb-4 mt-6">
               <Button 
                 variant="outline" 
@@ -1223,62 +1217,24 @@ const PouGame = () => {
                 <span className="sr-only">Previous Room</span>
               </Button>
               
-              <div className="flex items-center gap-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center justify-center px-3 py-1.5 backdrop-blur-sm rounded-full">
-                        <RoomIcon className={cn(
-                          "h-5 w-5",
-                          currentPhase === "menstruation" ? "text-pink-500" :
-                          currentPhase === "follicular" ? "text-green-500" :
-                          currentPhase === "ovulatory" ? "text-yellow-500" :
-                          "text-orange-500"
-                        )} />
-                        {/* Room name text removed, only icon remains */}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      {currentRoom.name}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="h-8 w-8 p-0 rounded-full"
-                      onClick={() => audioService.play('click')}
-                    >
-                      <span className="sr-only">Show rooms</span>
-                      <svg xmlns="http://www3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-white/95 backdrop-blur-sm border-0 rounded-lg">
-                    {rooms.map((room, index) => {
-                      const IconComponent = room.icon;
-                      return (
-                        <DropdownMenuItem 
-                          key={room.id}
-                          onClick={() => {
-                            audioService.play('click');
-                            setCurrentRoomIndex(index);
-                          }}
-                          className={cn(
-                            "flex items-center gap-2 cursor-pointer",
-                            currentRoomIndex === index && "bg-gray-100 font-medium"
-                          )}
-                        >
-                          <IconComponent className="h-4 w-4" />
-                          {room.name}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center justify-center px-3 py-1.5 backdrop-blur-sm rounded-full">
+                      <RoomIcon className={cn(
+                        "h-5 w-5",
+                        currentPhase === "menstruation" ? "text-pink-500" :
+                        currentPhase === "follicular" ? "text-green-500" :
+                        currentPhase === "ovulatory" ? "text-yellow-500" :
+                        "text-orange-500"
+                      )} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    {currentRoom.name}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               
               <Button 
                 variant="outline" 
