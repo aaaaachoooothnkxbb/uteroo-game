@@ -56,8 +56,7 @@ const Index = () => {
       // Get the current URL for proper redirect
       const redirectTo = `${window.location.origin}/pou-game`;
       
-      console.log(`Attempting to sign in with ${provider}. Redirect URL: ${redirectTo}`);
-      
+      console.log(`Attempting to sign in with ${provider}. Redirect URL: ${redirectTo} window.location: ${window.location.origin}`);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider as Provider,
         options: {
