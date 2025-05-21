@@ -35,7 +35,15 @@ class AudioService {
       click: { url: "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3", volume: 0.4, category: 'ui' },
       boost: { url: "https://assets.mixkit.co/active_storage/sfx/933/933-preview.mp3", volume: 0.5, category: 'ui' },
       heart: { url: "https://assets.mixkit.co/active_storage/sfx/2/2-preview.mp3", volume: 0.5, category: 'ui' },
+      
+      // Cute bubble sounds (multiple options)
       bubble: { url: "https://assets.mixkit.co/active_storage/sfx/2199/2199-preview.mp3", volume: 0.5, category: 'ui', description: 'Cute bubble pop sound' },
+      cute_bubble: { url: "https://assets.mixkit.co/active_storage/sfx/990/990-preview.mp3", volume: 0.4, category: 'ui', description: 'Cute cartoon jump sound' },
+      toy_squeak: { url: "https://assets.mixkit.co/active_storage/sfx/3176/3176-preview.mp3", volume: 0.4, category: 'ui', description: 'Cute toy squeak sound' },
+      cute_bell: { url: "https://assets.mixkit.co/active_storage/sfx/2310/2310-preview.mp3", volume: 0.4, category: 'ui', description: 'Cute bell notification sound' }, 
+      magic_sparkle: { url: "https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3", volume: 0.4, category: 'ui', description: 'Magical sparkle sound' },
+      game_reward: { url: "https://assets.mixkit.co/active_storage/sfx/2307/2307-preview.mp3", volume: 0.4, category: 'ui', description: 'Game reward sound like Duolingo' },
+      
       bonus: { url: "https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3", volume: 0.6, category: 'ui' },
       
       // Phase transition sounds - more emotionally matched to each phase

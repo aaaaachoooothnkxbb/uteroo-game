@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -97,13 +98,13 @@ export const UterooCharacter = ({
   
   // Handle click on character with sound
   const handleClick = useCallback(() => {
-    // Play a cute bubble pop sound instead of the heart sound
-    audioService.play('bubble');
+    // Play a much cuter sound - the game reward sound (Duolingo-like)
+    audioService.play('game_reward');
     
     // Add a random variation to make the interaction more emotional
     if (Math.random() > 0.7) {
-      // Occasionally play the voice feedback with a cute sound
-      audioService.play('voice_goodjob');
+      // Occasionally play an additional cute sound for variety
+      audioService.play('magic_sparkle');
     }
     
     // Create a new floating heart
