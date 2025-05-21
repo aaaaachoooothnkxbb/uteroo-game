@@ -35,7 +35,7 @@ const phaseToMessage = {
   luteal: "Focus on self-care & rest"
 };
 
-// Updated phase symptoms for first-person thought bubbles
+// Phase symptoms for thought bubbles
 const phaseToSymptoms = {
   menstruation: ["I have cramps", "I feel so tired", "My back hurts"],
   follicular: ["I'm feeling anxious", "I have a headache", "I feel restless"],
@@ -57,7 +57,6 @@ interface UterooCharacterProps {
   size?: "small" | "medium" | "large";
   minimal?: boolean;
   onClick?: () => void;
-  healthLevel?: number; // Added healthLevel prop (0-100) to control thought bubble size
 }
 
 // Interface for floating hearts
@@ -73,8 +72,7 @@ export const UterooCharacter = ({
   currentRoom = "", 
   size = "medium", 
   minimal = false,
-  onClick,
-  healthLevel = 50 // Default to mid-level health
+  onClick
 }: UterooCharacterProps) => {
   // Use lab coat image if in lab room
   const isLabRoom = currentRoom === "lab";
@@ -173,15 +171,6 @@ export const UterooCharacter = ({
     }
   }, [phase, onClick]);
 
-  // Calculate thought bubble size based on health level
-  const getThoughtBubbleSize = () => {
-    // Smaller bubble as health improves
-    if (healthLevel >= 80) return "scale-75 opacity-60"; // Almost gone
-    if (healthLevel >= 60) return "scale-85 opacity-75"; // Smaller
-    if (healthLevel >= 40) return "scale-90 opacity-85"; // Slightly smaller
-    return "scale-100 opacity-100"; // Full size when health is low
-  };
-
   if (minimal) {
     // Minimal version without message bubble - just the character
     return (
@@ -222,14 +211,13 @@ export const UterooCharacter = ({
         {showSymptoms && activeSymptom && (
           <div className={cn(
             "absolute z-10 -top-16 -right-8 max-w-[180px] text-sm px-4 py-3 rounded-xl",
-            "bg-white/90 shadow-md backdrop-blur-sm transition-all duration-500",
+            "bg-white/90 shadow-md backdrop-blur-sm animate-bounce-slow",
             "before:content-[''] before:absolute before:bottom-0 before:right-6 before:w-4 before:h-4",
             "before:bg-white/90 before:rotate-45 before:translate-y-2",
             phase === "menstruation" ? "before:bg-pink-100/90 bg-pink-100/90 text-pink-800" :
             phase === "follicular" ? "before:bg-green-100/90 bg-green-100/90 text-green-800" :
             phase === "ovulatory" ? "before:bg-yellow-100/90 bg-yellow-100/90 text-yellow-800" :
-            "before:bg-orange-100/90 bg-orange-100/90 text-orange-800",
-            getThoughtBubbleSize() // Apply dynamic sizing based on health level
+            "before:bg-orange-100/90 bg-orange-100/90 text-orange-800"
           )}>
             <div className="flex items-center gap-2">
               <span role="img" aria-label="Symptom" className="text-lg">
