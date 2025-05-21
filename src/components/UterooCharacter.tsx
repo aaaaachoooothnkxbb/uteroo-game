@@ -46,7 +46,7 @@ const phaseToSymptoms = {
 // Updated Phase to sound mapping for character interactions - using gentler sounds
 const phaseToSound = {
   menstruation: "soft_bells",
-  follicular: "gentle_waves",
+  follicular: "calm_loop", // Changed from "gentle_waves" to "calm_loop" which is softer
   ovulatory: "nature_sounds",
   luteal: "calm_loop"
 };

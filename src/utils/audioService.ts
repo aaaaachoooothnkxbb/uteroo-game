@@ -1,4 +1,3 @@
-
 // Sound service for managing sound effects in the game with phase-awareness and accessibility
 
 type SoundCategory = 'ui' | 'voice' | 'ambient';
@@ -288,7 +287,18 @@ class AudioService {
   // Play a phase-specific sound
   playPhaseSound(phase: string): void {
     this.currentPhase = phase;
-    this.play(phase);
+    
+    // Map the phase name to the appropriate sound
+    const soundMapping = {
+      menstruation: "soft_bells",
+      follicular: "calm_loop", // Changed from "follicular" to "calm_loop"
+      ovulatory: "nature_sounds",
+      luteal: "calm_loop"
+    };
+    
+    // Play the mapped sound if it exists, otherwise fall back to the phase name
+    const soundToPlay = soundMapping[phase as keyof typeof soundMapping] || phase;
+    this.play(soundToPlay);
   }
 
   // Play a room-specific sound
