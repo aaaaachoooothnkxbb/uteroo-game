@@ -43,12 +43,12 @@ const phaseToSymptoms = {
   luteal: ["I'm so irritable", "I feel sad", "I have no energy"]
 };
 
-// Phase to sound mapping for character interactions
+// Updated Phase to sound mapping for character interactions - using gentler sounds
 const phaseToSound = {
-  menstruation: "menstruation",
-  follicular: "follicular",
-  ovulatory: "ovulatory",
-  luteal: "luteal"
+  menstruation: "soft_bells",
+  follicular: "gentle_waves",
+  ovulatory: "nature_sounds",
+  luteal: "calm_loop"
 };
 
 interface UterooCharacterProps {
@@ -102,8 +102,8 @@ export const UterooCharacter = ({
   useEffect(() => {
     setCurrentMessage(phaseToMessage[phase]);
     
-    // Play phase transition sound when phase changes
-    audioService.playPhaseSound(phase);
+    // Play gentler sound for phase transition
+    audioService.play(phaseToSound[phase]);
   }, [phase]);
 
   // Randomly show symptoms occasionally
@@ -129,13 +129,13 @@ export const UterooCharacter = ({
   
   // Handle click on character with sound
   const handleClick = useCallback(() => {
-    // Play a much cuter sound - the game reward sound (Duolingo-like)
-    audioService.play('game_reward');
+    // Play a much gentler, calming sound
+    audioService.play('gentle_waves');
     
-    // Add a random variation to make the interaction more emotional
+    // Add a random variation to make the interaction more pleasant
     if (Math.random() > 0.7) {
-      // Occasionally play an additional cute sound for variety
-      audioService.play('magic_sparkle');
+      // Occasionally play an additional soft sound for variety
+      audioService.play('soft_bells');
     }
     
     // Create a new floating heart
