@@ -273,10 +273,10 @@ export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
       </Card>
 
       <Dialog open={showRecipe} onOpenChange={setShowRecipe}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl bg-white/95 backdrop-blur-sm border border-gray-200">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center gap-2" style={{ color: phaseColor }}>
-              <ChefHat className="w-6 h-6" />
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-gray-800">
+              <ChefHat className="w-6 h-6" style={{ color: phaseColor }} />
               {currentRecipe?.title}
             </DialogTitle>
           </DialogHeader>
@@ -286,7 +286,7 @@ export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
               {selectedIngredients.map((ingredient, idx) => (
                 <div 
                   key={idx} 
-                  className="w-12 h-12 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center shadow-md"
+                  className="w-12 h-12 rounded-full border-2 border-white bg-white shadow-md flex items-center justify-center"
                 >
                   <span className="text-lg">{ingredient.emoji}</span>
                 </div>
@@ -294,7 +294,7 @@ export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
             </div>
             
             <div>
-              <h4 className="font-medium text-lg mb-2">Main Ingredients:</h4>
+              <h4 className="font-medium text-lg mb-2 text-gray-800">Main Ingredients:</h4>
               <ul className="list-disc list-inside space-y-1">
                 {currentRecipe?.ingredients.map((ingredient, index) => (
                   <li key={index} className="text-gray-700">{ingredient}</li>
@@ -303,7 +303,7 @@ export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
             </div>
 
             <div>
-              <h4 className="font-medium text-lg mb-2">Instructions:</h4>
+              <h4 className="font-medium text-lg mb-2 text-gray-800">Instructions:</h4>
               <ol className="list-decimal list-inside space-y-2">
                 {currentRecipe?.instructions.map((step, index) => (
                   <li key={index} className="text-gray-700">{step}</li>
@@ -312,10 +312,10 @@ export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
             </div>
 
             <div 
-              className="p-4 rounded-lg"
-              style={{ backgroundColor: `${phaseColor}20` }}
+              className="p-4 rounded-lg bg-white/80 border border-gray-200"
+              style={{ borderLeftColor: phaseColor, borderLeftWidth: '4px' }}
             >
-              <h4 className="font-medium text-lg mb-2">Hormone Tip:</h4>
+              <h4 className="font-medium text-lg mb-2 text-gray-800">Hormone Tip:</h4>
               <p className="text-gray-700">{currentRecipe?.hormoneTip}</p>
             </div>
           </div>
