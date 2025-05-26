@@ -501,7 +501,13 @@ const PouGame = () => {
   const [lastBoosterUsed, setLastBoosterUsed] = useState<string | null>(null);
   const [showBoostIndicator, setShowBoostIndicator] = useState(false);
   const [boostType, setBoostType] = useState<string>("");
+  
+  // Enemy management state
   const [currentEnemies, setCurrentEnemies] = useState(enemies[currentPhase]);
+  const [enemyRespawnTimer, setEnemyRespawnTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isEnemiesDefeated, setIsEnemiesDefeated] = useState(false);
+  const [lastEnemyDefeatTime, setLastEnemyDefeatTime] = useState<number | null>(null);
+  
   const [showDamage, setShowDamage] = useState<string | null>(null);
   const [showYogaPoses, setShowYogaPoses] = useState(false);
   const [yogaPoses, setYogaPoses] = useState<any[]>([]);
@@ -516,6 +522,86 @@ const PouGame = () => {
   const [showHeartBonus, setShowHeartBonus] = useState(false);
   const [lastStreakUpdateTime, setLastStreakUpdateTime] = useState(0);
   
+  // Function to respawn enemies
+  const respawnEnemies = useCallback(() => {
+    console.log('Respawning enemies after 5 hours...');
+    setCurrentEnemies(enemies[currentPhase]);
+    setIsEnemiesDefeated(false);
+    setLastEnemyDefeatTime(null);
+    
+    // Play a gentle notification sound
+    audioService.play('soft_bells');
+    
+    // Show toast notification
+    toast({
+      title: "Symptoms have returned 💙",
+      description: "Your Uteroo needs some care again. Help defeat the symptoms!",
+      duration: 5000,
+    });
+  }, [currentPhase, toast]);
+
+  // Function to defeat an enemy
+  const defeatEnemy = useCallback((enemyId: string) => {
+    setCurrentEnemies(prevEnemies => {
+      const updatedEnemies = prevEnemies.filter(enemy => enemy.id !== enemyId);
+      
+      // Check if this was the last enemy
+      if (updatedEnemies.length === 0 && prevEnemies.length > 0) {
+        setIsEnemiesDefeated(true);
+        setLastEnemyDefeatTime(Date.now());
+        
+        // Play victory sound
+        audioService.play('magic_sparkle');
+        
+        // Show victory toast
+        toast({
+          title: "All symptoms defeated! 💕",
+          description: "Your Uteroo is now happy and feeling great!",
+          duration: 4000,
+        });
+        
+        // Clear any existing timer
+        if (enemyRespawnTimer) {
+          clearTimeout(enemyRespawnTimer);
+        }
+        
+        // Set up 5-hour respawn timer (using 30 seconds for testing - change to 5 * 60 * 60 * 1000 for production)
+        const timer = setTimeout(respawnEnemies, 30000); // 30 seconds for testing
+        setEnemyRespawnTimer(timer);
+        
+        console.log('All enemies defeated! Timer set for respawn in 30 seconds (testing mode)');
+      }
+      
+      return updatedEnemies;
+    });
+    
+    // Play defeat sound
+    audioService.play('boost');
+    
+    // Show individual enemy defeat toast
+    toast({
+      title: "Symptom defeated!",
+      description: `You helped Uteroo feel better! ${currentEnemies.length - 1} symptoms remaining.`,
+      duration: 2000,
+    });
+  }, [currentEnemies.length, enemyRespawnTimer, respawnEnemies, toast]);
+
+  // Update enemies when phase changes
+  useEffect(() => {
+    if (!isEnemiesDefeated) {
+      setCurrentEnemies(enemies[currentPhase]);
+    }
+  }, [currentPhase, isEnemiesDefeated]);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (enemyRespawnTimer) {
+        clearTimeout(enemyRespawnTimer);
+      }
+    };
+  }, [enemyRespawnTimer]);
+
   // Log the initial phase when component mounts
   useEffect(() => {
     console.log("Initial phase from navigation:", location.state?.initialPhase);
@@ -747,6 +833,16 @@ const PouGame = () => {
     // Update streak when booster is clicked
     updateStreak();
     
+    // Check if this booster can defeat enemies (symptom relief)
+    if (booster.type === 'energy' || booster.type === 'happiness' || booster.type === 'hygiene') {
+      if (currentEnemies.length > 0) {
+        // Defeat a random enemy when using certain boosters
+        const randomEnemyIndex = Math.floor(Math.random() * currentEnemies.length);
+        const enemyToDefeat = currentEnemies[randomEnemyIndex];
+        defeatEnemy(enemyToDefeat.id);
+      }
+    }
+    
     if (booster.onClick) {
       if (booster.id === "yogamat") {
         booster.onClick(currentPhase, () => setShowYogaPoses(true));
@@ -962,6 +1058,23 @@ const PouGame = () => {
             </Tooltip>
           </div>
         </div>
+        
+        {/* Enemy status indicator */}
+        {currentEnemies.length > 0 && (
+          <div className="mt-2 text-center">
+            <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded-full inline-block">
+              {currentEnemies.length} symptom{currentEnemies.length !== 1 ? 's' : ''} active - help Uteroo feel better!
+            </div>
+          </div>
+        )}
+        
+        {isEnemiesDefeated && (
+          <div className="mt-2 text-center">
+            <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full inline-block">
+              All symptoms defeated! Uteroo is happy! 💕
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -1428,6 +1541,9 @@ const PouGame = () => {
             {/* Science boosters */}
             {renderScienceBoosters()}
             
+            {/* Symptom cards - show current enemies */}
+            {renderSymptomCards()}
+            
             {/* Kitchen Room Content */}
             {currentRoom.id === 'kitchen' && (
               <KitchenRoomInteraction 
@@ -1451,7 +1567,7 @@ const PouGame = () => {
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-sm">Boosters</h3>
                   <div className="text-xs px-2 py-0.5 backdrop-blur-sm rounded-full">
-                    Tap to use
+                    Tap to use & help Uteroo
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-xl">

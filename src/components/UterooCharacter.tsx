@@ -1,9 +1,11 @@
+
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { audioService } from "@/utils/audioService";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
+type EmotionalState = "happy" | "sad";
 
 interface Enemy {
   id: string;
@@ -13,19 +15,35 @@ interface Enemy {
   suggestion: string;
 }
 
-const phaseToImage = {
+// Happy Uteroo images for each phase
+const phaseToHappyImage = {
   menstruation: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
   follicular: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
   ovulatory: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
   luteal: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"
 };
 
-// Lab coat version for lab room
-const phaseToLabImage = {
+// Sad Uteroo images for each phase (using the attached images)
+const phaseToSadImage = {
+  menstruation: "/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png",
+  follicular: "/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png",
+  ovulatory: "/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png",
+  luteal: "/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png"
+};
+
+// Lab coat versions
+const phaseToHappyLabImage = {
   menstruation: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
   follicular: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
   ovulatory: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
   luteal: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"
+};
+
+const phaseToSadLabImage = {
+  menstruation: "/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png",
+  follicular: "/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png",
+  ovulatory: "/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png",
+  luteal: "/lovable-uploads/2b9db306-0321-4afe-a659-0a5001878f87.png"
 };
 
 const phaseToEmoji = {
@@ -35,11 +53,18 @@ const phaseToEmoji = {
   luteal: "🍂"
 };
 
-const phaseToMessage = {
-  menstruation: "Gentle movement reduces cramps!",
-  follicular: "Great time for new projects!",
-  ovulatory: "Peak energy - socialize & connect!",
-  luteal: "Focus on self-care & rest"
+const phaseToHappyMessage = {
+  menstruation: "Feeling better with self-care! 💕",
+  follicular: "Energy is flowing - let's grow! 🌱",
+  ovulatory: "Radiating confidence and joy! ✨",
+  luteal: "Peaceful and content! 🍂"
+};
+
+const phaseToSadMessage = {
+  menstruation: "Struggling with symptoms... 😔",
+  follicular: "Feeling a bit low today... 💙",
+  ovulatory: "Not quite myself right now... 😢",
+  luteal: "Need some extra care... 💜"
 };
 
 // Updated Phase to sound mapping for character interactions - using gentler sounds
@@ -85,9 +110,22 @@ export const UterooCharacter = ({
   onClick,
   enemies = []
 }: UterooCharacterProps) => {
+  // Determine emotional state based on enemies
+  const emotionalState: EmotionalState = enemies.length > 0 ? "sad" : "happy";
+  
   // Use lab coat image if in lab room
   const isLabRoom = currentRoom === "lab";
-  const characterImage = isLabRoom ? phaseToLabImage[phase] : phaseToImage[phase];
+  
+  // Choose the appropriate image based on emotional state and room
+  const getCharacterImage = () => {
+    if (isLabRoom) {
+      return emotionalState === "happy" ? phaseToHappyLabImage[phase] : phaseToSadLabImage[phase];
+    } else {
+      return emotionalState === "happy" ? phaseToHappyImage[phase] : phaseToSadImage[phase];
+    }
+  };
+  
+  const characterImage = getCharacterImage();
   
   // Size classes based on the size prop - made larger as requested
   const sizeClasses = {
@@ -98,8 +136,23 @@ export const UterooCharacter = ({
   
   // State for automatic floating hearts
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
-  const [currentMessage, setCurrentMessage] = useState(phaseToMessage[phase]);
+  const [currentMessage, setCurrentMessage] = useState(
+    emotionalState === "happy" ? phaseToHappyMessage[phase] : phaseToSadMessage[phase]
+  );
   const [circlingEnemies, setCirclingEnemies] = useState<CirclingEnemy[]>([]);
+  
+  // Update message when emotional state or phase changes
+  useEffect(() => {
+    const newMessage = emotionalState === "happy" ? phaseToHappyMessage[phase] : phaseToSadMessage[phase];
+    setCurrentMessage(newMessage);
+    
+    // Play different sounds based on emotional state
+    if (emotionalState === "happy") {
+      audioService.play('magic_sparkle'); // Happy sound
+    } else {
+      audioService.play(phaseToSound[phase]); // Gentle sound for sad state
+    }
+  }, [emotionalState, phase]);
   
   // Initialize circling enemies when enemies prop changes
   useEffect(() => {
@@ -143,23 +196,18 @@ export const UterooCharacter = ({
     }
   }, [currentRoom]);
   
-  // Update message when phase changes
-  useEffect(() => {
-    setCurrentMessage(phaseToMessage[phase]);
-    
-    // Play gentler sound for phase transition
-    audioService.play(phaseToSound[phase]);
-  }, [phase]);
-  
   // Handle click on character with sound
   const handleClick = useCallback(() => {
-    // Play a much gentler, calming sound
-    audioService.play('gentle_waves');
+    // Play different sounds based on emotional state
+    if (emotionalState === "happy") {
+      audioService.play('bonus'); // Happy click sound
+    } else {
+      audioService.play('gentle_waves'); // Gentle, comforting sound for sad state
+    }
     
-    // Add a random variation to make the interaction more pleasant
-    if (Math.random() > 0.7) {
-      // Occasionally play an additional soft sound for variety
-      audioService.play('soft_bells');
+    // Add a random variation for happy state
+    if (emotionalState === "happy" && Math.random() > 0.7) {
+      audioService.play('magic_sparkle');
     }
     
     // Create a new floating heart
@@ -180,7 +228,7 @@ export const UterooCharacter = ({
     if (onClick) {
       onClick();
     }
-  }, [onClick]);
+  }, [onClick, emotionalState]);
 
   if (minimal) {
     // Minimal version without message bubble - just the character
@@ -189,10 +237,14 @@ export const UterooCharacter = ({
         <div className="relative">
           <img 
             src={characterImage} 
-            alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
+            alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''} feeling ${emotionalState}`} 
             className={cn(
               sizeClasses[size],
-              "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
+              "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95",
+              // Add a gentle glow effect for happy state
+              emotionalState === "happy" && "filter drop-shadow-lg",
+              // Add a subtle desaturated effect for sad state
+              emotionalState === "sad" && "filter brightness-75 contrast-75"
             )}
             onClick={handleClick}
           />
@@ -207,7 +259,10 @@ export const UterooCharacter = ({
                 animation: 'float-up 1.5s ease-out forwards'
               }}
             >
-              <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
+              <Heart className={cn(
+                "h-5 w-5 fill-current",
+                emotionalState === "happy" ? "text-pink-500 fill-pink-500" : "text-blue-300 fill-blue-300"
+              )} />
             </div>
           ))}
         </div>
@@ -253,10 +308,14 @@ export const UterooCharacter = ({
         
         <img 
           src={characterImage} 
-          alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
+          alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''} feeling ${emotionalState}`} 
           className={cn(
             sizeClasses[size],
-            "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
+            "object-contain drop-shadow-md cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95",
+            // Add a gentle glow effect for happy state
+            emotionalState === "happy" && "filter drop-shadow-lg brightness-110",
+            // Add a subtle desaturated effect for sad state
+            emotionalState === "sad" && "filter brightness-75 contrast-75 saturate-75"
           )}
           onClick={handleClick}
         />
@@ -271,18 +330,27 @@ export const UterooCharacter = ({
               animation: 'float-up 1.5s ease-out forwards'
             }}
           >
-            <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
+            <Heart className={cn(
+              "h-5 w-5 fill-current",
+              emotionalState === "happy" ? "text-pink-500 fill-pink-500" : "text-blue-300 fill-blue-300"
+            )} />
           </div>
         ))}
       </div>
       
       <div className={cn(
-        "mt-4 font-medium tracking-wide text-white drop-shadow-md bg-transparent backdrop-blur-sm border border-white/30 rounded-full px-4 py-2",
-        size === "small" ? "text-sm min-w-[180px]" : "text-base min-w-[220px]"
+        "mt-4 font-medium tracking-wide text-white drop-shadow-md backdrop-blur-sm border rounded-full px-4 py-2 transition-all duration-300",
+        size === "small" ? "text-sm min-w-[180px]" : "text-base min-w-[220px]",
+        // Different styling based on emotional state
+        emotionalState === "happy" 
+          ? "bg-gradient-to-r from-pink-400/80 to-purple-400/80 border-pink-300/50" 
+          : "bg-gradient-to-r from-blue-400/80 to-gray-400/80 border-blue-300/50"
       )}>
         <div className="flex items-center gap-2 justify-center whitespace-normal">
           <span>{phaseToEmoji[phase]}</span>
           <span>{currentMessage}</span>
+          {emotionalState === "happy" && <span>💕</span>}
+          {emotionalState === "sad" && <span>💙</span>}
         </div>
       </div>
     </div>
