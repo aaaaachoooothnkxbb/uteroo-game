@@ -15,6 +15,8 @@ import { format } from "date-fns";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
 
 type FormOption = {
   value: string;
@@ -199,6 +201,79 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const { toast } = useToast();
   const [nextHeartId, setNextHeartId] = useState(1);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Save onboarding data to Supabase
+  const saveOnboardingData = async () => {
+    if (!user) return;
+
+    try {
+      // Prepare cycle tracking data
+      const cycleData: any = {
+        user_id: user.id,
+        cycle_start_date: selectedDate || new Date(),
+      };
+
+      // Map period length to numeric values
+      const periodLengthMap: Record<string, number> = {
+        "3-5": 4,
+        "6-7": 6,
+        "8+": 8,
+        "varies": 7
+      };
+
+      if (formData.periodLength && periodLengthMap[formData.periodLength]) {
+        cycleData.period_length = periodLengthMap[formData.periodLength];
+      }
+
+      // Map cycle predictability to cycle length
+      const cycleLengthMap: Record<string, number> = {
+        "clockwork": 28,
+        "regular-varies": 30,
+        "irregular": 32
+      };
+
+      if (formData.cyclePredictability && cycleLengthMap[formData.cyclePredictability]) {
+        cycleData.cycle_length = cycleLengthMap[formData.cyclePredictability];
+      }
+
+      // Save cycle tracking data
+      const { error: cycleError } = await supabase
+        .from('cycle_tracking')
+        .insert(cycleData);
+
+      if (cycleError) {
+        console.error('Error saving cycle data:', cycleError);
+      }
+
+      // Prepare mood log data
+      const symptoms = [];
+      if (formData.premenstrualSymptoms) symptoms.push(formData.premenstrualSymptoms);
+      if (formData.worstSymptom) symptoms.push(formData.worstSymptom);
+      if (formData.ovulationSigns) symptoms.push(formData.ovulationSigns);
+
+      const moodData = {
+        user_id: user.id,
+        date: new Date().toISOString().split('T')[0],
+        mood: formData.premenstrualSymptoms || 'fine',
+        symptoms: symptoms,
+        notes: `Onboarding data: Period start: ${formData.lastPeriodStart}, Length: ${formData.periodLength}, Predictability: ${formData.cyclePredictability}`
+      };
+
+      // Save mood log data
+      const { error: moodError } = await supabase
+        .from('mood_logs')
+        .insert(moodData);
+
+      if (moodError) {
+        console.error('Error saving mood data:', moodError);
+      }
+
+      console.log('Onboarding data saved successfully');
+    } catch (error) {
+      console.error('Error saving onboarding data:', error);
+    }
+  };
 
   const determineGameScreen = () => {
     // Default to dashboard if we can't determine phase
@@ -445,7 +520,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     return (filledFields / totalFields) * 100;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1) {
       setStep(2);
     } else if (step === 2) {
@@ -459,6 +534,9 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         });
         return;
       }
+      
+      // Save data to Supabase before navigation
+      await saveOnboardingData();
       
       const summary = generateSummary();
       toast({
