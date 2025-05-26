@@ -19,11 +19,13 @@ const Index = () => {
   const { authError, clearAuthError } = useAuth();
 
   useEffect(() => {
+    console.log('checking session')
     // Check for auth session on page load and handle redirects from OAuth
     const checkSession = async () => {
       const { data, error } = await supabase.auth.getSession();
       
       if (data?.session) {
+        console.log('user is already logged in')
         // User is already logged in
         navigate("/dashboard");
         toast({
