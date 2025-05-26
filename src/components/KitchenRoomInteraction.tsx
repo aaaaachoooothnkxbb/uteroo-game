@@ -191,7 +191,7 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
   };
   
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-md">
+    <div className="bg-transparent backdrop-blur-sm rounded-xl p-4 shadow-md">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
         <TabsList className="grid grid-cols-3 mb-4">
           <TabsTrigger value="food">Food Diary</TabsTrigger>
