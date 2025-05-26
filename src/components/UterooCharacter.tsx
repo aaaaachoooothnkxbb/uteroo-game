@@ -28,6 +28,10 @@ const phaseToLabImage = {
   luteal: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"
 };
 
+// Sad and happy Uteroo images based on enemy presence
+const sadUterooImage = "/lovable-uploads/0a06c37e-fc17-41fc-be9c-2417fa48a098.png";
+const happyUterooImage = "/lovable-uploads/96d40a02-d93f-4503-9a3c-79200f501381.png";
+
 const phaseToEmoji = {
   menstruation: "🌸",
   follicular: "🌱",
@@ -85,9 +89,18 @@ export const UterooCharacter = ({
   onClick,
   enemies = []
 }: UterooCharacterProps) => {
-  // Use lab coat image if in lab room
+  // Determine which image to use based on enemy presence
+  const hasEnemies = enemies.length > 0;
   const isLabRoom = currentRoom === "lab";
-  const characterImage = isLabRoom ? phaseToLabImage[phase] : phaseToImage[phase];
+  
+  let characterImage;
+  if (isLabRoom) {
+    characterImage = phaseToLabImage[phase];
+  } else if (hasEnemies) {
+    characterImage = sadUterooImage;
+  } else {
+    characterImage = happyUterooImage;
+  }
   
   // Size classes based on the size prop - made larger as requested
   const sizeClasses = {
@@ -189,7 +202,7 @@ export const UterooCharacter = ({
         <div className="relative">
           <img 
             src={characterImage} 
-            alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
+            alt={`Uteroo ${hasEnemies ? 'sad with enemies' : 'happy without enemies'}${isLabRoom ? ' with lab coat' : ''}`} 
             className={cn(
               sizeClasses[size],
               "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
@@ -253,7 +266,7 @@ export const UterooCharacter = ({
         
         <img 
           src={characterImage} 
-          alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
+          alt={`Uteroo ${hasEnemies ? 'sad with enemies' : 'happy without enemies'}${isLabRoom ? ' with lab coat' : ''}`} 
           className={cn(
             sizeClasses[size],
             "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
