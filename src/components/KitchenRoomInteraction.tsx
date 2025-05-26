@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, ShoppingCart } from "lucide-react";
@@ -208,7 +207,7 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
               className="flex flex-col items-center p-6 h-auto"
             >
               <span className="text-xl mb-2">🍞</span>
-              <span>Carbs (bread, pasta)</span>
+              <span>Carbs</span>
             </Button>
             <Button 
               variant="outline" 
@@ -216,7 +215,7 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
               className="flex flex-col items-center p-6 h-auto"
             >
               <span className="text-xl mb-2">🥗</span>
-              <span>Vegetables/fruit</span>
+              <span>Vegetables/Fruit</span>
             </Button>
             <Button 
               variant="outline" 
@@ -224,7 +223,7 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
               className="flex flex-col items-center p-6 h-auto"
             >
               <span className="text-xl mb-2">🍗</span>
-              <span>Protein (meat, fish, eggs)</span>
+              <span>Protein</span>
             </Button>
             <Button 
               variant="outline" 
@@ -232,7 +231,7 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
               className="flex flex-col items-center p-6 h-auto"
             >
               <span className="text-xl mb-2">🍪</span>
-              <span>Sweets/junk food</span>
+              <span>Sweets</span>
             </Button>
           </div>
           
