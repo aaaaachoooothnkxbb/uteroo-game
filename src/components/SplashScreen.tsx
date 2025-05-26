@@ -77,10 +77,10 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
           />
         </div>
         
-        {/* Tagline with typewriter effect */}
+        {/* Tagline with typewriter effect - changed text color to dark */}
         {showTagline && (
           <div className="mt-6 text-center">
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-800 drop-shadow-sm typewriter-text">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 drop-shadow-sm typewriter-text">
               Your cycle, understood 🌸
             </h2>
           </div>
