@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -14,11 +13,20 @@ interface Enemy {
   suggestion: string;
 }
 
-// Happy Uteroo image (upturned eyebrows)
-const happyUterooImage = "/lovable-uploads/cc734239-4e1a-4cc6-8b9b-7b88f1c040f8.png";
+const phaseToImage = {
+  menstruation: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  follicular: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  ovulatory: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  luteal: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"
+};
 
-// Sad Uteroo image (downturned eyebrows) 
-const sadUterooImage = "/lovable-uploads/43bd93a0-8de3-466f-b05d-f7ff8b361e5b.png";
+// Lab coat version for lab room
+const phaseToLabImage = {
+  menstruation: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  follicular: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  ovulatory: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
+  luteal: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"
+};
 
 const phaseToEmoji = {
   menstruation: "🌸",
@@ -32,21 +40,6 @@ const phaseToMessage = {
   follicular: "Great time for new projects!",
   ovulatory: "Peak energy - socialize & connect!",
   luteal: "Focus on self-care & rest"
-};
-
-// Happy and sad messages
-const happyMessages = {
-  menstruation: "Feeling much better! 💖",
-  follicular: "Energy is flowing nicely! ✨", 
-  ovulatory: "Glowing with confidence! ☀️",
-  luteal: "Peaceful and content! 🌙"
-};
-
-const sadMessages = {
-  menstruation: "Need some care and comfort...",
-  follicular: "Feeling a bit overwhelmed...",
-  ovulatory: "Could use some support...",
-  luteal: "Feeling heavy and tired..."
 };
 
 // Updated Phase to sound mapping for character interactions - using gentler sounds
@@ -64,7 +57,6 @@ interface UterooCharacterProps {
   minimal?: boolean;
   onClick?: () => void;
   enemies?: Enemy[];
-  onEnemiesDefeated?: () => void;
 }
 
 // Interface for floating hearts
@@ -83,7 +75,6 @@ interface CirclingEnemy {
   speed: number;
   icon: string;
   name: string;
-  hp: number;
 }
 
 export const UterooCharacter = ({ 
@@ -92,9 +83,11 @@ export const UterooCharacter = ({
   size = "medium", 
   minimal = false,
   onClick,
-  enemies = [],
-  onEnemiesDefeated
+  enemies = []
 }: UterooCharacterProps) => {
+  // Use lab coat image if in lab room
+  const isLabRoom = currentRoom === "lab";
+  const characterImage = isLabRoom ? phaseToLabImage[phase] : phaseToImage[phase];
   
   // Size classes based on the size prop - made larger as requested
   const sizeClasses = {
@@ -105,22 +98,8 @@ export const UterooCharacter = ({
   
   // State for automatic floating hearts
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
+  const [currentMessage, setCurrentMessage] = useState(phaseToMessage[phase]);
   const [circlingEnemies, setCirclingEnemies] = useState<CirclingEnemy[]>([]);
-  const [isHappy, setIsHappy] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState("");
-  const [lastEnemyRespawnTime, setLastEnemyRespawnTime] = useState<number>(Date.now());
-  
-  // Determine current image and message based on happiness state
-  const characterImage = isHappy ? happyUterooImage : sadUterooImage;
-  
-  // Update message based on happiness state and phase
-  useEffect(() => {
-    if (isHappy) {
-      setCurrentMessage(happyMessages[phase]);
-    } else {
-      setCurrentMessage(sadMessages[phase]);
-    }
-  }, [isHappy, phase]);
   
   // Initialize circling enemies when enemies prop changes
   useEffect(() => {
@@ -131,37 +110,13 @@ export const UterooCharacter = ({
         distance: 80 + Math.random() * 20, // Base distance with some variation
         speed: 0.01 + Math.random() * 0.005, // Different speeds for each enemy
         icon: enemy.icon,
-        name: enemy.name,
-        hp: enemy.hp
+        name: enemy.name
       }));
       setCirclingEnemies(newCirclingEnemies);
-      
-      // If enemies exist, Uteroo should be sad
-      setIsHappy(false);
     } else {
       setCirclingEnemies([]);
-      
-      // If no enemies, Uteroo should be happy
-      if (!isHappy) {
-        setIsHappy(true);
-        // Play happy sound when becoming happy
-        audioService.play('bonus');
-        
-        // Notify parent component that enemies are defeated
-        if (onEnemiesDefeated) {
-          onEnemiesDefeated();
-        }
-        
-        // Set timer for enemy respawn (5 hours = 18000000 ms)
-        // For testing purposes, using 30 seconds instead
-        setTimeout(() => {
-          setLastEnemyRespawnTime(Date.now());
-          setIsHappy(false);
-          // In a real implementation, this would trigger enemy respawn in the parent component
-        }, 30000); // 30 seconds for testing - change to 18000000 for 5 hours
-      }
     }
-  }, [enemies, isHappy, onEnemiesDefeated]);
+  }, [enemies]);
   
   // Animate circling enemies
   useEffect(() => {
@@ -188,19 +143,18 @@ export const UterooCharacter = ({
     }
   }, [currentRoom]);
   
-  // Play gentler sound for phase transition
+  // Update message when phase changes
   useEffect(() => {
+    setCurrentMessage(phaseToMessage[phase]);
+    
+    // Play gentler sound for phase transition
     audioService.play(phaseToSound[phase]);
   }, [phase]);
   
   // Handle click on character with sound
   const handleClick = useCallback(() => {
-    // Play different sounds based on happiness state
-    if (isHappy) {
-      audioService.play('bonus'); // Happy sound
-    } else {
-      audioService.play('gentle_waves'); // Comforting sound
-    }
+    // Play a much gentler, calming sound
+    audioService.play('gentle_waves');
     
     // Add a random variation to make the interaction more pleasant
     if (Math.random() > 0.7) {
@@ -226,7 +180,7 @@ export const UterooCharacter = ({
     if (onClick) {
       onClick();
     }
-  }, [onClick, isHappy]);
+  }, [onClick]);
 
   if (minimal) {
     // Minimal version without message bubble - just the character
@@ -235,7 +189,7 @@ export const UterooCharacter = ({
         <div className="relative">
           <img 
             src={characterImage} 
-            alt={`Uteroo in ${phase} phase - ${isHappy ? 'happy' : 'sad'}`} 
+            alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
             className={cn(
               sizeClasses[size],
               "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
@@ -299,7 +253,7 @@ export const UterooCharacter = ({
         
         <img 
           src={characterImage} 
-          alt={`Uteroo in ${phase} phase - ${isHappy ? 'happy' : 'sad'}`} 
+          alt={`Uteroo in ${phase} phase${isLabRoom ? ' with lab coat' : ''}`} 
           className={cn(
             sizeClasses[size],
             "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
@@ -323,14 +277,12 @@ export const UterooCharacter = ({
       </div>
       
       <div className={cn(
-        "mt-4 font-medium tracking-wide text-white drop-shadow-md backdrop-blur-sm border border-white/30 rounded-full px-4 py-2",
-        size === "small" ? "text-sm min-w-[180px]" : "text-base min-w-[220px]",
-        isHappy ? "bg-green-500/20" : "bg-purple-500/20"
+        "mt-4 font-medium tracking-wide text-white drop-shadow-md bg-transparent backdrop-blur-sm border border-white/30 rounded-full px-4 py-2",
+        size === "small" ? "text-sm min-w-[180px]" : "text-base min-w-[220px]"
       )}>
         <div className="flex items-center gap-2 justify-center whitespace-normal">
           <span>{phaseToEmoji[phase]}</span>
           <span>{currentMessage}</span>
-          <span>{isHappy ? "😊" : "😔"}</span>
         </div>
       </div>
     </div>
