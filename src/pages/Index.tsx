@@ -44,6 +44,7 @@ const Index = () => {
           // If no pet stats, they're a first-time user - show onboarding
           if (petStats) {
             console.log('returning user - navigating to pou-game');
+            console.log('here are your petstats: ' + petStats);
             navigate("/pou-game");
             toast({
               title: "Welcome back!",
