@@ -1261,10 +1261,10 @@ const PouGame = () => {
       )} />
       
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Streamlined header - updated with sign out button */}
+        {/* Streamlined header - updated with better spacing */}
         <div className="fixed top-0 left-0 right-0 backdrop-blur-sm z-30 pt-4 pb-2 px-4">
           <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex gap-2">
                 <Button 
                   variant="ghost" 
@@ -1280,6 +1280,20 @@ const PouGame = () => {
                 <AudioToggle />
               </div>
               
+              <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="rounded-full h-8 w-8 p-0"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {/* Phase level buttons - now separated from other controls */}
+            <div className="flex justify-center mb-3">
               <div className="flex gap-2">
                 {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
                   const PhaseIconComponent = phaseInfo[phaseName].icon;
@@ -1303,17 +1317,6 @@ const PouGame = () => {
                   );
                 })}
               </div>
-              
-              <div className="flex gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="rounded-full h-8 w-8 p-0"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </div>
             </div>
             
             {renderPhaseProgress()}
@@ -1321,7 +1324,7 @@ const PouGame = () => {
         </div>
 
         {/* Main content area */}
-        <div className="flex-1 pt-28 pb-6 px-4">
+        <div className="flex-1 pt-32 pb-6 px-4">
           <div className="max-w-md mx-auto">
             {/* Room navigation - arrows only with icon in center */}
             <div className="flex justify-between items-center mb-4 mt-6">
