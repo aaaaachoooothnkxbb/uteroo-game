@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -1335,7 +1334,7 @@ const PouGame = () => {
         {/* Main content area */}
         <div className="flex-1 pt-32 pb-6 px-4">
           <div className="max-w-md mx-auto">
-            {/* Room navigation - smaller, no text, transparent, lower */}
+            {/* Room navigation with single icon */}
             <div className="flex justify-between items-center mb-4 mt-12">
               <Button 
                 variant="ghost" 
@@ -1347,6 +1346,11 @@ const PouGame = () => {
                 <span className="sr-only">Previous Room</span>
               </Button>
               
+              {/* Current room icon */}
+              <div className="flex items-center justify-center">
+                <RoomIcon className="h-5 w-5 text-white" />
+              </div>
+              
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -1356,36 +1360,6 @@ const PouGame = () => {
                 <ArrowRight className="h-3 w-3 text-white" />
                 <span className="sr-only">Next Room</span>
               </Button>
-            </div>
-            
-            {/* Room indicator icons */}
-            <div className="flex justify-center mb-4">
-              <div className="flex gap-1">
-                {rooms.map((room, index) => {
-                  const RoomIconComponent = room.icon;
-                  return (
-                    <button
-                      key={room.id}
-                      onClick={() => {
-                        console.log("Room icon clicked - moving to room index:", index);
-                        audioService.play('click');
-                        setCurrentRoomIndex(index);
-                      }}
-                      className={cn(
-                        "w-6 h-6 rounded-full transition-all duration-300 flex items-center justify-center",
-                        index === currentRoomIndex 
-                          ? "bg-white/30 scale-110" 
-                          : "bg-white/10 hover:bg-white/20"
-                      )}
-                    >
-                      <RoomIconComponent className={cn(
-                        "h-3 w-3 text-white",
-                        index === currentRoomIndex ? "opacity-100" : "opacity-60"
-                      )} />
-                    </button>
-                  );
-                })}
-              </div>
             </div>
             
             {/* Stats panel */}
