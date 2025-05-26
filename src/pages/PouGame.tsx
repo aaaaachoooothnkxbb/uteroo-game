@@ -697,13 +697,19 @@ const PouGame = () => {
   };
 
   const handleNextRoom = () => {
+    console.log("Next room clicked - current index:", currentRoomIndex);
     audioService.play('click');
-    setCurrentRoomIndex((prev) => (prev === rooms.length - 1 ? 0 : prev + 1));
+    const nextIndex = currentRoomIndex === rooms.length - 1 ? 0 : currentRoomIndex + 1;
+    console.log("Moving to room index:", nextIndex, "Room name:", rooms[nextIndex].name);
+    setCurrentRoomIndex(nextIndex);
   };
 
   const handlePreviousRoom = () => {
+    console.log("Previous room clicked - current index:", currentRoomIndex);
     audioService.play('click');
-    setCurrentRoomIndex((prev) => (prev === 0 ? rooms.length - 1 : prev - 1));
+    const prevIndex = currentRoomIndex === 0 ? rooms.length - 1 : currentRoomIndex - 1;
+    console.log("Moving to room index:", prevIndex, "Room name:", rooms[prevIndex].name);
+    setCurrentRoomIndex(prevIndex);
   };
 
   const handlePhaseChange = (newPhase: Phase) => {
@@ -718,6 +724,8 @@ const PouGame = () => {
   const currentRoom = rooms[currentRoomIndex];
   const RoomIcon = currentRoom.icon;
   const currentRoomBoosters = roomBoosters[currentRoom.id as keyof typeof roomBoosters] || [];
+
+  console.log("Current room:", currentRoom.name, "Index:", currentRoomIndex, "ID:", currentRoom.id);
 
   const handleBoosterClick = (booster: any) => {
     // Play sound effect based on booster type
@@ -1326,33 +1334,34 @@ const PouGame = () => {
         {/* Main content area */}
         <div className="flex-1 pt-32 pb-6 px-4">
           <div className="max-w-md mx-auto">
-            {/* Room navigation - arrows only with icon in center */}
+            {/* Room navigation - improved visibility and functionality */}
             <div className="flex justify-between items-center mb-4 mt-6">
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handlePreviousRoom}
-                className="h-8 w-8 p-0 rounded-full"
+                className="h-10 w-10 p-0 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 border-2"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-5 w-5" />
                 <span className="sr-only">Previous Room</span>
               </Button>
               
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex items-center justify-center px-3 py-1.5 backdrop-blur-sm rounded-full">
+                    <div className="flex flex-col items-center justify-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border-2 min-w-[120px]">
                       <RoomIcon className={cn(
-                        "h-5 w-5",
+                        "h-6 w-6 mb-1",
                         currentPhase === "menstruation" ? "text-pink-500" :
                         currentPhase === "follicular" ? "text-green-500" :
                         currentPhase === "ovulatory" ? "text-yellow-500" :
                         "text-orange-500"
                       )} />
+                      <span className="text-xs font-medium text-gray-700">{currentRoom.name}</span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    {currentRoom.name}
+                    {currentRoom.name} - Use arrows to navigate
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -1361,11 +1370,33 @@ const PouGame = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={handleNextRoom}
-                className="h-8 w-8 p-0 rounded-full"
+                className="h-10 w-10 p-0 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 border-2"
               >
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-5 w-5" />
                 <span className="sr-only">Next Room</span>
               </Button>
+            </div>
+            
+            {/* Room indicator dots */}
+            <div className="flex justify-center mb-4">
+              <div className="flex gap-1">
+                {rooms.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      console.log("Dot clicked - moving to room index:", index);
+                      audioService.play('click');
+                      setCurrentRoomIndex(index);
+                    }}
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-all duration-300",
+                      index === currentRoomIndex 
+                        ? "bg-white scale-125" 
+                        : "bg-white/50 hover:bg-white/70"
+                    )}
+                  />
+                ))}
+              </div>
             </div>
             
             {/* Stats panel */}
