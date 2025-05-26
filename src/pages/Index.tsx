@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -53,7 +52,22 @@ const Index = () => {
               description: "Ready to play with your companion?"
             });
           } else {
-            console.log('first-time user - showing onboarding');
+            console.log('first-time user - creating profile and showing onboarding');
+            // Create a new profile for the user
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: data.session.user.id,
+                username: `user${data.session.user.id.substring(0, 8)}`,
+                full_name: data.session.user.user_metadata?.full_name || '',
+              });
+            
+            if (insertError) {
+              console.error('Error creating profile:', insertError);
+            } else {
+              console.log('Profile created successfully');
+            }
+            
             setShowOnboarding(true);
           }
         }
@@ -71,6 +85,19 @@ const Index = () => {
           if (profile) {
             navigate("/pou-game");
           } else {
+            // Create profile for OAuth user
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: authData.user.id,
+                username: `user${authData.user.id.substring(0, 8)}`,
+                full_name: authData.user.user_metadata?.full_name || '',
+              });
+            
+            if (insertError) {
+              console.error('Error creating profile for OAuth user:', insertError);
+            }
+            
             setShowOnboarding(true);
           }
         }
