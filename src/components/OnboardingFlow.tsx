@@ -15,8 +15,6 @@ import { format } from "date-fns";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/AuthProvider";
 
 type FormOption = {
   value: string;
@@ -201,8 +199,6 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const { toast } = useToast();
   const [nextHeartId, setNextHeartId] = useState(1);
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const determineGameScreen = () => {
     // Default to dashboard if we can't determine phase
@@ -449,9 +445,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     return (filledFields / totalFields) * 100;
   };
 
-  const handleNext = async () => {
-    console.log('handleNext called, step:', step, 'questionsScreen:', questionsScreen);
-    
+  const handleNext = () => {
     if (step === 1) {
       setStep(2);
     } else if (step === 2) {
@@ -466,23 +460,6 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         return;
       }
       
-      // Prevent double submission
-      if (isSubmitting) {
-        console.log('Already submitting, preventing duplicate submission');
-        return;
-      }
-      
-      setIsSubmitting(true);
-      console.log('Starting to save onboarding data...');
-      
-      // Save the onboarding data to the database
-      const saveSuccess = await saveOnboardingData();
-      if (!saveSuccess) {
-        setIsSubmitting(false);
-        return; // Don't proceed if save failed
-      }
-      
-      console.log('Onboarding data saved successfully, showing summary and navigating...');
       const summary = generateSummary();
       toast({
         title: "Welcome to Uteroo!",
@@ -491,15 +468,11 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       });
       
       // Navigate to the appropriate game screen based on diagnosed phase
-      const gameRoute = determineGameScreen();
-      console.log('Navigating to:', gameRoute);
-      navigate(gameRoute);
-      setIsSubmitting(false);
+      navigate(determineGameScreen());
     }
   };
 
   const handleSkip = () => {
-    console.log('Skipping onboarding, navigating to dashboard');
     toast({
       title: "Welcome to Uteroo!",
       description: "You can always complete your profile later in settings.",
@@ -539,141 +512,6 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     );
   };
 
-  const saveOnboardingData = async () => {
-    if (!user) {
-      console.error('No user found during save');
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to save your data.",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    try {
-      console.log('Saving onboarding data for user:', user.id);
-      console.log('Form data:', formData);
-      console.log('Selected date:', selectedDate);
-      
-      // First, ensure the user has a profile
-      const { data: existingProfile, error: profileCheckError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (profileCheckError) {
-        console.error('Error checking profile:', profileCheckError);
-        throw profileCheckError;
-      }
-
-      if (!existingProfile) {
-        console.log('No profile found, creating one...');
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            username: user.email?.split('@')[0] || 'user',
-            full_name: user.user_metadata?.full_name || ''
-          });
-
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-          throw profileError;
-        }
-        console.log('Profile created successfully');
-      } else {
-        console.log('Profile already exists');
-      }
-      
-      // Calculate cycle start date
-      let cycleStartDate = null;
-      if (formData.lastPeriodStart === "current") {
-        cycleStartDate = new Date().toISOString().split('T')[0];
-      } else if (formData.lastPeriodStart === "calendar" && selectedDate) {
-        cycleStartDate = selectedDate.toISOString().split('T')[0];
-      }
-
-      // Convert period length to number
-      let periodLengthNum = 7; // default
-      if (formData.periodLength === "3-5") periodLengthNum = 4;
-      else if (formData.periodLength === "6-7") periodLengthNum = 6;
-      else if (formData.periodLength === "8+") periodLengthNum = 8;
-
-      // Determine cycle length based on predictability
-      let cycleLengthNum = 28; // default
-      if (formData.cyclePredictability === "regular-varies") cycleLengthNum = 30;
-      else if (formData.cyclePredictability === "irregular") cycleLengthNum = 32;
-
-      // Save cycle tracking data if we have a start date
-      if (cycleStartDate) {
-        console.log('Saving cycle tracking data:', {
-          user_id: user.id,
-          cycle_start_date: cycleStartDate,
-          cycle_length: cycleLengthNum,
-          period_length: periodLengthNum
-        });
-        
-        const { error: cycleError } = await supabase
-          .from('cycle_tracking')
-          .insert({
-            user_id: user.id,
-            cycle_start_date: cycleStartDate,
-            cycle_length: cycleLengthNum,
-            period_length: periodLengthNum
-          });
-
-        if (cycleError) {
-          console.error('Error saving cycle data:', cycleError);
-          throw cycleError;
-        }
-        console.log('Cycle tracking data saved successfully');
-      }
-
-      // Create initial mood log entry with onboarding symptoms
-      const symptoms = [];
-      if (formData.premenstrualSymptoms === "irritable") symptoms.push("irritability");
-      if (formData.premenstrualSymptoms === "bloated") symptoms.push("bloating", "cravings");
-      if (formData.worstSymptom) symptoms.push(formData.worstSymptom);
-
-      console.log('Saving mood log data:', {
-        user_id: user.id,
-        date: new Date().toISOString().split('T')[0],
-        mood: "neutral",
-        symptoms: symptoms.length > 0 ? symptoms : null,
-        notes: "Initial onboarding data"
-      });
-
-      const { error: moodError } = await supabase
-        .from('mood_logs')
-        .insert({
-          user_id: user.id,
-          date: new Date().toISOString().split('T')[0],
-          mood: "neutral",
-          symptoms: symptoms.length > 0 ? symptoms : null,
-          notes: "Initial onboarding data"
-        });
-
-      if (moodError) {
-        console.error('Error saving mood log:', moodError);
-        // Don't throw here as this is less critical
-      } else {
-        console.log('Mood log saved successfully');
-      }
-
-      console.log('All onboarding data saved successfully');
-      return true;
-    } catch (error) {
-      console.error('Error saving onboarding data:', error);
-      toast({
-        title: "Error saving data",
-        description: "There was a problem saving your information. Please try again.",
-        variant: "destructive"
-      });
-      return false;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl p-6 space-y-6 bg-white border shadow-md relative">
@@ -696,6 +534,68 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         ))}
 
         {step === 3 && (
+          <div className="flex items-center mb-2 gap-2">
+            <Progress value={calculateProgress()} className="w-full rounded-full" />
+            <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
+              <Heart fill="#FF69B4" size={16} />
+              <span>{heartPoints}</span>
+            </div>
+          </div>
+        )}
+        
+        {step === 1 ? (
+          <div className="text-center space-y-6">
+            <img
+              src="/lovable-uploads/0d497106-a6a3-4251-ac48-6e002ce44c94.png"
+              alt="Welcome"
+              className="w-64 h-auto mx-auto animate-bounce-slow"
+            />
+            <h1 className="text-2xl font-bold text-black">Hi!</h1>
+            <p className="text-lg text-black">
+              I'm <span className="text-[#FF69B4] font-bold bg-pink-50 px-2 rounded-full">Uteroo</span> your loyal companion through every twist and turn of your hormonal journey.
+            </p>
+            <p className="text-gray-700">
+              Together, we'll navigate the ups and downs, making sure you feel supported and understood every step of the way
+            </p>
+            <h2 className="text-xl font-bold text-black">
+              Who's up for this journey?
+            </h2>
+            <div className="flex gap-4 justify-center">
+              <Button
+                onClick={() => setStep(3)}
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 rounded-full"
+              >
+                Me!
+              </Button>
+              <Button
+                onClick={() => setStep(2)}
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 rounded-full"
+              >
+                I'm new to this...
+              </Button>
+            </div>
+          </div>
+        ) : step === 2 ? (
+          <div className="space-y-6">
+            <h1 className="text-3xl font-bold text-center text-black">
+              UNDERSTANDING YOUR CYCLE
+            </h1>
+            <p className="text-lg text-center text-gray-700 mb-8">
+              Your hormones, including Estrogen, Progesterone, Luteinizing hormone (LH), and 
+              Follicle-stimulating hormone (FSH), play a crucial role in your cycle. They influence 
+              your mood, energy, and overall well-being.
+            </p>
+            <PhaseExplanation />
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={() => setStep(3)}
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 rounded-full"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        ) : (
           <div className="space-y-6">
             {/* Top progress bar with hearts and screen indicator */}
             <div className="flex items-center justify-between mb-2">
@@ -846,8 +746,6 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
               
               <Button
                 onClick={() => {
-                  console.log('Next/Continue button clicked, questionsScreen:', questionsScreen, 'isSubmitting:', isSubmitting);
-                  
                   if (questionsScreen < 2) {
                     // Check if all questions on current screen are answered
                     const currentGroup = QuestionGroups[questionsScreen];
@@ -887,14 +785,12 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                     });
                   } else {
                     // Submit and navigate to game screen
-                    console.log('About to call handleNext for final submission');
                     handleNext();
                   }
                 }}
-                disabled={isSubmitting}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
               >
-                {isSubmitting ? "Saving..." : questionsScreen === 3 ? "Continue to Game" : questionsScreen === 2 ? "Get My Diagnosis" : "Next"}
+                {questionsScreen === 3 ? "Continue to Game" : questionsScreen === 2 ? "Get My Diagnosis" : "Next"}
               </Button>
             </div>
           </div>
