@@ -6,7 +6,7 @@ import {
   ArrowLeft, ArrowRight, Apple, Bath, Bed, Gamepad, 
   ShoppingBag, Heart, Droplet, BatteryFull, 
   Home, Dumbbell, Brain, Moon, Sun, Leaf, UtensilsCrossed, Laptop, Beaker,
-  Flame, HelpCircle, Calendar, CoinsIcon
+  Flame, HelpCircle, Calendar, CoinsIcon, LogOut
 } from "lucide-react";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
@@ -1201,6 +1201,34 @@ const PouGame = () => {
     });
   };
 
+  const handleSignOut = async () => {
+    try {
+      audioService.play('click');
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error signing out",
+          description: error.message
+        });
+      } else {
+        navigate("/");
+        toast({
+          title: "Signed out successfully",
+          description: "See you next time!"
+        });
+      }
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: "Please try again"
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen relative">
       
@@ -1224,7 +1252,7 @@ const PouGame = () => {
       )} />
       
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Streamlined header - updated with audio toggle */}
+        {/* Streamlined header - updated with sign out button */}
         <div className="fixed top-0 left-0 right-0 backdrop-blur-sm z-30 pt-4 pb-2 px-4">
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between">
@@ -1265,6 +1293,17 @@ const PouGame = () => {
                     </Button>
                   );
                 })}
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="rounded-full h-8 w-8 p-0"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
               </div>
             </div>
             
