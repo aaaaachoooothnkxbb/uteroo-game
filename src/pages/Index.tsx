@@ -14,6 +14,7 @@ const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'facebook' | null>(null);
+  const [checkingUser, setCheckingUser] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authError, clearAuthError } = useAuth();
@@ -22,22 +23,58 @@ const Index = () => {
     console.log('checking session')
     // Check for auth session on page load and handle redirects from OAuth
     const checkSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      
-      if (data?.session) {
-        console.log('user is already logged in')
-        // User is already logged in
-        navigate("/dashboard");
-        toast({
-          title: "Welcome back!",
-          description: "You are already logged in"
-        });
-      }
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (data?.session) {
+          console.log('user is already logged in')
+          
+          // Check if user has completed onboarding by looking for pet_stats
+          const { data: petStats, error: petError } = await supabase
+            .from('pet_stats')
+            .select('*')
+            .eq('user_id', data.session.user.id)
+            .maybeSingle();
+          
+          if (petError && petError.code !== 'PGRST116') {
+            console.error('Error checking pet stats:', petError);
+          }
+          
+          // If user has pet stats, they've completed onboarding - go to pou-game
+          // If no pet stats, they're a first-time user - show onboarding
+          if (petStats) {
+            console.log('returning user - navigating to pou-game');
+            navigate("/pou-game");
+            toast({
+              title: "Welcome back!",
+              description: "Ready to play with your companion?"
+            });
+          } else {
+            console.log('first-time user - showing onboarding');
+            setShowOnboarding(true);
+          }
+        }
 
-      // Check if we're handling an OAuth redirect
-      const { data: authData } = await supabase.auth.getUser();
-      if (authData?.user && window.location.hash.includes("access_token")) {
-        navigate("/dashboard");
+        // Check if we're handling an OAuth redirect
+        const { data: authData } = await supabase.auth.getUser();
+        if (authData?.user && window.location.hash.includes("access_token")) {
+          // For OAuth users, also check if they're first-time
+          const { data: petStats } = await supabase
+            .from('pet_stats')
+            .select('*')
+            .eq('user_id', authData.user.id)
+            .maybeSingle();
+          
+          if (petStats) {
+            navigate("/pou-game");
+          } else {
+            setShowOnboarding(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        setCheckingUser(false);
       }
     };
 
@@ -46,7 +83,7 @@ const Index = () => {
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
-    navigate("/dashboard");
+    navigate("/pou-game");
   };
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
@@ -100,6 +137,18 @@ const Index = () => {
       setLoadingProvider(null);
     }
   };
+
+  // Show loading state while checking user status
+  if (checkingUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-pink-500 mx-auto mb-4" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (showOnboarding) {
     return <OnboardingFlow onComplete={handleOnboardingComplete} />;
