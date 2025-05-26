@@ -69,24 +69,24 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-white/95 backdrop-blur-sm border-white/20">
         <DialogHeader>
-          <DialogTitle className="text-2xl flex items-center gap-2">
+          <DialogTitle className="text-2xl flex items-center gap-2 text-gray-700">
             <BookOpen className="h-6 w-6" /> 
             Daily Journaling - {phaseDescriptions[phase]}
           </DialogTitle>
-          <DialogDescription className="text-base">
+          <DialogDescription className="text-base text-gray-600">
             Complete these journaling prompts to enhance your self-awareness during this phase.
             <div className="mt-2 flex items-center gap-2 text-sm">
-              <span className="font-medium">Progress:</span>
+              <span className="font-medium text-gray-700">Progress:</span>
               <span className="flex items-center gap-1">
                 {completedPrompts.map((completed, index) => (
                   completed ? 
                     <CheckCircle key={index} className="h-5 w-5 text-green-500 fill-green-500" /> : 
-                    <Circle key={index} className="h-5 w-5 text-gray-300" />
+                    <Circle key={index} className="h-5 w-5 text-gray-400" />
                 ))}
               </span>
-              <span className="ml-2 text-sm font-medium">
+              <span className="ml-2 text-sm font-medium text-gray-700">
                 {totalCompleted}/{prompts.length} completed
               </span>
             </div>
@@ -94,9 +94,9 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
         </DialogHeader>
         
         <div className="mt-4 space-y-6">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-medium text-blue-700 mb-2">How to Journal Effectively:</h3>
-            <ol className="list-decimal pl-5 space-y-1 text-blue-700">
+          <div className="bg-purple-50/50 backdrop-blur-sm p-4 rounded-lg border border-purple-200/30">
+            <h3 className="font-medium text-purple-700 mb-2">How to Journal Effectively:</h3>
+            <ol className="list-decimal pl-5 space-y-1 text-purple-600">
               <li>Find a quiet space where you won't be interrupted</li>
               <li>Write freely without judging your thoughts</li>
               <li>Be honest with yourself - this is for your eyes only</li>
@@ -104,9 +104,9 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Today's Journaling Prompts:</h3>
+            <h3 className="font-semibold text-lg text-gray-700">Today's Journaling Prompts:</h3>
             {prompts.map((prompt, index) => (
-              <div key={index} className="flex gap-3 p-4 border rounded-lg">
+              <div key={index} className="flex gap-3 p-4 border border-gray-200/50 rounded-lg bg-white/50 backdrop-blur-sm">
                 <div className="flex-shrink-0 pt-0.5">
                   <button 
                     onClick={() => togglePromptCompletion(index)}
@@ -115,12 +115,12 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
                     {completedPrompts[index] ? (
                       <CheckCircle className="h-6 w-6 text-green-500 fill-green-500" />
                     ) : (
-                      <Circle className="h-6 w-6 text-gray-300" />
+                      <Circle className="h-6 w-6 text-gray-400" />
                     )}
                   </button>
                 </div>
                 <div className="flex-grow">
-                  <p className={`text-base ${completedPrompts[index] ? 'text-gray-500 line-through' : ''}`}>
+                  <p className={`text-base ${completedPrompts[index] ? 'text-gray-500 line-through' : 'text-gray-700'}`}>
                     {prompt}
                   </p>
                 </div>
@@ -128,7 +128,7 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
             ))}
           </div>
 
-          <div className="flex items-start gap-2 p-4 border rounded-lg bg-gray-50">
+          <div className="flex items-start gap-2 p-4 border border-gray-200/50 rounded-lg bg-gray-50/50 backdrop-blur-sm">
             <Checkbox 
               id="reminder" 
               checked={reminderEnabled}
@@ -137,11 +137,11 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
             <div className="grid gap-1.5">
               <label
                 htmlFor="reminder"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
               >
                 Enable Daily Reminders
               </label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-600">
                 We'll remind you to journal each day during this phase
               </p>
             </div>
@@ -149,11 +149,11 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
         </div>
 
         <DialogFooter className="flex justify-between items-center">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
             <PenLine className="h-4 w-4" />
             <span>Your answers are saved locally</span>
           </div>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose} className="bg-purple-500 hover:bg-purple-600 text-white">Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
