@@ -1334,24 +1334,24 @@ const PouGame = () => {
         {/* Main content area */}
         <div className="flex-1 pt-32 pb-6 px-4">
           <div className="max-w-md mx-auto">
-            {/* Room navigation - updated to match other button styling */}
+            {/* Room navigation - made more visible with solid background */}
             <div className="flex justify-between items-center mb-4 mt-6">
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="sm" 
                 onClick={handlePreviousRoom}
-                className="h-8 w-8 p-0 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90"
+                className="h-10 w-10 p-0 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white shadow-lg border-2 border-white/50"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-5 w-5 text-gray-700" />
                 <span className="sr-only">Previous Room</span>
               </Button>
               
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex flex-col items-center justify-center px-3 py-1.5 bg-white/80 backdrop-blur-sm rounded-full min-w-[100px]">
+                    <div className="flex flex-col items-center justify-center px-4 py-2 bg-white/95 backdrop-blur-sm rounded-full border-2 border-white/50 min-w-[120px] shadow-lg">
                       <RoomIcon className={cn(
-                        "h-5 w-5 mb-0.5",
+                        "h-6 w-6 mb-1",
                         currentPhase === "menstruation" ? "text-pink-500" :
                         currentPhase === "follicular" ? "text-green-500" :
                         currentPhase === "ovulatory" ? "text-yellow-500" :
@@ -1367,12 +1367,12 @@ const PouGame = () => {
               </TooltipProvider>
               
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="sm" 
                 onClick={handleNextRoom}
-                className="h-8 w-8 p-0 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90"
+                className="h-10 w-10 p-0 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white shadow-lg border-2 border-white/50"
               >
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-5 w-5 text-gray-700" />
                 <span className="sr-only">Next Room</span>
               </Button>
             </div>
