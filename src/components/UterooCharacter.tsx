@@ -6,6 +6,14 @@ import { audioService } from "@/utils/audioService";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
+interface Enemy {
+  id: string;
+  name: string;
+  hp: number;
+  icon: string;
+  suggestion: string;
+}
+
 const phaseToImage = {
   menstruation: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
   follicular: "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png",
@@ -35,22 +43,6 @@ const phaseToMessage = {
   luteal: "Focus on self-care & rest"
 };
 
-// Phase symptoms for thought bubbles
-const phaseToSymptoms = {
-  menstruation: ["I have cramps", "I feel so tired", "My back hurts"],
-  follicular: ["I'm feeling anxious", "I have a headache", "I feel restless"],
-  ovulatory: ["I'm extra sensitive today", "I have a migraine", "I feel bloated"],
-  luteal: ["I'm so irritable", "I feel sad", "I have no energy"]
-};
-
-// Enemy images associated with each phase symptom
-const phaseToEnemyImages = {
-  menstruation: "/lovable-uploads/photo-1581091226825-a6a2a5aee158.jpeg",
-  follicular: "/lovable-uploads/photo-1461749280684-dccba630e2f6.jpeg",
-  ovulatory: "/lovable-uploads/photo-1485827404703-89b55fcc595e.jpeg",
-  luteal: "/lovable-uploads/photo-1526374965328-7f61d4dc18c5.jpeg"
-};
-
 // Updated Phase to sound mapping for character interactions - using gentler sounds
 const phaseToSound = {
   menstruation: "soft_bells",
@@ -65,6 +57,7 @@ interface UterooCharacterProps {
   size?: "small" | "medium" | "large";
   minimal?: boolean;
   onClick?: () => void;
+  enemies?: Enemy[];
 }
 
 // Interface for floating hearts
@@ -75,12 +68,23 @@ interface FloatingHeart {
   opacity: number;
 }
 
+// Interface for circling enemies
+interface CirclingEnemy {
+  id: string;
+  angle: number;
+  distance: number;
+  speed: number;
+  icon: string;
+  name: string;
+}
+
 export const UterooCharacter = ({ 
   phase, 
   currentRoom = "", 
   size = "medium", 
   minimal = false,
-  onClick
+  onClick,
+  enemies = []
 }: UterooCharacterProps) => {
   // Use lab coat image if in lab room
   const isLabRoom = currentRoom === "lab";
@@ -96,10 +100,42 @@ export const UterooCharacter = ({
   // State for automatic floating hearts
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
   const [currentMessage, setCurrentMessage] = useState(phaseToMessage[phase]);
-  const [activeSymptom, setActiveSymptom] = useState<string | null>(null);
-  const [showSymptoms, setShowSymptoms] = useState(false);
-  const [symptomStage, setSymptomStage] = useState<"text" | "image" | "none">("none");
-  const [bubbleSize, setBubbleSize] = useState(100); // 100% size initially
+  const [circlingEnemies, setCirclingEnemies] = useState<CirclingEnemy[]>([]);
+  
+  // Initialize circling enemies when enemies prop changes
+  useEffect(() => {
+    if (enemies.length > 0) {
+      const newCirclingEnemies = enemies.map((enemy, index) => ({
+        id: enemy.id,
+        angle: (index * (360 / enemies.length)) * (Math.PI / 180), // Convert to radians
+        distance: 80 + Math.random() * 20, // Base distance with some variation
+        speed: 0.01 + Math.random() * 0.005, // Different speeds for each enemy
+        icon: enemy.icon,
+        name: enemy.name
+      }));
+      setCirclingEnemies(newCirclingEnemies);
+    } else {
+      setCirclingEnemies([]);
+    }
+  }, [enemies]);
+  
+  // Animate circling enemies
+  useEffect(() => {
+    if (circlingEnemies.length === 0) return;
+    
+    const animationInterval = setInterval(() => {
+      setCirclingEnemies(prev => 
+        prev.map(enemy => ({
+          ...enemy,
+          angle: enemy.angle + enemy.speed,
+          // Pulsing distance effect - enemies get closer and further
+          distance: 80 + 20 * Math.sin(enemy.angle * 2) + Math.random() * 10
+        }))
+      );
+    }, 50);
+    
+    return () => clearInterval(animationInterval);
+  }, [circlingEnemies.length]);
   
   // Play room-specific sound when character changes rooms
   useEffect(() => {
@@ -115,39 +151,6 @@ export const UterooCharacter = ({
     // Play gentler sound for phase transition
     audioService.play(phaseToSound[phase]);
   }, [phase]);
-
-  // Randomly show symptoms occasionally
-  useEffect(() => {
-    const symptoms = phaseToSymptoms[phase];
-    
-    // Set up interval to occasionally show a symptom
-    const symptomInterval = setInterval(() => {
-      if (!showSymptoms && Math.random() > 0.7) {
-        const randomSymptom = symptoms[Math.floor(Math.random() * symptoms.length)];
-        setActiveSymptom(randomSymptom);
-        setShowSymptoms(true);
-        setSymptomStage("text");
-        setBubbleSize(100); // Reset bubble size to 100%
-        
-        // Transition from text to image after a few seconds
-        setTimeout(() => {
-          if (showSymptoms) {
-            setSymptomStage("image");
-            // Shrink bubble slightly for image phase
-            setBubbleSize(85);
-          }
-        }, 4000);
-        
-        // Hide symptom after more seconds
-        setTimeout(() => {
-          setShowSymptoms(false);
-          setSymptomStage("none");
-        }, 8000);
-      }
-    }, 15000);
-    
-    return () => clearInterval(symptomInterval);
-  }, [phase, showSymptoms]);
   
   // Handle click on character with sound
   const handleClick = useCallback(() => {
@@ -174,41 +177,11 @@ export const UterooCharacter = ({
     setTimeout(() => {
       setFloatingHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
     }, 1500);
-
-    // When clicked, if showing symptoms, shrink the bubble further
-    if (showSymptoms) {
-      // Shrink the bubble size
-      setBubbleSize(prev => Math.max(prev - 15, 40)); // Min size of 40%
-      
-      // If bubble size is small enough, hide the symptom
-      if (bubbleSize <= 55) {
-        setShowSymptoms(false);
-        setSymptomStage("none");
-      }
-    } else {
-      // Show a random symptom when clicked with higher probability
-      const symptoms = phaseToSymptoms[phase];
-      if (Math.random() > 0.3) {
-        const randomSymptom = symptoms[Math.floor(Math.random() * symptoms.length)];
-        setActiveSymptom(randomSymptom);
-        setShowSymptoms(true);
-        setSymptomStage("text");
-        setBubbleSize(100); // Reset bubble size to 100%
-        
-        // Transition from text to image after a few seconds
-        setTimeout(() => {
-          if (showSymptoms) {
-            setSymptomStage("image");
-            setBubbleSize(85);
-          }
-        }, 4000);
-      }
-    }
     
     if (onClick) {
       onClick();
     }
-  }, [phase, onClick, showSymptoms, bubbleSize]);
+  }, [onClick]);
 
   if (minimal) {
     // Minimal version without message bubble - just the character
@@ -246,46 +219,38 @@ export const UterooCharacter = ({
   return (
     <div className="flex flex-col items-center">
       <div className="relative">
-        {/* Symptom thought bubble */}
-        {showSymptoms && (
-          <div 
-            className={cn(
-              "absolute z-10 -top-16 -right-8 text-sm px-4 py-3 rounded-xl",
-              "bg-white/90 shadow-md backdrop-blur-sm",
-              phase === "menstruation" ? "bg-pink-100/90 text-pink-800" :
-              phase === "follicular" ? "bg-green-100/90 text-green-800" :
-              phase === "ovulatory" ? "bg-yellow-100/90 text-yellow-800" :
-              "bg-orange-100/90 text-orange-800",
-              "before:content-[''] before:absolute before:bottom-0 before:right-6 before:w-4 before:h-4 before:rotate-45 before:translate-y-2",
-              phase === "menstruation" ? "before:bg-pink-100/90" :
-              phase === "follicular" ? "before:bg-green-100/90" :
-              phase === "ovulatory" ? "before:bg-yellow-100/90" :
-              "before:bg-orange-100/90"
-            )}
-            style={{
-              maxWidth: '180px',
-              transform: `scale(${bubbleSize / 100})`,
-              transformOrigin: 'bottom right',
-              transition: 'transform 0.5s ease'
-            }}
-          >
-            {symptomStage === "text" && (
-              <div className="flex items-center">
-                <span className="font-medium italic">{activeSymptom}</span>
-              </div>
-            )}
-            
-            {symptomStage === "image" && (
-              <div className="flex justify-center items-center">
+        {/* Circling enemies */}
+        {circlingEnemies.map(enemy => {
+          const x = Math.cos(enemy.angle) * enemy.distance;
+          const y = Math.sin(enemy.angle) * enemy.distance;
+          
+          return (
+            <div
+              key={enemy.id}
+              className="absolute pointer-events-none z-10"
+              style={{
+                transform: `translate(${x}px, ${y}px)`,
+                left: '50%',
+                top: '50%',
+                marginLeft: '-16px', // Half of enemy size (32px)
+                marginTop: '-16px'
+              }}
+            >
+              <div className="relative">
                 <img 
-                  src={phaseToEnemyImages[phase]} 
-                  alt="Enemy" 
-                  className="w-full h-24 object-cover rounded" 
+                  src={enemy.icon} 
+                  alt={enemy.name}
+                  className="w-8 h-8 object-contain drop-shadow-lg animate-pulse"
+                  style={{
+                    filter: 'drop-shadow(0 0 8px rgba(255, 0, 0, 0.3))'
+                  }}
                 />
+                {/* Menacing glow effect */}
+                <div className="absolute inset-0 w-8 h-8 bg-red-500 opacity-20 rounded-full animate-ping" />
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          );
+        })}
         
         <img 
           src={characterImage} 

@@ -1359,7 +1359,7 @@ const PouGame = () => {
             {/* Stats panel */}
             {renderStatsPanel()}
             
-            {/* Character area */}
+            {/* Character area with circling enemies */}
             <div 
               className="relative flex justify-center mb-4 mx-auto"
               onDrop={handleDrop}
@@ -1395,6 +1395,7 @@ const PouGame = () => {
                 size="large" 
                 minimal={false} 
                 onClick={handleUterooClick}
+                enemies={currentEnemies}
               />
               
               {showBoostIndicator && (
@@ -1411,9 +1412,6 @@ const PouGame = () => {
                 </div>
               )}
             </div>
-            
-            {/* Symptoms section */}
-            {renderSymptomCards()}
             
             {/* Continue streak button */}
             <Button 
