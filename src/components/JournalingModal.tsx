@@ -69,24 +69,24 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-white/5 backdrop-blur-xl border border-white/20 shadow-2xl">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-white/90 backdrop-blur-sm border-2 border-purple-200/50 shadow-xl rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl flex items-center gap-2 text-white font-light tracking-wide">
-            <BookOpen className="h-6 w-6 text-purple-300" /> 
+          <DialogTitle className="text-2xl flex items-center gap-2 text-purple-800 font-semibold tracking-wide">
+            <BookOpen className="h-6 w-6 text-purple-600" /> 
             Daily Journaling - {phaseDescriptions[phase]}
           </DialogTitle>
-          <DialogDescription className="text-lg text-white/90 font-light leading-relaxed">
+          <DialogDescription className="text-lg text-purple-700 font-medium leading-relaxed">
             Complete these journaling prompts to enhance your self-awareness during this phase.
             <div className="mt-3 flex items-center gap-3 text-sm">
-              <span className="font-medium text-purple-200">Progress:</span>
+              <span className="font-semibold text-purple-600">Progress:</span>
               <span className="flex items-center gap-1">
                 {completedPrompts.map((completed, index) => (
                   completed ? 
-                    <CheckCircle key={index} className="h-5 w-5 text-emerald-300 fill-emerald-300/80" /> : 
-                    <Circle key={index} className="h-5 w-5 text-white/40" />
+                    <CheckCircle key={index} className="h-5 w-5 text-emerald-600 fill-emerald-100" /> : 
+                    <Circle key={index} className="h-5 w-5 text-purple-400" />
                 ))}
               </span>
-              <span className="ml-2 text-sm font-medium text-purple-200 bg-white/10 px-2 py-1 rounded-full">
+              <span className="ml-2 text-sm font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">
                 {totalCompleted}/{prompts.length} completed
               </span>
             </div>
@@ -94,12 +94,12 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
         </DialogHeader>
         
         <div className="mt-6 space-y-6">
-          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 backdrop-blur-sm p-5 rounded-xl border border-purple-300/20">
-            <h3 className="font-medium text-white text-lg mb-3 flex items-center gap-2">
-              <PenLine className="h-5 w-5 text-purple-300" />
+          <div className="bg-gradient-to-r from-purple-100/80 to-pink-100/80 backdrop-blur-sm p-5 rounded-xl border-2 border-purple-200/50">
+            <h3 className="font-semibold text-purple-800 text-lg mb-3 flex items-center gap-2">
+              <PenLine className="h-5 w-5 text-purple-600" />
               How to Journal Effectively:
             </h3>
-            <ol className="list-decimal pl-6 space-y-2 text-white/90 font-light leading-relaxed">
+            <ol className="list-decimal pl-6 space-y-2 text-purple-700 font-medium leading-relaxed">
               <li>Find a quiet space where you won't be interrupted</li>
               <li>Write freely without judging your thoughts</li>
               <li>Be honest with yourself - this is for your eyes only</li>
@@ -107,29 +107,29 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-medium text-xl text-white flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-purple-300" />
+            <h3 className="font-semibold text-xl text-purple-800 flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-purple-600" />
               Today's Journaling Prompts:
             </h3>
             {prompts.map((prompt, index) => (
-              <div key={index} className="flex gap-4 p-5 border border-white/20 rounded-xl bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300">
+              <div key={index} className="flex gap-4 p-5 border-2 border-purple-200/50 rounded-xl bg-white/70 backdrop-blur-sm hover:bg-white/90 transition-all duration-300 shadow-md">
                 <div className="flex-shrink-0 pt-1">
                   <button 
                     onClick={() => togglePromptCompletion(index)}
                     className="focus:outline-none hover:scale-110 transition-transform duration-200"
                   >
                     {completedPrompts[index] ? (
-                      <CheckCircle className="h-7 w-7 text-emerald-300 fill-emerald-300/80" />
+                      <CheckCircle className="h-7 w-7 text-emerald-600 fill-emerald-100" />
                     ) : (
-                      <Circle className="h-7 w-7 text-white/50 hover:text-white/70" />
+                      <Circle className="h-7 w-7 text-purple-400 hover:text-purple-600" />
                     )}
                   </button>
                 </div>
                 <div className="flex-grow">
-                  <p className={`text-base font-light leading-relaxed transition-all duration-300 ${
+                  <p className={`text-base font-medium leading-relaxed transition-all duration-300 ${
                     completedPrompts[index] 
-                      ? 'text-white/50 line-through' 
-                      : 'text-white/95'
+                      ? 'text-purple-400 line-through' 
+                      : 'text-purple-800'
                   }`}>
                     {prompt}
                   </p>
@@ -138,35 +138,35 @@ export const JournalingModal = ({ isOpen, onClose, phase }: JournalingModalProps
             ))}
           </div>
 
-          <div className="flex items-start gap-3 p-5 border border-white/20 rounded-xl bg-gradient-to-r from-purple-500/5 to-pink-500/5 backdrop-blur-sm">
+          <div className="flex items-start gap-3 p-5 border-2 border-purple-200/50 rounded-xl bg-gradient-to-r from-purple-50/80 to-pink-50/80 backdrop-blur-sm shadow-md">
             <Checkbox 
               id="reminder" 
               checked={reminderEnabled}
               onCheckedChange={toggleReminder}
-              className="border-white/40 data-[state=checked]:bg-purple-400/80 data-[state=checked]:border-purple-400 mt-1"
+              className="border-purple-300 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500 mt-1"
             />
             <div className="grid gap-2">
               <label
                 htmlFor="reminder"
-                className="text-base font-medium leading-none text-white cursor-pointer"
+                className="text-base font-semibold leading-none text-purple-800 cursor-pointer"
               >
                 Enable Daily Reminders
               </label>
-              <p className="text-sm text-white/80 font-light leading-relaxed">
+              <p className="text-sm text-purple-600 font-medium leading-relaxed">
                 We'll remind you to journal each day during this phase
               </p>
             </div>
           </div>
         </div>
 
-        <DialogFooter className="flex justify-between items-center mt-6 pt-4 border-t border-white/20">
-          <div className="flex items-center gap-2 text-sm text-white/70 font-light">
-            <PenLine className="h-4 w-4 text-purple-300" />
+        <DialogFooter className="flex justify-between items-center mt-6 pt-4 border-t-2 border-purple-200/50">
+          <div className="flex items-center gap-2 text-sm text-purple-600 font-medium">
+            <PenLine className="h-4 w-4 text-purple-500" />
             <span>Your answers are saved locally</span>
           </div>
           <Button 
             onClick={onClose} 
-            className="bg-gradient-to-r from-purple-500/80 to-pink-500/80 hover:from-purple-600/80 hover:to-pink-600/80 text-white backdrop-blur-sm border border-white/20 px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-2 border-purple-300 px-6 py-2 rounded-lg font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
           >
             Close
           </Button>
