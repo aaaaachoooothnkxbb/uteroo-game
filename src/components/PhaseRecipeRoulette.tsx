@@ -1,9 +1,9 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -94,6 +94,7 @@ export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
   const [spinAngle, setSpinAngle] = useState(0);
   const [currentRecipe, setCurrentRecipe] = useState<Recipe | null>(null);
   const [selectedIngredients, setSelectedIngredients] = useState<any[]>([]);
+  const [checkedInstructions, setCheckedInstructions] = useState<boolean[]>([]);
   const wheelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -183,6 +184,7 @@ export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
       // Generate and display recipe
       const recipe = generateRecipe(selected);
       setCurrentRecipe(recipe);
+      setCheckedInstructions(new Array(recipe.instructions.length).fill(false));
       setShowRecipe(true);
       
       toast({
@@ -190,6 +192,14 @@ export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
         description: `Your perfect ${phase} phase recipe is ready!`,
       });
     }, 3000);
+  };
+
+  const handleInstructionCheck = (index: number) => {
+    setCheckedInstructions(prev => {
+      const newChecked = [...prev];
+      newChecked[index] = !newChecked[index];
+      return newChecked;
+    });
   };
 
   return (
@@ -304,11 +314,27 @@ export const PhaseRecipeRoulette = ({ phase }: PhaseRecipeRouletteProps) => {
 
             <div>
               <h4 className="font-medium text-lg mb-2 text-gray-800">Instructions:</h4>
-              <ol className="list-decimal list-inside space-y-2">
+              <div className="space-y-3">
                 {currentRecipe?.instructions.map((step, index) => (
-                  <li key={index} className="text-gray-700">{step}</li>
+                  <div key={index} className="flex items-start gap-3">
+                    <Checkbox
+                      id={`instruction-${index}`}
+                      checked={checkedInstructions[index]}
+                      onCheckedChange={() => handleInstructionCheck(index)}
+                      className="mt-1"
+                    />
+                    <label 
+                      htmlFor={`instruction-${index}`}
+                      className={`text-gray-700 cursor-pointer flex-1 ${
+                        checkedInstructions[index] ? 'line-through text-gray-400' : ''
+                      }`}
+                    >
+                      <span className="font-medium text-gray-600 mr-2">{index + 1}.</span>
+                      {step}
+                    </label>
+                  </div>
                 ))}
-              </ol>
+              </div>
             </div>
 
             <div 
