@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -1357,25 +1358,33 @@ const PouGame = () => {
               </Button>
             </div>
             
-            {/* Room indicator dots */}
+            {/* Room indicator icons */}
             <div className="flex justify-center mb-4">
               <div className="flex gap-1">
-                {rooms.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      console.log("Dot clicked - moving to room index:", index);
-                      audioService.play('click');
-                      setCurrentRoomIndex(index);
-                    }}
-                    className={cn(
-                      "w-2 h-2 rounded-full transition-all duration-300",
-                      index === currentRoomIndex 
-                        ? "bg-white scale-125" 
-                        : "bg-white/50 hover:bg-white/70"
-                    )}
-                  />
-                ))}
+                {rooms.map((room, index) => {
+                  const RoomIconComponent = room.icon;
+                  return (
+                    <button
+                      key={room.id}
+                      onClick={() => {
+                        console.log("Room icon clicked - moving to room index:", index);
+                        audioService.play('click');
+                        setCurrentRoomIndex(index);
+                      }}
+                      className={cn(
+                        "w-6 h-6 rounded-full transition-all duration-300 flex items-center justify-center",
+                        index === currentRoomIndex 
+                          ? "bg-white/30 scale-110" 
+                          : "bg-white/10 hover:bg-white/20"
+                      )}
+                    >
+                      <RoomIconComponent className={cn(
+                        "h-3 w-3 text-white",
+                        index === currentRoomIndex ? "opacity-100" : "opacity-60"
+                      )} />
+                    </button>
+                  );
+                })}
               </div>
             </div>
             
