@@ -205,9 +205,14 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   // Save onboarding data to Supabase
   const saveOnboardingData = async () => {
-    if (!user) return;
+    if (!user) {
+      console.error('No user found when trying to save onboarding data');
+      return;
+    }
 
     try {
+      console.log('Saving onboarding data for user:', user.id);
+      
       // Prepare cycle tracking data
       const cycleData: any = {
         user_id: user.id,
@@ -244,6 +249,8 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
       if (cycleError) {
         console.error('Error saving cycle data:', cycleError);
+      } else {
+        console.log('Cycle data saved successfully');
       }
 
       // Prepare mood log data
@@ -267,51 +274,19 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
       if (moodError) {
         console.error('Error saving mood data:', moodError);
+      } else {
+        console.log('Mood data saved successfully');
       }
 
-      console.log('Onboarding data saved successfully');
+      console.log('All onboarding data saved successfully');
     } catch (error) {
       console.error('Error saving onboarding data:', error);
     }
   };
 
   const determineGameScreen = () => {
-    // Default to dashboard if we can't determine phase
-    let gameRoute = "/dashboard";
-    
-    if (formData.lastPeriodStart === "current") {
-      // User is in menstrual phase, direct to yoga for relief
-      gameRoute = "/yoga";
-    } else if (formData.lastPeriodStart === "calendar" && selectedDate) {
-      // Calculate days since period started
-      const today = new Date();
-      const daysSince = Math.floor((today.getTime() - selectedDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (daysSince <= 5) {
-        // Menstruation phase - yoga for relief
-        gameRoute = "/yoga";
-      } else if (daysSince <= 14) {
-        // Follicular phase - pou-game for energy
-        gameRoute = "/pou-game";
-      } else if (daysSince <= 17) {
-        // Ovulatory phase - videos for social/learning
-        gameRoute = "/videos";
-      } else {
-        // Luteal phase - recipe for nutrition support
-        gameRoute = "/recipe";
-      }
-    } else if (formData.worstSymptom === "cramps") {
-      // If main symptom is cramps, direct to yoga
-      gameRoute = "/yoga";
-    } else if (formData.worstSymptom === "mood") {
-      // If main symptom is mood swings, direct to videos for distraction
-      gameRoute = "/videos";
-    } else if (formData.worstSymptom === "fatigue") {
-      // If main symptom is fatigue, direct to recipe for nutrition support
-      gameRoute = "/recipe";
-    }
-    
-    return gameRoute;
+    // Always go to pou-game first for naming the companion
+    return "/pou-game";
   };
 
   const generateSummary = () => {
@@ -535,18 +510,21 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         return;
       }
       
+      console.log('Completing onboarding flow...');
+      
       // Save data to Supabase before navigation
       await saveOnboardingData();
       
       const summary = generateSummary();
       toast({
         title: "Welcome to Uteroo!",
-        description: summary,
-        duration: 10000,
+        description: "Time to meet your companion and give them a name!",
+        duration: 5000,
       });
       
-      // Navigate to the appropriate game screen based on diagnosed phase
-      navigate(determineGameScreen());
+      // Always navigate to pou-game for companion naming
+      console.log('Navigating to pou-game for companion naming');
+      navigate("/pou-game");
     }
   };
 
@@ -863,10 +841,12 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                     });
                   } else {
                     // Submit and navigate to game screen
+                    console.log('Continue to Game button clicked');
                     handleNext();
                   }
                 }}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
+                disabled={questionsScreen === 3 && Object.values(formData).some(value => value === "")}
               >
                 {questionsScreen === 3 ? "Continue to Game" : questionsScreen === 2 ? "Get My Diagnosis" : "Next"}
               </Button>
