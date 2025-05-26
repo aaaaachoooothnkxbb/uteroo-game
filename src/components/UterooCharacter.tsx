@@ -244,21 +244,21 @@ export const UterooCharacter = ({
                 transform: `translate(${x}px, ${y}px)`,
                 left: '50%',
                 top: '50%',
-                marginLeft: '-24px', // Half of enemy size (48px)
-                marginTop: '-24px'
+                marginLeft: '-32px', // Half of enemy size (64px)
+                marginTop: '-32px'
               }}
             >
               <div className="relative">
                 <img 
                   src={enemy.icon} 
                   alt={enemy.name}
-                  className="w-12 h-12 object-contain drop-shadow-lg animate-pulse"
+                  className="w-16 h-16 object-contain drop-shadow-lg animate-pulse"
                   style={{
                     filter: 'drop-shadow(0 0 8px rgba(255, 0, 0, 0.3))'
                   }}
                 />
                 {/* Menacing glow effect */}
-                <div className="absolute inset-0 w-12 h-12 bg-red-500 opacity-20 rounded-full animate-ping" />
+                <div className="absolute inset-0 w-16 h-16 bg-red-500 opacity-20 rounded-full animate-ping" />
               </div>
             </div>
           );
