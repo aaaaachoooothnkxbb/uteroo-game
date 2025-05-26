@@ -1334,45 +1334,25 @@ const PouGame = () => {
         {/* Main content area */}
         <div className="flex-1 pt-32 pb-6 px-4">
           <div className="max-w-md mx-auto">
-            {/* Room navigation - made more visible with solid background */}
-            <div className="flex justify-between items-center mb-4 mt-6">
+            {/* Room navigation - smaller, no text, transparent, lower */}
+            <div className="flex justify-between items-center mb-4 mt-12">
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="sm" 
                 onClick={handlePreviousRoom}
-                className="h-10 w-10 p-0 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white shadow-lg border-2 border-white/50"
+                className="h-6 w-6 p-0 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30"
               >
-                <ArrowLeft className="h-5 w-5 text-gray-700" />
+                <ArrowLeft className="h-3 w-3 text-white" />
                 <span className="sr-only">Previous Room</span>
               </Button>
               
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex flex-col items-center justify-center px-4 py-2 bg-white/95 backdrop-blur-sm rounded-full border-2 border-white/50 min-w-[120px] shadow-lg">
-                      <RoomIcon className={cn(
-                        "h-6 w-6 mb-1",
-                        currentPhase === "menstruation" ? "text-pink-500" :
-                        currentPhase === "follicular" ? "text-green-500" :
-                        currentPhase === "ovulatory" ? "text-yellow-500" :
-                        "text-orange-500"
-                      )} />
-                      <span className="text-xs font-medium text-gray-700">{currentRoom.name}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    {currentRoom.name} - Use arrows to navigate
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="sm" 
                 onClick={handleNextRoom}
-                className="h-10 w-10 p-0 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white shadow-lg border-2 border-white/50"
+                className="h-6 w-6 p-0 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30"
               >
-                <ArrowRight className="h-5 w-5 text-gray-700" />
+                <ArrowRight className="h-3 w-3 text-white" />
                 <span className="sr-only">Next Room</span>
               </Button>
             </div>
