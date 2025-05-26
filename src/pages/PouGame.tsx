@@ -1089,7 +1089,9 @@ const PouGame = () => {
       if (newConsecutiveClicks >= 10) {
         heartsToAdd = 5;
         setShowHeartBonus(true);
-        setTimeout(() => setShowHeartBonus(false), 2000);
+        setTimeout(() => {
+          setShowHeartBonus(false);
+        }, 2000);
         
         // Play celebration sound
         audioService.play('bonus');
@@ -1412,24 +1414,6 @@ const PouGame = () => {
                 </div>
               )}
             </div>
-            
-            {/* Continue streak button */}
-            <Button 
-              className={cn(
-                "w-full mb-4 border-0 bg-gradient-to-r text-sm",
-                currentPhase === "menstruation" ? "from-pink-500 to-pink-400" :
-                currentPhase === "follicular" ? "from-green-500 to-green-400" :
-                currentPhase === "ovulatory" ? "from-yellow-500 to-yellow-400" :
-                "from-orange-500 to-orange-400"
-              )}
-              onClick={() => {
-                audioService.play('bonus');
-                updateStreak();
-              }}
-            >
-              <Flame className="h-4 w-4 mr-1" />
-              <span>🔥 {streak}-Day Streak • Continue (+10 pts)</span>
-            </Button>
             
             {/* Science boosters */}
             {renderScienceBoosters()}
