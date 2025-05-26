@@ -971,7 +971,14 @@ const PouGame = () => {
     const currentRoom = rooms[currentRoomIndex];
     const scienceBoostersForRoom = scienceBoosters[currentRoom.id as keyof typeof scienceBoosters] || [];
     
-    if (scienceBoostersForRoom.length === 0) return null;
+    // Filter out boosters that should be earned (you can add conditions here)
+    const availableBoosters = scienceBoostersForRoom.filter(booster => {
+      // Hide boosters that should be earned - add your logic here
+      // For now, hiding the first booster as an example
+      return false; // This will hide all science boosters for now
+    });
+    
+    if (availableBoosters.length === 0) return null;
     
     return (
       <div className="mb-4">
@@ -983,7 +990,7 @@ const PouGame = () => {
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {scienceBoostersForRoom.map((booster) => (
+          {availableBoosters.map((booster) => (
             <TooltipProvider key={booster.id}>
               <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
