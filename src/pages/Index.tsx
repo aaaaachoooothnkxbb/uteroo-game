@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -29,23 +30,23 @@ const Index = () => {
         if (data?.session) {
           console.log('user is already logged in')
           
-          // Check if user has completed onboarding by looking for pet_stats
-          const { data: petStats, error: petError } = await supabase
-            .from('pet_stats')
+          // Check if user has a profile to determine if they're new
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
             .select('*')
-            .eq('user_id', data.session.user.id)
+            .eq('id', data.session.user.id)
             .maybeSingle();
           
-          if (petError && petError.code !== 'PGRST116') {
-            console.error('Error checking pet stats:', petError);
+          if (profileError && profileError.code !== 'PGRST116') {
+            console.error('Error checking profile:', profileError);
           }
           
-          // If user has pet stats, they've completed onboarding - go to pou-game
-          // If no pet stats, they're a first-time user - show onboarding
-          if (petStats) {
+          // If user has a profile, they've completed onboarding - go to pou-game
+          // If no profile, they're a first-time user - show onboarding
+          if (profile) {
             console.log('returning user - navigating to pou-game');
-            console.log('here are your petstats: ');
-            console.log(petStats);
+            console.log('here is your profile: ');
+            console.log(profile);
             navigate("/pou-game");
             toast({
               title: "Welcome back!",
@@ -61,13 +62,13 @@ const Index = () => {
         const { data: authData } = await supabase.auth.getUser();
         if (authData?.user && window.location.hash.includes("access_token")) {
           // For OAuth users, also check if they're first-time
-          const { data: petStats } = await supabase
-            .from('pet_stats')
+          const { data: profile } = await supabase
+            .from('profiles')
             .select('*')
-            .eq('user_id', authData.user.id)
+            .eq('id', authData.user.id)
             .maybeSingle();
           
-          if (petStats) {
+          if (profile) {
             navigate("/pou-game");
           } else {
             setShowOnboarding(true);
