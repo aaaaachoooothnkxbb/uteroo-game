@@ -15,6 +15,8 @@ import { format } from "date-fns";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
 
 type FormOption = {
   value: string;
@@ -199,6 +201,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const { toast } = useToast();
   const [nextHeartId, setNextHeartId] = useState(1);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const determineGameScreen = () => {
     // Default to dashboard if we can't determine phase
@@ -445,7 +448,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     return (filledFields / totalFields) * 100;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1) {
       setStep(2);
     } else if (step === 2) {
@@ -458,6 +461,12 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
           variant: "destructive",
         });
         return;
+      }
+      
+      // Save the onboarding data to the database
+      const saveSuccess = await saveOnboardingData();
+      if (!saveSuccess) {
+        return; // Don't proceed if save failed
       }
       
       const summary = generateSummary();
@@ -510,6 +519,85 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         </PopoverContent>
       </Popover>
     );
+  };
+
+  const saveOnboardingData = async () => {
+    if (!user) {
+      console.error('No user found');
+      return false;
+    }
+
+    try {
+      console.log('Saving onboarding data for user:', user.id);
+      
+      // Calculate cycle start date
+      let cycleStartDate = null;
+      if (formData.lastPeriodStart === "current") {
+        cycleStartDate = new Date().toISOString().split('T')[0];
+      } else if (formData.lastPeriodStart === "calendar" && selectedDate) {
+        cycleStartDate = selectedDate.toISOString().split('T')[0];
+      }
+
+      // Convert period length to number
+      let periodLengthNum = 7; // default
+      if (formData.periodLength === "3-5") periodLengthNum = 4;
+      else if (formData.periodLength === "6-7") periodLengthNum = 6;
+      else if (formData.periodLength === "8+") periodLengthNum = 8;
+
+      // Determine cycle length based on predictability
+      let cycleLengthNum = 28; // default
+      if (formData.cyclePredictability === "regular-varies") cycleLengthNum = 30;
+      else if (formData.cyclePredictability === "irregular") cycleLengthNum = 32;
+
+      // Save cycle tracking data if we have a start date
+      if (cycleStartDate) {
+        const { error: cycleError } = await supabase
+          .from('cycle_tracking')
+          .insert({
+            user_id: user.id,
+            cycle_start_date: cycleStartDate,
+            cycle_length: cycleLengthNum,
+            period_length: periodLengthNum
+          });
+
+        if (cycleError) {
+          console.error('Error saving cycle data:', cycleError);
+          throw cycleError;
+        }
+      }
+
+      // Create initial mood log entry with onboarding symptoms
+      const symptoms = [];
+      if (formData.premenstrualSymptoms === "irritable") symptoms.push("irritability");
+      if (formData.premenstrualSymptoms === "bloated") symptoms.push("bloating", "cravings");
+      if (formData.worstSymptom) symptoms.push(formData.worstSymptom);
+
+      const { error: moodError } = await supabase
+        .from('mood_logs')
+        .insert({
+          user_id: user.id,
+          date: new Date().toISOString().split('T')[0],
+          mood: "neutral",
+          symptoms: symptoms.length > 0 ? symptoms : null,
+          notes: "Initial onboarding data"
+        });
+
+      if (moodError) {
+        console.error('Error saving mood log:', moodError);
+        // Don't throw here as this is less critical
+      }
+
+      console.log('Onboarding data saved successfully');
+      return true;
+    } catch (error) {
+      console.error('Error saving onboarding data:', error);
+      toast({
+        title: "Error saving data",
+        description: "There was a problem saving your information. Please try again.",
+        variant: "destructive"
+      });
+      return false;
+    }
   };
 
   return (
