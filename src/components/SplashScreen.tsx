@@ -55,15 +55,12 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
 
   return (
     <div className={cn(
-      "fixed inset-0 flex flex-col items-center justify-center z-50 transition-opacity duration-500",
+      "fixed inset-0 flex flex-col items-center justify-center z-50 transition-opacity duration-500 bg-white",
       animationStage === 'complete' ? "opacity-0" : "opacity-100"
     )}>
-      {/* Background gradient that transitions between phase colors */}
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-yellow-400 overflow-hidden">
-        {/* Subtle floating hormone icons */}
-        <div className="absolute top-1/4 left-1/4 text-2xl opacity-30 animate-pulse">🌱</div>
-        <div className="absolute bottom-1/3 right-1/4 text-2xl opacity-30 animate-pulse" style={{ animationDelay: "1s" }}>🌕</div>
-      </div>
+      {/* Subtle floating hormone icons */}
+      <div className="absolute top-1/4 left-1/4 text-2xl opacity-30 animate-pulse text-pink-400">🌱</div>
+      <div className="absolute bottom-1/3 right-1/4 text-2xl opacity-30 animate-pulse text-pink-400" style={{ animationDelay: "1s" }}>🌕</div>
       
       <div className="relative flex flex-col items-center z-10">
         {/* Uteroo character with animation states */}
@@ -83,7 +80,7 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         {/* Tagline with typewriter effect */}
         {showTagline && (
           <div className="mt-6 text-center">
-            <h2 className="text-xl md:text-2xl font-semibold text-white drop-shadow-md typewriter-text">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-800 drop-shadow-sm typewriter-text">
               Your cycle, understood 🌸
             </h2>
           </div>
@@ -93,9 +90,9 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         <div className="absolute -bottom-16 w-full">
           <div className="w-full flex items-center justify-center">
             <div className="relative w-48 h-4">
-              <div className="absolute inset-0 bg-white/30 rounded-full"></div>
+              <div className="absolute inset-0 bg-pink-100 rounded-full"></div>
               <div 
-                className="absolute inset-y-0 left-0 bg-green-400 rounded-full transition-all duration-300"
+                className="absolute inset-y-0 left-0 bg-pink-400 rounded-full transition-all duration-300"
                 style={{ width: `${loadingProgress}%` }}
               ></div>
               <div className="absolute -top-4 -ml-2" style={{ left: `${loadingProgress}%` }}>
