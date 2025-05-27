@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -290,7 +291,7 @@ export const UterooCharacter = ({
       </div>
       
       <div className={cn(
-        "mt-4 font-medium tracking-wide text-white drop-shadow-md bg-transparent backdrop-blur-sm border border-white/30 rounded-full px-4 py-2",
+        "mt-4 font-medium tracking-wide text-gray-800 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full px-4 py-2 shadow-lg",
         size === "small" ? "text-sm min-w-[180px]" : "text-base min-w-[220px]"
       )}>
         <div className="flex items-center gap-2 justify-center whitespace-normal">
