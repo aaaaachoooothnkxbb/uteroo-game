@@ -7,7 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { audioService } from "@/utils/audioService";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RecipeRoulette } from "@/components/RecipeRoulette";
 import { PhaseRecipeRoulette } from "@/components/PhaseRecipeRoulette";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -256,11 +255,6 @@ export function KitchenRoomInteraction({ currentPhase, updateStreak }: KitchenRo
           <div className="mb-6">
             <h3 className="font-semibold mb-2 text-center">Phase-Specific Recipe Roulette</h3>
             <PhaseRecipeRoulette phase={currentPhase} />
-          </div>
-          
-          <div>
-            <h3 className="font-semibold mb-2 text-center">Database Recipes</h3>
-            <RecipeRoulette phase={currentPhase} />
           </div>
         </TabsContent>
         
