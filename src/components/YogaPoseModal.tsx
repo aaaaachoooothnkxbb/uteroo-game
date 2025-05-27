@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Camera, Check, X } from "lucide-react";
+import { Camera, Check, X, AlertCircle } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -36,6 +36,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
   const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null);
   const [selectedPose, setSelectedPose] = useState<YogaPose | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
 
@@ -52,40 +53,87 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
   const startPoseDetection = async () => {
     try {
       setCameraError(null);
-      console.log("Requesting camera access...");
+      console.log("Starting camera detection...");
       
-      // Request camera access with more specific constraints
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera not supported in this browser");
+      }
+
+      console.log("Requesting camera permissions...");
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
-          width: { ideal: 640 },
-          height: { ideal: 480 },
+          width: { ideal: 640, max: 1280 },
+          height: { ideal: 480, max: 720 },
           facingMode: 'user'
-        } 
+        },
+        audio: false
       });
       
-      console.log("Camera access granted", stream);
+      console.log("Camera permission granted, stream received:", stream);
+      console.log("Video tracks:", stream.getVideoTracks());
+      
       setWebcamStream(stream);
-      setIsPoseDetectionActive(true);
       
       if (videoRef.current) {
+        console.log("Setting video source...");
         videoRef.current.srcObject = stream;
+        
+        // Handle video metadata loaded
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play();
-          console.log("Video playing");
+          console.log("Video metadata loaded");
+          if (videoRef.current) {
+            videoRef.current.play()
+              .then(() => {
+                console.log("Video playing successfully");
+                setIsVideoPlaying(true);
+                setIsPoseDetectionActive(true);
+              })
+              .catch(error => {
+                console.error("Error playing video:", error);
+                setCameraError("Failed to start video playback");
+              });
+          }
         };
+
+        // Handle video errors
+        videoRef.current.onerror = (error) => {
+          console.error("Video element error:", error);
+          setCameraError("Video playback error");
+        };
+
+        // Force load the video
+        videoRef.current.load();
       }
 
       toast({
-        title: "Camera Started",
-        description: `Ready to validate ${phase} phase yoga poses!`,
+        title: "Camera Starting",
+        description: "Initializing camera for pose detection...",
       });
 
     } catch (error) {
-      console.error("Error accessing camera:", error);
-      setCameraError(error instanceof Error ? error.message : "Unknown camera error");
+      console.error("Camera error:", error);
+      let errorMessage = "Unknown camera error";
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = "Camera permission denied. Please allow camera access and try again.";
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = "No camera found. Please connect a camera and try again.";
+        } else if (error.name === 'NotReadableError') {
+          errorMessage = "Camera is already in use by another application.";
+        } else if (error.name === 'OverconstrainedError') {
+          errorMessage = "Camera doesn't support the required settings.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setCameraError(errorMessage);
       toast({
         title: "Camera Error",
-        description: "Unable to access camera. Please check permissions and try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -93,17 +141,22 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
 
   const stopPoseDetection = () => {
     console.log("Stopping pose detection...");
+    
     if (webcamStream) {
       webcamStream.getTracks().forEach(track => {
+        console.log("Stopping track:", track.kind);
         track.stop();
-        console.log("Camera track stopped");
       });
       setWebcamStream(null);
     }
+    
     if (videoRef.current) {
       videoRef.current.srcObject = null;
+      videoRef.current.load();
     }
+    
     setIsPoseDetectionActive(false);
+    setIsVideoPlaying(false);
     setCurrentPoseValidation(null);
     setCameraError(null);
   };
@@ -151,7 +204,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl font-bold flex flex-col sm:flex-row items-start sm:items-center gap-2 text-gray-900">
               <span>Yoga Poses for {phase}</span>
-              {isPoseDetectionActive && (
+              {isPoseDetectionActive && isVideoPlaying && (
                 <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
                   AI Detection Active
                 </Badge>
@@ -220,29 +273,62 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                     onClick={startPoseDetection}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     size="lg"
+                    disabled={!!cameraError}
                   >
                     <Camera className="mr-2 h-4 w-4" />
                     Start Camera
                   </Button>
+                  
                   {cameraError && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                      <p className="text-sm text-red-700 font-medium">Camera Error:</p>
-                      <p className="text-xs text-red-600 mt-1">{cameraError}</p>
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-red-700 font-medium">Camera Error:</p>
+                          <p className="text-xs text-red-600 mt-1">{cameraError}</p>
+                          <Button 
+                            onClick={() => setCameraError(null)} 
+                            variant="outline" 
+                            size="sm" 
+                            className="mt-2 text-xs"
+                          >
+                            Try Again
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   )}
+                  
+                  <div className="text-xs text-gray-600 bg-white/70 p-3 rounded border border-gray-200">
+                    <p className="font-medium mb-1">Camera Requirements:</p>
+                    <ul className="text-gray-700 space-y-1">
+                      <li>• Allow camera permissions</li>
+                      <li>• Use HTTPS (secure connection)</li>
+                      <li>• Close other apps using camera</li>
+                    </ul>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="relative bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                  <div className="relative bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                     <video
                       ref={videoRef}
                       width="100%"
                       height="200"
-                      className="w-full h-48 object-cover bg-gray-200"
+                      className="w-full h-48 object-cover bg-gray-100"
                       autoPlay
                       muted
                       playsInline
                     />
+                    
+                    {!isVideoPlaying && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                        <div className="text-center">
+                          <Camera className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-600">Loading camera...</p>
+                        </div>
+                      </div>
+                    )}
                     
                     {currentPoseValidation && (
                       <div className={`absolute top-2 right-2 p-2 rounded-full ${
@@ -261,14 +347,14 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
 
                   <div className="text-center space-y-3">
                     <p className="text-sm text-gray-700">
-                      Hold your pose for validation
+                      {isVideoPlaying ? "Hold your pose for validation" : "Starting camera..."}
                     </p>
                     <div className="space-y-2">
                       <Button 
                         onClick={() => selectedPose && validatePoseForPhase(selectedPose.name)}
                         variant="outline"
                         size="sm"
-                        disabled={!selectedPose}
+                        disabled={!selectedPose || !isVideoPlaying}
                         className="w-full bg-white hover:bg-gray-50 border-gray-300"
                       >
                         Validate Current Pose
