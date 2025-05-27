@@ -131,35 +131,38 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-            Recommended Yoga Poses for {phase}
-            {isPoseDetectionActive && (
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                AI Detection Active
-              </Badge>
-            )}
-          </DialogTitle>
-        </DialogHeader>
-        <Separator className="my-4" />
+      <DialogContent className="max-w-[95vw] max-h-[95vh] w-full bg-white overflow-hidden p-0">
+        <div className="p-4 pb-0">
+          <DialogHeader>
+            <DialogTitle className="text-xl sm:text-2xl font-bold flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              <span>Yoga Poses for {phase}</span>
+              {isPoseDetectionActive && (
+                <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                  AI Detection Active
+                </Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
         
-        <div className="flex gap-4 h-[70vh]">
+        <Separator className="mx-4" />
+        
+        <div className="flex flex-col lg:flex-row gap-4 p-4 h-full min-h-0">
           {/* Pose List */}
-          <div className="flex-1">
-            <ScrollArea className="h-full pr-4">
-              <div className="space-y-4">
+          <div className="flex-1 min-h-0">
+            <ScrollArea className="h-[50vh] lg:h-[60vh] pr-2">
+              <div className="space-y-3">
                 {poses.map((pose) => (
                   <div 
                     key={pose.name} 
-                    className={`bg-white p-4 rounded-lg shadow-sm cursor-pointer transition-colors ${
-                      selectedPose?.name === pose.name ? 'ring-2 ring-blue-500' : ''
+                    className={`bg-white border border-gray-200 p-3 sm:p-4 rounded-lg shadow-sm cursor-pointer transition-all hover:shadow-md ${
+                      selectedPose?.name === pose.name ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                     }`}
                     onClick={() => setSelectedPose(pose)}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold">{pose.name}</h3>
-                      <Badge variant="secondary" className={difficultyColors[pose.difficulty]}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">{pose.name}</h3>
+                      <Badge variant="secondary" className={`${difficultyColors[pose.difficulty]} text-xs self-start sm:self-center`}>
                         {pose.difficulty}
                       </Badge>
                     </div>
@@ -168,12 +171,12 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                         Sanskrit: {pose.sanskrit_name}
                       </p>
                     )}
-                    <p className="text-gray-700 mb-3">{pose.description}</p>
+                    <p className="text-gray-700 mb-3 text-sm sm:text-base">{pose.description}</p>
                     
                     <div className="space-y-2">
                       <div>
-                        <h4 className="font-medium mb-1 text-sm">Benefits:</h4>
-                        <ul className="list-disc list-inside text-xs text-gray-600">
+                        <h4 className="font-medium mb-1 text-sm text-gray-900">Benefits:</h4>
+                        <ul className="list-disc list-inside text-xs sm:text-sm text-gray-600 space-y-1">
                           {pose.benefits.slice(0, 2).map((benefit, index) => (
                             <li key={index}>{benefit}</li>
                           ))}
@@ -187,10 +190,10 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
           </div>
 
           {/* Pose Detection Panel */}
-          <div className="w-80 bg-gray-50 rounded-lg p-4">
+          <div className="w-full lg:w-80 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
             <div className="space-y-4">
               <div className="text-center">
-                <h3 className="font-semibold mb-2">AI Pose Validation</h3>
+                <h3 className="font-semibold mb-2 text-gray-900">AI Pose Validation</h3>
                 <p className="text-sm text-gray-600 mb-4">
                   Use your camera to get real-time feedback on your yoga poses
                 </p>
@@ -199,7 +202,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
               {!isPoseDetectionActive ? (
                 <Button 
                   onClick={startPoseDetection}
-                  className="w-full"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   size="lg"
                 >
                   <Camera className="mr-2 h-4 w-4" />
@@ -207,20 +210,19 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                 </Button>
               ) : (
                 <div className="space-y-4">
-                  <div className="relative">
+                  <div className="relative bg-black rounded-lg overflow-hidden">
                     <video
                       ref={videoRef}
-                      width="300"
-                      height="225"
-                      className="rounded-lg bg-black"
+                      width="100%"
+                      height="200"
+                      className="w-full h-48 object-cover"
                       autoPlay
                       muted
+                      playsInline
                     />
                     <canvas
                       ref={canvasRef}
-                      width="300"
-                      height="225"
-                      className="absolute top-0 left-0 rounded-lg"
+                      className="absolute top-0 left-0 w-full h-full"
                       style={{ display: 'none' }}
                     />
                     
@@ -239,8 +241,8 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                     )}
                   </div>
 
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600 mb-2">
+                  <div className="text-center space-y-3">
+                    <p className="text-sm text-gray-600">
                       Hold your pose for validation
                     </p>
                     <div className="space-y-2">
@@ -249,6 +251,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                         variant="outline"
                         size="sm"
                         disabled={!selectedPose}
+                        className="w-full bg-white hover:bg-gray-50"
                       >
                         Validate Current Pose
                       </Button>
@@ -256,7 +259,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                         onClick={stopPoseDetection}
                         variant="outline"
                         size="sm"
-                        className="w-full"
+                        className="w-full bg-white hover:bg-gray-50"
                       >
                         Stop Detection
                       </Button>
@@ -266,12 +269,12 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
               )}
 
               {selectedPose && (
-                <div className="bg-white p-3 rounded-lg border">
-                  <h4 className="font-medium text-sm mb-2">Selected Pose</h4>
-                  <p className="text-sm">{selectedPose.name}</p>
+                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                  <h4 className="font-medium text-sm mb-2 text-gray-900">Selected Pose</h4>
+                  <p className="text-sm text-gray-700 font-medium">{selectedPose.name}</p>
                   <div className="mt-2">
-                    <h5 className="font-medium text-xs mb-1">Quick Instructions:</h5>
-                    <ol className="list-decimal list-inside text-xs text-gray-600">
+                    <h5 className="font-medium text-xs mb-1 text-gray-900">Quick Instructions:</h5>
+                    <ol className="list-decimal list-inside text-xs text-gray-600 space-y-1">
                       {selectedPose.instructions.slice(0, 3).map((instruction, index) => (
                         <li key={index}>{instruction}</li>
                       ))}
@@ -280,9 +283,9 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                 </div>
               )}
 
-              <div className="text-xs text-gray-500 text-center">
-                <p>Expected poses for {phase} phase:</p>
-                <p className="font-medium">{getExpectedPosesForPhase().join(", ").replace(/_/g, " ")}</p>
+              <div className="text-xs text-gray-500 text-center bg-white/50 p-2 rounded">
+                <p className="font-medium mb-1">Expected poses for {phase} phase:</p>
+                <p>{getExpectedPosesForPhase().join(", ").replace(/_/g, " ")}</p>
               </div>
             </div>
           </div>
