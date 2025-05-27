@@ -30,24 +30,15 @@ const difficultyColors = {
   advanced: "bg-red-100 text-red-800"
 };
 
-// Pose detection configuration for each phase
-const POSE_MODELS = {
-  menstruation: "/models/menstruation_poses/",
-  follicular: "/models/follicular_poses/",
-  ovulatory: "/models/ovulatory_poses/",
-  luteal: "/models/luteal_poses/"
-};
-
 export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalProps) => {
   const [isPoseDetectionActive, setIsPoseDetectionActive] = useState(false);
   const [currentPoseValidation, setCurrentPoseValidation] = useState<string | null>(null);
   const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null);
   const [selectedPose, setSelectedPose] = useState<YogaPose | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
-  // Expected poses for each phase (this would map to your Teachable Machine models)
   const getExpectedPosesForPhase = () => {
     const phasePositions = {
       menstruation: ["child_pose", "gentle_twist", "legs_up_wall", "savasana"],
@@ -60,44 +51,61 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
 
   const startPoseDetection = async () => {
     try {
-      // Request camera access
+      setCameraError(null);
+      console.log("Requesting camera access...");
+      
+      // Request camera access with more specific constraints
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 640, height: 480 } 
+        video: { 
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: 'user'
+        } 
       });
+      
+      console.log("Camera access granted", stream);
       setWebcamStream(stream);
       setIsPoseDetectionActive(true);
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play();
+          console.log("Video playing");
+        };
       }
 
-      // In a real implementation, you would load the Teachable Machine model here
-      // const modelUrl = POSE_MODELS[phase as keyof typeof POSE_MODELS];
-      // const model = await tmPose.load(modelUrl + "model.json", modelUrl + "metadata.json");
-      
       toast({
-        title: "Pose Detection Started",
+        title: "Camera Started",
         description: `Ready to validate ${phase} phase yoga poses!`,
       });
 
     } catch (error) {
       console.error("Error accessing camera:", error);
+      setCameraError(error instanceof Error ? error.message : "Unknown camera error");
       toast({
         title: "Camera Error",
-        description: "Unable to access camera. Please check permissions.",
+        description: "Unable to access camera. Please check permissions and try again.",
         variant: "destructive"
       });
     }
   };
 
   const stopPoseDetection = () => {
+    console.log("Stopping pose detection...");
     if (webcamStream) {
-      webcamStream.getTracks().forEach(track => track.stop());
+      webcamStream.getTracks().forEach(track => {
+        track.stop();
+        console.log("Camera track stopped");
+      });
       setWebcamStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
     setIsPoseDetectionActive(false);
     setCurrentPoseValidation(null);
+    setCameraError(null);
   };
 
   const validatePoseForPhase = (poseName: string) => {
@@ -129,12 +137,19 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
     }
   }, [isOpen]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopPoseDetection();
+    };
+  }, []);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] max-h-[95vh] w-full bg-white overflow-hidden p-0">
-        <div className="p-4 pb-0">
+        <div className="p-4 pb-0 bg-white">
           <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl font-bold flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <DialogTitle className="text-xl sm:text-2xl font-bold flex flex-col sm:flex-row items-start sm:items-center gap-2 text-gray-900">
               <span>Yoga Poses for {phase}</span>
               {isPoseDetectionActive && (
                 <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
@@ -147,7 +162,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
         
         <Separator className="mx-4" />
         
-        <div className="flex flex-col lg:flex-row gap-4 p-4 h-full min-h-0">
+        <div className="flex flex-col lg:flex-row gap-4 p-4 h-full min-h-0 bg-white">
           {/* Pose List */}
           <div className="flex-1 min-h-0">
             <ScrollArea className="h-[50vh] lg:h-[60vh] pr-2">
@@ -155,8 +170,8 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                 {poses.map((pose) => (
                   <div 
                     key={pose.name} 
-                    className={`bg-white border border-gray-200 p-3 sm:p-4 rounded-lg shadow-sm cursor-pointer transition-all hover:shadow-md ${
-                      selectedPose?.name === pose.name ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                    className={`bg-white border border-gray-200 p-3 sm:p-4 rounded-lg shadow-sm cursor-pointer transition-all hover:shadow-md hover:border-blue-300 ${
+                      selectedPose?.name === pose.name ? 'ring-2 ring-blue-500 bg-blue-50 border-blue-300' : ''
                     }`}
                     onClick={() => setSelectedPose(pose)}
                   >
@@ -190,40 +205,43 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
           </div>
 
           {/* Pose Detection Panel */}
-          <div className="w-full lg:w-80 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+          <div className="w-full lg:w-80 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
             <div className="space-y-4">
               <div className="text-center">
                 <h3 className="font-semibold mb-2 text-gray-900">AI Pose Validation</h3>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-700 mb-4">
                   Use your camera to get real-time feedback on your yoga poses
                 </p>
               </div>
 
               {!isPoseDetectionActive ? (
-                <Button 
-                  onClick={startPoseDetection}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  size="lg"
-                >
-                  <Camera className="mr-2 h-4 w-4" />
-                  Start Pose Detection
-                </Button>
+                <div className="space-y-3">
+                  <Button 
+                    onClick={startPoseDetection}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    size="lg"
+                  >
+                    <Camera className="mr-2 h-4 w-4" />
+                    Start Camera
+                  </Button>
+                  {cameraError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                      <p className="text-sm text-red-700 font-medium">Camera Error:</p>
+                      <p className="text-xs text-red-600 mt-1">{cameraError}</p>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="relative bg-black rounded-lg overflow-hidden">
+                  <div className="relative bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
                     <video
                       ref={videoRef}
                       width="100%"
                       height="200"
-                      className="w-full h-48 object-cover"
+                      className="w-full h-48 object-cover bg-gray-200"
                       autoPlay
                       muted
                       playsInline
-                    />
-                    <canvas
-                      ref={canvasRef}
-                      className="absolute top-0 left-0 w-full h-full"
-                      style={{ display: 'none' }}
                     />
                     
                     {currentPoseValidation && (
@@ -242,7 +260,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                   </div>
 
                   <div className="text-center space-y-3">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-700">
                       Hold your pose for validation
                     </p>
                     <div className="space-y-2">
@@ -251,7 +269,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                         variant="outline"
                         size="sm"
                         disabled={!selectedPose}
-                        className="w-full bg-white hover:bg-gray-50"
+                        className="w-full bg-white hover:bg-gray-50 border-gray-300"
                       >
                         Validate Current Pose
                       </Button>
@@ -259,9 +277,9 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                         onClick={stopPoseDetection}
                         variant="outline"
                         size="sm"
-                        className="w-full bg-white hover:bg-gray-50"
+                        className="w-full bg-white hover:bg-gray-50 border-gray-300"
                       >
-                        Stop Detection
+                        Stop Camera
                       </Button>
                     </div>
                   </div>
@@ -283,9 +301,9 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                 </div>
               )}
 
-              <div className="text-xs text-gray-500 text-center bg-white/50 p-2 rounded">
+              <div className="text-xs text-gray-600 text-center bg-white/70 p-3 rounded border border-gray-200">
                 <p className="font-medium mb-1">Expected poses for {phase} phase:</p>
-                <p>{getExpectedPosesForPhase().join(", ").replace(/_/g, " ")}</p>
+                <p className="text-gray-700">{getExpectedPosesForPhase().join(", ").replace(/_/g, " ")}</p>
               </div>
             </div>
           </div>
