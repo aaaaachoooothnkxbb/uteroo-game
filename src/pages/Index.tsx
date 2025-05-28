@@ -208,7 +208,7 @@ const Index = () => {
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full filter blur-3xl opacity-20 scale-110"></div>
             <img 
-              src="/lovable-uploads/dbcd75af-1cf4-4a08-9b8b-a042e6812749.png"
+              src="/lovable-uploads/6d9ab694-126c-44a1-9920-f40be00112b1.png"
               alt="Uteroo Character"
               className="w-[400px] h-[400px] object-contain animate-[bounce_3s_ease-in-out_infinite] relative z-10 drop-shadow-2xl"
             />
