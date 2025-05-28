@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -171,7 +172,7 @@ const Index = () => {
   // Show loading state while checking user status
   if (checkingUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-pink-500 mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
@@ -185,41 +186,65 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-black relative overflow-hidden bg-white">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-black relative overflow-hidden bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float"></div>
+        <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{ animationDelay: '4s' }}></div>
+      </div>
+
       <div className="w-full max-w-md space-y-8 relative z-10">
         {authError && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-4 bg-white/80 backdrop-blur-sm">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Authentication Error</AlertTitle>
             <AlertDescription>{authError}</AlertDescription>
           </Alert>
         )}
 
-        <div className="flex flex-col items-center space-y-4">
-          <img 
-            src="/lovable-uploads/dbcd75af-1cf4-4a08-9b8b-a042e6812749.png"
-            alt="Uteroo Character"
-            className="w-[500px] h-[500px] object-contain animate-[bounce_2s_ease-in-out_infinite] mt-60"
-          />
-          <img
-            src="/lovable-uploads/790172fa-27b1-4ab3-a3ef-3f10cdac5181.png"
-            alt="Uteroo"
-            className="h-40 w-auto object-contain"
-          />
+        <div className="flex flex-col items-center space-y-6">
+          {/* Character with enhanced styling */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full filter blur-3xl opacity-20 scale-110"></div>
+            <img 
+              src="/lovable-uploads/dbcd75af-1cf4-4a08-9b8b-a042e6812749.png"
+              alt="Uteroo Character"
+              className="w-[400px] h-[400px] object-contain animate-[bounce_3s_ease-in-out_infinite] relative z-10 drop-shadow-2xl"
+            />
+          </div>
+          
+          {/* Logo with enhanced styling */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 rounded-lg filter blur-xl opacity-30"></div>
+            <img
+              src="/lovable-uploads/790172fa-27b1-4ab3-a3ef-3f10cdac5181.png"
+              alt="Uteroo"
+              className="h-32 w-auto object-contain relative z-10 drop-shadow-lg"
+            />
+          </div>
         </div>
 
-        <p className="text-center text-xl font-medium mt-6 text-gray-700">
-          Discover your hormones, moods, and energy in a fun way!
-        </p>
+        {/* Enhanced tagline */}
+        <div className="text-center space-y-2">
+          <p className="text-xl md:text-2xl font-medium text-gray-700 leading-relaxed">
+            Discover your hormones, moods, and energy
+          </p>
+          <p className="text-lg font-light text-purple-600">
+            in a fun way! ✨
+          </p>
+        </div>
 
-        <div className="space-y-4 mt-8">
+        {/* Enhanced buttons */}
+        <div className="space-y-4 mt-12">
           <div 
             onClick={() => navigate("/pou-game")}
             className="w-full relative cursor-pointer group"
           >
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full filter blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
             <div className="flex justify-center">
               <Button
-                className="rounded-full bg-pink-100 text-gray-800 text-2xl font-bold py-5 px-10 hover:scale-105 transition-transform duration-300"
+                className="relative bg-gradient-to-r from-pink-200 to-purple-200 hover:from-pink-300 hover:to-purple-300 text-gray-800 text-xl font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border border-white/50"
               >
                 TRY IT FIRST
               </Button>
@@ -230,44 +255,46 @@ const Index = () => {
             onClick={() => setShowOnboarding(true)}
             className="w-full relative cursor-pointer group"
           >
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full filter blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
             <div className="flex justify-center">
               <Button
-                className="rounded-full bg-pink-300 text-gray-800 text-2xl font-bold py-5 px-10 hover:scale-105 transition-transform duration-300"
+                className="relative bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white text-xl font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 CREATE AN ACCOUNT
               </Button>
             </div>
           </div>
 
-          <div className="relative w-full space-y-4">
-            <div className="flex justify-center gap-3 p-4 bg-pink-100 rounded-full">
+          {/* Enhanced social login section */}
+          <div className="relative w-full space-y-4 mt-8">
+            <div className="flex justify-center gap-4 p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-lg border border-white/30">
               <Button
                 variant="outline"
-                className="bg-white text-gray-800 hover:bg-gray-100 gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0"
+                className="bg-white/80 hover:bg-white text-gray-800 hover:text-gray-900 gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-gray-200"
                 onClick={() => handleSocialLogin('google')}
                 disabled={isLoading}
               >
                 {loadingProvider === 'google' ? (
-                  <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-gray-800" />
+                  <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-gray-800" />
                 ) : (
                   <Icons.google className="h-8 w-8" />
                 )}
               </Button>
               <Button
                 variant="outline"
-                className="bg-[#1877F2] text-white hover:bg-[#1864D9] gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0"
+                className="bg-gradient-to-r from-[#1877F2] to-[#42A5F5] hover:from-[#1864D9] hover:to-[#1976D2] text-white gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-blue-300"
                 onClick={() => handleSocialLogin('facebook')}
                 disabled={isLoading}
               >
                 {loadingProvider === 'facebook' ? (
-                  <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-white" />
+                  <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-white" />
                 ) : (
                   <Icons.facebook className="h-8 w-8" />
                 )}
               </Button>
             </div>
-            <div className="text-center text-xs text-gray-500 mt-2">
-              In Dev mode: {window.location.origin}
+            <div className="text-center text-xs text-gray-500 mt-2 opacity-60">
+              Dev mode: {window.location.origin}
             </div>
           </div>
         </div>
