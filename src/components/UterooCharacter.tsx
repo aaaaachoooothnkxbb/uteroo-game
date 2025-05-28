@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -31,7 +30,7 @@ const phaseToLabImage = {
 
 // Sad and happy Uteroo images based on enemy presence
 const sadUterooImage = "/lovable-uploads/0a06c37e-fc17-41fc-be9c-2417fa48a098.png";
-const happyUterooImage = "/lovable-uploads/96d40a02-d93f-4503-9a3c-79200f501381.png";
+const happyUterooImage = "/lovable-uploads/50167af2-3f66-47c1-aadb-96e97717d531.png";
 
 const phaseToEmoji = {
   menstruation: "🌸",
