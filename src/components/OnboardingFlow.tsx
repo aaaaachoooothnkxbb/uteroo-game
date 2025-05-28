@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -570,8 +569,8 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl p-6 space-y-6 bg-white border shadow-md relative">
+    <div className="min-h-screen bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <Card className="w-full max-w-4xl p-6 space-y-6 bg-white/90 backdrop-blur-sm border shadow-md relative">
         {/* Floating hearts animation container */}
         {floatingHearts.map(heart => (
           <div 
@@ -605,7 +604,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
             <img
               src="/lovable-uploads/f135b894-cd85-4010-a103-0fc5cb07ea0d.png"
               alt="Welcome"
-              className="w-64 h-auto mx-auto animate-bounce-slow"
+              className="w-48 h-auto mx-auto animate-bounce-slow"
             />
             <h1 className="text-2xl font-bold text-black">Hi!</h1>
             <p className="text-lg text-black">
