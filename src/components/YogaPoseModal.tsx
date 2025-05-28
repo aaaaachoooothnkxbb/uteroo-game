@@ -4,8 +4,8 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Camera, Check, X, AlertCircle } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { Camera, Check, X, AlertCircle, RefreshCw } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface YogaPose {
@@ -37,6 +37,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
   const [selectedPose, setSelectedPose] = useState<YogaPose | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
 
@@ -50,29 +51,67 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
     return phasePositions[phase as keyof typeof phasePositions] || [];
   };
 
+  const cleanupStream = useCallback(() => {
+    console.log("Cleaning up camera stream...");
+    
+    if (webcamStream) {
+      webcamStream.getTracks().forEach(track => {
+        console.log(`Stopping ${track.kind} track`);
+        track.stop();
+      });
+      setWebcamStream(null);
+    }
+    
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+      videoRef.current.removeAttribute('src');
+      videoRef.current.load();
+    }
+    
+    setIsPoseDetectionActive(false);
+    setIsVideoPlaying(false);
+    setCurrentPoseValidation(null);
+    setCameraError(null);
+    setIsLoading(false);
+  }, [webcamStream]);
+
   const startPoseDetection = async () => {
     try {
+      setIsLoading(true);
       setCameraError(null);
       console.log("Starting camera detection...");
       
-      // Check if getUserMedia is supported
+      // Check browser support
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error("Camera not supported in this browser");
+        throw new Error("Camera is not supported in this browser. Please use Chrome, Firefox, or Safari.");
+      }
+
+      // Check if we're on HTTPS or localhost
+      const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+      if (!isSecure) {
+        throw new Error("Camera requires a secure connection (HTTPS). Please use HTTPS or localhost.");
       }
 
       console.log("Requesting camera permissions...");
       
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          width: { ideal: 640, max: 1280 },
-          height: { ideal: 480, max: 720 },
-          facingMode: 'user'
+      // Try different camera configurations for better compatibility
+      const constraints = {
+        video: {
+          width: { min: 320, ideal: 640, max: 1280 },
+          height: { min: 240, ideal: 480, max: 720 },
+          facingMode: 'user',
+          frameRate: { ideal: 30, max: 30 }
         },
         audio: false
-      });
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      console.log("Camera permission granted, stream received:", stream);
-      console.log("Video tracks:", stream.getVideoTracks());
+      console.log("Camera permission granted, stream received");
+      console.log("Video tracks:", stream.getVideoTracks().map(track => ({
+        label: track.label,
+        settings: track.getSettings()
+      })));
       
       setWebcamStream(stream);
       
@@ -80,51 +119,74 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
         console.log("Setting video source...");
         videoRef.current.srcObject = stream;
         
-        // Handle video metadata loaded
-        videoRef.current.onloadedmetadata = () => {
-          console.log("Video metadata loaded");
+        // Set video properties
+        videoRef.current.muted = true;
+        videoRef.current.playsInline = true;
+        videoRef.current.autoplay = true;
+        
+        // Handle successful video load
+        const handleLoadedMetadata = () => {
+          console.log("Video metadata loaded successfully");
+          console.log("Video dimensions:", videoRef.current?.videoWidth, "x", videoRef.current?.videoHeight);
+          
           if (videoRef.current) {
             videoRef.current.play()
               .then(() => {
                 console.log("Video playing successfully");
                 setIsVideoPlaying(true);
                 setIsPoseDetectionActive(true);
+                setIsLoading(false);
+                toast({
+                  title: "Camera Ready",
+                  description: "Camera is now active for pose detection",
+                });
               })
               .catch(error => {
                 console.error("Error playing video:", error);
-                setCameraError("Failed to start video playback");
+                setCameraError("Failed to start video playback. Please try again.");
+                setIsLoading(false);
               });
           }
         };
 
         // Handle video errors
-        videoRef.current.onerror = (error) => {
+        const handleVideoError = (error: Event) => {
           console.error("Video element error:", error);
-          setCameraError("Video playback error");
+          setCameraError("Video playback error. Please check your camera and try again.");
+          setIsLoading(false);
         };
 
-        // Force load the video
-        videoRef.current.load();
+        // Add event listeners
+        videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
+        videoRef.current.addEventListener('error', handleVideoError);
+        
+        // Cleanup event listeners on unmount
+        const currentVideo = videoRef.current;
+        return () => {
+          if (currentVideo) {
+            currentVideo.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            currentVideo.removeEventListener('error', handleVideoError);
+          }
+        };
       }
-
-      toast({
-        title: "Camera Starting",
-        description: "Initializing camera for pose detection...",
-      });
 
     } catch (error) {
       console.error("Camera error:", error);
+      setIsLoading(false);
+      
       let errorMessage = "Unknown camera error";
       
       if (error instanceof Error) {
         if (error.name === 'NotAllowedError') {
-          errorMessage = "Camera permission denied. Please allow camera access and try again.";
+          errorMessage = "Camera permission denied. Please allow camera access in your browser settings and try again.";
         } else if (error.name === 'NotFoundError') {
           errorMessage = "No camera found. Please connect a camera and try again.";
         } else if (error.name === 'NotReadableError') {
-          errorMessage = "Camera is already in use by another application.";
+          errorMessage = "Camera is already in use by another application. Please close other camera apps and try again.";
         } else if (error.name === 'OverconstrainedError') {
-          errorMessage = "Camera doesn't support the required settings.";
+          errorMessage = "Camera doesn't support the required settings. Please try a different camera.";
+        } else if (error.name === 'SecurityError') {
+          errorMessage = "Camera access blocked for security reasons. Please use HTTPS or localhost.";
         } else {
           errorMessage = error.message;
         }
@@ -137,28 +199,6 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
         variant: "destructive"
       });
     }
-  };
-
-  const stopPoseDetection = () => {
-    console.log("Stopping pose detection...");
-    
-    if (webcamStream) {
-      webcamStream.getTracks().forEach(track => {
-        console.log("Stopping track:", track.kind);
-        track.stop();
-      });
-      setWebcamStream(null);
-    }
-    
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-      videoRef.current.load();
-    }
-    
-    setIsPoseDetectionActive(false);
-    setIsVideoPlaying(false);
-    setCurrentPoseValidation(null);
-    setCameraError(null);
   };
 
   const validatePoseForPhase = (poseName: string) => {
@@ -181,21 +221,26 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
         variant: "destructive"
       });
     }
+    
+    // Clear validation after 3 seconds
+    setTimeout(() => {
+      setCurrentPoseValidation(null);
+    }, 3000);
   };
 
   // Cleanup when modal closes
   useEffect(() => {
     if (!isOpen) {
-      stopPoseDetection();
+      cleanupStream();
     }
-  }, [isOpen]);
+  }, [isOpen, cleanupStream]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      stopPoseDetection();
+      cleanupStream();
     };
-  }, []);
+  }, [cleanupStream]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -207,6 +252,11 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
               {isPoseDetectionActive && isVideoPlaying && (
                 <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
                   AI Detection Active
+                </Badge>
+              )}
+              {isLoading && (
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                  Starting Camera...
                 </Badge>
               )}
             </DialogTitle>
@@ -273,38 +323,74 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                     onClick={startPoseDetection}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     size="lg"
-                    disabled={!!cameraError}
+                    disabled={isLoading}
                   >
-                    <Camera className="mr-2 h-4 w-4" />
-                    Start Camera
+                    {isLoading ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Starting...
+                      </>
+                    ) : (
+                      <>
+                        <Camera className="mr-2 h-4 w-4" />
+                        Start Camera
+                      </>
+                    )}
                   </Button>
                   
                   {cameraError && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                       <div className="flex items-start gap-2">
                         <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <div>
+                        <div className="flex-1">
                           <p className="text-sm text-red-700 font-medium">Camera Error:</p>
-                          <p className="text-xs text-red-600 mt-1">{cameraError}</p>
-                          <Button 
-                            onClick={() => setCameraError(null)} 
-                            variant="outline" 
-                            size="sm" 
-                            className="mt-2 text-xs"
-                          >
-                            Try Again
-                          </Button>
+                          <p className="text-xs text-red-600 mt-1 leading-relaxed">{cameraError}</p>
+                          <div className="flex gap-2 mt-2">
+                            <Button 
+                              onClick={() => {
+                                setCameraError(null);
+                                startPoseDetection();
+                              }} 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-xs"
+                            >
+                              <RefreshCw className="mr-1 h-3 w-3" />
+                              Retry
+                            </Button>
+                            <Button 
+                              onClick={() => setCameraError(null)} 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-xs"
+                            >
+                              Dismiss
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   )}
                   
                   <div className="text-xs text-gray-600 bg-white/70 p-3 rounded border border-gray-200">
-                    <p className="font-medium mb-1">Camera Requirements:</p>
+                    <p className="font-medium mb-2">Camera Requirements:</p>
                     <ul className="text-gray-700 space-y-1">
-                      <li>• Allow camera permissions</li>
-                      <li>• Use HTTPS (secure connection)</li>
-                      <li>• Close other apps using camera</li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                        Allow camera permissions when prompted
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                        Use HTTPS or localhost
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                        Close other camera applications
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                        Use Chrome, Firefox, or Safari
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -321,17 +407,25 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                       playsInline
                     />
                     
-                    {!isVideoPlaying && (
+                    {(!isVideoPlaying || isLoading) && (
                       <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                         <div className="text-center">
-                          <Camera className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600">Loading camera...</p>
+                          <div className="flex items-center justify-center mb-2">
+                            {isLoading ? (
+                              <RefreshCw className="h-8 w-8 text-gray-400 animate-spin" />
+                            ) : (
+                              <Camera className="h-8 w-8 text-gray-400" />
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            {isLoading ? "Starting camera..." : "Loading camera..."}
+                          </p>
                         </div>
                       </div>
                     )}
                     
                     {currentPoseValidation && (
-                      <div className={`absolute top-2 right-2 p-2 rounded-full ${
+                      <div className={`absolute top-2 right-2 p-2 rounded-full shadow-lg ${
                         currentPoseValidation === 'correct' 
                           ? 'bg-green-500' 
                           : 'bg-red-500'
@@ -347,7 +441,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
 
                   <div className="text-center space-y-3">
                     <p className="text-sm text-gray-700">
-                      {isVideoPlaying ? "Hold your pose for validation" : "Starting camera..."}
+                      {isVideoPlaying ? "Hold your pose and click validate" : "Starting camera..."}
                     </p>
                     <div className="space-y-2">
                       <Button 
@@ -357,14 +451,16 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                         disabled={!selectedPose || !isVideoPlaying}
                         className="w-full bg-white hover:bg-gray-50 border-gray-300"
                       >
+                        <Check className="mr-2 h-4 w-4" />
                         Validate Current Pose
                       </Button>
                       <Button 
-                        onClick={stopPoseDetection}
+                        onClick={cleanupStream}
                         variant="outline"
                         size="sm"
                         className="w-full bg-white hover:bg-gray-50 border-gray-300"
                       >
+                        <X className="mr-2 h-4 w-4" />
                         Stop Camera
                       </Button>
                     </div>
