@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -602,7 +603,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         {step === 1 ? (
           <div className="text-center space-y-6">
             <img
-              src="/lovable-uploads/0d497106-a6a3-4251-ac48-6e002ce44c94.png"
+              src="/lovable-uploads/f135b894-cd85-4010-a103-0fc5cb07ea0d.png"
               alt="Welcome"
               className="w-64 h-auto mx-auto animate-bounce-slow"
             />
