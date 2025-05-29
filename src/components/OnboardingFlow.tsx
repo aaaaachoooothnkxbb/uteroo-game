@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -632,7 +633,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
               </Button>
             </div>
           </div>
-        ) : (
+        ) : step === 3 ? (
           <div className="space-y-6">
             {/* Top progress bar with hearts and screen indicator */}
             <div className="flex items-center justify-between mb-2">
