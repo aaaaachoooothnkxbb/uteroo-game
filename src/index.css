@@ -12,6 +12,12 @@
   }
 }
 
+:root {
+  --gradient-primary: linear-gradient(135deg, #FF6B8B, #8B5FBF);
+  --gradient-secondary: linear-gradient(135deg, #06D6A0, #118AB2);
+  --gradient-bg: linear-gradient(135deg, #FF6B8B, #8B5FBF, #A78BFA, #F9A8D4);
+}
+
 .bg-menstruation-bg {
   background-image: url('/lovable-uploads/42606b33-6d37-499d-864d-947271b08dfb.png');
 }
@@ -103,6 +109,57 @@
     transform: translate(0, -100px) scale(1.5);
     opacity: 0;
   }
+}
+
+/* New hormone cycle animation */
+@keyframes hormone-float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-15px) translateX(10px);
+  }
+  50% {
+    transform: translateY(-25px) translateX(-5px);
+  }
+  75% {
+    transform: translateY(-10px) translateX(15px);
+  }
+}
+
+.animate-hormone-float {
+  animation: hormone-float 8s ease-in-out infinite;
+}
+
+/* Enhanced gradient background animation */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+/* Button lift animation */
+@keyframes button-lift {
+  0% {
+    transform: translateY(0px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+}
+
+.animate-button-lift {
+  animation: button-lift 0.3s ease-out forwards;
 }
 
 /* Heart squish animation */
@@ -231,17 +288,45 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-/* Enhanced gradient animations */
-@keyframes gradient-shift {
+/* Welcome screen specific styles */
+.welcome-container {
+  background: linear-gradient(135deg, #FF6B8B, #8B5FBF, #A78BFA, #F9A8D4);
+  background-size: 400% 400%;
+}
+
+/* Staggered floating animation for hormone dots */
+@keyframes staggered-float {
   0%, 100% {
-    background-position: 0% 50%;
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translateY(-20px) translateX(15px) scale(1.1);
+    opacity: 1;
   }
   50% {
-    background-position: 100% 50%;
+    transform: translateY(-35px) translateX(-10px) scale(0.9);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translateY(-15px) translateX(20px) scale(1.05);
+    opacity: 0.95;
   }
 }
 
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 6s ease infinite;
+.animate-staggered-float {
+  animation: staggered-float 8s ease-in-out infinite;
+}
+
+/* Enhanced button hover effects */
+.btn-primary-enhanced:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background: linear-gradient(135deg, #FF5A7A, #7A4FBF);
+}
+
+.btn-secondary-enhanced:hover {
+  background: rgba(139, 95, 191, 0.1);
+  border-color: #7A4FBF;
+  transform: translateY(-2px);
 }
