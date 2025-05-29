@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -233,9 +234,9 @@ const Index = () => {
           </Alert>
         )}
 
-        <div className="flex flex-col items-center space-y-6">
-          {/* Character with bouncing animation - positioned much closer to the name */}
-          <div className="relative mt-8">
+        <div className="flex flex-col items-center space-y-2">
+          {/* Character with bouncing animation - positioned very close to the name */}
+          <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full filter blur-3xl opacity-20 scale-110"></div>
             <img 
               src="/lovable-uploads/6d9ab694-126c-44a1-9920-f40be00112b1.png"
@@ -247,8 +248,8 @@ const Index = () => {
             />
           </div>
           
-          {/* Enhanced Uteroo Logo with glow effect - positioned much closer */}
-          <div className={`relative group transition-all duration-600 ${isGlowing || nameGlowing ? 'scale-105' : ''} -mt-20`}>
+          {/* Enhanced Uteroo Logo with glow effect - positioned directly below character */}
+          <div className={`relative group transition-all duration-600 ${isGlowing || nameGlowing ? 'scale-105' : ''} -mt-12`}>
             {/* Enhanced glow effects when glowing */}
             <div className={`absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 rounded-3xl filter blur-2xl transition-all duration-600 scale-110 ${isGlowing || nameGlowing ? 'opacity-80' : 'opacity-40 group-hover:opacity-60'}`}></div>
             <div className={`absolute inset-0 bg-gradient-to-r from-rose-300 to-pink-300 rounded-2xl filter blur-xl transition-all duration-600 ${isGlowing || nameGlowing ? 'opacity-60 animate-pulse' : 'opacity-30 animate-pulse'}`}></div>
