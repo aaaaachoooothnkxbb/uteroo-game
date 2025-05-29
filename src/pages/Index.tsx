@@ -203,8 +203,8 @@ const Index = () => {
         )}
 
         <div className="flex flex-col items-center space-y-6">
-          {/* Character with enhanced styling - positioned much lower */}
-          <div className="relative mt-32">
+          {/* Character with enhanced styling - positioned even lower */}
+          <div className="relative mt-48">
             <div className="absolute inset-0 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full filter blur-3xl opacity-20 scale-110"></div>
             <img 
               src="/lovable-uploads/6d9ab694-126c-44a1-9920-f40be00112b1.png"
