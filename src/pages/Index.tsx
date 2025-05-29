@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -248,7 +249,7 @@ const Index = () => {
           </div>
           
           {/* Enhanced Uteroo Logo with glow effect - positioned directly below character */}
-          <div className={`relative group transition-all duration-600 ${isGlowing || nameGlowing ? 'scale-105' : ''} -mt-12`}>
+          <div className={`relative group transition-all duration-600 ${isGlowing || nameGlowing ? 'scale-105' : ''} -mt-16`}>
             {/* Enhanced glow effects when glowing */}
             <div className={`absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 rounded-3xl filter blur-2xl transition-all duration-600 scale-110 ${isGlowing || nameGlowing ? 'opacity-80' : 'opacity-40 group-hover:opacity-60'}`}></div>
             <div className={`absolute inset-0 bg-gradient-to-r from-rose-300 to-pink-300 rounded-2xl filter blur-xl transition-all duration-600 ${isGlowing || nameGlowing ? 'opacity-60 animate-pulse' : 'opacity-30 animate-pulse'}`}></div>
@@ -333,9 +334,9 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Enhanced social login section - only Google now */}
+          {/* Google login button without background container */}
           <div className="relative w-full space-y-4 mt-8">
-            <div className="flex justify-center p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-lg border border-white/30">
+            <div className="flex justify-center">
               <Button
                 variant="outline"
                 className="bg-white/80 hover:bg-white text-gray-800 hover:text-gray-900 gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-gray-200"
