@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -185,141 +186,151 @@ const Index = () => {
   }
 
   return (
-    <div className="welcome-container min-h-screen flex flex-col items-center justify-center p-6 text-black relative overflow-hidden bg-gradient-to-br from-pink-200 via-purple-200 to-indigo-200 animate-gradient">
-      {/* Header decoration with floating animation */}
-      <div className="header-decoration absolute top-0 left-0 w-full h-32 overflow-hidden">
-        <div className="absolute top-8 left-1/4 w-20 h-20 bg-pink-300 rounded-full opacity-30 animate-float"></div>
-        <div className="absolute top-12 right-1/3 w-16 h-16 bg-purple-300 rounded-full opacity-25 animate-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-6 right-1/4 w-12 h-12 bg-indigo-300 rounded-full opacity-35 animate-float" style={{ animationDelay: '4s' }}></div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Enhanced animated background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-200 via-purple-200 to-indigo-200 animate-gradient">
+        {/* Floating background elements */}
+        <div className="absolute top-10 left-10 w-32 h-32 bg-pink-300/30 rounded-full animate-gentle-float" style={{ animationDelay: '0s' }}></div>
+        <div className="absolute top-20 right-20 w-24 h-24 bg-purple-300/30 rounded-full animate-gentle-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 left-20 w-40 h-40 bg-indigo-300/20 rounded-full animate-gentle-float" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute bottom-10 right-10 w-28 h-28 bg-pink-400/25 rounded-full animate-gentle-float" style={{ animationDelay: '6s' }}></div>
+        <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-purple-400/20 rounded-full animate-gentle-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/3 right-1/3 w-16 h-16 bg-indigo-400/30 rounded-full animate-gentle-float" style={{ animationDelay: '3s' }}></div>
+        
+        {/* Gradient overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-white/10 via-transparent to-white/20"></div>
       </div>
 
-      {/* Error Alert */}
-      {authError && (
-        <Alert variant="destructive" className="mb-4 bg-white/80 backdrop-blur-sm max-w-md">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Authentication Error</AlertTitle>
-          <AlertDescription>{authError}</AlertDescription>
-        </Alert>
-      )}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6 text-black">
+        {/* Error Alert */}
+        {authError && (
+          <Alert variant="destructive" className="mb-4 bg-white/80 backdrop-blur-sm max-w-md">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Authentication Error</AlertTitle>
+            <AlertDescription>{authError}</AlertDescription>
+          </Alert>
+        )}
 
-      {/* Main Content Container */}
-      <div className="content w-full max-w-md space-y-8 relative z-10">
-        {/* App Logo with enhanced circular container */}
-        <div className="app-logo flex justify-center mb-20">
-          <div className="relative">
-            <div className="w-[120px] h-[120px] bg-white/40 backdrop-blur-md rounded-full shadow-2xl flex items-center justify-center border-4 border-white/60">
-              <img 
-                src="/lovable-uploads/6d9ab694-126c-44a1-9920-f40be00112b1.png"
-                alt="Uteroo Character"
-                className="w-20 h-20 object-contain"
-              />
+        {/* Main Content Container */}
+        <div className="content w-full max-w-md space-y-8 relative">
+          {/* Title and Large Bouncing Character */}
+          <div className="text-center space-y-4 relative">
+            <h1 className="text-5xl font-extrabold text-purple-700 tracking-wide relative z-10">
+              Uteroo
+            </h1>
+            
+            {/* Large bouncing Uteroo character positioned over the title */}
+            <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-20">
+              <div className="relative">
+                <div className="w-48 h-48 bg-white/40 backdrop-blur-md rounded-full shadow-2xl flex items-center justify-center border-4 border-white/60 animate-bounce-slow">
+                  <img 
+                    src="/lovable-uploads/50167af2-3f66-47c1-aadb-96e97717d531.png"
+                    alt="Happy Uteroo Character"
+                    className="w-36 h-36 object-contain"
+                  />
+                </div>
+                {/* Enhanced elevation shadow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full blur-2xl opacity-40 scale-110 -z-10 animate-pulse"></div>
+              </div>
             </div>
-            {/* Elevation shadow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full blur-xl opacity-30 scale-110 -z-10"></div>
+            
+            <p className="text-xl text-gray-800 font-medium leading-relaxed mt-20">
+              Master your cycle with playful hormone tracking
+            </p>
           </div>
-        </div>
 
-        {/* Title and Tagline */}
-        <div className="text-center space-y-4">
-          <h1 className="text-5xl font-extrabold text-purple-700 tracking-wide">
-            Uteroo
-          </h1>
-          <p className="text-xl text-gray-800 font-medium leading-relaxed">
-            Master your cycle with playful hormone tracking
-          </p>
-        </div>
-
-        {/* Hormone Cycle Animation */}
-        <div className="cycle-animation relative h-24 flex items-center justify-center my-8">
-          <div className="relative w-64 h-16">
-            {/* Estrogen dot */}
-            <div className="absolute w-5 h-5 bg-pink-400 rounded-full animate-float opacity-80" style={{ left: '10%', animationDelay: '0s', animationDuration: '8s' }}></div>
-            {/* Progesterone dot */}
-            <div className="absolute w-5 h-5 bg-purple-500 rounded-full animate-float opacity-80" style={{ left: '30%', animationDelay: '2s', animationDuration: '8s' }}></div>
-            {/* LH dot */}
-            <div className="absolute w-5 h-5 bg-yellow-400 rounded-full animate-float opacity-80" style={{ left: '50%', animationDelay: '4s', animationDuration: '8s' }}></div>
-            {/* FSH dot */}
-            <div className="absolute w-5 h-5 bg-green-400 rounded-full animate-float opacity-80" style={{ left: '70%', animationDelay: '6s', animationDuration: '8s' }}></div>
-          </div>
-        </div>
-
-        {/* Benefit Cards */}
-        <div className="benefits grid grid-cols-3 gap-4 my-8">
-          <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
-              <BarChart3 className="h-6 w-6 text-purple-600" />
+          {/* Hormone Cycle Animation */}
+          <div className="cycle-animation relative h-24 flex items-center justify-center my-8">
+            <div className="relative w-64 h-16">
+              {/* Estrogen dot */}
+              <div className="absolute w-5 h-5 bg-pink-400 rounded-full animate-staggered-float opacity-80" style={{ left: '10%', animationDelay: '0s' }}></div>
+              {/* Progesterone dot */}
+              <div className="absolute w-5 h-5 bg-purple-500 rounded-full animate-staggered-float opacity-80" style={{ left: '30%', animationDelay: '2s' }}></div>
+              {/* LH dot */}
+              <div className="absolute w-5 h-5 bg-yellow-400 rounded-full animate-staggered-float opacity-80" style={{ left: '50%', animationDelay: '4s' }}></div>
+              {/* FSH dot */}
+              <div className="absolute w-5 h-5 bg-green-400 rounded-full animate-staggered-float opacity-80" style={{ left: '70%', animationDelay: '6s' }}></div>
             </div>
-            <p className="text-sm font-semibold text-gray-700">Hormone Tracking</p>
           </div>
-          <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
-              <Smile className="h-6 w-6 text-pink-600" />
+
+          {/* Benefit Cards */}
+          <div className="benefits grid grid-cols-3 gap-4 my-8">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <BarChart3 className="h-6 w-6 text-purple-600" />
+              </div>
+              <p className="text-sm font-semibold text-gray-700">Hormone Tracking</p>
             </div>
-            <p className="text-sm font-semibold text-gray-700">Mood Insights</p>
-          </div>
-          <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
-              <Zap className="h-6 w-6 text-green-600" />
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <Smile className="h-6 w-6 text-pink-600" />
+              </div>
+              <p className="text-sm font-semibold text-gray-700">Mood Insights</p>
             </div>
-            <p className="text-sm font-semibold text-gray-700">Energy Guide</p>
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <Zap className="h-6 w-6 text-green-600" />
+              </div>
+              <p className="text-sm font-semibold text-gray-700">Energy Guide</p>
+            </div>
           </div>
-        </div>
 
-        {/* Abstract App Preview */}
-        <div className="app-preview flex justify-center my-8">
-          <div className="w-64 h-32 bg-gradient-to-r from-purple-300 to-pink-300 rounded-2xl shadow-lg relative overflow-hidden">
-            <div className="absolute top-4 left-4 w-16 h-4 bg-white/40 rounded-md"></div>
-            <div className="absolute top-12 left-4 w-24 h-4 bg-white/30 rounded-md"></div>
-            <div className="absolute top-20 left-4 w-20 h-4 bg-white/50 rounded-md"></div>
-            <div className="absolute top-4 right-4 w-12 h-12 bg-white/40 rounded-full"></div>
-            <div className="absolute bottom-4 left-4 right-4 h-6 bg-white/20 rounded-lg"></div>
+          {/* Abstract App Preview */}
+          <div className="app-preview flex justify-center my-8">
+            <div className="w-64 h-32 bg-gradient-to-r from-purple-300 to-pink-300 rounded-2xl shadow-lg relative overflow-hidden">
+              <div className="absolute top-4 left-4 w-16 h-4 bg-white/40 rounded-md"></div>
+              <div className="absolute top-12 left-4 w-24 h-4 bg-white/30 rounded-md"></div>
+              <div className="absolute top-20 left-4 w-20 h-4 bg-white/50 rounded-md"></div>
+              <div className="absolute top-4 right-4 w-12 h-12 bg-white/40 rounded-full"></div>
+              <div className="absolute bottom-4 left-4 right-4 h-6 bg-white/20 rounded-lg"></div>
+            </div>
           </div>
-        </div>
 
-        {/* Buttons */}
-        <div className="buttons space-y-4">
-          <Button
-            onClick={handlePrimaryClick}
-            className={`w-full py-6 text-xl font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
-              primaryButtonClicked 
-                ? 'bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600' 
-                : 'bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600'
-            } text-white border-0`}
-            style={{ transform: primaryButtonClicked ? 'translateY(-3px)' : 'none' }}
-          >
-            {primaryButtonText}
-          </Button>
-
-          <Button
-            onClick={() => setShowOnboarding(true)}
-            variant="outline"
-            className="w-full py-6 text-xl font-bold rounded-full border-2 border-purple-500 text-purple-700 bg-transparent hover:bg-purple-50 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-          >
-            CREATE ACCOUNT
-          </Button>
-
-          {/* Google login button */}
-          <div className="flex justify-center mt-6">
+          {/* Buttons */}
+          <div className="buttons space-y-4">
             <Button
-              variant="outline"
-              className="bg-white/60 hover:bg-white/80 text-gray-800 hover:text-gray-900 gap-2 rounded-full aspect-square h-14 w-14 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border border-gray-300"
-              onClick={() => handleSocialLogin('google')}
-              disabled={isLoading}
+              onClick={handlePrimaryClick}
+              className={`w-full py-6 text-xl font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
+                primaryButtonClicked 
+                  ? 'bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600' 
+                  : 'bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600'
+              } text-white border-0`}
+              style={{ transform: primaryButtonClicked ? 'translateY(-3px)' : 'none' }}
             >
-              {loadingProvider === 'google' ? (
-                <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-gray-800" />
-              ) : (
-                <Icons.google className="h-6 w-6" />
-              )}
+              {primaryButtonText}
             </Button>
-          </div>
-        </div>
 
-        {/* Social Proof Footer */}
-        <div className="footer-text text-center mt-8">
-          <p className="text-base text-gray-700 font-medium">
-            Join 250k+ people mastering their cycles
-          </p>
+            <Button
+              onClick={() => setShowOnboarding(true)}
+              variant="outline"
+              className="w-full py-6 text-xl font-bold rounded-full border-2 border-purple-500 text-purple-700 bg-white/60 hover:bg-white/80 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            >
+              CREATE ACCOUNT
+            </Button>
+
+            {/* Google login button */}
+            <div className="flex justify-center mt-6">
+              <Button
+                variant="outline"
+                className="bg-white/60 hover:bg-white/80 text-gray-800 hover:text-gray-900 gap-2 rounded-full aspect-square h-14 w-14 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border border-gray-300"
+                onClick={() => handleSocialLogin('google')}
+                disabled={isLoading}
+              >
+                {loadingProvider === 'google' ? (
+                  <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-gray-800" />
+                ) : (
+                  <Icons.google className="h-6 w-6" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* Social Proof Footer */}
+          <div className="footer-text text-center mt-8">
+            <p className="text-base text-gray-700 font-medium">
+              Join 250k+ people mastering their cycles
+            </p>
+          </div>
         </div>
       </div>
     </div>
