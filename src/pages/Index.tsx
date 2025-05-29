@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Icons } from "@/components/Icons";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -26,6 +26,35 @@ const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authError, clearAuthError } = useAuth();
+
+  const handleGoogleLogin = async () => {
+    setLoadingProvider('google');
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/pou-game`
+        }
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Login failed",
+          description: error.message,
+        });
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: "An unexpected error occurred.",
+      });
+    } finally {
+      setLoadingProvider(null);
+    }
+  };
 
   useEffect(() => {
     console.log('checking session')
@@ -256,6 +285,16 @@ const Index = () => {
               className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 py-3 rounded-full w-full"
             >
               {isLoading ? "Signing in..." : "SIGN IN"}
+            </Button>
+
+            <Button
+              onClick={handleGoogleLogin}
+              disabled={loadingProvider === 'google'}
+              variant="outline"
+              className="flex items-center justify-center gap-2 text-gray-700 border-gray-300 hover:bg-gray-50 px-8 py-3 rounded-full w-full"
+            >
+              <Icons.google className="w-5 h-5" />
+              {loadingProvider === 'google' ? "Signing in..." : "Continue with Google"}
             </Button>
             
             <Button
