@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Icons } from "@/components/ui/icons";
 import { Provider } from "@supabase/supabase-js";
 import { useAuth } from "@/components/AuthProvider";
-import { AlertCircle, BarChart3, Smile, Zap } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Index = () => {
@@ -15,14 +15,16 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState<'google' | null>(null);
   const [checkingUser, setCheckingUser] = useState(true);
-  const [primaryButtonText, setPrimaryButtonText] = useState("EXPLORE DEMO");
-  const [primaryButtonClicked, setPrimaryButtonClicked] = useState(false);
+  const [isGlowing, setIsGlowing] = useState(false);
+  const [characterBouncing, setCharacterBouncing] = useState(false);
+  const [nameGlowing, setNameGlowing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authError, clearAuthError } = useAuth();
 
   useEffect(() => {
     console.log('checking session')
+    // Check for auth session on page load and handle redirects from OAuth
     const checkSession = async () => {
       try {
         const { data, error } = await supabase.auth.getSession();
@@ -30,6 +32,7 @@ const Index = () => {
         if (data?.session) {
           console.log('user is already logged in')
           
+          // Check if user has a profile to determine if they're new
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
@@ -40,6 +43,8 @@ const Index = () => {
             console.error('Error checking profile:', profileError);
           }
           
+          // If user has a profile, they've completed onboarding - go to pou-game
+          // If no profile, they're a first-time user - show onboarding
           if (profile) {
             console.log('returning user - navigating to pou-game');
             console.log('here is your profile: ');
@@ -51,6 +56,7 @@ const Index = () => {
             });
           } else {
             console.log('first-time user - creating profile and showing onboarding');
+            // Create a new profile for the user
             const { error: insertError } = await supabase
               .from('profiles')
               .insert({
@@ -69,8 +75,10 @@ const Index = () => {
           }
         }
 
+        // Check if we're handling an OAuth redirect
         const { data: authData } = await supabase.auth.getUser();
         if (authData?.user && window.location.hash.includes("access_token")) {
+          // For OAuth users, also check if they're first-time
           const { data: profile } = await supabase
             .from('profiles')
             .select('*')
@@ -80,6 +88,7 @@ const Index = () => {
           if (profile) {
             navigate("/pou-game");
           } else {
+            // Create profile for OAuth user
             const { error: insertError } = await supabase
               .from('profiles')
               .insert({
@@ -105,19 +114,37 @@ const Index = () => {
     checkSession();
   }, [navigate, toast]);
 
+  // Add effect to sync glow with bounce animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsGlowing(true);
+      setTimeout(() => setIsGlowing(false), 600);
+    }, 3000); // Match the bounce animation duration
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Add effect for character bouncing and name glowing
+  useEffect(() => {
+    const bounceInterval = setInterval(() => {
+      setCharacterBouncing(true);
+      // Make the name glow when character reaches the bottom of its bounce
+      setTimeout(() => {
+        setNameGlowing(true);
+      }, 1000); // Halfway through the 2s bounce animation
+      
+      setTimeout(() => {
+        setCharacterBouncing(false);
+        setNameGlowing(false);
+      }, 2000);
+    }, 4000); // Character bounces every 4 seconds
+
+    return () => clearInterval(bounceInterval);
+  }, []);
+
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     navigate("/pou-game");
-  };
-
-  const handlePrimaryClick = () => {
-    if (!primaryButtonClicked) {
-      setPrimaryButtonText("Let's Go!");
-      setPrimaryButtonClicked(true);
-      setTimeout(() => {
-        navigate("/pou-game");
-      }, 800);
-    }
   };
 
   const handleSocialLogin = async (provider: 'google') => {
@@ -126,6 +153,7 @@ const Index = () => {
       setIsLoading(true);
       setLoadingProvider(provider);
       
+      // Get the current URL for proper redirect
       const redirectTo = `${window.location.origin}`;
       
       console.log(`Attempting to sign in with ${provider}. Redirect URL: ${redirectTo} window.location: ${window.location.origin}`);
@@ -156,6 +184,8 @@ const Index = () => {
       } else {
         console.log(`Auth initialized. Redirecting to: ${data.url}`);
       }
+      
+      // If we have a URL, we don't need to handle more here since the browser will redirect
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -169,9 +199,10 @@ const Index = () => {
     }
   };
 
+  // Show loading state while checking user status
   if (checkingUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-pink-500 mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
@@ -185,151 +216,142 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Enhanced animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-200 via-purple-200 to-indigo-200 animate-gradient">
-        {/* Floating background elements */}
-        <div className="absolute top-10 left-10 w-32 h-32 bg-pink-300/30 rounded-full animate-gentle-float" style={{ animationDelay: '0s' }}></div>
-        <div className="absolute top-20 right-20 w-24 h-24 bg-purple-300/30 rounded-full animate-gentle-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute bottom-20 left-20 w-40 h-40 bg-indigo-300/20 rounded-full animate-gentle-float" style={{ animationDelay: '4s' }}></div>
-        <div className="absolute bottom-10 right-10 w-28 h-28 bg-pink-400/25 rounded-full animate-gentle-float" style={{ animationDelay: '6s' }}></div>
-        <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-purple-400/20 rounded-full animate-gentle-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/3 right-1/3 w-16 h-16 bg-indigo-400/30 rounded-full animate-gentle-float" style={{ animationDelay: '3s' }}></div>
-        
-        {/* Gradient overlay for depth */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/10 via-transparent to-white/20"></div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-black relative overflow-hidden bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float"></div>
+        <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{ animationDelay: '4s' }}></div>
       </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 text-black">
-        {/* Error Alert */}
+      <div className="w-full max-w-md space-y-8 relative z-10">
         {authError && (
-          <Alert variant="destructive" className="mb-4 bg-white/80 backdrop-blur-sm max-w-md">
+          <Alert variant="destructive" className="mb-4 bg-white/80 backdrop-blur-sm">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Authentication Error</AlertTitle>
             <AlertDescription>{authError}</AlertDescription>
           </Alert>
         )}
 
-        {/* Main Content Container */}
-        <div className="content w-full max-w-lg space-y-8 relative">
-          {/* Title and Large Bouncing Character */}
-          <div className="text-center space-y-4 relative">
-            {/* MASSIVE Uteroo character positioned prominently */}
-            <div className="relative mb-8">
-              <div className="relative mx-auto">
-                <div className="w-80 h-80 sm:w-96 sm:h-96 bg-white/40 backdrop-blur-md rounded-full shadow-2xl flex items-center justify-center border-8 border-white/60 animate-bounce-slow mx-auto">
-                  <img 
-                    src="/lovable-uploads/50167af2-3f66-47c1-aadb-96e97717d531.png"
-                    alt="Happy Uteroo Character"
-                    className="w-64 h-64 sm:w-80 sm:h-80 object-contain"
-                  />
-                </div>
-                {/* Enhanced elevation shadow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full blur-2xl opacity-50 scale-110 -z-10 animate-pulse"></div>
+        <div className="flex flex-col items-center space-y-2">
+          {/* Character with bouncing animation - positioned very close to the name */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full filter blur-3xl opacity-20 scale-110"></div>
+            <img 
+              src="/lovable-uploads/6d9ab694-126c-44a1-9920-f40be00112b1.png"
+              alt="Uteroo Character"
+              className={`w-[280px] h-[280px] object-contain drop-shadow-2xl relative z-10 transition-all duration-500 ${
+                characterBouncing ? 'animate-bounce' : ''
+              }`}
+              style={{ animationDuration: characterBouncing ? '2s' : undefined }}
+            />
+          </div>
+          
+          {/* Enhanced Uteroo Logo with glow effect - positioned directly below character */}
+          <div className={`relative group transition-all duration-600 ${isGlowing || nameGlowing ? 'scale-105' : ''} -mt-60`}>
+            {/* Enhanced glow effects when glowing */}
+            <div className={`absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 rounded-3xl filter blur-2xl transition-all duration-600 scale-110 ${isGlowing || nameGlowing ? 'opacity-80' : 'opacity-40 group-hover:opacity-60'}`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-r from-rose-300 to-pink-300 rounded-2xl filter blur-xl transition-all duration-600 ${isGlowing || nameGlowing ? 'opacity-60 animate-pulse' : 'opacity-30 animate-pulse'}`}></div>
+            
+            {/* Additional intense glow when touching */}
+            {(isGlowing || nameGlowing) && (
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400 rounded-3xl filter blur-3xl opacity-60 scale-125 animate-ping"></div>
+            )}
+            
+            {/* Main logo container with glassmorphism */}
+            <div className={`relative bg-white/30 backdrop-blur-md rounded-3xl p-8 border border-white/40 shadow-2xl transition-all duration-600 ${isGlowing || nameGlowing ? 'bg-white/50 shadow-3xl' : ''}`}>
+              {/* Enhanced sparkle decorations when glowing */}
+              <div className={`absolute -top-2 -right-2 w-4 h-4 bg-yellow-300 rounded-full transition-all duration-300 ${isGlowing || nameGlowing ? 'animate-bounce opacity-100' : 'animate-ping opacity-75'}`}></div>
+              <div className={`absolute -bottom-1 -left-1 w-3 h-3 bg-pink-400 rounded-full transition-all duration-300 ${isGlowing || nameGlowing ? 'animate-bounce opacity-100' : 'animate-pulse'}`}></div>
+              <div className={`absolute top-1/2 -right-3 w-2 h-2 bg-purple-400 rounded-full transition-all duration-300 ${isGlowing || nameGlowing ? 'animate-ping opacity-100' : 'animate-bounce'}`}></div>
+              
+              {/* Enhanced Uteroo text with glow effect */}
+              <div className="relative">
+                <h1 className={`text-6xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] drop-shadow-lg tracking-wide transition-all duration-600 ${isGlowing || nameGlowing ? 'drop-shadow-2xl filter brightness-125' : ''}`}>
+                  Uteroo
+                </h1>
+                
+                {/* Enhanced shadow text for depth */}
+                <h1 className={`absolute inset-0 text-6xl font-bold text-purple-200/20 blur-sm transform translate-x-1 translate-y-1 transition-all duration-600 ${isGlowing || nameGlowing ? 'text-yellow-200/40' : ''}`}>
+                  Uteroo
+                </h1>
+                
+                {/* Animated underline with glow effect */}
+                <div className={`absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center ${isGlowing || nameGlowing ? 'scale-x-100 shadow-lg shadow-pink-400/50' : ''}`}></div>
               </div>
-            </div>
-
-            {/* Beautiful, larger app name with enhanced styling */}
-            <div className="relative">
-              <h1 className="text-7xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 tracking-wider relative z-10 drop-shadow-2xl">
-                Uteroo
-              </h1>
-              {/* Beautiful text shadow/glow effect */}
-              <div className="absolute inset-0 text-7xl sm:text-8xl font-black text-purple-300 blur-sm opacity-50 -z-10">
-                Uteroo
+              
+              {/* Enhanced floating hearts decoration */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+                <div className={`absolute top-4 left-4 text-pink-300 text-sm animate-float opacity-60 transition-all duration-300 ${isGlowing || nameGlowing ? 'text-lg opacity-100' : ''}`}>💕</div>
+                <div className={`absolute top-6 right-8 text-purple-300 text-xs animate-float opacity-40 transition-all duration-300 ${isGlowing || nameGlowing ? 'text-sm opacity-80' : ''}`} style={{ animationDelay: '1s' }}>✨</div>
+                <div className={`absolute bottom-4 left-8 text-indigo-300 text-sm animate-float opacity-50 transition-all duration-300 ${isGlowing || nameGlowing ? 'text-lg opacity-100' : ''}`} style={{ animationDelay: '2s' }}>🌸</div>
               </div>
-              {/* Sparkle effects around the text */}
-              <div className="absolute -top-4 -left-4 w-6 h-6 bg-pink-400 rounded-full opacity-60 animate-pulse"></div>
-              <div className="absolute -top-2 -right-6 w-4 h-4 bg-purple-400 rounded-full opacity-70 animate-pulse" style={{ animationDelay: '1s' }}></div>
-              <div className="absolute -bottom-3 left-8 w-5 h-5 bg-indigo-400 rounded-full opacity-65 animate-pulse" style={{ animationDelay: '2s' }}></div>
-              <div className="absolute -bottom-4 -right-4 w-3 h-3 bg-pink-500 rounded-full opacity-80 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
             </div>
             
-            <p className="text-xl sm:text-2xl text-gray-800 font-bold leading-relaxed mt-6 px-4">
-              Master your cycle with playful hormone tracking
-            </p>
+            {/* Enhanced outer glow ring */}
+            <div className={`absolute inset-0 rounded-3xl border-2 border-gradient-to-r from-pink-300/50 to-purple-300/50 scale-105 transition-all duration-300 ${isGlowing || nameGlowing ? 'opacity-100 scale-110' : 'opacity-0 group-hover:opacity-100'}`}></div>
           </div>
+        </div>
 
-          {/* Hormone Cycle Animation */}
-          <div className="cycle-animation relative h-20 flex items-center justify-center my-8">
-            <div className="relative w-64 h-16">
-              {/* Estrogen dot */}
-              <div className="absolute w-6 h-6 bg-pink-400 rounded-full animate-staggered-float opacity-80" style={{ left: '10%', animationDelay: '0s' }}></div>
-              {/* Progesterone dot */}
-              <div className="absolute w-6 h-6 bg-purple-500 rounded-full animate-staggered-float opacity-80" style={{ left: '30%', animationDelay: '2s' }}></div>
-              {/* LH dot */}
-              <div className="absolute w-6 h-6 bg-yellow-400 rounded-full animate-staggered-float opacity-80" style={{ left: '50%', animationDelay: '4s' }}></div>
-              {/* FSH dot */}
-              <div className="absolute w-6 h-6 bg-green-400 rounded-full animate-staggered-float opacity-80" style={{ left: '70%', animationDelay: '6s' }}></div>
-            </div>
-          </div>
+        {/* Enhanced tagline */}
+        <div className="text-center space-y-2">
+          <p className="text-xl md:text-2xl font-medium text-gray-700 leading-relaxed">
+            Discover your hormones, moods, and energy
+          </p>
+          <p className="text-lg font-light text-purple-600">
+            in a fun way! ✨
+          </p>
+        </div>
 
-          {/* Benefit Cards */}
-          <div className="benefits grid grid-cols-3 gap-4 my-8">
-            <div className="text-center space-y-2">
-              <div className="w-14 h-14 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                <BarChart3 className="h-7 w-7 text-purple-600" />
-              </div>
-              <p className="text-sm font-semibold text-gray-700">Hormone Tracking</p>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="w-14 h-14 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                <Smile className="h-7 w-7 text-pink-600" />
-              </div>
-              <p className="text-sm font-semibold text-gray-700">Mood Insights</p>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="w-14 h-14 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                <Zap className="h-7 w-7 text-green-600" />
-              </div>
-              <p className="text-sm font-semibold text-gray-700">Energy Guide</p>
+        {/* Enhanced buttons */}
+        <div className="space-y-4 mt-12">
+          <div 
+            onClick={() => navigate("/pou-game")}
+            className="w-full relative cursor-pointer group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full filter blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+            <div className="flex justify-center">
+              <Button
+                className="relative bg-gradient-to-r from-pink-200 to-purple-200 hover:from-pink-300 hover:to-purple-300 text-gray-800 text-xl font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border border-white/50"
+              >
+                TRY IT FIRST
+              </Button>
             </div>
           </div>
 
-          {/* Buttons */}
-          <div className="buttons space-y-4">
-            <Button
-              onClick={handlePrimaryClick}
-              className={`w-full py-5 text-xl font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
-                primaryButtonClicked 
-                  ? 'bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600' 
-                  : 'bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600'
-              } text-white border-0`}
-              style={{ transform: primaryButtonClicked ? 'translateY(-3px)' : 'none' }}
-            >
-              {primaryButtonText}
-            </Button>
+          <div 
+            onClick={() => setShowOnboarding(true)}
+            className="w-full relative cursor-pointer group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full filter blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+            <div className="flex justify-center">
+              <Button
+                className="relative bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white text-xl font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              >
+                CREATE AN ACCOUNT
+              </Button>
+            </div>
+          </div>
 
-            <Button
-              onClick={() => setShowOnboarding(true)}
-              variant="outline"
-              className="w-full py-5 text-xl font-bold rounded-full border-2 border-purple-500 text-purple-700 bg-white/60 hover:bg-white/80 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-            >
-              CREATE ACCOUNT
-            </Button>
-
-            {/* Google login button */}
-            <div className="flex justify-center mt-6">
+          {/* Google login button without background container */}
+          <div className="relative w-full space-y-4 mt-8">
+            <div className="flex justify-center">
               <Button
                 variant="outline"
-                className="bg-white/60 hover:bg-white/80 text-gray-800 hover:text-gray-900 gap-2 rounded-full aspect-square h-14 w-14 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border border-gray-300"
+                className="bg-white/80 hover:bg-white text-gray-800 hover:text-gray-900 gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-gray-200"
                 onClick={() => handleSocialLogin('google')}
                 disabled={isLoading}
               >
                 {loadingProvider === 'google' ? (
                   <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-gray-800" />
                 ) : (
-                  <Icons.google className="h-6 w-6" />
+                  <Icons.google className="h-8 w-8" />
                 )}
               </Button>
             </div>
-          </div>
-
-          {/* Social Proof Footer */}
-          <div className="footer-text text-center mt-8">
-            <p className="text-base text-gray-700 font-medium">
-              Join 250k+ people mastering their cycles
-            </p>
+            <div className="text-center text-xs text-gray-500 mt-2 opacity-60">
+              Dev mode: {window.location.origin}
+            </div>
           </div>
         </div>
       </div>

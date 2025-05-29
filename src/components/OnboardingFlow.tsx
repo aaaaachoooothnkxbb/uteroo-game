@@ -171,28 +171,22 @@ const formOptions: Record<string, FormOption[]> = {
   ]
 };
 
-// Array of questions in order
-const questionOrder = [
-  "lastPeriodStart",
-  "periodLength", 
-  "cyclePredictability",
-  "ovulationSigns",
-  "premenstrualSymptoms",
-  "worstSymptom"
+const QuestionGroups = [
+  ["lastPeriodStart", "periodLength"],
+  ["cyclePredictability", "ovulationSigns"],
+  ["premenstrualSymptoms", "worstSymptom"]
 ];
 
-const questionTitles = {
-  lastPeriodStart: "When did your last period start?",
-  periodLength: "How long do your periods usually last?",
-  cyclePredictability: "How predictable is your cycle?",
-  ovulationSigns: "Do you notice any signs around ovulation?",
-  premenstrualSymptoms: "How do you feel 5-7 days before your period?",
-  worstSymptom: "What's your most annoying symptom?"
-};
+// Screen rewards configuration
+const screenRewards = [
+  { points: 10, message: "Great start! +10 ❤️ added to your profile." },
+  { points: 15, message: "You've unlocked Cycle Tracker Tooltip! +15 ❤️ added to your profile." },
+  { points: 20, message: "You're a cycle pro! Here's your first booster 🎁 +20 ❤️ added to your profile." }
+];
 
 export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(1);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [questionsScreen, setQuestionsScreen] = useState(0);
   const [formData, setFormData] = useState({
     lastPeriodStart: "",
     periodLength: "",
@@ -397,35 +391,45 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     setFormData({ ...formData, [field]: option.value });
     
     // Create a floating heart
-    const randomLeft = 50 + (Math.random() * 30 - 15);
+    const randomLeft = 50 + (Math.random() * 30 - 15); // Between 35-65% to keep it near the center
     setFloatingHearts(prev => [...prev, {
       id: nextHeartId, 
-      top: 70,
+      top: 70, // Start position 
       left: randomLeft
     }]);
     setNextHeartId(prev => prev + 1);
-    setHeartPoints(prev => prev + 5);
     
     // Show recommendation toast
     toast({
-      title: "Great choice! +5 ❤️",
+      title: "Great choice!",
       description: option.recommendation,
     });
 
-    // Auto advance to next question after a short delay
-    setTimeout(() => {
-      if (currentQuestionIndex < questionOrder.length - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
-      } else {
-        // All questions answered, go to summary
-        setStep(4);
-        setHeartPoints(prev => prev + 25);
-        toast({
-          title: "All questions completed! +25 ❤️",
-          description: "Here's your personalized hormonal insights!",
-        });
+    // Auto advance to next screen if both questions on current screen are answered
+    const currentGroup = QuestionGroups[questionsScreen];
+    const allAnswered = currentGroup.every(field => {
+      // Special case for calendar option
+      if (field === "lastPeriodStart" && formData[field as keyof typeof formData] === "calendar") {
+        return !!selectedDate;
       }
-    }, 1000);
+      return formData[field as keyof typeof formData] !== "" || field === field && option.value !== "";
+    });
+    
+    if (allAnswered && questionsScreen < 2) {
+      // Wait a moment for the animation to complete
+      setTimeout(() => {
+        // Award points for completing the screen
+        const reward = screenRewards[questionsScreen];
+        setHeartPoints(prev => prev + reward.points);
+        
+        toast({
+          title: "Screen completed!",
+          description: reward.message,
+        });
+        
+        setQuestionsScreen(prev => prev + 1);
+      }, 500);
+    }
   };
 
   // Special handler for calendar date selection
@@ -443,30 +447,35 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       left: randomLeft
     }]);
     setNextHeartId(prev => prev + 1);
-    setHeartPoints(prev => prev + 5);
     
     // Show recommendation
     const option = formOptions.lastPeriodStart.find(o => o.value === "calendar");
     if (option) {
       toast({
-        title: "Date selected! +5 ❤️",
+        title: "Date selected!",
         description: option.recommendation,
       });
     }
     
-    // Auto advance to next question
-    setTimeout(() => {
-      if (currentQuestionIndex < questionOrder.length - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
-      } else {
-        setStep(4);
-        setHeartPoints(prev => prev + 25);
+    // Check if this completes the screen
+    const currentGroup = QuestionGroups[questionsScreen];
+    const otherField = currentGroup.find(f => f !== "lastPeriodStart");
+    const allAnswered = otherField ? formData[otherField as keyof typeof formData] !== "" : true;
+    
+    if (allAnswered && questionsScreen < 2) {
+      setTimeout(() => {
+        // Award points for completing the screen
+        const reward = screenRewards[questionsScreen];
+        setHeartPoints(prev => prev + reward.points);
+        
         toast({
-          title: "All questions completed! +25 ❤️",
-          description: "Here's your personalized hormonal insights!",
+          title: "Screen completed!",
+          description: reward.message,
         });
-      }
-    }, 1000);
+        
+        setQuestionsScreen(prev => prev + 1);
+      }, 500);
+    }
   };
 
   // Remove floating hearts after animation completes
@@ -481,9 +490,9 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
   }, [floatingHearts]);
 
   const calculateProgress = () => {
-    if (step <= 2) return 0;
-    if (step === 4) return 100;
-    return ((currentQuestionIndex + 1) / questionOrder.length) * 100;
+    const totalFields = Object.keys(formData).length;
+    const filledFields = Object.values(formData).filter(value => value !== "").length;
+    return (filledFields / totalFields) * 100;
   };
 
   const handleNext = async () => {
@@ -491,12 +500,22 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       setStep(2);
     } else if (step === 2) {
       setStep(3);
-    } else if (step === 4) {
+    } else if (step === 3) {
+      if (Object.values(formData).some(value => value === "")) {
+        toast({
+          title: "Please answer all questions",
+          description: "We need this information to personalize your experience",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       console.log('Completing onboarding flow...');
       
       // Save data to Supabase before navigation
       await saveOnboardingData();
       
+      const summary = generateSummary();
       toast({
         title: "Welcome to Uteroo!",
         description: "Time to meet your companion and give them a name!",
@@ -515,12 +534,6 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       description: "You can always complete your profile later in settings.",
     });
     navigate("/dashboard");
-  };
-
-  const handleBack = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-    }
   };
 
   // Function to render the calendar popover for date selection
@@ -555,11 +568,9 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     );
   };
 
-  const currentField = questionOrder[currentQuestionIndex];
-
   return (
     <div className="min-h-screen bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl p-6 space-y-6 bg-white/90 backdrop-blur-sm border shadow-md relative">
+      <Card className="w-full max-w-4xl p-6 space-y-6 bg-white/90 backdrop-blur-sm border shadow-md relative">
         {/* Floating hearts animation container */}
         {floatingHearts.map(heart => (
           <div 
@@ -573,7 +584,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
           >
             <div className="flex items-center font-bold text-[#FF69B4]">
               <Heart fill="#FF69B4" className="animate-heart-squish mr-1" size={20} />
-              <span>+5</span>
+              <span>+1</span>
             </div>
           </div>
         ))}
@@ -581,16 +592,6 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         {step === 3 && (
           <div className="flex items-center mb-2 gap-2">
             <Progress value={calculateProgress()} className="w-full rounded-full" />
-            <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
-              <Heart fill="#FF69B4" size={16} />
-              <span>{heartPoints}</span>
-            </div>
-          </div>
-        )}
-
-        {step === 4 && (
-          <div className="flex items-center mb-2 gap-2">
-            <Progress value={100} className="w-full rounded-full" />
             <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
               <Heart fill="#FF69B4" size={16} />
               <span>{heartPoints}</span>
@@ -650,65 +651,140 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
               </Button>
             </div>
           </div>
-        ) : step === 3 ? (
+        ) : (
           <div className="space-y-6">
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="text-gray-500 text-sm font-medium">
-                  Question {currentQuestionIndex + 1} of {questionOrder.length}
-                </span>
+            {/* Top progress bar with hearts and screen indicator */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3 w-full">
+                <div className="text-gray-500 text-sm font-medium">
+                  Screen {questionsScreen + 1} of 3
+                </div>
+                <Progress 
+                  value={(questionsScreen + 1) / 3 * 100} 
+                  className="flex-1 rounded-full"
+                />
+                <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
+                  <Heart fill="#FF69B4" size={20} />
+                  <span>{heartPoints}</span>
+                </div>
               </div>
+            </div>
+            
+            <div className="text-center mb-8">
               <h2 className="text-2xl text-[#FF69B4] font-bold mb-2">
-                {questionTitles[currentField as keyof typeof questionTitles]}
+                Let's Get to Know Your Cycle
               </h2>
               <p className="text-gray-700 italic">
                 Your answers help us provide personalized hormonal insights
               </p>
             </div>
 
-            <div className="max-w-md mx-auto space-y-3 animate-fade-in">
-              <div className="flex items-center gap-2 mb-4">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info size={16} className="text-[#9370DB] cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p>{formOptions[currentField][0].tooltip}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3">
-                {currentField === "lastPeriodStart" && formOptions[currentField][0].value === "calendar" && (
-                  renderCalendarPopover()
-                )}
-                
-                {formOptions[currentField].map((option, index) => (
-                  option.value !== "calendar" && (
-                    <Button
-                      key={option.value}
-                      onClick={() => handleOptionSelect(currentField, option)}
-                      variant={formData[currentField as keyof typeof formData] === option.value ? "default" : "outline"}
-                      className={`w-full justify-start text-left h-auto py-4 px-4 rounded-full transition-all ${
-                        formData[currentField as keyof typeof formData] === option.value 
-                          ? "bg-[#9370DB] text-white" 
-                          : "text-black hover:bg-pink-50 hover:scale-105"
-                      }`}
-                    >
-                      {option.icon && <span className="mr-3 text-lg">{option.icon}</span>}
-                      <span className="font-medium">{option.label}</span>
-                    </Button>
-                  )
+            {questionsScreen < 3 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
+                {QuestionGroups[questionsScreen].map((field) => (
+                  <div key={field} className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-lg text-black">
+                        {field === "lastPeriodStart" 
+                          ? "When did your last period start?" 
+                          : field === "periodLength" 
+                          ? "How long do your periods usually last?" 
+                          : field === "cyclePredictability" 
+                          ? "How predictable is your cycle?" 
+                          : field === "ovulationSigns" 
+                          ? "Do you notice any signs around ovulation?" 
+                          : field === "premenstrualSymptoms" 
+                          ? "How do you feel 5-7 days before your period?" 
+                          : "What's your most annoying symptom?"}
+                      </h3>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info size={16} className="text-[#9370DB] cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>{formOptions[field][0].tooltip}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                      {field === "lastPeriodStart" && formOptions[field][0].value === "calendar" && (
+                        renderCalendarPopover()
+                      )}
+                      
+                      {formOptions[field].map((option, index) => (
+                        option.value !== "calendar" && (
+                          <Button
+                            key={option.value}
+                            onClick={() => handleOptionSelect(field, option)}
+                            variant={formData[field as keyof typeof formData] === option.value ? "default" : "outline"}
+                            className={`w-full justify-start text-left h-auto py-3 px-4 rounded-full ${
+                              formData[field as keyof typeof formData] === option.value 
+                                ? "bg-[#9370DB] text-white" 
+                                : "text-black hover:bg-pink-50"
+                            }`}
+                          >
+                            {option.icon && <span className="mr-2">{option.icon}</span>}
+                            {option.label}
+                          </Button>
+                        )
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
-            </div>
+            ) : (
+              // Diagnostic summary screen
+              <div className="max-w-2xl mx-auto animate-fade-in">
+                <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-xl shadow-sm border border-pink-100">
+                  <div className="flex justify-between mb-4">
+                    <h3 className="text-xl font-bold text-[#9370DB]">Your Hormonal Diagnosis</h3>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex items-center gap-1"
+                      onClick={() => {
+                        navigator.clipboard.writeText(generateSummary().replace(/<[^>]*>/g, ''));
+                        toast({
+                          title: "Copied to clipboard",
+                          description: "You can share this with your healthcare provider",
+                        });
+                      }}
+                    >
+                      <Copy size={14} /> 
+                      <span className="text-xs">Copy</span>
+                    </Button>
+                  </div>
+                  
+                  <div 
+                    className="prose text-left text-gray-700 space-y-3" 
+                    dangerouslySetInnerHTML={{ __html: generateSummary() }} 
+                  />
+                  
+                  <div className="mt-6 pt-4 border-t border-pink-100 flex items-center gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-[#9370DB]">
+                            <Info size={14} />
+                            <span className="text-xs">Why this phase?</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>This is based on your cycle start date and usual length. Hormones like estrogen and progesterone fluctuate through your cycle, affecting energy, mood, and physical symptoms.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-4 justify-between mt-8">
-              {currentQuestionIndex > 0 ? (
+              {questionsScreen > 0 && questionsScreen < 3 ? (
                 <Button
-                  onClick={handleBack}
+                  onClick={() => setQuestionsScreen(questionsScreen - 1)}
                   variant="outline"
                   className="text-[#9370DB] hover:bg-pink-50 rounded-full"
                 >
@@ -726,84 +802,53 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
               
               <Button
                 onClick={() => {
-                  // Skip to next question manually if needed
-                  if (currentQuestionIndex < questionOrder.length - 1) {
-                    setCurrentQuestionIndex(prev => prev + 1);
-                  } else {
-                    setStep(4);
-                    setHeartPoints(prev => prev + 25);
-                    toast({
-                      title: "All questions completed! +25 ❤️",
-                      description: "Here's your personalized hormonal insights!",
+                  if (questionsScreen < 2) {
+                    // Check if all questions on current screen are answered
+                    const currentGroup = QuestionGroups[questionsScreen];
+                    const allAnswered = currentGroup.every(field => {
+                      if (field === "lastPeriodStart" && formData[field] === "calendar") {
+                        return !!selectedDate;
+                      }
+                      return formData[field as keyof typeof formData] !== "";
                     });
+                    
+                    if (allAnswered) {
+                      // Award points for completing the screen
+                      const reward = screenRewards[questionsScreen];
+                      setHeartPoints(prev => prev + reward.points);
+                      
+                      toast({
+                        title: "Screen completed!",
+                        description: reward.message,
+                      });
+                      
+                      setQuestionsScreen(questionsScreen + 1);
+                    } else {
+                      toast({
+                        title: "Please answer all questions",
+                        description: "We need this information to personalize your experience",
+                        variant: "destructive",
+                      });
+                    }
+                  } else if (questionsScreen === 2) {
+                    // Show diagnostic summary
+                    setQuestionsScreen(3);
+                    setHeartPoints(prev => prev + 25);
+                    
+                    toast({
+                      title: "Diagnosis complete!",
+                      description: "Here's your personalized hormonal insights! +25 ❤️",
+                    });
+                  } else {
+                    // Submit and navigate to game screen
+                    console.log('Continue to Game button clicked');
+                    handleNext();
                   }
                 }}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
-                disabled={!formData[currentField as keyof typeof formData]}
+                disabled={questionsScreen === 3 && Object.values(formData).some(value => value === "")}
               >
-                {currentQuestionIndex === questionOrder.length - 1 ? "Get My Diagnosis" : "Next"}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          // Diagnostic summary screen (step === 4)
-          <div className="max-w-2xl mx-auto animate-fade-in">
-            <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-xl shadow-sm border border-pink-100">
-              <div className="flex justify-between mb-4">
-                <h3 className="text-xl font-bold text-[#9370DB]">Your Hormonal Diagnosis</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-1"
-                  onClick={() => {
-                    navigator.clipboard.writeText(generateSummary().replace(/<[^>]*>/g, ''));
-                    toast({
-                      title: "Copied to clipboard",
-                      description: "You can share this with your healthcare provider",
-                    });
-                  }}
-                >
-                  <Copy size={14} /> 
-                  <span className="text-xs">Copy</span>
-                </Button>
-              </div>
-              
-              <div 
-                className="prose text-left text-gray-700 space-y-3" 
-                dangerouslySetInnerHTML={{ __html: generateSummary() }} 
-              />
-              
-              <div className="mt-6 pt-4 border-t border-pink-100 flex items-center gap-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="sm" className="flex items-center gap-1 text-[#9370DB]">
-                        <Info size={14} />
-                        <span className="text-xs">Why this phase?</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p>This is based on your cycle start date and usual length. Hormones like estrogen and progesterone fluctuate through your cycle, affecting energy, mood, and physical symptoms.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </div>
-
-            <div className="flex gap-4 justify-between mt-8">
-              <Button
-                onClick={handleSkip}
-                variant="outline"
-                className="text-[#FF69B4] hover:bg-pink-50 rounded-full"
-              >
-                Skip for now
-              </Button>
-              
-              <Button
-                onClick={handleNext}
-                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
-              >
-                Continue to Game
+                {questionsScreen === 3 ? "Continue to Game" : questionsScreen === 2 ? "Get My Diagnosis" : "Next"}
               </Button>
             </div>
           </div>
