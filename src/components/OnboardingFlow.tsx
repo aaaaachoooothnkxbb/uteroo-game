@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -45,7 +44,7 @@ const formOptions: Record<string, FormOption[]> = {
     },
     {
       value: "unknown",
-      label: "I don't remember - remind me next time",
+      label: "I don't remember",
       icon: "🤷",
       recommendation: "No problem! We'll remind you to track your next period. For now, we'll use general recommendations based on other answers you provide.",
       tooltip: "You can always update this later when you remember or when your next period starts."
@@ -536,12 +535,17 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
             }
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 bg-white border shadow-lg z-50" align="start">
           <CalendarComponent
             mode="single"
             selected={selectedDate}
-            onSelect={handleDateSelect}
+            onSelect={(date) => {
+              if (date) {
+                handleDateSelect(date);
+              }
+            }}
             initialFocus
+            className="p-3 bg-white pointer-events-auto"
           />
         </PopoverContent>
       </Popover>
@@ -571,16 +575,6 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
           </div>
         ))}
 
-        {step === 3 && (
-          <div className="flex items-center mb-2 gap-2">
-            <Progress value={calculateProgress()} className="w-full rounded-full" />
-            <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
-              <Heart fill="#FF69B4" size={16} />
-              <span>{heartPoints}</span>
-            </div>
-          </div>
-        )}
-        
         {step === 1 ? (
           <div className="text-center space-y-6">
             <img
@@ -635,7 +629,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
           </div>
         ) : step === 3 ? (
           <div className="space-y-6">
-            {/* Top progress bar with hearts and screen indicator */}
+            {/* Single progress bar with hearts and screen indicator */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3 w-full">
                 <div className="text-gray-500 text-sm font-medium">
