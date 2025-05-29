@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Icons } from "@/components/ui/icons";
-import { Provider } from "@supabase/supabase-js";
 import { useAuth } from "@/components/AuthProvider";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -187,58 +185,6 @@ const Index = () => {
     }
   };
 
-  const handleSocialLogin = async (provider: 'google') => {
-    try {
-      clearAuthError();
-      setIsLoading(true);
-      setLoadingProvider(provider);
-      
-      // Get the current URL for proper redirect
-      const redirectTo = `${window.location.origin}`;
-      
-      console.log(`Attempting to sign in with ${provider}. Redirect URL: ${redirectTo} window.location: ${window.location.origin}`);
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider as Provider,
-        options: {
-          redirectTo,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        }
-      });
-
-      if (error) {
-        console.error('Auth error:', error);
-        toast({
-          variant: "destructive",
-          title: "Authentication error",
-          description: error.message
-        });
-      } else if (!data.url) {
-        toast({
-          variant: "destructive",
-          title: "Authentication error",
-          description: "Failed to initialize login flow"
-        });
-      } else {
-        console.log(`Auth initialized. Redirecting to: ${data.url}`);
-      }
-      
-      // If we have a URL, we don't need to handle more here since the browser will redirect
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      toast({
-        variant: "destructive",
-        title: "Unexpected error",
-        description: "Please try again later"
-      });
-    } finally {
-      setIsLoading(false);
-      setLoadingProvider(null);
-    }
-  };
-
   // Show loading state while checking user status
   if (checkingUser) {
     return (
@@ -316,21 +262,6 @@ const Index = () => {
               className="text-[#9370DB] border-[#9370DB] hover:bg-[#9370DB] hover:text-white px-8 py-3 rounded-full w-full"
             >
               Forgot my password
-            </Button>
-          </div>
-
-          <div className="mt-8 flex justify-center">
-            <Button
-              variant="outline"
-              onClick={() => handleSocialLogin('google')}
-              disabled={isLoading}
-              className="bg-white hover:bg-gray-50 text-gray-800 hover:text-gray-900 gap-2 rounded-full h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-gray-200"
-            >
-              {loadingProvider === 'google' ? (
-                <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-gray-800" />
-              ) : (
-                <Icons.google className="h-8 w-8" />
-              )}
             </Button>
           </div>
 
@@ -466,40 +397,19 @@ const Index = () => {
             </div>
           </div>
 
-          {/* NEW: I ALREADY HAVE AN ACCOUNT button */}
+          {/* Updated: I ALREADY HAVE AN ACCOUNT button with more rounded corners */}
           <div 
             onClick={() => setShowLogin(true)}
             className="w-full relative cursor-pointer group"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-blue-400 rounded-full filter blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-blue-400 rounded-3xl filter blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
             <div className="flex justify-center">
               <Button
                 variant="outline"
-                className="relative bg-white/80 hover:bg-white text-[#9370DB] hover:text-[#8A2BE2] border-2 border-[#9370DB] text-xl font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                className="relative bg-white/80 hover:bg-white text-[#9370DB] hover:text-[#8A2BE2] border-2 border-[#9370DB] text-xl font-bold py-6 px-12 rounded-3xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 I ALREADY HAVE AN ACCOUNT
               </Button>
-            </div>
-          </div>
-
-          {/* Google login button */}
-          <div className="relative w-full space-y-4 mt-8">
-            <div className="flex justify-center">
-              <Button
-                variant="outline"
-                className="bg-white/80 hover:bg-white text-gray-800 hover:text-gray-900 gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-gray-200"
-                onClick={() => handleSocialLogin('google')}
-                disabled={isLoading}
-              >
-                {loadingProvider === 'google' ? (
-                  <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-gray-800" />
-                ) : (
-                  <Icons.google className="h-8 w-8" />
-                )}
-              </Button>
-            </div>
-            <div className="text-center text-xs text-gray-500 mt-2 opacity-60">
-              Dev mode: {window.location.origin}
             </div>
           </div>
         </div>
