@@ -328,7 +328,7 @@ const Index = () => {
               <Button
                 className="relative bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white text-xl font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
-                Create an account
+                GET STARTED
               </Button>
             </div>
           </div>
