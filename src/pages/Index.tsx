@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingProvider, setLoadingProvider] = useState<'google' | 'facebook' | null>(null);
+  const [loadingProvider, setLoadingProvider] = useState<'google' | null>(null);
   const [checkingUser, setCheckingUser] = useState(true);
   const [isGlowing, setIsGlowing] = useState(false);
   const [characterBouncing, setCharacterBouncing] = useState(false);
@@ -148,7 +147,7 @@ const Index = () => {
     navigate("/pou-game");
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+  const handleSocialLogin = async (provider: 'google') => {
     try {
       clearAuthError();
       setIsLoading(true);
@@ -334,9 +333,9 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Enhanced social login section */}
+          {/* Enhanced social login section - only Google now */}
           <div className="relative w-full space-y-4 mt-8">
-            <div className="flex justify-center gap-4 p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-lg border border-white/30">
+            <div className="flex justify-center p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-lg border border-white/30">
               <Button
                 variant="outline"
                 className="bg-white/80 hover:bg-white text-gray-800 hover:text-gray-900 gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-gray-200"
@@ -347,18 +346,6 @@ const Index = () => {
                   <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-gray-800" />
                 ) : (
                   <Icons.google className="h-8 w-8" />
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                className="bg-gradient-to-r from-[#1877F2] to-[#42A5F5] hover:from-[#1864D9] hover:to-[#1976D2] text-white gap-2 rounded-full aspect-square h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-blue-300"
-                onClick={() => handleSocialLogin('facebook')}
-                disabled={isLoading}
-              >
-                {loadingProvider === 'facebook' ? (
-                  <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-white" />
-                ) : (
-                  <Icons.facebook className="h-8 w-8" />
                 )}
               </Button>
             </div>
