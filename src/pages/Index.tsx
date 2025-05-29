@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -12,12 +13,18 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState<'google' | null>(null);
   const [checkingUser, setCheckingUser] = useState(true);
   const [isGlowing, setIsGlowing] = useState(false);
   const [characterBouncing, setCharacterBouncing] = useState(false);
   const [nameGlowing, setNameGlowing] = useState(false);
+  
+  // Login form state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authError, clearAuthError } = useAuth();
@@ -147,6 +154,40 @@ const Index = () => {
     navigate("/pou-game");
   };
 
+  // Handle login
+  const handleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Login failed",
+          description: error.message,
+        });
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully logged in.",
+        });
+        navigate("/pou-game");
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: "An unexpected error occurred.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSocialLogin = async (provider: 'google') => {
     try {
       clearAuthError();
@@ -213,6 +254,99 @@ const Index = () => {
 
   if (showOnboarding) {
     return <OnboardingFlow onComplete={handleOnboardingComplete} />;
+  }
+
+  // Login screen
+  if (showLogin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-black relative overflow-hidden bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float"></div>
+          <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{ animationDelay: '4s' }}></div>
+        </div>
+
+        <div className="w-full max-w-md space-y-8 relative z-10">
+          {authError && (
+            <Alert variant="destructive" className="mb-4 bg-white/80 backdrop-blur-sm">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Authentication Error</AlertTitle>
+              <AlertDescription>{authError}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="text-center space-y-4">
+            <h1 className="text-2xl font-bold text-black">Welcome Back!</h1>
+            <p className="text-gray-700">Sign in to continue your journey with Uteroo</p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <input
+                type="email"
+                placeholder="Email, phone, or username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 rounded-full border-2 border-gray-200 focus:border-[#9370DB] outline-none"
+              />
+            </div>
+            
+            <div>
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 rounded-full border-2 border-gray-200 focus:border-[#9370DB] outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <Button
+              onClick={handleLogin}
+              disabled={isLoading || !email || !password}
+              className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 py-3 rounded-full w-full"
+            >
+              {isLoading ? "Signing in..." : "SIGN IN"}
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="text-[#9370DB] border-[#9370DB] hover:bg-[#9370DB] hover:text-white px-8 py-3 rounded-full w-full"
+            >
+              Forgot my password
+            </Button>
+          </div>
+
+          <div className="mt-8 flex justify-center">
+            <Button
+              variant="outline"
+              onClick={() => handleSocialLogin('google')}
+              disabled={isLoading}
+              className="bg-white hover:bg-gray-50 text-gray-800 hover:text-gray-900 gap-2 rounded-full h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-gray-200"
+            >
+              {loadingProvider === 'google' ? (
+                <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-gray-800" />
+              ) : (
+                <Icons.google className="h-8 w-8" />
+              )}
+            </Button>
+          </div>
+
+          <div className="text-center">
+            <Button
+              variant="ghost"
+              onClick={() => setShowLogin(false)}
+              className="text-gray-500 hover:text-[#9370DB]"
+            >
+              Back to main menu
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -333,7 +467,23 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Google login button without background container */}
+          {/* NEW: I ALREADY HAVE AN ACCOUNT button */}
+          <div 
+            onClick={() => setShowLogin(true)}
+            className="w-full relative cursor-pointer group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-blue-400 rounded-full filter blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                className="relative bg-white/80 hover:bg-white text-[#9370DB] hover:text-[#8A2BE2] border-2 border-[#9370DB] text-xl font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              >
+                I ALREADY HAVE AN ACCOUNT
+              </Button>
+            </div>
+          </div>
+
+          {/* Google login button */}
           <div className="relative w-full space-y-4 mt-8">
             <div className="flex justify-center">
               <Button
