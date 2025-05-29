@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -204,13 +203,13 @@ const Index = () => {
         )}
 
         <div className="flex flex-col items-center space-y-6">
-          {/* Character with enhanced styling - made smaller and positioned much lower */}
-          <div className="relative mt-16">
+          {/* Character with enhanced styling - positioned much lower */}
+          <div className="relative mt-32">
             <div className="absolute inset-0 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full filter blur-3xl opacity-20 scale-110"></div>
             <img 
               src="/lovable-uploads/6d9ab694-126c-44a1-9920-f40be00112b1.png"
               alt="Uteroo Character"
-              className="w-[240px] h-[240px] object-contain animate-[bounce_3s_ease-in-out_infinite] relative z-10 drop-shadow-2xl"
+              className="w-[200px] h-[200px] object-contain animate-[bounce_3s_ease-in-out_infinite] relative z-10 drop-shadow-2xl"
             />
           </div>
           
