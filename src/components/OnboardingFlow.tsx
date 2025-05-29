@@ -5,6 +5,8 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { PhaseExplanation } from "@/components/PhaseExplanation";
 import { Heart, Calendar, Info, Copy } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Icons } from "@/components/ui/icons";
 import { 
   Tooltip,
   TooltipContent,
@@ -214,6 +216,11 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [nextHeartId, setNextHeartId] = useState(1);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Login form state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Save onboarding data to Supabase
   const saveOnboardingData = async () => {
@@ -457,6 +464,70 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     }, 1000);
   };
 
+  // Handle login
+  const handleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Login failed",
+          description: error.message,
+        });
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully logged in.",
+        });
+        navigate("/pou-game");
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: "An unexpected error occurred.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Google login
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}`,
+        },
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Google login failed",
+          description: error.message,
+        });
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      toast({
+        variant: "destructive",
+        title: "Google login failed",
+        description: "An unexpected error occurred.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Remove floating hearts after animation completes
   useEffect(() => {
     if (floatingHearts.length === 0) return;
@@ -592,7 +663,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
             <h2 className="text-xl font-bold text-black">
               Who's up for this journey?
             </h2>
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-col gap-4 justify-center">
               <Button
                 onClick={() => setStep(3)}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 rounded-full"
@@ -604,6 +675,13 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 rounded-full"
               >
                 I'm new to this...
+              </Button>
+              <Button
+                onClick={() => setStep(5)}
+                variant="outline"
+                className="text-[#9370DB] border-[#9370DB] hover:bg-[#9370DB] hover:text-white px-8 rounded-full"
+              >
+                I ALREADY HAVE AN ACCOUNT
               </Button>
             </div>
           </div>
@@ -624,6 +702,78 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 rounded-full"
               >
                 Next
+              </Button>
+            </div>
+          </div>
+        ) : step === 5 ? (
+          // Login screen
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <h1 className="text-2xl font-bold text-black">Welcome Back!</h1>
+              <p className="text-gray-700">Sign in to continue your journey with Uteroo</p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Input
+                  type="email"
+                  placeholder="Email, phone, or username"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-3 rounded-full border-2 border-gray-200 focus:border-[#9370DB]"
+                />
+              </div>
+              
+              <div>
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-3 rounded-full border-2 border-gray-200 focus:border-[#9370DB]"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <Button
+                onClick={handleLogin}
+                disabled={isLoading || !email || !password}
+                className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 py-3 rounded-full w-full"
+              >
+                {isLoading ? "Signing in..." : "SIGN IN"}
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="text-[#9370DB] border-[#9370DB] hover:bg-[#9370DB] hover:text-white px-8 py-3 rounded-full w-full"
+              >
+                Forgot my password
+              </Button>
+            </div>
+
+            <div className="mt-8 flex justify-center">
+              <Button
+                variant="outline"
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+                className="bg-white hover:bg-gray-50 text-gray-800 hover:text-gray-900 gap-2 rounded-full h-16 w-16 flex items-center justify-center p-0 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-gray-200"
+              >
+                {isLoading ? (
+                  <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-gray-800" />
+                ) : (
+                  <Icons.google className="h-8 w-8" />
+                )}
+              </Button>
+            </div>
+
+            <div className="text-center">
+              <Button
+                variant="ghost"
+                onClick={() => setStep(1)}
+                className="text-gray-500 hover:text-[#9370DB]"
+              >
+                Back to main menu
               </Button>
             </div>
           </div>
