@@ -211,21 +211,21 @@ const Index = () => {
         )}
 
         {/* Main Content Container */}
-        <div className="content w-full max-w-sm space-y-4 relative">
+        <div className="content w-full max-w-sm space-y-6 relative">
           {/* Title and Large Bouncing Character */}
           <div className="text-center space-y-2 relative">
-            <h1 className="text-4xl font-extrabold text-purple-700 tracking-wide relative z-10">
+            <h1 className="text-4xl font-extrabold text-purple-700 tracking-wide relative z-10 mt-20">
               Uteroo
             </h1>
             
             {/* Large bouncing Uteroo character positioned over the title */}
-            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-20">
               <div className="relative">
-                <div className="w-32 h-32 bg-white/40 backdrop-blur-md rounded-full shadow-2xl flex items-center justify-center border-4 border-white/60 animate-bounce-slow">
+                <div className="w-40 h-40 bg-white/40 backdrop-blur-md rounded-full shadow-2xl flex items-center justify-center border-4 border-white/60 animate-bounce-slow">
                   <img 
                     src="/lovable-uploads/50167af2-3f66-47c1-aadb-96e97717d531.png"
                     alt="Happy Uteroo Character"
-                    className="w-24 h-24 object-contain"
+                    className="w-32 h-32 object-contain"
                   />
                 </div>
                 {/* Enhanced elevation shadow */}
@@ -233,13 +233,13 @@ const Index = () => {
               </div>
             </div>
             
-            <p className="text-lg text-gray-800 font-medium leading-relaxed mt-12">
+            <p className="text-lg text-gray-800 font-medium leading-relaxed mt-4">
               Master your cycle with playful hormone tracking
             </p>
           </div>
 
           {/* Hormone Cycle Animation */}
-          <div className="cycle-animation relative h-16 flex items-center justify-center my-4">
+          <div className="cycle-animation relative h-16 flex items-center justify-center my-6">
             <div className="relative w-48 h-12">
               {/* Estrogen dot */}
               <div className="absolute w-4 h-4 bg-pink-400 rounded-full animate-staggered-float opacity-80" style={{ left: '10%', animationDelay: '0s' }}></div>
@@ -253,7 +253,7 @@ const Index = () => {
           </div>
 
           {/* Benefit Cards */}
-          <div className="benefits grid grid-cols-3 gap-3 my-4">
+          <div className="benefits grid grid-cols-3 gap-3 my-6">
             <div className="text-center space-y-1">
               <div className="w-10 h-10 bg-white/60 rounded-full flex items-center justify-center mx-auto shadow-lg">
                 <BarChart3 className="h-5 w-5 text-purple-600" />
@@ -325,7 +325,7 @@ const Index = () => {
           </div>
 
           {/* Social Proof Footer */}
-          <div className="footer-text text-center mt-4">
+          <div className="footer-text text-center mt-6">
             <p className="text-sm text-gray-700 font-medium">
               Join 250k+ people mastering their cycles
             </p>
