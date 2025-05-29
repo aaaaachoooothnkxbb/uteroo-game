@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -397,16 +398,16 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Updated: I ALREADY HAVE AN ACCOUNT button with more rounded corners */}
+          {/* Updated: I ALREADY HAVE AN ACCOUNT button with rounded-full for perfect circle edges */}
           <div 
             onClick={() => setShowLogin(true)}
             className="w-full relative cursor-pointer group"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-blue-400 rounded-3xl filter blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-blue-400 rounded-full filter blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
             <div className="flex justify-center">
               <Button
                 variant="outline"
-                className="relative bg-white/80 hover:bg-white text-[#9370DB] hover:text-[#8A2BE2] border-2 border-[#9370DB] text-xl font-bold py-6 px-12 rounded-3xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                className="relative bg-white/80 hover:bg-white text-[#9370DB] hover:text-[#8A2BE2] border-2 border-[#9370DB] text-xl font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 I ALREADY HAVE AN ACCOUNT
               </Button>
