@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +17,8 @@ const Index = () => {
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'facebook' | null>(null);
   const [checkingUser, setCheckingUser] = useState(true);
   const [isGlowing, setIsGlowing] = useState(false);
+  const [characterBouncing, setCharacterBouncing] = useState(false);
+  const [nameGlowing, setNameGlowing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authError, clearAuthError } = useAuth();
@@ -122,6 +125,24 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Add effect for character bouncing and name glowing
+  useEffect(() => {
+    const bounceInterval = setInterval(() => {
+      setCharacterBouncing(true);
+      // Make the name glow when character reaches the bottom of its bounce
+      setTimeout(() => {
+        setNameGlowing(true);
+      }, 1000); // Halfway through the 2s bounce animation
+      
+      setTimeout(() => {
+        setCharacterBouncing(false);
+        setNameGlowing(false);
+      }, 2000);
+    }, 4000); // Character bounces every 4 seconds
+
+    return () => clearInterval(bounceInterval);
+  }, []);
+
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     navigate("/pou-game");
@@ -214,60 +235,62 @@ const Index = () => {
         )}
 
         <div className="flex flex-col items-center space-y-6">
-          {/* Character with bouncing animation - positioned much lower and bigger */}
-          <div className="relative mt-64">
+          {/* Character with bouncing animation - positioned closer to the name */}
+          <div className="relative mt-32">
             <div className="absolute inset-0 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full filter blur-3xl opacity-20 scale-110"></div>
             <img 
               src="/lovable-uploads/6d9ab694-126c-44a1-9920-f40be00112b1.png"
               alt="Uteroo Character"
-              className="w-[280px] h-[280px] object-contain animate-bounce drop-shadow-2xl relative z-10"
-              style={{ animationDuration: '3s' }}
+              className={`w-[280px] h-[280px] object-contain drop-shadow-2xl relative z-10 transition-all duration-500 ${
+                characterBouncing ? 'animate-bounce' : ''
+              }`}
+              style={{ animationDuration: characterBouncing ? '2s' : undefined }}
             />
           </div>
           
           {/* Enhanced Uteroo Logo with glow effect */}
-          <div className={`relative group transition-all duration-600 ${isGlowing ? 'scale-105' : ''}`}>
+          <div className={`relative group transition-all duration-600 ${isGlowing || nameGlowing ? 'scale-105' : ''}`}>
             {/* Enhanced glow effects when glowing */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 rounded-3xl filter blur-2xl transition-all duration-600 scale-110 ${isGlowing ? 'opacity-80' : 'opacity-40 group-hover:opacity-60'}`}></div>
-            <div className={`absolute inset-0 bg-gradient-to-r from-rose-300 to-pink-300 rounded-2xl filter blur-xl transition-all duration-600 ${isGlowing ? 'opacity-60 animate-pulse' : 'opacity-30 animate-pulse'}`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 rounded-3xl filter blur-2xl transition-all duration-600 scale-110 ${isGlowing || nameGlowing ? 'opacity-80' : 'opacity-40 group-hover:opacity-60'}`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-r from-rose-300 to-pink-300 rounded-2xl filter blur-xl transition-all duration-600 ${isGlowing || nameGlowing ? 'opacity-60 animate-pulse' : 'opacity-30 animate-pulse'}`}></div>
             
             {/* Additional intense glow when touching */}
-            {isGlowing && (
+            {(isGlowing || nameGlowing) && (
               <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400 rounded-3xl filter blur-3xl opacity-60 scale-125 animate-ping"></div>
             )}
             
             {/* Main logo container with glassmorphism */}
-            <div className={`relative bg-white/30 backdrop-blur-md rounded-3xl p-8 border border-white/40 shadow-2xl transition-all duration-600 ${isGlowing ? 'bg-white/50 shadow-3xl' : ''}`}>
+            <div className={`relative bg-white/30 backdrop-blur-md rounded-3xl p-8 border border-white/40 shadow-2xl transition-all duration-600 ${isGlowing || nameGlowing ? 'bg-white/50 shadow-3xl' : ''}`}>
               {/* Enhanced sparkle decorations when glowing */}
-              <div className={`absolute -top-2 -right-2 w-4 h-4 bg-yellow-300 rounded-full transition-all duration-300 ${isGlowing ? 'animate-bounce opacity-100' : 'animate-ping opacity-75'}`}></div>
-              <div className={`absolute -bottom-1 -left-1 w-3 h-3 bg-pink-400 rounded-full transition-all duration-300 ${isGlowing ? 'animate-bounce opacity-100' : 'animate-pulse'}`}></div>
-              <div className={`absolute top-1/2 -right-3 w-2 h-2 bg-purple-400 rounded-full transition-all duration-300 ${isGlowing ? 'animate-ping opacity-100' : 'animate-bounce'}`}></div>
+              <div className={`absolute -top-2 -right-2 w-4 h-4 bg-yellow-300 rounded-full transition-all duration-300 ${isGlowing || nameGlowing ? 'animate-bounce opacity-100' : 'animate-ping opacity-75'}`}></div>
+              <div className={`absolute -bottom-1 -left-1 w-3 h-3 bg-pink-400 rounded-full transition-all duration-300 ${isGlowing || nameGlowing ? 'animate-bounce opacity-100' : 'animate-pulse'}`}></div>
+              <div className={`absolute top-1/2 -right-3 w-2 h-2 bg-purple-400 rounded-full transition-all duration-300 ${isGlowing || nameGlowing ? 'animate-ping opacity-100' : 'animate-bounce'}`}></div>
               
               {/* Enhanced Uteroo text with glow effect */}
               <div className="relative">
-                <h1 className={`text-6xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] drop-shadow-lg tracking-wide transition-all duration-600 ${isGlowing ? 'drop-shadow-2xl filter brightness-125' : ''}`}>
+                <h1 className={`text-6xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] drop-shadow-lg tracking-wide transition-all duration-600 ${isGlowing || nameGlowing ? 'drop-shadow-2xl filter brightness-125' : ''}`}>
                   Uteroo
                 </h1>
                 
                 {/* Enhanced shadow text for depth */}
-                <h1 className={`absolute inset-0 text-6xl font-bold text-purple-200/20 blur-sm transform translate-x-1 translate-y-1 transition-all duration-600 ${isGlowing ? 'text-yellow-200/40' : ''}`}>
+                <h1 className={`absolute inset-0 text-6xl font-bold text-purple-200/20 blur-sm transform translate-x-1 translate-y-1 transition-all duration-600 ${isGlowing || nameGlowing ? 'text-yellow-200/40' : ''}`}>
                   Uteroo
                 </h1>
                 
                 {/* Animated underline with glow effect */}
-                <div className={`absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center ${isGlowing ? 'scale-x-100 shadow-lg shadow-pink-400/50' : ''}`}></div>
+                <div className={`absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center ${isGlowing || nameGlowing ? 'scale-x-100 shadow-lg shadow-pink-400/50' : ''}`}></div>
               </div>
               
               {/* Enhanced floating hearts decoration */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-                <div className={`absolute top-4 left-4 text-pink-300 text-sm animate-float opacity-60 transition-all duration-300 ${isGlowing ? 'text-lg opacity-100' : ''}`}>💕</div>
-                <div className={`absolute top-6 right-8 text-purple-300 text-xs animate-float opacity-40 transition-all duration-300 ${isGlowing ? 'text-sm opacity-80' : ''}`} style={{ animationDelay: '1s' }}>✨</div>
-                <div className={`absolute bottom-4 left-8 text-indigo-300 text-sm animate-float opacity-50 transition-all duration-300 ${isGlowing ? 'text-lg opacity-100' : ''}`} style={{ animationDelay: '2s' }}>🌸</div>
+                <div className={`absolute top-4 left-4 text-pink-300 text-sm animate-float opacity-60 transition-all duration-300 ${isGlowing || nameGlowing ? 'text-lg opacity-100' : ''}`}>💕</div>
+                <div className={`absolute top-6 right-8 text-purple-300 text-xs animate-float opacity-40 transition-all duration-300 ${isGlowing || nameGlowing ? 'text-sm opacity-80' : ''}`} style={{ animationDelay: '1s' }}>✨</div>
+                <div className={`absolute bottom-4 left-8 text-indigo-300 text-sm animate-float opacity-50 transition-all duration-300 ${isGlowing || nameGlowing ? 'text-lg opacity-100' : ''}`} style={{ animationDelay: '2s' }}>🌸</div>
               </div>
             </div>
             
             {/* Enhanced outer glow ring */}
-            <div className={`absolute inset-0 rounded-3xl border-2 border-gradient-to-r from-pink-300/50 to-purple-300/50 scale-105 transition-all duration-300 ${isGlowing ? 'opacity-100 scale-110' : 'opacity-0 group-hover:opacity-100'}`}></div>
+            <div className={`absolute inset-0 rounded-3xl border-2 border-gradient-to-r from-pink-300/50 to-purple-300/50 scale-105 transition-all duration-300 ${isGlowing || nameGlowing ? 'opacity-100 scale-110' : 'opacity-0 group-hover:opacity-100'}`}></div>
           </div>
         </div>
 
