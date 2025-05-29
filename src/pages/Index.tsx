@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +15,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'facebook' | null>(null);
   const [checkingUser, setCheckingUser] = useState(true);
+  const [isGlowing, setIsGlowing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authError, clearAuthError } = useAuth();
@@ -113,6 +112,16 @@ const Index = () => {
     checkSession();
   }, [navigate, toast]);
 
+  // Add effect to sync glow with bounce animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsGlowing(true);
+      setTimeout(() => setIsGlowing(false), 600);
+    }, 3000); // Match the bounce animation duration
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     navigate("/pou-game");
@@ -205,54 +214,60 @@ const Index = () => {
         )}
 
         <div className="flex flex-col items-center space-y-6">
-          {/* Character with enhanced styling - positioned much lower and bigger */}
+          {/* Character with bouncing animation - positioned much lower and bigger */}
           <div className="relative mt-64">
             <div className="absolute inset-0 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full filter blur-3xl opacity-20 scale-110"></div>
             <img 
               src="/lovable-uploads/6d9ab694-126c-44a1-9920-f40be00112b1.png"
               alt="Uteroo Character"
-              className="w-[280px] h-[280px] object-contain animate-[bounce_3s_ease-in-out_infinite] relative z-10 drop-shadow-2xl"
+              className="w-[280px] h-[280px] object-contain animate-bounce drop-shadow-2xl relative z-10"
+              style={{ animationDuration: '3s' }}
             />
           </div>
           
-          {/* Enhanced Uteroo Logo with multiple design improvements */}
-          <div className="relative group">
-            {/* Multiple layered glows for depth */}
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 rounded-3xl filter blur-2xl opacity-40 group-hover:opacity-60 transition-all duration-500 scale-110"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-rose-300 to-pink-300 rounded-2xl filter blur-xl opacity-30 animate-pulse"></div>
+          {/* Enhanced Uteroo Logo with glow effect */}
+          <div className={`relative group transition-all duration-600 ${isGlowing ? 'scale-105' : ''}`}>
+            {/* Enhanced glow effects when glowing */}
+            <div className={`absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 rounded-3xl filter blur-2xl transition-all duration-600 scale-110 ${isGlowing ? 'opacity-80' : 'opacity-40 group-hover:opacity-60'}`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-r from-rose-300 to-pink-300 rounded-2xl filter blur-xl transition-all duration-600 ${isGlowing ? 'opacity-60 animate-pulse' : 'opacity-30 animate-pulse'}`}></div>
+            
+            {/* Additional intense glow when touching */}
+            {isGlowing && (
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400 rounded-3xl filter blur-3xl opacity-60 scale-125 animate-ping"></div>
+            )}
             
             {/* Main logo container with glassmorphism */}
-            <div className="relative bg-white/30 backdrop-blur-md rounded-3xl p-8 border border-white/40 shadow-2xl">
-              {/* Sparkle decorations */}
-              <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-300 rounded-full animate-ping opacity-75"></div>
-              <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-pink-400 rounded-full animate-pulse"></div>
-              <div className="absolute top-1/2 -right-3 w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+            <div className={`relative bg-white/30 backdrop-blur-md rounded-3xl p-8 border border-white/40 shadow-2xl transition-all duration-600 ${isGlowing ? 'bg-white/50 shadow-3xl' : ''}`}>
+              {/* Enhanced sparkle decorations when glowing */}
+              <div className={`absolute -top-2 -right-2 w-4 h-4 bg-yellow-300 rounded-full transition-all duration-300 ${isGlowing ? 'animate-bounce opacity-100' : 'animate-ping opacity-75'}`}></div>
+              <div className={`absolute -bottom-1 -left-1 w-3 h-3 bg-pink-400 rounded-full transition-all duration-300 ${isGlowing ? 'animate-bounce opacity-100' : 'animate-pulse'}`}></div>
+              <div className={`absolute top-1/2 -right-3 w-2 h-2 bg-purple-400 rounded-full transition-all duration-300 ${isGlowing ? 'animate-ping opacity-100' : 'animate-bounce'}`}></div>
               
-              {/* Enhanced Uteroo text */}
+              {/* Enhanced Uteroo text with glow effect */}
               <div className="relative">
-                <h1 className="text-6xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] drop-shadow-lg tracking-wide">
+                <h1 className={`text-6xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] drop-shadow-lg tracking-wide transition-all duration-600 ${isGlowing ? 'drop-shadow-2xl filter brightness-125' : ''}`}>
                   Uteroo
                 </h1>
                 
-                {/* Subtle shadow text for depth */}
-                <h1 className="absolute inset-0 text-6xl font-bold text-purple-200/20 blur-sm transform translate-x-1 translate-y-1">
+                {/* Enhanced shadow text for depth */}
+                <h1 className={`absolute inset-0 text-6xl font-bold text-purple-200/20 blur-sm transform translate-x-1 translate-y-1 transition-all duration-600 ${isGlowing ? 'text-yellow-200/40' : ''}`}>
                   Uteroo
                 </h1>
                 
-                {/* Animated underline */}
-                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center"></div>
+                {/* Animated underline with glow effect */}
+                <div className={`absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center ${isGlowing ? 'scale-x-100 shadow-lg shadow-pink-400/50' : ''}`}></div>
               </div>
               
-              {/* Floating hearts decoration */}
+              {/* Enhanced floating hearts decoration */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-                <div className="absolute top-4 left-4 text-pink-300 text-sm animate-float opacity-60">💕</div>
-                <div className="absolute top-6 right-8 text-purple-300 text-xs animate-float opacity-40" style={{ animationDelay: '1s' }}>✨</div>
-                <div className="absolute bottom-4 left-8 text-indigo-300 text-sm animate-float opacity-50" style={{ animationDelay: '2s' }}>🌸</div>
+                <div className={`absolute top-4 left-4 text-pink-300 text-sm animate-float opacity-60 transition-all duration-300 ${isGlowing ? 'text-lg opacity-100' : ''}`}>💕</div>
+                <div className={`absolute top-6 right-8 text-purple-300 text-xs animate-float opacity-40 transition-all duration-300 ${isGlowing ? 'text-sm opacity-80' : ''}`} style={{ animationDelay: '1s' }}>✨</div>
+                <div className={`absolute bottom-4 left-8 text-indigo-300 text-sm animate-float opacity-50 transition-all duration-300 ${isGlowing ? 'text-lg opacity-100' : ''}`} style={{ animationDelay: '2s' }}>🌸</div>
               </div>
             </div>
             
-            {/* Additional outer glow ring */}
-            <div className="absolute inset-0 rounded-3xl border-2 border-gradient-to-r from-pink-300/50 to-purple-300/50 scale-105 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+            {/* Enhanced outer glow ring */}
+            <div className={`absolute inset-0 rounded-3xl border-2 border-gradient-to-r from-pink-300/50 to-purple-300/50 scale-105 transition-all duration-300 ${isGlowing ? 'opacity-100 scale-110' : 'opacity-0 group-hover:opacity-100'}`}></div>
           </div>
         </div>
 
