@@ -176,9 +176,17 @@ const Index = () => {
     return () => clearInterval(bounceInterval);
   }, []);
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = (diagnosedPhase?: string) => {
     setShowOnboarding(false);
-    navigate("/pou-game");
+    
+    // Navigate to pou-game with the diagnosed phase
+    if (diagnosedPhase) {
+      navigate("/pou-game", { 
+        state: { initialPhase: diagnosedPhase }
+      });
+    } else {
+      navigate("/pou-game");
+    }
   };
 
   // Handle login
