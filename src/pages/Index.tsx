@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Icons } from "@/components/ui/icons";
+import { Icons } from "@/components/Icons";
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
