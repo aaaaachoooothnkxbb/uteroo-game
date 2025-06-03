@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -651,7 +652,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
             <img
               src="/lovable-uploads/f135b894-cd85-4010-a103-0fc5cb07ea0d.png"
               alt="Welcome"
-              className="w-48 h-auto mx-auto animate-bounce-slow"
+              className="w-80 h-auto mx-auto animate-bounce-slow"
             />
             <h1 className="text-2xl font-bold text-black">Hi!</h1>
             <p className="text-lg text-black">
