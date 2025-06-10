@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -363,7 +364,7 @@ const screenRewards = [
 export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [questionFlow, setQuestionFlow] = useState<string[]>([]);
+  const [questionFlow, setQuestionFlow] = useState<string[]>(["lastPeriodStart"]); // Initialize with first question
   const [formData, setFormData] = useState({
     lastPeriodStart: "",
     ageRange: "",
@@ -391,7 +392,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   // Update question flow when period status changes
   useEffect(() => {
-    if (formData.lastPeriodStart) {
+    if (formData.lastPeriodStart && formData.lastPeriodStart !== "") {
       const newFlow = getQuestionFlow(formData.lastPeriodStart);
       setQuestionFlow(newFlow);
     }
@@ -1034,47 +1035,54 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
               </p>
             </div>
 
-            <div className="space-y-6 animate-fade-in">
-              <div className="flex items-center gap-2 justify-center">
-                <h3 className="font-medium text-xl text-black text-center">
-                  {QuestionTitles[currentQuestion as keyof typeof QuestionTitles]}
-                </h3>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info size={16} className="text-[#9370DB] cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p>{formOptions[currentQuestion] && formOptions[currentQuestion][0]?.tooltip}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-3 max-w-md mx-auto">
-                {currentQuestion === "lastPeriodStart" && formOptions[currentQuestion][0].value === "calendar" && (
-                  renderCalendarPopover()
-                )}
+            {/* Only show question content if we have a valid current question */}
+            {currentQuestion && formOptions[currentQuestion] ? (
+              <div className="space-y-6 animate-fade-in">
+                <div className="flex items-center gap-2 justify-center">
+                  <h3 className="font-medium text-xl text-black text-center">
+                    {QuestionTitles[currentQuestion as keyof typeof QuestionTitles]}
+                  </h3>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info size={16} className="text-[#9370DB] cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>{formOptions[currentQuestion] && formOptions[currentQuestion][0]?.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 
-                {formOptions[currentQuestion] && formOptions[currentQuestion].map((option) => (
-                  option.value !== "calendar" && (
-                    <Button
-                      key={option.value}
-                      onClick={() => handleOptionSelect(currentQuestion, option)}
-                      variant={formData[currentQuestion as keyof typeof formData] === option.value ? "default" : "outline"}
-                      className={`w-full justify-start text-left h-auto py-4 px-6 rounded-full ${
-                        formData[currentQuestion as keyof typeof formData] === option.value 
-                          ? "bg-[#9370DB] text-white" 
-                          : "text-black hover:bg-pink-50"
-                      }`}
-                    >
-                      {option.icon && <span className="mr-3 text-lg">{option.icon}</span>}
-                      <span className="text-base">{option.label}</span>
-                    </Button>
-                  )
-                ))}
+                <div className="grid grid-cols-1 gap-3 max-w-md mx-auto">
+                  {currentQuestion === "lastPeriodStart" && formOptions[currentQuestion][0].value === "calendar" && (
+                    renderCalendarPopover()
+                  )}
+                  
+                  {formOptions[currentQuestion] && formOptions[currentQuestion].map((option) => (
+                    option.value !== "calendar" && (
+                      <Button
+                        key={option.value}
+                        onClick={() => handleOptionSelect(currentQuestion, option)}
+                        variant={formData[currentQuestion as keyof typeof formData] === option.value ? "default" : "outline"}
+                        className={`w-full justify-start text-left h-auto py-4 px-6 rounded-full ${
+                          formData[currentQuestion as keyof typeof formData] === option.value 
+                            ? "bg-[#9370DB] text-white" 
+                            : "text-black hover:bg-pink-50"
+                        }`}
+                      >
+                        {option.icon && <span className="mr-3 text-lg">{option.icon}</span>}
+                        <span className="text-base">{option.label}</span>
+                      </Button>
+                    )
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Loading question...</p>
+              </div>
+            )}
 
             <div className="flex gap-4 justify-between mt-8">
               {currentQuestionIndex > 0 ? (
