@@ -15,13 +15,15 @@ interface OnboardingFlowProps {
 export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [currentStep, setCurrentStep] = useState("pre-questionnaire");
   const [username, setUsername] = useState("");
+  const [questionnaireData, setQuestionnaireData] = useState<any>(null);
   const [avatar, setAvatar] = useState<AvatarOptions | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const handlePreQuestionnaireComplete = (username: string) => {
-    console.log('Pre-questionnaire completed:', { username });
+  const handlePreQuestionnaireComplete = (username: string, data: any) => {
+    console.log('Pre-questionnaire completed:', { username, data });
     setUsername(username);
+    setQuestionnaireData(data);
     setCurrentStep("avatar-creation");
   };
 
@@ -40,6 +42,11 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             avatar_animal: avatarData.animal,
             avatar_color: avatarData.color,
             avatar_accessory: avatarData.accessory,
+            // Also save questionnaire data if available
+            ...(questionnaireData && {
+              hormone_level: questionnaireData.hormoneLevel,
+              cycle_phase: questionnaireData.cyclePhase
+            })
           });
 
         if (error) {
