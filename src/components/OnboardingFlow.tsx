@@ -61,7 +61,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   };
 
   const handleCompanionNamingComplete = (companionName: string) => {
-    console.log('Companion naming completed:', companionName);
+    console.log('Companion naming completed, calling onComplete:', companionName);
     toast({
       title: "Welcome to Uteroo!",
       description: `You and ${companionName} are ready to start your journey!`,
