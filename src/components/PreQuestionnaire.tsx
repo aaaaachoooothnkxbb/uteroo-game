@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +14,7 @@ export const PreQuestionnaire = ({ onComplete }: PreQuestionnaireProps) => {
   const [username, setUsername] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<any>({});
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
   const { toast } = useToast();
 
   const questions = [
@@ -90,17 +90,21 @@ export const PreQuestionnaire = ({ onComplete }: PreQuestionnaireProps) => {
       });
       return;
     }
-    setCurrentQuestion(0); // Start questionnaire
+    console.log('Starting questionnaire with username:', username);
+    setShowQuestionnaire(true);
   };
 
   const goBack = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
+    } else {
+      // Go back to username screen
+      setShowQuestionnaire(false);
     }
   };
 
   // Username input screen
-  if (currentQuestion === 0 && !answers[questions[0]?.id]) {
+  if (!showQuestionnaire) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8 space-y-6 bg-white/90 backdrop-blur-sm border shadow-lg">
@@ -192,15 +196,13 @@ export const PreQuestionnaire = ({ onComplete }: PreQuestionnaireProps) => {
           ))}
         </RadioGroup>
 
-        {currentQuestion > 0 && (
-          <Button
-            onClick={goBack}
-            variant="outline"
-            className="w-full"
-          >
-            Go Back
-          </Button>
-        )}
+        <Button
+          onClick={goBack}
+          variant="outline"
+          className="w-full"
+        >
+          Go Back
+        </Button>
 
         <div className="flex justify-center">
           <div className="flex space-x-2">
