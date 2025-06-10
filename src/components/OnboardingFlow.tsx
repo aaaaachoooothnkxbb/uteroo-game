@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { PreQuestionnaire } from "./PreQuestionnaire";
 import { CompanionNaming } from "./CompanionNaming";
+import { AvatarCreation } from "./AvatarCreation";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./AuthProvider";
@@ -18,36 +19,42 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const handlePreQuestionnaireComplete = async (username: string, avatar: AvatarOptions) => {
-    console.log('Pre-questionnaire completed:', { username, avatar });
-    
+  const handlePreQuestionnaireComplete = (username: string) => {
+    console.log('Pre-questionnaire completed:', { username });
     setUsername(username);
-    setAvatar(avatar);
+    setCurrentStep("avatar-creation");
+  };
+
+  const handleAvatarCreated = async (avatarData: AvatarOptions) => {
+    console.log('Avatar created:', avatarData);
+    setAvatar(avatarData);
     
-    // Save to database
+    // Save avatar data to database immediately
     if (user) {
       try {
         const { error } = await supabase
           .from('profiles')
-          .update({
+          .upsert({
+            id: user.id,
             username: username,
-            avatar_animal: avatar.animal,
-            avatar_color: avatar.color,
-            avatar_accessory: avatar.accessory,
-          })
-          .eq('id', user.id);
+            avatar_animal: avatarData.animal,
+            avatar_color: avatarData.color,
+            avatar_accessory: avatarData.accessory,
+          });
 
         if (error) {
-          console.error('Error saving profile:', error);
+          console.error('Error saving avatar:', error);
           toast({
-            title: "Error saving profile",
+            title: "Error saving avatar",
             description: "Please try again",
             variant: "destructive",
           });
           return;
         }
+        
+        console.log('Avatar saved successfully to database');
       } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('Unexpected error saving avatar:', error);
         toast({
           title: "Unexpected error",
           description: "Please try again",
@@ -71,6 +78,10 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
   if (currentStep === "pre-questionnaire") {
     return <PreQuestionnaire onComplete={handlePreQuestionnaireComplete} />;
+  }
+
+  if (currentStep === "avatar-creation") {
+    return <AvatarCreation onAvatarCreate={handleAvatarCreated} />;
   }
 
   if (currentStep === "companion-naming") {
