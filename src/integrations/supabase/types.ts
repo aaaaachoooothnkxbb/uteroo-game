@@ -428,6 +428,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_accessory: string | null
+          avatar_animal: string | null
+          avatar_color: string | null
           avatar_url: string | null
           companion_name: string | null
           created_at: string
@@ -437,6 +440,9 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          avatar_accessory?: string | null
+          avatar_animal?: string | null
+          avatar_color?: string | null
           avatar_url?: string | null
           companion_name?: string | null
           created_at?: string
@@ -446,6 +452,9 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          avatar_accessory?: string | null
+          avatar_animal?: string | null
+          avatar_color?: string | null
           avatar_url?: string | null
           companion_name?: string | null
           created_at?: string
