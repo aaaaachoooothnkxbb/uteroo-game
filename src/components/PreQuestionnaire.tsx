@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,35 +20,60 @@ export const PreQuestionnaire = ({ onComplete }: PreQuestionnaireProps) => {
 
   const questions = [
     {
-      id: "cycleRegularity",
-      title: "How regular is your menstrual cycle?",
+      id: "lastPeriod",
+      title: "When did your last period start?",
       options: [
-        { value: "very-regular", label: "Very regular (28-30 days)" },
-        { value: "somewhat-regular", label: "Somewhat regular (25-35 days)" },
-        { value: "irregular", label: "Irregular (varies significantly)" },
-        { value: "no-cycle", label: "I don't get periods/unsure" }
+        { value: "tap-to-select", label: "📅 Tap to select", icon: "📅" },
+        { value: "on-it-now", label: "I'm on it right now!", icon: "🔴" },
+        { value: "havent-gotten", label: "I haven't gotten my period yet", icon: "🌱" },
+        { value: "stopped-getting", label: "I stopped getting my period", icon: "🦋" },
+        { value: "dont-remember", label: "I don't remember", icon: "🧡" }
       ]
     },
     {
-      id: "currentPhase",
-      title: "Where do you think you are in your cycle right now?",
+      id: "periodLength",
+      title: "How long do your periods usually last?",
       options: [
-        { value: "menstruation", label: "On my period" },
-        { value: "follicular", label: "Just after my period" },
-        { value: "ovulatory", label: "Around ovulation (mid-cycle)" },
-        { value: "luteal", label: "Before my next period" },
-        { value: "unsure", label: "I'm not sure" }
+        { value: "3-5-days", label: "3-5 days" },
+        { value: "6-7-days", label: "6-7 days" },
+        { value: "8-plus-days", label: "8+ days" },
+        { value: "varies-lot", label: "♾️ It varies a lot", icon: "♾️" }
       ]
     },
     {
-      id: "symptoms",
-      title: "What symptoms are you currently experiencing?",
+      id: "cyclePredictability",
+      title: "How predictable is your cycle?",
       options: [
-        { value: "cramps", label: "Cramps or pelvic pain" },
-        { value: "mood-changes", label: "Mood swings or irritability" },
-        { value: "fatigue", label: "Fatigue or low energy" },
-        { value: "bloating", label: "Bloating or digestive issues" },
-        { value: "none", label: "No significant symptoms" }
+        { value: "like-clockwork", label: "⏰ Like clockwork!", icon: "⏰" },
+        { value: "usually-25-35", label: "📅 Usually 25-35 days", icon: "📅" },
+        { value: "complete-surprise", label: "🥂 Complete surprise every month", icon: "🥂" }
+      ]
+    },
+    {
+      id: "ovulationSigns",
+      title: "Do you notice any signs around ovulation?",
+      options: [
+        { value: "egg-white-discharge", label: "🥚 Egg-white discharge", icon: "🥚" },
+        { value: "energy-boost", label: "⚡ Energy boost", icon: "⚡" },
+        { value: "no-signs", label: "🚫 No signs", icon: "🚫" }
+      ]
+    },
+    {
+      id: "premenstrualFeel",
+      title: "How do you feel 5-7 days before your period?",
+      options: [
+        { value: "irritable-sensitive", label: "⚠️ Irritable/sensitive", icon: "⚠️" },
+        { value: "bloated-craving", label: "🧡 Bloated/craving carbs", icon: "🧡" },
+        { value: "totally-fine", label: "🚀 Totally fine, no changes!", icon: "🚀" }
+      ]
+    },
+    {
+      id: "annoyingSymptom",
+      title: "What's your most annoying symptom?",
+      options: [
+        { value: "cramps", label: "😫 Cramps", icon: "😫" },
+        { value: "mood-swings", label: "😤 Mood swings", icon: "😤" },
+        { value: "fatigue", label: "😴 Fatigue", icon: "😴" }
       ]
     }
   ];
@@ -61,9 +87,13 @@ export const PreQuestionnaire = ({ onComplete }: PreQuestionnaireProps) => {
     } else {
       // All questions answered, process the data
       const processedData = {
-        cycleRegularity: newAnswers.cycleRegularity,
-        cyclePhase: newAnswers.currentPhase === "unsure" ? "follicular" : newAnswers.currentPhase,
-        symptoms: newAnswers.symptoms,
+        lastPeriod: newAnswers.lastPeriod,
+        periodLength: newAnswers.periodLength,
+        cyclePredictability: newAnswers.cyclePredictability,
+        ovulationSigns: newAnswers.ovulationSigns,
+        premenstrualFeel: newAnswers.premenstrualFeel,
+        annoyingSymptom: newAnswers.annoyingSymptom,
+        cyclePhase: determineCyclePhase(newAnswers),
         hormoneLevel: determineHormoneLevel(newAnswers)
       };
 
@@ -72,12 +102,17 @@ export const PreQuestionnaire = ({ onComplete }: PreQuestionnaireProps) => {
     }
   };
 
+  const determineCyclePhase = (answers: any) => {
+    if (answers.lastPeriod === "on-it-now") return "menstruation";
+    if (answers.ovulationSigns === "egg-white-discharge" || answers.ovulationSigns === "energy-boost") return "ovulatory";
+    if (answers.premenstrualFeel === "irritable-sensitive" || answers.premenstrualFeel === "bloated-craving") return "luteal";
+    return "follicular"; // default
+  };
+
   const determineHormoneLevel = (answers: any) => {
-    // Simple logic to determine hormone level based on answers
-    if (answers.currentPhase === "menstruation") return "low-estrogen";
-    if (answers.currentPhase === "follicular") return "rising-estrogen";
-    if (answers.currentPhase === "ovulatory") return "high-estrogen";
-    if (answers.currentPhase === "luteal") return "high-progesterone";
+    if (answers.lastPeriod === "on-it-now") return "low-estrogen";
+    if (answers.ovulationSigns === "egg-white-discharge") return "high-estrogen";
+    if (answers.premenstrualFeel === "irritable-sensitive") return "high-progesterone";
     return "balanced"; // default
   };
 
@@ -98,9 +133,13 @@ export const PreQuestionnaire = ({ onComplete }: PreQuestionnaireProps) => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
     } else {
-      // Go back to username screen
       setShowQuestionnaire(false);
     }
+  };
+
+  const getHeartCount = () => {
+    const baseCounts = [0, 10, 15, 20, 25, 35];
+    return baseCounts[currentQuestion] || 0;
   };
 
   // Username input screen
@@ -166,55 +205,72 @@ export const PreQuestionnaire = ({ onComplete }: PreQuestionnaireProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 space-y-6 bg-white/90 backdrop-blur-sm border shadow-lg">
-        <div className="text-center space-y-4">
-          <div className="flex justify-center">
-            <img
-              src="/lovable-uploads/dbcd75af-1cf4-4a08-9b8b-a042e6812749.png"
-              alt="Uteroo"
-              className="w-20 h-20 object-contain"
-            />
+        <div className="flex justify-between items-start mb-4">
+          <div className="text-sm text-gray-500">
+            Screen {currentQuestion + 1} of {questions.length}
           </div>
-          
+          <div className="flex items-center gap-1 text-pink-500">
+            <span>💗</span>
+            <span className="text-sm font-medium">{getHeartCount()}</span>
+          </div>
+        </div>
+
+        <div className="text-center space-y-4">
           <div className="space-y-2">
-            <h2 className="text-xl font-bold text-[#9370DB]">
+            <h2 className="text-xl font-bold text-pink-400">
               Question {currentQuestion + 1} of {questions.length}
             </h2>
-            <p className="text-gray-700 font-medium">
-              {question.title}
+            <p className="text-sm text-gray-500 italic">
+              Let's get to know your cycle better
             </p>
+            <h3 className="text-lg font-semibold text-gray-800">
+              {question.title}
+            </h3>
           </div>
         </div>
 
         <RadioGroup onValueChange={handleAnswer} className="space-y-3">
           {question.options.map((option) => (
-            <div key={option.value} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 cursor-pointer">
+            <div 
+              key={option.value} 
+              className={`flex items-center space-x-3 p-4 rounded-full border-2 hover:bg-purple-50 cursor-pointer transition-colors ${
+                answers[question.id] === option.value ? 'bg-purple-100 border-purple-300' : 'border-gray-200'
+              }`}
+            >
               <RadioGroupItem value={option.value} id={option.value} />
-              <Label htmlFor={option.value} className="flex-1 cursor-pointer">
+              <Label htmlFor={option.value} className="flex-1 cursor-pointer font-medium">
                 {option.label}
               </Label>
             </div>
           ))}
         </RadioGroup>
 
-        <Button
-          onClick={goBack}
-          variant="outline"
-          className="w-full"
-        >
-          Go Back
-        </Button>
-
-        <div className="flex justify-center">
-          <div className="flex space-x-2">
-            {questions.map((_, index) => (
-              <div
-                key={index}
-                className={`w-3 h-3 rounded-full ${
-                  index <= currentQuestion ? 'bg-[#9370DB]' : 'bg-gray-300'
-                }`}
-              />
-            ))}
-          </div>
+        <div className="flex gap-3">
+          <Button
+            onClick={goBack}
+            variant="outline"
+            className="flex-1 rounded-full"
+          >
+            {currentQuestion === 0 ? "Previous" : "Previous"}
+          </Button>
+          
+          {currentQuestion === questions.length - 1 && answers[question.id] && (
+            <Button
+              onClick={() => handleAnswer(answers[question.id])}
+              className="flex-1 bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
+            >
+              Get My Results
+            </Button>
+          )}
+          
+          {currentQuestion < questions.length - 1 && answers[question.id] && (
+            <Button
+              onClick={() => handleAnswer(answers[question.id])}
+              className="flex-1 bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
+            >
+              Next
+            </Button>
+          )}
         </div>
       </Card>
     </div>
