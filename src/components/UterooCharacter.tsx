@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -104,6 +105,7 @@ export const UterooCharacter = ({
   const { user } = useAuth();
   const [userAvatar, setUserAvatar] = useState<AvatarOptions | null>(null);
   const [showItemGiving, setShowItemGiving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Determine which image to use based on enemy presence
   const hasEnemies = enemies.length > 0;
@@ -133,38 +135,60 @@ export const UterooCharacter = ({
   // Fetch user's companion avatar
   useEffect(() => {
     const fetchUserAvatar = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('No user found, cannot fetch avatar');
+        setIsLoading(false);
+        return;
+      }
       
       try {
         console.log('Fetching user avatar for user:', user.id);
-        const { data, error } = await supabase
+        
+        // Check if profile exists first
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('avatar_animal, avatar_color, avatar_accessory')
+          .select('*')
           .eq('id', user.id)
           .single();
           
-        if (error) {
-          console.error('Error fetching user avatar:', error);
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          // If profile doesn't exist, create it
+          if (profileError.code === 'PGRST116') {
+            console.log('Profile not found, creating one...');
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({ 
+                id: user.id,
+                username: user.email?.split('@')[0] || 'User'
+              });
+            
+            if (insertError) {
+              console.error('Error creating profile:', insertError);
+            }
+          }
+          setIsLoading(false);
           return;
         }
         
-        console.log('Fetched avatar data:', data);
-        if (data && data.avatar_animal) {
-          setUserAvatar({
-            animal: data.avatar_animal,
-            color: data.avatar_color || 'brown',
-            accessory: data.avatar_accessory || 'none'
-          });
-          console.log('Set user avatar:', {
-            animal: data.avatar_animal,
-            color: data.avatar_color || 'brown',
-            accessory: data.avatar_accessory || 'none'
-          });
+        console.log('Full profile data:', profile);
+        
+        if (profile && profile.avatar_animal) {
+          const avatarData = {
+            animal: profile.avatar_animal,
+            color: profile.avatar_color || 'brown',
+            accessory: profile.avatar_accessory || 'none'
+          };
+          
+          setUserAvatar(avatarData);
+          console.log('Set user avatar:', avatarData);
         } else {
-          console.log('No avatar data found for user');
+          console.log('No avatar data found for user, profile:', profile);
         }
       } catch (error) {
         console.error('Error fetching user avatar:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -292,13 +316,23 @@ export const UterooCharacter = ({
   // Get companion image
   const companionImage = userAvatar?.animal ? companionImages[userAvatar.animal as keyof typeof companionImages] : null;
   
-  console.log('Rendering with companion:', { userAvatar, companionImage });
+  console.log('Rendering with companion:', { 
+    userAvatar, 
+    companionImage, 
+    isLoading,
+    hasCompanionData: !!userAvatar?.animal,
+    availableAnimals: Object.keys(companionImages)
+  });
   
   return (
     <div className="flex flex-col items-center">
       <div className="relative flex items-center gap-4">
-        {/* Companion Avatar - Always show if we have avatar data */}
-        {userAvatar?.animal && companionImage && (
+        {/* Companion Avatar - Show if we have avatar data OR show loading state */}
+        {isLoading && user ? (
+          <div className="w-32 h-32 bg-gray-200 rounded-full animate-pulse flex items-center justify-center">
+            <span className="text-gray-500 text-sm">Loading...</span>
+          </div>
+        ) : userAvatar?.animal && companionImage ? (
           <div className="relative">
             <img 
               src={companionImage}
@@ -339,7 +373,11 @@ export const UterooCharacter = ({
               </div>
             )}
           </div>
-        )}
+        ) : user && !isLoading ? (
+          <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center border-2 border-dashed border-gray-300">
+            <span className="text-gray-500 text-xs text-center px-2">No companion<br/>created yet</span>
+          </div>
+        ) : null}
         
         <div className="relative">
           {/* Circling enemies */}
