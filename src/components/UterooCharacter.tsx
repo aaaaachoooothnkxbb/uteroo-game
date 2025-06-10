@@ -2,6 +2,9 @@ import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { audioService } from "@/utils/audioService";
+import { useAuth } from "./AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { AvatarOptions } from "@/types/avatar";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -81,6 +84,15 @@ interface CirclingEnemy {
   name: string;
 }
 
+// Companion avatar images based on animal type
+const companionImages = {
+  fox: "/lovable-uploads/0d497106-a6a3-4251-ac48-6e002ce44c94.png",
+  bear: "/lovable-uploads/2609640b-f01c-4bbe-ba7a-2a29da3be432.png", 
+  cat: "/lovable-uploads/38331f05-68ba-498a-9a0f-eafcd0ed1291.png",
+  owl: "/lovable-uploads/615abf15-2229-43a2-90d2-4b9a3412fd54.png",
+  rabbit: "/lovable-uploads/647c4f54-a00f-4440-9f67-ed9a4cef9936.png"
+};
+
 export const UterooCharacter = ({ 
   phase, 
   currentRoom = "", 
@@ -89,6 +101,10 @@ export const UterooCharacter = ({
   onClick,
   enemies = []
 }: UterooCharacterProps) => {
+  const { user } = useAuth();
+  const [userAvatar, setUserAvatar] = useState<AvatarOptions | null>(null);
+  const [showItemGiving, setShowItemGiving] = useState(false);
+  
   // Determine which image to use based on enemy presence
   const hasEnemies = enemies.length > 0;
   const isLabRoom = currentRoom === "lab";
@@ -113,6 +129,38 @@ export const UterooCharacter = ({
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
   const [currentMessage, setCurrentMessage] = useState(phaseToMessage[phase]);
   const [circlingEnemies, setCirclingEnemies] = useState<CirclingEnemy[]>([]);
+  
+  // Fetch user's companion avatar
+  useEffect(() => {
+    const fetchUserAvatar = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('avatar_animal, avatar_color, avatar_accessory')
+          .eq('id', user.id)
+          .single();
+          
+        if (error) {
+          console.error('Error fetching user avatar:', error);
+          return;
+        }
+        
+        if (data && data.avatar_animal) {
+          setUserAvatar({
+            animal: data.avatar_animal,
+            color: data.avatar_color || 'brown',
+            accessory: data.avatar_accessory || 'none'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user avatar:', error);
+      }
+    };
+    
+    fetchUserAvatar();
+  }, [user]);
   
   // Initialize circling enemies when enemies prop changes
   useEffect(() => {
@@ -164,8 +212,12 @@ export const UterooCharacter = ({
     audioService.play(phaseToSound[phase]);
   }, [phase]);
   
-  // Handle click on character with sound
+  // Handle click on character with companion interaction
   const handleClick = useCallback(() => {
+    // Show companion giving item animation
+    setShowItemGiving(true);
+    setTimeout(() => setShowItemGiving(false), 2000);
+    
     // Play a much gentler, calming sound
     audioService.play('gentle_waves');
     
@@ -228,65 +280,114 @@ export const UterooCharacter = ({
     );
   }
   
+  // Get companion image
+  const companionImage = userAvatar?.animal ? companionImages[userAvatar.animal as keyof typeof companionImages] : null;
+  
   return (
     <div className="flex flex-col items-center">
-      <div className="relative">
-        {/* Circling enemies */}
-        {circlingEnemies.map(enemy => {
-          const x = Math.cos(enemy.angle) * enemy.distance;
-          const y = Math.sin(enemy.angle) * enemy.distance;
-          
-          return (
-            <div
-              key={enemy.id}
-              className="absolute pointer-events-none z-10"
+      <div className="relative flex items-center gap-4">
+        {/* Companion Avatar */}
+        {companionImage && (
+          <div className="relative">
+            <img 
+              src={companionImage}
+              alt={`${userAvatar?.animal} companion`}
+              className={cn(
+                "object-contain drop-shadow-md transition-transform",
+                size === "small" ? "w-24 h-24" : 
+                size === "medium" ? "w-32 h-32" : 
+                "w-40 h-40",
+                showItemGiving && "animate-bounce"
+              )}
               style={{
-                transform: `translate(${x}px, ${y}px)`,
-                left: '50%',
-                top: '50%',
-                marginLeft: '-32px', // Half of enemy size (64px)
-                marginTop: '-32px'
+                filter: userAvatar?.color && userAvatar.color !== 'brown' 
+                  ? `hue-rotate(${userAvatar.color === 'orange' ? '30deg' : 
+                      userAvatar.color === 'white' ? '0deg' : 
+                      userAvatar.color === 'black' ? '180deg' : 
+                      userAvatar.color === 'grey' ? '90deg' : '0deg'})` 
+                  : 'none'
+              }}
+            />
+            
+            {/* Sachet/Bag that companion holds */}
+            <div className={cn(
+              "absolute -right-2 bottom-2 transition-all duration-500",
+              showItemGiving ? "translate-x-8 opacity-0" : "translate-x-0 opacity-100"
+            )}>
+              <img 
+                src="/lovable-uploads/8e841183-dbb4-442b-a052-1e662e6b5e62.png"
+                alt="Companion's sachet"
+                className="w-8 h-8 object-contain drop-shadow-sm"
+              />
+            </div>
+            
+            {/* Item giving animation */}
+            {showItemGiving && (
+              <div className="absolute top-1/2 right-0 animate-ping">
+                <div className="w-3 h-3 bg-pink-500 rounded-full opacity-75"></div>
+              </div>
+            )}
+          </div>
+        )}
+        
+        <div className="relative">
+          {/* Circling enemies */}
+          {circlingEnemies.map(enemy => {
+            const x = Math.cos(enemy.angle) * enemy.distance;
+            const y = Math.sin(enemy.angle) * enemy.distance;
+            
+            return (
+              <div
+                key={enemy.id}
+                className="absolute pointer-events-none z-10"
+                style={{
+                  transform: `translate(${x}px, ${y}px)`,
+                  left: '50%',
+                  top: '50%',
+                  marginLeft: '-32px',
+                  marginTop: '-32px'
+                }}
+              >
+                <div className="relative">
+                  <img 
+                    src={enemy.icon} 
+                    alt={enemy.name}
+                    className="w-16 h-16 object-contain drop-shadow-lg animate-pulse"
+                    style={{
+                      filter: 'drop-shadow(0 0 8px rgba(255, 0, 0, 0.3))'
+                    }}
+                  />
+                  <div className="absolute inset-0 w-16 h-16 bg-red-500 opacity-20 rounded-full animate-ping" />
+                </div>
+              </div>
+            );
+          })}
+          
+          {/* Main Uteroo Character */}
+          <img 
+            src={characterImage} 
+            alt={`Uteroo ${hasEnemies ? 'sad with enemies' : 'happy without enemies'}${isLabRoom ? ' with lab coat' : ''}`} 
+            className={cn(
+              sizeClasses[size],
+              "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
+            )}
+            onClick={handleClick}
+          />
+          
+          {/* Floating hearts animation */}
+          {floatingHearts.map(heart => (
+            <div
+              key={heart.id}
+              className="absolute pointer-events-none"
+              style={{
+                transform: `translate(${heart.x}px, ${heart.y}px)`,
+                animation: 'float-up 1.5s ease-out forwards'
               }}
             >
-              <div className="relative">
-                <img 
-                  src={enemy.icon} 
-                  alt={enemy.name}
-                  className="w-16 h-16 object-contain drop-shadow-lg animate-pulse"
-                  style={{
-                    filter: 'drop-shadow(0 0 8px rgba(255, 0, 0, 0.3))'
-                  }}
-                />
-                {/* Menacing glow effect */}
-                <div className="absolute inset-0 w-16 h-16 bg-red-500 opacity-20 rounded-full animate-ping" />
-              </div>
+              <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
             </div>
-          );
-        })}
-        
-        <img 
-          src={characterImage} 
-          alt={`Uteroo ${hasEnemies ? 'sad with enemies' : 'happy without enemies'}${isLabRoom ? ' with lab coat' : ''}`} 
-          className={cn(
-            sizeClasses[size],
-            "object-contain drop-shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95"
-          )}
-          onClick={handleClick}
-        />
-        
-        {/* Floating hearts animation */}
-        {floatingHearts.map(heart => (
-          <div
-            key={heart.id}
-            className="absolute pointer-events-none"
-            style={{
-              transform: `translate(${heart.x}px, ${heart.y}px)`,
-              animation: 'float-up 1.5s ease-out forwards'
-            }}
-          >
-            <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
       
       <div className={cn(
