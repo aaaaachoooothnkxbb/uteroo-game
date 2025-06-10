@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -44,6 +43,20 @@ const formOptions: Record<string, FormOption[]> = {
       icon: "🩸",
       recommendation: "Since you're currently on your period, your estrogen levels are at their lowest. This is why you might be feeling tired or having mood fluctuations. Taking it easy and practicing self-care is important right now.",
       tooltip: "During menstruation, both estrogen and progesterone are at their lowest, which can cause fatigue and mood changes."
+    },
+    {
+      value: "no-period-yet",
+      label: "I haven't gotten my period yet",
+      icon: "🌱",
+      recommendation: "Welcome to your pre-menstrual journey! This is an exciting time to learn about your body and prepare for your future cycles. Focus on building healthy habits now that will support your hormonal health.",
+      tooltip: "Pre-menarche is a normal phase, typically occurring in teens aged 12-18. Building healthy foundations now is key."
+    },
+    {
+      value: "stopped-period",
+      label: "I stopped getting my period",
+      icon: "🦋",
+      recommendation: "Your body may be transitioning through menopause, perimenopause, or experiencing amenorrhea. Let's focus on understanding these hormonal shifts and supporting your well-being during this phase.",
+      tooltip: "Amenorrhea can occur due to menopause, perimenopause, stress, or other factors. Understanding the cause helps provide better support."
     },
     {
       value: "unknown",
@@ -310,6 +323,39 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   };
 
   const generateSummary = () => {
+    // Handle special cases for new options
+    if (formData.lastPeriodStart === "no-period-yet") {
+      const summary = `
+        Welcome to your <strong>pre-menstrual journey</strong>! 🌱 You're in an exciting phase of preparing your body for future cycles.
+        <br><br>
+        Focus on building <strong>Wellness Foundations</strong> now:
+        • Balanced nutrition with plenty of calcium and iron
+        • Regular exercise to support bone health
+        • Understanding your body and what to expect
+        • Building healthy stress management habits
+        <br><br>
+        Your Uteroo companion will help you learn about cycles, hormones, and prepare for this natural transition. No rush - your body knows what it's doing! 🌸
+      `;
+      
+      return summary;
+    }
+
+    if (formData.lastPeriodStart === "stopped-period") {
+      const summary = `
+        Your body may be transitioning through <strong>menopause, perimenopause, or experiencing amenorrhea</strong>. 🦋
+        <br><br>
+        Let's focus on understanding these hormonal shifts:
+        • Managing symptoms like hot flashes, mood changes, or sleep disruption
+        • Supporting bone health and heart health during this transition
+        • Addressing potential root causes if experiencing amenorrhea
+        • Adapting wellness strategies for your changing hormonal landscape
+        <br><br>
+        Uteroo will help you navigate this phase with personalized support for your unique experience. Every transition is different, and we're here for yours! 💜
+      `;
+      
+      return summary;
+    }
+
     // Determine phase based on period start
     let phase = "";
     let phaseInfo = "";
