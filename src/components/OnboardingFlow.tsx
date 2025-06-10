@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,6 +19,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
+import { PreQuestionnaire } from "./PreQuestionnaire";
+import { CompanionNaming } from "./CompanionNaming";
 
 type FormOption = {
   value: string;
@@ -361,7 +362,29 @@ const screenRewards = [
   { points: 20, message: "You're a cycle pro! Here's your first booster 🎁 +20 ❤️ added to your profile." }
 ];
 
-export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
+interface AvatarOptions {
+  animal: string;
+  color: string;
+  accessory: string;
+}
+
+interface UserAnswers {
+  lastPeriodStart: string;
+  ageRange: string;
+  learningGoals: string;
+  currentSymptoms: string;
+  copingStrategies: string;
+  periodLength: string;
+  cyclePredictability: string;
+  ovulationSigns: string;
+  premenstrualSymptoms: string;
+  worstSymptom: string;
+}
+
+export const OnboardingFlow = () => {
+  const [currentPhase, setCurrentPhase] = useState<"pre-questionnaire" | "questionnaire" | "companion-naming">("pre-questionnaire");
+  const [username, setUsername] = useState("");
+  const [userAvatar, setUserAvatar] = useState<AvatarOptions | null>(null);
   const [step, setStep] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questionFlow, setQuestionFlow] = useState<string[]>(["lastPeriodStart"]); // Initialize with first question
@@ -855,6 +878,65 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
   };
 
   const currentQuestion = questionFlow[currentQuestionIndex];
+
+  const handlePreQuestionnaireComplete = (newUsername: string, avatar: AvatarOptions) => {
+    setUsername(newUsername);
+    setUserAvatar(avatar);
+    setCurrentPhase("questionnaire");
+  };
+
+  const handleQuestionnaireComplete = async (answers: UserAnswers) => {
+    if (!user) return;
+
+    try {
+      // Save questionnaire answers and user info
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          username: username,
+          avatar_animal: userAvatar?.animal,
+          avatar_color: userAvatar?.color,
+          avatar_accessory: userAvatar?.accessory,
+          questionnaire_completed: true,
+          // Save other questionnaire data as needed
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      // Check if companion name exists
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('companion_name')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.companion_name) {
+        navigate('/');
+      } else {
+        setCurrentPhase("companion-naming");
+      }
+    } catch (error) {
+      console.error('Error saving onboarding data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save your information. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCompanionNamingComplete = () => {
+    navigate('/');
+  };
+
+  if (currentPhase === "pre-questionnaire") {
+    return <PreQuestionnaire onComplete={handlePreQuestionnaireComplete} />;
+  }
+
+  if (currentPhase === "companion-naming") {
+    return <CompanionNaming onComplete={handleCompanionNamingComplete} />;
+  }
 
   return (
     <div className="min-h-screen bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
