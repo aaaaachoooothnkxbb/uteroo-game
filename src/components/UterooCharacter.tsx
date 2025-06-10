@@ -136,6 +136,7 @@ export const UterooCharacter = ({
       if (!user) return;
       
       try {
+        console.log('Fetching user avatar for user:', user.id);
         const { data, error } = await supabase
           .from('profiles')
           .select('avatar_animal, avatar_color, avatar_accessory')
@@ -147,12 +148,20 @@ export const UterooCharacter = ({
           return;
         }
         
+        console.log('Fetched avatar data:', data);
         if (data && data.avatar_animal) {
           setUserAvatar({
             animal: data.avatar_animal,
             color: data.avatar_color || 'brown',
             accessory: data.avatar_accessory || 'none'
           });
+          console.log('Set user avatar:', {
+            animal: data.avatar_animal,
+            color: data.avatar_color || 'brown',
+            accessory: data.avatar_accessory || 'none'
+          });
+        } else {
+          console.log('No avatar data found for user');
         }
       } catch (error) {
         console.error('Error fetching user avatar:', error);
@@ -283,15 +292,17 @@ export const UterooCharacter = ({
   // Get companion image
   const companionImage = userAvatar?.animal ? companionImages[userAvatar.animal as keyof typeof companionImages] : null;
   
+  console.log('Rendering with companion:', { userAvatar, companionImage });
+  
   return (
     <div className="flex flex-col items-center">
       <div className="relative flex items-center gap-4">
-        {/* Companion Avatar */}
-        {companionImage && (
+        {/* Companion Avatar - Always show if we have avatar data */}
+        {userAvatar?.animal && companionImage && (
           <div className="relative">
             <img 
               src={companionImage}
-              alt={`${userAvatar?.animal} companion`}
+              alt={`${userAvatar.animal} companion`}
               className={cn(
                 "object-contain drop-shadow-md transition-transform",
                 size === "small" ? "w-24 h-24" : 
@@ -300,7 +311,7 @@ export const UterooCharacter = ({
                 showItemGiving && "animate-bounce"
               )}
               style={{
-                filter: userAvatar?.color && userAvatar.color !== 'brown' 
+                filter: userAvatar.color && userAvatar.color !== 'brown' 
                   ? `hue-rotate(${userAvatar.color === 'orange' ? '30deg' : 
                       userAvatar.color === 'white' ? '0deg' : 
                       userAvatar.color === 'black' ? '180deg' : 
@@ -402,3 +413,5 @@ export const UterooCharacter = ({
     </div>
   );
 };
+
+export default UterooCharacter;
