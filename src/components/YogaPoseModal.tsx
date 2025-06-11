@@ -119,6 +119,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
       })));
       
       setWebcamStream(stream);
+      setIsPoseDetectionActive(true);
       
       if (videoRef.current) {
         console.log("Setting video source...");
@@ -134,7 +135,6 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
           console.log("Video metadata loaded successfully");
           console.log("Video dimensions:", videoRef.current?.videoWidth, "x", videoRef.current?.videoHeight);
           setIsLoading(false);
-          setIsPoseDetectionActive(true);
           
           if (videoRef.current) {
             videoRef.current.play()
@@ -328,19 +328,21 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
     }, 3000);
   };
 
-  // Cleanup when modal closes
+  // Only cleanup when modal actually closes
   useEffect(() => {
     if (!isOpen) {
       cleanupStream();
     }
   }, [isOpen, cleanupStream]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount only
   useEffect(() => {
     return () => {
-      cleanupStream();
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(track => track.stop());
+      }
     };
-  }, [cleanupStream]);
+  }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
