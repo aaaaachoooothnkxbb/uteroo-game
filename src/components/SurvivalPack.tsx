@@ -13,41 +13,48 @@ interface SurvivalPackProps {
 
 const survivalItems = {
   menstruation: [
-    "Comfort Control (Pads, Tampons, Cup): Your preferred period product",
-    "Heat Hugger (Heating Pad): A heating pad or hot water bottle for soothing cramps",
-    "Green Power (Spinach/Leafy Greens): A bag of fresh spinach or other leafy greens for iron and magnesium",
-    "Mood Magic (Dark Chocolate 70%+): A bar of dark chocolate (70%+ cacao) for mood and magnesium",
-    "Soothing Sips (Ginger, Peppermint, Green Tea): Ginger tea, peppermint tea, or calming green tea bags",
-    "Leakage Shield (Black Undies): Comfortable black undies – your reliable ally against leaks!",
-    "Inner Strength (Bravery): And don't forget to pack your Bravery – Uteroo knows you're strong enough for anything!"
+    "🩸 Comfort Control: Pads, Tampons, or Menstrual Cup",
+    "🔥 Heat Hugger: Heating Pad or Hot Water Bottle",
+    "🥬 Green Power: Spinach or Kale",
+    "🍫 Mood Magic: Dark Chocolate (70%+)",
+    "🍵 Soothing Sips: Ginger, Peppermint, or Green Tea Bags",
+    "🛌 Cozy Cover: A Soft Blanket or Fuzzy Socks",
+    "📖 Inner Peace: Your favorite calming Book or Journal"
   ],
   follicular: [
-    "Cruciferous Crusader (Broccoli/Kale): Broccoli or kale for healthy estrogen metabolism",
-    "Seed Power (Flax/Pumpkin Seeds): Flax seeds or pumpkin seeds for hormone support and fiber",
-    "Vibrant Vitamin C (Citrus Fruits): Oranges, grapefruit, or bell peppers for Vitamin C",
-    "Lean Protein Pouch (Chicken/Lentils): Lean protein source like chicken breast or lentils for sustained energy",
-    "Whole Grain Grounding (Oats/Quinoa): Oats or quinoa for steady energy and B vitamins",
-    "Movement Motivation (New Workout Gear/Journal): Something that motivates you to move – a new pair of socks, or a workout journal!",
-    "Spark of Creativity (Journal/Sketchbook): Your personal spark of creativity – a journal or sketchbook to capture ideas!"
+    "🥦 Estrogen Support: Broccoli or Brussels Sprouts",
+    "🌱 Seed Power: Flax Seeds or Pumpkin Seeds",
+    "🫐 Berry Burst: Blueberries or Raspberries",
+    "🥚 Lean Fuel: Eggs or Chicken Breast",
+    "🍚 Steady Carbs: Oats or Quinoa",
+    "💧 Hydration Hero: A Reusable Water Bottle",
+    "📝 Mind Spark: Pen and Paper for new ideas"
   ],
   ovulatory: [
-    "Avocado Ace (Avocado): A ripe avocado for healthy fats and hormone support",
-    "Omega-3 Ocean Delight (Wild Salmon/Sardines): Wild salmon or sardines for essential Omega-3s",
-    "Zinc Zinger (Eggs/Nuts): Eggs or a handful of nuts for zinc and fertility support",
-    "Hydration Hero (Reusable Water Bottle): A reusable water bottle to stay super hydrated during your peak energy",
-    "Social Sparkler (Small Gift/Card): A small gift or card for someone you care about, to ignite connection!",
-    "Confidence Catalyst (Your Favorite Outfit): Your favorite outfit that makes you feel amazing and confident!",
-    "Positive Vibe (Your Best Smile): And don't forget to pack your best smile – it's contagious!"
+    "🥑 Healthy Fats: Avocado",
+    "🐟 Omega Power: Canned Salmon or Sardines",
+    "🌰 Fertility Fuel: Nuts (Almonds, Walnuts)",
+    "🥕 Bright Veggies: Bell Peppers or Carrots",
+    "📞 Connection Catalyst: Your Phone (to call a friend!)",
+    "👟 Energy Boost: Your favorite Workout Shoes",
+    "🧖‍♀️ Radiant Glow: A Face Mask or Sheet Mask"
   ],
   luteal: [
-    "Progesterone Pal (Pumpkin Seeds): Pumpkin seeds for magnesium and zinc, crucial for progesterone",
-    "Calm Companion (Chamomile/Passionflower Tea): Chamomile or Passionflower tea for soothing relaxation",
-    "Stress Soother (Magnesium Supplement/Epsom Salt): Magnesium supplement or Epsom salts for calming muscles and nerves",
-    "Fiber Friend (Berries/Apples): Berries or apples for fiber to support healthy digestion",
-    "Comfort Companion (Cozy Blanket/Socks): A super cozy blanket or pair of socks for ultimate comfort",
-    "Mood Harmonizer (Journal/Calming Playlist): A journal or a link to a calming playlist to soothe your soul",
-    "Self-Compassion Compass (Patience): And pack your Self-Compassion Compass – remember to be extra kind to yourself!"
+    "🌻 Progesterone Pal: Pumpkin Seeds or Sunflower Seeds",
+    "🌼 Calm Sips: Chamomile Tea Bags",
+    "🛀 Magnesium Master: Epsom Salts (for a bath)",
+    "🍎 Fiber Friend: Apples or Pears",
+    "🍠 Comfort Food: Sweet Potatoes or Brown Rice",
+    "🌿 Mood Soother: Essential Oil Diffuser or Calming Spray",
+    "🎧 Zen Zone: Noise-Canceling Headphones or Earplugs"
   ]
+};
+
+const phaseMessages = {
+  menstruation: "Time for rest and renewal, Champion! Here's what Uteroo needs to feel cozy and strong this phase:",
+  follicular: "Time to rise and shine, Champion! Uteroo's energy is building. Here's what we need for growth and vitality:",
+  ovulatory: "You're at your peak, Champion! Uteroo is radiating power. Here's what we need to shine and connect:",
+  luteal: "Time to nurture and prepare, Champion! Uteroo needs calm and grounding. Here's your cozy Luteal collection:"
 };
 
 export const SurvivalPack = ({
@@ -58,6 +65,7 @@ export const SurvivalPack = ({
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
   
   const currentItems = survivalItems[currentPhase as keyof typeof survivalItems] || survivalItems.menstruation;
+  const currentMessage = phaseMessages[currentPhase as keyof typeof phaseMessages] || phaseMessages.menstruation;
   
   const toggleItem = (index: number) => {
     const newCheckedItems = new Set(checkedItems);
@@ -99,9 +107,8 @@ export const SurvivalPack = ({
             </div>
             
             <div className="mb-4">
-              <div className="text-sm font-medium text-gray-700 mb-2">What are we working with???...</div>
-              <p className="text-xs text-gray-500 mb-3">
-                Check off the survival items you have for this level:
+              <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+                {currentMessage}
               </p>
             </div>
 
