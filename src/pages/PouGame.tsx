@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -52,10 +51,10 @@ const PouGame = () => {
       if (!user) return;
       
       try {
-        // Load pet stats
+        // Load pet stats - fix the query to use correct column names
         const { data: petData, error: petError } = await supabase
           .from('pet_stats')
-          .select('happiness, energy, hygiene as health')
+          .select('happiness, energy, hygiene')
           .eq('user_id', user.id)
           .single();
           
@@ -79,7 +78,7 @@ const PouGame = () => {
         } else if (petData) {
           setHappiness(petData.happiness || 50);
           setEnergy(petData.energy || 50);
-          setHealth(petData.health || 50);
+          setHealth(petData.hygiene || 50); // Use hygiene as health
         }
         
         // Check tutorial completion from localStorage
