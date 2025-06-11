@@ -831,7 +831,7 @@ const PouGame = () => {
       },
       "migraine": {
         title: "Migraña menstrual", 
-        description: "Las migrañas pueden ser desencadenadas por la caída de estrógeno antes de la menstruación. La hidrataci��n y evitar desencadenantes ayuda a prevenirlas."
+        description: "Las migrañas pueden ser desencadenadas por la caída de estrógeno antes de la menstruación. La hidratación y evitar desencadenantes ayuda a prevenirlas."
       },
       "sensitivity": {
         title: "Sensibilidad aumentada", 
@@ -1550,5 +1550,3 @@ const PouGame = () => {
 };
 
 export default PouGame;
-
-}
