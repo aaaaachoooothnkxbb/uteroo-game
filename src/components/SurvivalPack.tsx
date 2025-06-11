@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { X, Check } from "lucide-react";
@@ -64,16 +64,37 @@ export const SurvivalPack = ({
 }: SurvivalPackProps) => {
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
   
-  // Add debugging
-  console.log("SurvivalPack currentPhase:", currentPhase);
+  // Enhanced debugging
+  console.log("🎒 SurvivalPack - Raw currentPhase prop:", currentPhase);
+  console.log("🎒 SurvivalPack - Type of currentPhase:", typeof currentPhase);
   
-  // Ensure we get the right phase items
-  const phaseKey = currentPhase?.toLowerCase() as keyof typeof survivalItems;
+  // Normalize the phase key - handle different cases and formats
+  let normalizedPhase = currentPhase?.toLowerCase()?.trim() || "menstruation";
+  
+  // Handle potential phase name variations
+  const phaseMapping: { [key: string]: string } = {
+    "menstruation": "menstruation",
+    "menstrual": "menstruation",
+    "period": "menstruation",
+    "follicular": "follicular",
+    "ovulatory": "ovulatory",
+    "ovulation": "ovulatory",
+    "luteal": "luteal"
+  };
+  
+  if (phaseMapping[normalizedPhase]) {
+    normalizedPhase = phaseMapping[normalizedPhase];
+  }
+  
+  console.log("🎒 SurvivalPack - Normalized phase:", normalizedPhase);
+  
+  const phaseKey = normalizedPhase as keyof typeof survivalItems;
   const currentItems = survivalItems[phaseKey] || survivalItems.menstruation;
   const currentMessage = phaseMessages[phaseKey] || phaseMessages.menstruation;
   
-  console.log("SurvivalPack phaseKey:", phaseKey);
-  console.log("SurvivalPack currentItems:", currentItems);
+  console.log("🎒 SurvivalPack - Final phaseKey:", phaseKey);
+  console.log("🎒 SurvivalPack - Items count:", currentItems.length);
+  console.log("🎒 SurvivalPack - First item:", currentItems[0]);
   
   const toggleItem = (index: number) => {
     const newCheckedItems = new Set(checkedItems);
@@ -86,9 +107,10 @@ export const SurvivalPack = ({
   };
 
   // Reset checked items when phase changes
-  useState(() => {
+  useEffect(() => {
+    console.log("🎒 Phase changed, resetting checked items");
     setCheckedItems(new Set());
-  });
+  }, [currentPhase]);
 
   return (
     <div className="relative">
@@ -108,7 +130,7 @@ export const SurvivalPack = ({
         <div className="absolute top-0 left-0 z-50">
           <Card className="w-80 p-4 bg-white/95 backdrop-blur-sm shadow-lg border-2">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-sm">🎒 Survival Pack - {currentPhase}</h3>
+              <h3 className="font-bold text-sm">🎒 Survival Pack - {normalizedPhase}</h3>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -128,7 +150,7 @@ export const SurvivalPack = ({
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {currentItems.map((item, index) => (
                 <div 
-                  key={`${currentPhase}-${index}`}
+                  key={`${normalizedPhase}-${index}`}
                   onClick={() => toggleItem(index)}
                   className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer transition-colors"
                 >
