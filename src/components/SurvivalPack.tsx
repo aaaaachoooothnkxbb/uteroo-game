@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +8,8 @@ interface SurvivalPackProps {
   isOpen: boolean;
   onToggle: () => void;
   currentPhase?: string;
+  hasActiveEnemies?: boolean;
+  hasDailyGoals?: boolean;
 }
 
 const survivalItems = {
@@ -60,7 +61,9 @@ const phaseMessages = {
 export const SurvivalPack = ({
   isOpen,
   onToggle,
-  currentPhase = "menstruation"
+  currentPhase = "menstruation",
+  hasActiveEnemies = false,
+  hasDailyGoals = false
 }: SurvivalPackProps) => {
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
   
@@ -112,6 +115,9 @@ export const SurvivalPack = ({
     setCheckedItems(new Set());
   }, [currentPhase]);
 
+  // Determine if backpack should have visual cue
+  const shouldShowVisualCue = hasActiveEnemies || hasDailyGoals;
+
   return (
     <div className="relative">
       {/* Backpack Icon */}
@@ -119,7 +125,12 @@ export const SurvivalPack = ({
         onClick={onToggle} 
         className="cursor-pointer transition-transform hover:scale-110 active:scale-95 flex flex-col items-center"
       >
-        <div className="text-4xl animate-pulse-slow">🎒</div>
+        <div className={cn(
+          "text-4xl",
+          shouldShowVisualCue ? "animate-pulse" : "animate-pulse-slow"
+        )}>
+          🎒
+        </div>
         <span className="text-xs font-semibold text-white bg-black/50 rounded-full px-2 py-0.5 mt-1">
           Survival Pack
         </span>
@@ -191,3 +202,5 @@ export const SurvivalPack = ({
     </div>
   );
 };
+
+export default SurvivalPack;
