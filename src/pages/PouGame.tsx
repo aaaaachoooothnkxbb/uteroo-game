@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UterooCharacter } from "@/components/UterooCharacter";
 import { useToast } from "@/hooks/use-toast";
 import { audioService } from "@/utils/audioService";
+import { cn } from "@/lib/utils";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
