@@ -1,8 +1,8 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +12,7 @@ const PouGame = () => {
   const [happiness, setHappiness] = useState(50);
   const [energy, setEnergy] = useState(50);
   const [health, setHealth] = useState(50);
-  const [showTutorial, setShowTutorial] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [showBoost, setShowBoost] = useState(false);
   const [boostType, setBoostType] = useState<"happiness" | "energy" | "health">("happiness");
@@ -46,39 +46,46 @@ const PouGame = () => {
     }
   ];
 
-  // Load user data
+  // Load user data from pet_stats table
   useEffect(() => {
     const loadUserData = async () => {
       if (!user) return;
       
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('happiness, energy, health, cycle_phase')
-          .eq('id', user.id)
-          .single();
-          
-        if (error) {
-          console.error('Error loading user data:', error);
-          return;
-        }
-        
-        if (data) {
-          setHappiness(data.happiness || 50);
-          setEnergy(data.energy || 50);
-          setHealth(data.health || 50);
-          if (data.cycle_phase) setCyclePhase(data.cycle_phase);
-        }
-        
-        // Check if tutorial has been completed
-        const { data: tutorialData } = await supabase
-          .from('user_progress')
-          .select('tutorial_completed')
+        // Load pet stats
+        const { data: petData, error: petError } = await supabase
+          .from('pet_stats')
+          .select('happiness, energy, hygiene as health')
           .eq('user_id', user.id)
           .single();
           
-        if (tutorialData?.tutorial_completed) {
-          setShowTutorial(false);
+        if (petError) {
+          console.error('Error loading pet stats:', petError);
+          // If no pet stats exist, create them
+          if (petError.code === 'PGRST116') {
+            const { error: insertError } = await supabase
+              .from('pet_stats')
+              .insert({
+                user_id: user.id,
+                happiness: 50,
+                energy: 50,
+                hygiene: 50
+              });
+            
+            if (insertError) {
+              console.error('Error creating pet stats:', insertError);
+            }
+          }
+        } else if (petData) {
+          setHappiness(petData.happiness || 50);
+          setEnergy(petData.energy || 50);
+          setHealth(petData.health || 50);
+        }
+        
+        // Check tutorial completion from localStorage
+        const tutorialCompleted = localStorage.getItem(`tutorial_completed_${user.id}`);
+        if (!tutorialCompleted) {
+          setShowTutorial(true);
         }
       } catch (err) {
         console.error('Error in loadUserData:', err);
@@ -88,21 +95,21 @@ const PouGame = () => {
     loadUserData();
   }, [user]);
 
-  // Save stats periodically
+  // Save stats to pet_stats table periodically
   useEffect(() => {
     const saveInterval = setInterval(async () => {
       if (!user) return;
       
       try {
         const { error } = await supabase
-          .from('profiles')
+          .from('pet_stats')
           .update({
             happiness,
             energy,
-            health,
-            last_interaction: new Date().toISOString()
+            hygiene: health,
+            last_updated: new Date().toISOString()
           })
-          .eq('id', user.id);
+          .eq('user_id', user.id);
           
         if (error) {
           console.error('Error saving stats:', error);
@@ -202,12 +209,7 @@ const PouGame = () => {
     
     if (user) {
       try {
-        await supabase
-          .from('user_progress')
-          .upsert({
-            user_id: user.id,
-            tutorial_completed: true
-          });
+        localStorage.setItem(`tutorial_completed_${user.id}`, 'true');
       } catch (err) {
         console.error('Error saving tutorial progress:', err);
       }
@@ -228,40 +230,13 @@ const PouGame = () => {
   };
 
   const getCharacterImage = () => {
-    // Base on cycle phase and character state
-    if (cyclePhase === "menstruation") {
-      return characterState === "happy" 
-        ? "/lovable-uploads/menstruation-happy.png" 
-        : characterState === "tired"
-        ? "/lovable-uploads/menstruation-tired.png"
-        : characterState === "sick"
-        ? "/lovable-uploads/menstruation-sick.png"
-        : "/lovable-uploads/menstruation-idle.png";
-    } else if (cyclePhase === "follicular") {
-      return characterState === "happy" 
-        ? "/lovable-uploads/follicular-happy.png" 
-        : characterState === "tired"
-        ? "/lovable-uploads/follicular-tired.png"
-        : characterState === "sick"
-        ? "/lovable-uploads/follicular-sick.png"
-        : "/lovable-uploads/follicular-idle.png";
-    } else if (cyclePhase === "ovulatory") {
-      return characterState === "happy" 
-        ? "/lovable-uploads/ovulatory-happy.png" 
-        : characterState === "tired"
-        ? "/lovable-uploads/ovulatory-tired.png"
-        : characterState === "sick"
-        ? "/lovable-uploads/ovulatory-sick.png"
-        : "/lovable-uploads/ovulatory-idle.png";
+    // Use the happy/sad uteroo images based on character state
+    if (characterState === "happy") {
+      return "/lovable-uploads/50167af2-3f66-47c1-aadb-96e97717d531.png"; // happy uteroo
+    } else if (characterState === "sick" || characterState === "tired") {
+      return "/lovable-uploads/0a06c37e-fc17-41fc-be9c-2417fa48a098.png"; // sad uteroo
     } else {
-      // Luteal
-      return characterState === "happy" 
-        ? "/lovable-uploads/luteal-happy.png" 
-        : characterState === "tired"
-        ? "/lovable-uploads/luteal-tired.png"
-        : characterState === "sick"
-        ? "/lovable-uploads/luteal-sick.png"
-        : "/lovable-uploads/luteal-idle.png";
+      return "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"; // neutral uteroo
     }
   };
 

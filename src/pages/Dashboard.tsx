@@ -1,7 +1,6 @@
+
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Avatar } from "@dicebear/react";
-import * as dicebear from "@dicebear/avatars";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -12,15 +11,6 @@ import { SachetButton } from "@/components/SachetButton";
 
 const Dashboard = () => {
   const [username, setUsername] = useState<string | null>(null);
-  const [avatarDetails, setAvatarDetails] = useState<{
-    animal: string | null;
-    color: string | null;
-    accessory: string | null;
-  }>({
-    animal: null,
-    color: null,
-    accessory: null,
-  });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -33,7 +23,7 @@ const Dashboard = () => {
         if (user) {
           const { data, error } = await supabase
             .from("profiles")
-            .select("username, avatar_animal, avatar_color, avatar_accessory")
+            .select("username")
             .eq("id", user.id)
             .single();
 
@@ -48,11 +38,6 @@ const Dashboard = () => {
 
           if (data) {
             setUsername(data.username);
-            setAvatarDetails({
-              animal: data.avatar_animal,
-              color: data.avatar_color,
-              accessory: data.avatar_accessory,
-            });
           }
         }
       } catch (error) {
@@ -84,22 +69,15 @@ const Dashboard = () => {
               {isLoading ? (
                 <Skeleton className="w-32 h-32 rounded-full mb-4" />
               ) : (
-                <Avatar
-                  style={{ width: "8rem", height: "8rem" }}
-                  seed={`${username}-${avatarDetails.animal}-${avatarDetails.color}-${avatarDetails.accessory}`}
-                  options={{
-                    backgroundColor: [
-                      avatarDetails.color || "#f4f4f4",
-                    ],
-                  }}
-                  generator={dicebear.pixelArt}
-                />
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-4xl font-bold mb-4">
+                  {username ? username.charAt(0).toUpperCase() : "U"}
+                </div>
               )}
               {isLoading ? (
                 <Skeleton className="h-8 w-48 mb-2" />
               ) : (
                 <h1 className="text-2xl font-semibold text-gray-800 mb-2">
-                  Welcome, {username}!
+                  Welcome, {username || "User"}!
                 </h1>
               )}
               {isLoading ? (
