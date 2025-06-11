@@ -30,6 +30,7 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { PhaseVideos } from "@/components/PhaseVideos";
 import { AudioToggle } from "@/components/AudioToggle";
 import { audioService } from "@/utils/audioService";
+import { SurvivalPack } from "@/components/SurvivalPack";
 
 type Phase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -515,6 +516,7 @@ const PouGame = () => {
   const [lastClickTime, setLastClickTime] = useState(0);
   const [showHeartBonus, setShowHeartBonus] = useState(false);
   const [lastStreakUpdateTime, setLastStreakUpdateTime] = useState(0);
+  const [showSurvivalPack, setShowSurvivalPack] = useState(false);
   
   // Log the initial phase when component mounts
   useEffect(() => {
@@ -1395,15 +1397,27 @@ const PouGame = () => {
                 </div>
               ))}
               
-              <UterooCharacter 
-                phase={currentPhase} 
-                currentRoom={currentRoom.id} 
-                size="large" 
-                minimal={false} 
-                onClick={handleUterooClick}
-                enemies={currentEnemies}
-              />
+              <div className="flex items-center gap-6">
+                {/* Survival Pack - positioned to the left of Uteroo */}
+                <div className="flex items-end">
+                  <SurvivalPack 
+                    isOpen={showSurvivalPack}
+                    onToggle={() => setShowSurvivalPack(!showSurvivalPack)}
+                  />
+                </div>
+
+                {/* Uteroo Character */}
+                <UterooCharacter 
+                  phase={currentPhase} 
+                  currentRoom={currentRoom.id} 
+                  size="large" 
+                  minimal={false} 
+                  onClick={handleUterooClick}
+                  enemies={currentEnemies}
+                />
+              </div>
               
+              {/* Boost indicator */}
               {showBoostIndicator && (
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-bold text-white animate-boost z-20">
                   <span className={cn(
@@ -1536,3 +1550,5 @@ const PouGame = () => {
 };
 
 export default PouGame;
+
+}
