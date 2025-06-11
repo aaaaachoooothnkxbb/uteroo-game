@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -45,6 +46,20 @@ const formOptions: Record<string, FormOption[]> = {
       tooltip: "During menstruation, both estrogen and progesterone are at their lowest, which can cause fatigue and mood changes."
     },
     {
+      value: "no-period-yet",
+      label: "I haven't gotten my period yet",
+      icon: "🌱",
+      recommendation: "Welcome to your pre-menstrual journey! This is an exciting time to learn about your body and prepare for your future cycles. Focus on building healthy habits now that will support your hormonal health.",
+      tooltip: "Pre-menarche is a normal phase, typically occurring in teens aged 12-18. Building healthy foundations now is key."
+    },
+    {
+      value: "stopped-period",
+      label: "I stopped getting my period",
+      icon: "🦋",
+      recommendation: "Your body may be transitioning through menopause, perimenopause, or experiencing amenorrhea. Let's focus on understanding these hormonal shifts and supporting your well-being during this phase.",
+      tooltip: "Amenorrhea can occur due to menopause, perimenopause, stress, or other factors. Understanding the cause helps provide better support."
+    },
+    {
       value: "unknown",
       label: "I don't remember",
       icon: "🤷",
@@ -52,6 +67,148 @@ const formOptions: Record<string, FormOption[]> = {
       tooltip: "You can always update this later when you remember or when your next period starts."
     }
   ],
+  
+  // Questions for pre-menarche users
+  ageRange: [
+    {
+      value: "10-12",
+      label: "10-12 years old",
+      icon: "🌸",
+      recommendation: "You're at the perfect age to start learning about your body! Many people start their periods between 10-15, so it's great you're preparing early.",
+      tooltip: "Pre-menarche education is important for feeling prepared and confident about upcoming changes."
+    },
+    {
+      value: "13-15",
+      label: "13-15 years old",
+      icon: "🌺",
+      recommendation: "This is a common age range for periods to start. Learning about cycles now will help you feel more confident when yours begins!",
+      tooltip: "Most people start their periods between ages 12-15, so you're right in the typical range."
+    },
+    {
+      value: "16-18",
+      label: "16-18 years old",
+      icon: "🌻",
+      recommendation: "While periods can start later for some people, it's good to understand what to expect. We'll help you learn about normal variations in timing.",
+      tooltip: "Some people naturally start their periods later, and that's completely normal too."
+    },
+    {
+      value: "18+",
+      label: "18+ years old",
+      icon: "🌿",
+      recommendation: "Starting periods later can be completely normal, but it's also good to understand when to check with a healthcare provider about timing.",
+      tooltip: "While most people start by 18, later starts can be normal or may benefit from medical guidance."
+    }
+  ],
+
+  learningGoals: [
+    {
+      value: "what-to-expect",
+      label: "What to expect when my period starts",
+      icon: "📚",
+      recommendation: "Perfect! We'll teach you about period symptoms, what's normal, and how to prepare with products and self-care strategies.",
+      tooltip: "Understanding what's normal helps reduce anxiety and builds confidence for when your period begins."
+    },
+    {
+      value: "body-changes",
+      label: "How my body is changing during puberty",
+      icon: "🦋",
+      recommendation: "Great choice! Puberty involves many changes beyond periods - we'll explain hormones, growth, and emotional changes you might experience.",
+      tooltip: "Puberty involves complex hormonal changes that affect your entire body, not just your reproductive system."
+    },
+    {
+      value: "healthy-habits",
+      label: "Building healthy habits for hormonal health",
+      icon: "💪",
+      recommendation: "Excellent focus! The habits you build now will support your hormonal health for life. We'll cover nutrition, exercise, and stress management.",
+      tooltip: "Starting healthy habits early creates a strong foundation for lifelong hormonal wellness."
+    },
+    {
+      value: "managing-emotions",
+      label: "Understanding and managing mood changes",
+      icon: "🌈",
+      recommendation: "Very important! Hormonal changes can affect emotions, and learning to understand and manage these feelings is a valuable life skill.",
+      tooltip: "Hormones significantly impact mood and emotions - learning these patterns helps with emotional regulation."
+    }
+  ],
+
+  // Questions for post-menopause/amenorrhea users
+  currentSymptoms: [
+    {
+      value: "hot-flashes",
+      label: "Hot flashes or night sweats",
+      icon: "🔥",
+      recommendation: "Hot flashes are common during perimenopause and menopause due to changing estrogen levels. We'll help you find cooling strategies and timing patterns.",
+      tooltip: "Hot flashes affect up to 80% of people during menopause transition due to hormonal fluctuations."
+    },
+    {
+      value: "mood-changes",
+      label: "Mood swings or emotional changes",
+      icon: "🌊",
+      recommendation: "Hormonal transitions can significantly impact mood and emotions. We'll explore strategies for emotional balance during this phase.",
+      tooltip: "Changing hormone levels, especially estrogen, can affect neurotransmitters that regulate mood."
+    },
+    {
+      value: "sleep-issues",
+      label: "Sleep problems or insomnia",
+      icon: "🌙",
+      recommendation: "Sleep disruption is very common during hormonal transitions. We'll help you create better sleep hygiene and understand the hormone-sleep connection.",
+      tooltip: "Progesterone and estrogen changes can significantly impact sleep quality and patterns."
+    },
+    {
+      value: "energy-fatigue",
+      label: "Low energy or fatigue",
+      icon: "🔋",
+      recommendation: "Fatigue during hormonal transitions is real and valid. We'll explore energy-supporting strategies and when to seek additional help.",
+      tooltip: "Hormonal changes can affect metabolism, sleep, and overall energy levels significantly."
+    },
+    {
+      value: "no-symptoms",
+      label: "No significant symptoms yet",
+      icon: "✨",
+      recommendation: "That's wonderful! Some people have easier transitions. We'll help you maintain this balance and know what to watch for.",
+      tooltip: "Not everyone experiences significant symptoms during hormonal transitions, and that's perfectly normal."
+    }
+  ],
+
+  copingStrategies: [
+    {
+      value: "medical-support",
+      label: "Working with healthcare providers",
+      icon: "🩺",
+      recommendation: "Excellent approach! Medical guidance can be invaluable during hormonal transitions. We'll help you prepare questions and track symptoms for appointments.",
+      tooltip: "Healthcare providers can offer various treatment options and monitoring for hormonal transitions."
+    },
+    {
+      value: "lifestyle-changes",
+      label: "Diet, exercise, and lifestyle adjustments",
+      icon: "🥗",
+      recommendation: "Lifestyle approaches can be very effective! We'll share evidence-based strategies for nutrition, movement, and stress management during this phase.",
+      tooltip: "Lifestyle modifications can significantly help manage symptoms and support overall health during transitions."
+    },
+    {
+      value: "natural-remedies",
+      label: "Herbal remedies and supplements",
+      icon: "🌿",
+      recommendation: "Many people find natural approaches helpful! We'll discuss evidence-based options and when to check with healthcare providers about interactions.",
+      tooltip: "Some natural remedies have research support, but it's important to understand safety and interactions."
+    },
+    {
+      value: "support-groups",
+      label: "Connecting with others in similar situations",
+      icon: "👥",
+      recommendation: "Community support is so valuable! Sharing experiences with others can provide comfort, tips, and reduce feelings of isolation during transitions.",
+      tooltip: "Peer support can provide emotional comfort and practical strategies from people with similar experiences."
+    },
+    {
+      value: "still-figuring-out",
+      label: "Still figuring out what works for me",
+      icon: "🔍",
+      recommendation: "That's completely normal! Finding what works is a personal journey. We'll help you explore different approaches and track what helps you feel best.",
+      tooltip: "Everyone's experience is unique, and it often takes time to find the right combination of strategies."
+    }
+  ],
+
+  // Standard questions for regular cycles
   periodLength: [
     {
       value: "3-5",
@@ -173,18 +330,24 @@ const formOptions: Record<string, FormOption[]> = {
   ]
 };
 
-// Individual questions instead of groups
-const QuestionOrder = [
-  "lastPeriodStart",
-  "periodLength", 
-  "cyclePredictability",
-  "ovulationSigns",
-  "premenstrualSymptoms",
-  "worstSymptom"
-];
+// Define question flows based on period status
+const getQuestionFlow = (periodStatus: string): string[] => {
+  if (periodStatus === "no-period-yet") {
+    return ["lastPeriodStart", "ageRange", "learningGoals"];
+  } else if (periodStatus === "stopped-period") {
+    return ["lastPeriodStart", "currentSymptoms", "copingStrategies"];
+  } else {
+    // Regular cycle flow
+    return ["lastPeriodStart", "periodLength", "cyclePredictability", "ovulationSigns", "premenstrualSymptoms", "worstSymptom"];
+  }
+};
 
 const QuestionTitles = {
   lastPeriodStart: "When did your last period start?",
+  ageRange: "How old are you?",
+  learningGoals: "What would you like to learn most about through Uteroo?",
+  currentSymptoms: "What symptoms are you currently experiencing?",
+  copingStrategies: "How are you managing these changes?",
   periodLength: "How long do your periods usually last?",
   cyclePredictability: "How predictable is your cycle?",
   ovulationSigns: "Do you notice any signs around ovulation?",
@@ -201,8 +364,13 @@ const screenRewards = [
 export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [questionFlow, setQuestionFlow] = useState<string[]>(["lastPeriodStart"]); // Initialize with first question
   const [formData, setFormData] = useState({
     lastPeriodStart: "",
+    ageRange: "",
+    learningGoals: "",
+    currentSymptoms: "",
+    copingStrategies: "",
     periodLength: "",
     cyclePredictability: "",
     ovulationSigns: "",
@@ -221,6 +389,14 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Update question flow when period status changes
+  useEffect(() => {
+    if (formData.lastPeriodStart && formData.lastPeriodStart !== "") {
+      const newFlow = getQuestionFlow(formData.lastPeriodStart);
+      setQuestionFlow(newFlow);
+    }
+  }, [formData.lastPeriodStart]);
 
   // Save onboarding data to Supabase
   const saveOnboardingData = async () => {
@@ -277,13 +453,14 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       if (formData.premenstrualSymptoms) symptoms.push(formData.premenstrualSymptoms);
       if (formData.worstSymptom) symptoms.push(formData.worstSymptom);
       if (formData.ovulationSigns) symptoms.push(formData.ovulationSigns);
+      if (formData.currentSymptoms) symptoms.push(formData.currentSymptoms);
 
       const moodData = {
         user_id: user.id,
         date: new Date().toISOString().split('T')[0],
-        mood: formData.premenstrualSymptoms || 'fine',
+        mood: formData.premenstrualSymptoms || formData.currentSymptoms || 'fine',
         symptoms: symptoms,
-        notes: `Onboarding data: Period start: ${formData.lastPeriodStart}, Length: ${formData.periodLength}, Predictability: ${formData.cyclePredictability}`
+        notes: `Onboarding data: Period start: ${formData.lastPeriodStart}, Age: ${formData.ageRange}, Learning goals: ${formData.learningGoals}, Coping strategies: ${formData.copingStrategies}`
       };
 
       // Save mood log data
@@ -309,6 +486,60 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   };
 
   const generateSummary = () => {
+    // Handle special cases for new options
+    if (formData.lastPeriodStart === "no-period-yet") {
+      const ageText = formData.ageRange ? ` at ${formData.ageRange.replace('-', '-')} years old` : '';
+      const learningFocus = formData.learningGoals ? 
+        formData.learningGoals.replace('-', ' ').replace('what to expect', 'understanding what to expect')
+          .replace('body changes', 'body changes during puberty')
+          .replace('healthy habits', 'building healthy habits')
+          .replace('managing emotions', 'managing emotional changes') : 'general wellness';
+
+      const summary = `
+        Welcome to your <strong>pre-menstrual journey</strong>! 🌱 You're${ageText} and focusing on <strong>${learningFocus}</strong>.
+        <br><br>
+        Your personalized <strong>Wellness Foundations</strong> focus:
+        • Balanced nutrition with plenty of calcium and iron
+        • Regular exercise to support bone health and overall development
+        • Understanding your body and what to expect as you grow
+        • Building healthy stress management and emotional regulation habits
+        <br><br>
+        Your Uteroo companion will help you learn about cycles, hormones, and prepare for this natural transition at your own pace. No rush - your body knows what it's doing! 🌸
+      `;
+      
+      return summary;
+    }
+
+    if (formData.lastPeriodStart === "stopped-period") {
+      const symptomText = formData.currentSymptoms ? 
+        formData.currentSymptoms.replace('-', ' ').replace('hot flashes', 'hot flashes/night sweats')
+          .replace('mood changes', 'mood fluctuations')
+          .replace('sleep issues', 'sleep disruption')
+          .replace('energy fatigue', 'fatigue')
+          .replace('no symptoms', 'minimal symptoms') : 'various symptoms';
+      
+      const copingText = formData.copingStrategies ? 
+        formData.copingStrategies.replace('-', ' ').replace('medical support', 'medical guidance')
+          .replace('lifestyle changes', 'lifestyle modifications')
+          .replace('natural remedies', 'natural approaches')
+          .replace('support groups', 'community support')
+          .replace('still figuring out', 'exploring different approaches') : 'various strategies';
+
+      const summary = `
+        Your body is transitioning through <strong>menopause, perimenopause, or experiencing amenorrhea</strong>. 🦋 You're currently experiencing <strong>${symptomText}</strong> and managing with <strong>${copingText}</strong>.
+        <br><br>
+        Your personalized support focus:
+        • Managing symptoms like hot flashes, mood changes, or sleep disruption
+        • Supporting bone health and cardiovascular health during this transition
+        • Addressing potential root causes if experiencing amenorrhea
+        • Adapting wellness strategies for your changing hormonal landscape
+        <br><br>
+        Uteroo will help you navigate this phase with personalized support for your unique experience. Every transition is different, and we're here for yours! 💜
+      `;
+      
+      return summary;
+    }
+
     // Determine phase based on period start
     let phase = "";
     let phaseInfo = "";
@@ -427,7 +658,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     setHeartPoints(prev => prev + 5);
     
     setTimeout(() => {
-      if (currentQuestionIndex < QuestionOrder.length - 1) {
+      if (currentQuestionIndex < questionFlow.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
       }
     }, 1000);
@@ -458,7 +689,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     setHeartPoints(prev => prev + 5);
     
     setTimeout(() => {
-      if (currentQuestionIndex < QuestionOrder.length - 1) {
+      if (currentQuestionIndex < questionFlow.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
       }
     }, 1000);
@@ -540,9 +771,9 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
   }, [floatingHearts]);
 
   const calculateProgress = () => {
-    const totalQuestions = QuestionOrder.length;
-    const answeredQuestions = Object.values(formData).filter(value => value !== "").length;
-    return (answeredQuestions / totalQuestions) * 100;
+    if (questionFlow.length === 0) return 0;
+    const answeredQuestions = questionFlow.filter(q => formData[q as keyof typeof formData] !== "").length;
+    return (answeredQuestions / questionFlow.length) * 100;
   };
 
   const handleNext = async () => {
@@ -551,9 +782,9 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     } else if (step === 2) {
       setStep(3);
     } else if (step === 3) {
-      if (currentQuestionIndex < QuestionOrder.length - 1) {
+      if (currentQuestionIndex < questionFlow.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
-      } else if (Object.values(formData).some(value => value === "")) {
+      } else if (questionFlow.some(q => formData[q as keyof typeof formData] === "")) {
         toast({
           title: "Please answer all questions",
           description: "We need this information to personalize your experience",
@@ -623,7 +854,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     );
   };
 
-  const currentQuestion = QuestionOrder[currentQuestionIndex];
+  const currentQuestion = questionFlow[currentQuestionIndex];
 
   return (
     <div className="min-h-screen bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -651,7 +882,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
             <img
               src="/lovable-uploads/f135b894-cd85-4010-a103-0fc5cb07ea0d.png"
               alt="Welcome"
-              className="w-48 h-auto mx-auto animate-bounce-slow"
+              className="w-80 h-auto mx-auto animate-bounce-slow"
             />
             <h1 className="text-2xl font-bold text-black">Hi!</h1>
             <p className="text-lg text-black">
@@ -706,7 +937,6 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
             </div>
           </div>
         ) : step === 5 ? (
-          // Login screen
           <div className="space-y-6">
             <div className="text-center space-y-4">
               <h1 className="text-2xl font-bold text-black">Welcome Back!</h1>
@@ -783,10 +1013,10 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3 w-full">
                 <div className="text-gray-500 text-sm font-medium">
-                  Screen {currentQuestionIndex + 1} of {QuestionOrder.length}
+                  Screen {currentQuestionIndex + 1} of {questionFlow.length}
                 </div>
                 <Progress 
-                  value={(currentQuestionIndex + 1) / QuestionOrder.length * 100} 
+                  value={(currentQuestionIndex + 1) / questionFlow.length * 100} 
                   className="flex-1 rounded-full"
                 />
                 <div className="flex items-center gap-1 text-[#FF69B4] font-bold">
@@ -798,54 +1028,61 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
             
             <div className="text-center mb-8">
               <h2 className="text-2xl text-[#FF69B4] font-bold mb-2">
-                Question {currentQuestionIndex + 1} of {QuestionOrder.length}
+                Question {currentQuestionIndex + 1} of {questionFlow.length}
               </h2>
               <p className="text-gray-700 italic">
-                Let's get to know your cycle better
+                Let's get to know your journey better
               </p>
             </div>
 
-            <div className="space-y-6 animate-fade-in">
-              <div className="flex items-center gap-2 justify-center">
-                <h3 className="font-medium text-xl text-black text-center">
-                  {QuestionTitles[currentQuestion as keyof typeof QuestionTitles]}
-                </h3>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info size={16} className="text-[#9370DB] cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p>{formOptions[currentQuestion][0].tooltip}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-3 max-w-md mx-auto">
-                {currentQuestion === "lastPeriodStart" && formOptions[currentQuestion][0].value === "calendar" && (
-                  renderCalendarPopover()
-                )}
+            {/* Only show question content if we have a valid current question */}
+            {currentQuestion && formOptions[currentQuestion] ? (
+              <div className="space-y-6 animate-fade-in">
+                <div className="flex items-center gap-2 justify-center">
+                  <h3 className="font-medium text-xl text-black text-center">
+                    {QuestionTitles[currentQuestion as keyof typeof QuestionTitles]}
+                  </h3>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info size={16} className="text-[#9370DB] cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>{formOptions[currentQuestion] && formOptions[currentQuestion][0]?.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 
-                {formOptions[currentQuestion].map((option) => (
-                  option.value !== "calendar" && (
-                    <Button
-                      key={option.value}
-                      onClick={() => handleOptionSelect(currentQuestion, option)}
-                      variant={formData[currentQuestion as keyof typeof formData] === option.value ? "default" : "outline"}
-                      className={`w-full justify-start text-left h-auto py-4 px-6 rounded-full ${
-                        formData[currentQuestion as keyof typeof formData] === option.value 
-                          ? "bg-[#9370DB] text-white" 
-                          : "text-black hover:bg-pink-50"
-                      }`}
-                    >
-                      {option.icon && <span className="mr-3 text-lg">{option.icon}</span>}
-                      <span className="text-base">{option.label}</span>
-                    </Button>
-                  )
-                ))}
+                <div className="grid grid-cols-1 gap-3 max-w-md mx-auto">
+                  {currentQuestion === "lastPeriodStart" && formOptions[currentQuestion][0].value === "calendar" && (
+                    renderCalendarPopover()
+                  )}
+                  
+                  {formOptions[currentQuestion] && formOptions[currentQuestion].map((option) => (
+                    option.value !== "calendar" && (
+                      <Button
+                        key={option.value}
+                        onClick={() => handleOptionSelect(currentQuestion, option)}
+                        variant={formData[currentQuestion as keyof typeof formData] === option.value ? "default" : "outline"}
+                        className={`w-full justify-start text-left h-auto py-4 px-6 rounded-full ${
+                          formData[currentQuestion as keyof typeof formData] === option.value 
+                            ? "bg-[#9370DB] text-white" 
+                            : "text-black hover:bg-pink-50"
+                        }`}
+                      >
+                        {option.icon && <span className="mr-3 text-lg">{option.icon}</span>}
+                        <span className="text-base">{option.label}</span>
+                      </Button>
+                    )
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Loading question...</p>
+              </div>
+            )}
 
             <div className="flex gap-4 justify-between mt-8">
               {currentQuestionIndex > 0 ? (
@@ -871,7 +1108,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
                 disabled={!formData[currentQuestion as keyof typeof formData]}
               >
-                {currentQuestionIndex === QuestionOrder.length - 1 ? "Get My Results" : "Next"}
+                {currentQuestionIndex === questionFlow.length - 1 ? "Get My Results" : "Next"}
               </Button>
             </div>
           </div>
@@ -880,7 +1117,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
           <div className="max-w-2xl mx-auto animate-fade-in">
             <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-xl shadow-sm border border-pink-100">
               <div className="flex justify-between mb-4">
-                <h3 className="text-xl font-bold text-[#9370DB]">Your Hormonal Diagnosis</h3>
+                <h3 className="text-xl font-bold text-[#9370DB]">Your Personalized Journey</h3>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -909,11 +1146,11 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                     <TooltipTrigger asChild>
                       <Button variant="ghost" size="sm" className="flex items-center gap-1 text-[#9370DB]">
                         <Info size={14} />
-                        <span className="text-xs">Why this phase?</span>
+                        <span className="text-xs">Why this recommendation?</span>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
-                      <p>This is based on your cycle start date and usual length. Hormones like estrogen and progesterone fluctuate through your cycle, affecting energy, mood, and physical symptoms.</p>
+                      <p>This personalized guidance is based on your specific situation, age, and goals. Uteroo adapts to your unique hormonal journey, whether you're preparing for cycles, currently cycling, or transitioning through different life phases.</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
