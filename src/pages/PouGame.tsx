@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -6,19 +7,18 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { SachetButton } from "@/components/SachetButton";
-import { UterooCharacter } from "@/components/UterooCharacter";
-import { UterooTutorial } from "@/components/UterooTutorial";
 
 const PouGame = () => {
   const [happiness, setHappiness] = useState(50);
   const [energy, setEnergy] = useState(50);
   const [health, setHealth] = useState(50);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
   const [showBoost, setShowBoost] = useState(false);
   const [boostType, setBoostType] = useState<"happiness" | "energy" | "health">("happiness");
   const [boostAmount, setBoostAmount] = useState(0);
   const [lastInteraction, setLastInteraction] = useState(Date.now());
-  const [cyclePhase, setCyclePhase] = useState<"menstruation" | "follicular" | "ovulatory" | "luteal">("follicular");
+  const [cyclePhase, setCyclePhase] = useState("follicular");
   const [currentSymptoms, setCurrentSymptoms] = useState<string[]>([]);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -26,16 +26,36 @@ const PouGame = () => {
   const [showStats, setShowStats] = useState(false);
   const [characterState, setCharacterState] = useState<"idle" | "happy" | "tired" | "sick">("idle");
 
+  // Tutorial steps
+  const tutorialSteps = [
+    {
+      title: "Welcome to Uteroo!",
+      content: "This is your personal uterus companion. Take care of it by keeping its happiness, energy, and health high!"
+    },
+    {
+      title: "Meet Your Companion",
+      content: "Your companion's mood changes based on your cycle phase and how well you're taking care of it."
+    },
+    {
+      title: "Boost Stats",
+      content: "Tap your companion to give it attention and boost its stats. Different actions have different effects!"
+    },
+    {
+      title: "Track Your Cycle",
+      content: "Your companion reflects your current cycle phase. Use the tools in your sachet to help manage symptoms!"
+    }
+  ];
+
   // Load user data from pet_stats table
   useEffect(() => {
     const loadUserData = async () => {
       if (!user) return;
       
       try {
-        // Load pet stats - using correct column name 'hygiene' instead of 'health'
+        // Load pet stats
         const { data: petData, error: petError } = await supabase
           .from('pet_stats')
-          .select('happiness, energy, hygiene')
+          .select('happiness, energy, hygiene as health')
           .eq('user_id', user.id)
           .single();
           
@@ -59,7 +79,7 @@ const PouGame = () => {
         } else if (petData) {
           setHappiness(petData.happiness || 50);
           setEnergy(petData.energy || 50);
-          setHealth(petData.hygiene || 50); // Map hygiene to health for UI
+          setHealth(petData.health || 50);
         }
         
         // Check tutorial completion from localStorage
@@ -86,7 +106,7 @@ const PouGame = () => {
           .update({
             happiness,
             energy,
-            hygiene: health, // Map health back to hygiene for database
+            hygiene: health,
             last_updated: new Date().toISOString()
           })
           .eq('user_id', user.id);
@@ -201,6 +221,25 @@ const PouGame = () => {
     });
   };
 
+  const nextTutorialStep = () => {
+    if (tutorialStep < tutorialSteps.length - 1) {
+      setTutorialStep(tutorialStep + 1);
+    } else {
+      completeTutorial();
+    }
+  };
+
+  const getCharacterImage = () => {
+    // Use the happy/sad uteroo images based on character state
+    if (characterState === "happy") {
+      return "/lovable-uploads/50167af2-3f66-47c1-aadb-96e97717d531.png"; // happy uteroo
+    } else if (characterState === "sick" || characterState === "tired") {
+      return "/lovable-uploads/0a06c37e-fc17-41fc-be9c-2417fa48a098.png"; // sad uteroo
+    } else {
+      return "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"; // neutral uteroo
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100 relative overflow-hidden">
       {/* Background decorative elements */}
@@ -208,9 +247,22 @@ const PouGame = () => {
       <div className="absolute bottom-40 right-20 w-24 h-24 bg-purple-200 rounded-full opacity-30 animate-gentle-float" style={{ animationDelay: "2s" }}></div>
       <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-orange-200 rounded-full opacity-30 animate-gentle-float" style={{ animationDelay: "4s" }}></div>
       
-      {/* Tutorial overlay - using correct prop name */}
+      {/* Tutorial overlay */}
       {showTutorial && (
-        <UterooTutorial onClose={completeTutorial} />
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md p-6 bg-white/90 backdrop-blur-sm">
+            <h2 className="text-xl font-bold mb-2 text-purple-600">{tutorialSteps[tutorialStep].title}</h2>
+            <p className="mb-6 text-gray-700">{tutorialSteps[tutorialStep].content}</p>
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={() => setShowTutorial(false)}>
+                Skip Tutorial
+              </Button>
+              <Button onClick={nextTutorialStep}>
+                {tutorialStep < tutorialSteps.length - 1 ? "Next" : "Start"}
+              </Button>
+            </div>
+          </Card>
+        </div>
       )}
       
       {/* Header */}
@@ -227,16 +279,16 @@ const PouGame = () => {
       
       {/* Main character area */}
       <div className="flex flex-col items-center justify-center p-4 relative" style={{ minHeight: "60vh" }}>
-        {/* Character - using correct props */}
+        {/* Character */}
         <div 
           ref={characterRef}
           className="relative cursor-pointer transition-transform hover:scale-105"
           onClick={handleCharacterClick}
         >
-          <UterooCharacter 
-            phase={cyclePhase}
-            size="large"
-            onClick={handleCharacterClick}
+          <img 
+            src={getCharacterImage()} 
+            alt="Uterus character" 
+            className="w-64 h-64 object-contain"
           />
           
           {/* Boost animation */}
