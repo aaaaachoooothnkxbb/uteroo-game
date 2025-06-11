@@ -481,7 +481,6 @@ const PouGame = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
   
   // Get the initial phase from the location state or default to menstruation
   const [currentPhase, setCurrentPhase] = useState<Phase>(() => {
@@ -518,7 +517,6 @@ const PouGame = () => {
   const [lastStreakUpdateTime, setLastStreakUpdateTime] = useState(0);
   const [showSurvivalPack, setShowSurvivalPack] = useState(false);
   
-  // Log the initial phase when component mounts
   useEffect(() => {
     console.log("Initial phase from navigation:", location.state?.initialPhase);
     
@@ -698,22 +696,6 @@ const PouGame = () => {
     return "bg-red-500";
   };
 
-  const handleNextRoom = () => {
-    console.log("Next room clicked - current index:", currentRoomIndex);
-    audioService.play('click');
-    const nextIndex = currentRoomIndex === rooms.length - 1 ? 0 : currentRoomIndex + 1;
-    console.log("Moving to room index:", nextIndex, "Room name:", rooms[nextIndex].name);
-    setCurrentRoomIndex(nextIndex);
-  };
-
-  const handlePreviousRoom = () => {
-    console.log("Previous room clicked - current index:", currentRoomIndex);
-    audioService.play('click');
-    const prevIndex = currentRoomIndex === 0 ? rooms.length - 1 : currentRoomIndex - 1;
-    console.log("Moving to room index:", prevIndex, "Room name:", rooms[prevIndex].name);
-    setCurrentRoomIndex(prevIndex);
-  };
-
   const handlePhaseChange = (newPhase: Phase) => {
     // Only play sound if actually changing phases
     if (newPhase !== currentPhase) {
@@ -722,12 +704,6 @@ const PouGame = () => {
       setCurrentPhase(newPhase);
     }
   };
-
-  const currentRoom = rooms[currentRoomIndex];
-  const RoomIcon = currentRoom.icon;
-  const currentRoomBoosters = roomBoosters[currentRoom.id as keyof typeof roomBoosters] || [];
-
-  console.log("Current room:", currentRoom.name, "Index:", currentRoomIndex, "ID:", currentRoom.id);
 
   const handleBoosterClick = (booster: any) => {
     // Play sound effect based on booster type
@@ -976,75 +952,6 @@ const PouGame = () => {
     );
   };
 
-  // Render science-based boosters for current room
-  const renderScienceBoosters = () => {
-    const currentRoom = rooms[currentRoomIndex];
-    const scienceBoostersForRoom = scienceBoosters[currentRoom.id as keyof typeof scienceBoosters] || [];
-    
-    // Filter out boosters that should be earned (you can add conditions here)
-    const availableBoosters = scienceBoostersForRoom.filter(booster => {
-      // Hide boosters that should be earned - add your logic here
-      // For now, hiding the first booster as an example
-      return false; // This will hide all science boosters for now
-    });
-    
-    if (availableBoosters.length === 0) return null;
-    
-    return (
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-sm flex items-center gap-1">
-            <span>Science Boosters</span>
-            <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full">New!</span>
-          </h3>
-        </div>
-        
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {availableBoosters.map((booster) => (
-            <TooltipProvider key={booster.id}>
-              <Tooltip delayDuration={200}>
-                <TooltipTrigger asChild>
-                  <div 
-                    onClick={() => handleBoosterClick(booster)}
-                    className="flex flex-col items-center p-2 cursor-pointer transition-shadow"
-                  >
-                    <div className="relative">
-                      <img 
-                        src={booster.icon} 
-                        alt={booster.name}
-                        className="w-12 h-12 object-contain mb-1 animate-pulse-slow"
-                      />
-                      <div className="absolute -top-1 -right-1 flex items-center gap-0.5 bg-pink-500 text-white text-xs rounded-full px-1.5 py-0.5 font-semibold shadow-sm">
-                        <Heart className="h-3 w-3" />
-                        <span>{booster.cost}</span>
-                      </div>
-                    </div>
-                    <span className="text-xs font-medium text-center">{booster.name}</span>
-                    <div className="text-2xs text-purple-700 mt-1">🧪 Science-based</div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="bg-white/95 backdrop-blur-sm p-3 max-w-[250px]">
-                  <h4 className="font-semibold mb-1">{booster.tooltip?.title}</h4>
-                  <p className="text-xs">{booster.tooltip?.description}</p>
-                  {booster.tooltip?.learnMoreUrl && (
-                    <a 
-                      href={booster.tooltip.learnMoreUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-2xs text-purple-700 mt-1 underline block"
-                    >
-                      Read scientific research
-                    </a>
-                  )}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   // Completely redesigned compact stats panel with hearts
   const renderStatsPanel = () => {
     return (
@@ -1254,9 +1161,7 @@ const PouGame = () => {
       <div 
         className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-500"
         style={{ 
-          backgroundImage: currentRoom.background 
-            ? `url('${currentRoom.background}')`
-            : "url('/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png')",
+          backgroundImage: "url('/lovable-uploads/94f873e9-ed1b-4e4f-818c-5141de6c30c8.png')",
           backgroundSize: 'cover',
         }}
       />
@@ -1271,7 +1176,7 @@ const PouGame = () => {
       )} />
       
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Streamlined header - updated with better spacing */}
+        {/* Streamlined header */}
         <div className="fixed top-0 left-0 right-0 backdrop-blur-sm z-30 pt-4 pb-2 px-4">
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between mb-4">
@@ -1302,7 +1207,7 @@ const PouGame = () => {
               </div>
             </div>
             
-            {/* Phase level buttons - now separated from other controls */}
+            {/* Phase level buttons */}
             <div className="flex justify-center mb-3">
               <div className="flex gap-2">
                 {(Object.keys(phaseInfo) as Phase[]).map((phaseName) => {
@@ -1336,38 +1241,11 @@ const PouGame = () => {
         {/* Main content area */}
         <div className="flex-1 pt-32 pb-6 px-4">
           <div className="max-w-md mx-auto">
-            {/* Room navigation with single icon */}
-            <div className="flex justify-between items-center mb-4 mt-12">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handlePreviousRoom}
-                className="h-6 w-6 p-0 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30"
-              >
-                <ArrowLeft className="h-3 w-3 text-white" />
-                <span className="sr-only">Previous Room</span>
-              </Button>
-              
-              {/* Current room icon */}
-              <div className="flex items-center justify-center">
-                <RoomIcon className="h-5 w-5 text-white" />
-              </div>
-              
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleNextRoom}
-                className="h-6 w-6 p-0 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30"
-              >
-                <ArrowRight className="h-3 w-3 text-white" />
-                <span className="sr-only">Next Room</span>
-              </Button>
-            </div>
             
             {/* Stats panel */}
             {renderStatsPanel()}
             
-            {/* Character area with circling enemies */}
+            {/* Character area */}
             <div 
               className="relative flex justify-center mb-4 mx-auto"
               onDrop={handleDrop}
@@ -1398,7 +1276,7 @@ const PouGame = () => {
               ))}
               
               <div className="flex items-center gap-6">
-                {/* Survival Pack - positioned to the left of Uteroo */}
+                {/* Survival Pack */}
                 <div className="flex items-end">
                   <SurvivalPack 
                     isOpen={showSurvivalPack}
@@ -1410,7 +1288,7 @@ const PouGame = () => {
                 {/* Uteroo Character */}
                 <UterooCharacter 
                   phase={currentPhase} 
-                  currentRoom={currentRoom.id} 
+                  currentRoom="bedroom"
                   size="large" 
                   minimal={false} 
                   onClick={handleUterooClick}
@@ -1434,63 +1312,8 @@ const PouGame = () => {
               )}
             </div>
             
-            {/* Science boosters */}
-            {renderScienceBoosters()}
-            
-            {/* Kitchen Room Content */}
-            {currentRoom.id === 'kitchen' && (
-              <KitchenRoomInteraction 
-                currentPhase={currentPhase} 
-                updateStreak={updateStreak}
-              />
-            )}
-            
-            {/* Shop Room Content */}
-            {currentRoom.id === 'shop' && (
-              <ShopRoom
-                currentPhase={currentPhase}
-                stats={stats}
-                onPurchase={handlePurchase}
-              />
-            )}
-            
-            {/* Regular boosters - only show if not in kitchen or shop */}
-            {currentRoom.id !== 'kitchen' && currentRoom.id !== 'shop' && (
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-sm">Boosters</h3>
-                  <div className="text-xs px-2 py-0.5 backdrop-blur-sm rounded-full">
-                    Tap to use
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-xl">
-                  {currentRoomBoosters.map((booster) => (
-                    booster.isPhaseRecipe ? (
-                      <PhaseRecipeRoulette key={booster.id} phase={currentPhase} />
-                    ) : (
-                      <div 
-                        key={booster.id}
-                        onClick={() => handleBoosterClick(booster)}
-                        className="flex flex-col items-center p-2 rounded-lg cursor-pointer transition-shadow"
-                      >
-                        <img 
-                          src={booster.icon} 
-                          alt={booster.name}
-                          className="w-10 h-10 object-contain mb-1 animate-pulse-slow"
-                        />
-                        <span className="text-xs font-medium text-center">{booster.name}</span>
-                        {booster.cost && (
-                          <div className="flex items-center gap-1 mt-1 text-2xs bg-yellow-100 px-1.5 py-0.5 rounded-full">
-                            <CoinsIcon className="h-3 w-3 text-yellow-500" />
-                            <span>{booster.cost}</span>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Symptom cards */}
+            {renderSymptomCards()}
           </div>
         </div>
 
@@ -1537,13 +1360,6 @@ const PouGame = () => {
             audioService.play('click');
             setShowTutorial(false);
           }} />
-        )}
-        
-        {currentRoom.id === 'cycle_sanctuary' && (
-          <CycleSanctuary 
-            currentPhase={currentPhase}
-            onPhaseChange={handlePhaseChange}
-          />
         )}
       </div>
     </div>
