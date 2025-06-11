@@ -1312,5 +1312,3 @@ const PouGame = () => {
 };
 
 export default PouGame;
-
-}
