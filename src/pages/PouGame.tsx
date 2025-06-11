@@ -826,63 +826,9 @@ const PouGame = () => {
     return tooltips[enemyId] || null;
   };
 
-  // Simplified enemy rendering for symptom cards
+  // Simplified enemy rendering for symptom cards - REMOVED
   const renderSymptomCards = () => {
-    if (currentEnemies.length === 0) return null;
-    
-    return (
-      <div className="flex gap-3 mb-4 overflow-x-auto pb-2 snap-x">
-        {currentEnemies.map((enemy) => (
-          <Card 
-            key={enemy.id} 
-            className={cn(
-              "relative p-3 backdrop-blur-md shadow-sm border-l-4 rounded-lg snap-center flex-shrink-0",
-              "min-w-[140px] max-w-[160px]",
-              enemy.id === "cramps" || enemy.id === "fatigue" ? "border-l-red-500" :
-              enemy.id === "anxiety" || enemy.id === "migraine" ? "border-l-yellow-500" :
-              "border-l-orange-500"
-            )}
-            style={{ background: "transparent" }}
-          >
-            <TooltipProvider>
-              <Tooltip delayDuration={300}>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2 cursor-help">
-                    <div className="w-9 h-9 flex-shrink-0">
-                      <img 
-                        src={enemy.icon} 
-                        alt={enemy.name}
-                        className="w-full h-full object-contain drop-shadow-md"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-bold uppercase text-sm tracking-wider">{enemy.name}</h4>
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
-                        <span className="text-xs">→</span>
-                        <span>{enemy.suggestion}</span>
-                      </div>
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent 
-                  side="top" 
-                  className="max-w-[200px] p-3 bg-white/95 backdrop-blur-sm text-left z-50"
-                >
-                  {getEnemyTooltip(enemy.id) ? (
-                    <>
-                      <h4 className="font-semibold mb-1 text-xs">{getEnemyTooltip(enemy.id)?.title}</h4>
-                      <p className="text-xs">{getEnemyTooltip(enemy.id)?.description}</p>
-                    </>
-                  ) : (
-                    <p className="text-xs">Este síntoma está relacionado con los cambios hormonales de tu ciclo.</p>
-                  )}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Card>
-        ))}
-      </div>
-    );
+    return null; // Remove the symptom cards completely
   };
 
   // Enhanced phase progress indicator - completely redesigned
@@ -1312,8 +1258,7 @@ const PouGame = () => {
               )}
             </div>
             
-            {/* Symptom cards */}
-            {renderSymptomCards()}
+            {/* Removed the symptom cards section completely */}
           </div>
         </div>
 
@@ -1367,3 +1312,5 @@ const PouGame = () => {
 };
 
 export default PouGame;
+
+}
