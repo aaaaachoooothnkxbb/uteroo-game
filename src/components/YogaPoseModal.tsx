@@ -133,14 +133,14 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
         const handleLoadedMetadata = () => {
           console.log("Video metadata loaded successfully");
           console.log("Video dimensions:", videoRef.current?.videoWidth, "x", videoRef.current?.videoHeight);
+          setIsLoading(false);
+          setIsPoseDetectionActive(true);
           
           if (videoRef.current) {
             videoRef.current.play()
               .then(() => {
                 console.log("Video playing successfully");
                 setIsVideoPlaying(true);
-                setIsPoseDetectionActive(true);
-                setIsLoading(false);
                 toast({
                   title: "Camera Ready",
                   description: "Camera is now active for pose detection",
@@ -150,6 +150,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                 console.error("Error playing video:", error);
                 setCameraError("Failed to start video playback. Please try again.");
                 setIsLoading(false);
+                setIsPoseDetectionActive(false);
               });
           }
         };
@@ -159,25 +160,18 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
           console.error("Video element error:", error);
           setCameraError("Video playback error. Please check your camera and try again.");
           setIsLoading(false);
+          setIsPoseDetectionActive(false);
         };
 
         // Add event listeners
-        videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
-        videoRef.current.addEventListener('error', handleVideoError);
-        
-        // Cleanup event listeners on unmount
-        const currentVideo = videoRef.current;
-        return () => {
-          if (currentVideo) {
-            currentVideo.removeEventListener('loadedmetadata', handleLoadedMetadata);
-            currentVideo.removeEventListener('error', handleVideoError);
-          }
-        };
+        videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
+        videoRef.current.addEventListener('error', handleVideoError, { once: true });
       }
 
     } catch (error) {
       console.error("Camera error:", error);
       setIsLoading(false);
+      setIsPoseDetectionActive(false);
       
       let errorMessage = "Unknown camera error";
       
