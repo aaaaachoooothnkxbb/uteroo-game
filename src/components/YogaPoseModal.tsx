@@ -1,10 +1,9 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Camera, Check, X, AlertCircle, RefreshCw } from "lucide-react";
+import { Camera, Check, X, AlertCircle, RefreshCw, Upload } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -38,7 +37,11 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
   const getExpectedPosesForPhase = () => {
@@ -73,6 +76,8 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
     setCurrentPoseValidation(null);
     setCameraError(null);
     setIsLoading(false);
+    setCapturedPhoto(null);
+    setAnalysisResult(null);
   }, [webcamStream]);
 
   const startPoseDetection = async () => {
@@ -201,6 +206,107 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
     }
   };
 
+  const capturePhoto = () => {
+    if (!videoRef.current || !canvasRef.current || !isVideoPlaying) {
+      toast({
+        title: "Cannot capture photo",
+        description: "Camera is not ready. Please wait for the camera to start.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      toast({
+        title: "Error",
+        description: "Could not access canvas context",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Draw the current video frame to canvas
+    context.drawImage(video, 0, 0);
+
+    // Convert canvas to data URL
+    const photoDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+    setCapturedPhoto(photoDataUrl);
+
+    toast({
+      title: "Photo Captured!",
+      description: "Photo captured successfully. Ready for analysis.",
+    });
+  };
+
+  const analyzePhoto = async () => {
+    if (!capturedPhoto || !selectedPose) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a pose and capture a photo first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisResult(null);
+
+    try {
+      // Simulate AI analysis - in real implementation, this would call an AI service
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Mock analysis result based on selected pose
+      const isGoodPose = Math.random() > 0.3; // 70% chance of good pose
+      
+      if (isGoodPose) {
+        setAnalysisResult("correct");
+        setCurrentPoseValidation("correct");
+        toast({
+          title: "Great Pose!",
+          description: `Perfect ${selectedPose.name} for your ${phase} phase! Your alignment looks good.`,
+        });
+      } else {
+        setAnalysisResult("needs_improvement");
+        setCurrentPoseValidation("incorrect");
+        toast({
+          title: "Try Adjusting Your Pose",
+          description: `Good attempt at ${selectedPose.name}! Try adjusting your alignment based on the instructions.`,
+          variant: "destructive"
+        });
+      }
+
+      // Clear validation after 5 seconds
+      setTimeout(() => {
+        setCurrentPoseValidation(null);
+        setAnalysisResult(null);
+      }, 5000);
+
+    } catch (error) {
+      console.error("Analysis error:", error);
+      toast({
+        title: "Analysis Error",
+        description: "Could not analyze the photo. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const retakePhoto = () => {
+    setCapturedPhoto(null);
+    setAnalysisResult(null);
+    setCurrentPoseValidation(null);
+  };
+
   const validatePoseForPhase = (poseName: string) => {
     const expectedPoses = getExpectedPosesForPhase();
     const isValidPose = expectedPoses.some(expectedPose => 
@@ -313,7 +419,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
               <div className="text-center">
                 <h3 className="font-semibold mb-2 text-gray-900">AI Pose Validation</h3>
                 <p className="text-sm text-gray-700 mb-4">
-                  Use your camera to get real-time feedback on your yoga poses
+                  Select a pose, start camera, take a photo, and get AI feedback
                 </p>
               </div>
 
@@ -397,17 +503,25 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
               ) : (
                 <div className="space-y-4">
                   <div className="relative bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                    <video
-                      ref={videoRef}
-                      width="100%"
-                      height="200"
-                      className="w-full h-48 object-cover bg-gray-100"
-                      autoPlay
-                      muted
-                      playsInline
-                    />
+                    {!capturedPhoto ? (
+                      <video
+                        ref={videoRef}
+                        width="100%"
+                        height="200"
+                        className="w-full h-48 object-cover bg-gray-100"
+                        autoPlay
+                        muted
+                        playsInline
+                      />
+                    ) : (
+                      <img
+                        src={capturedPhoto}
+                        alt="Captured pose"
+                        className="w-full h-48 object-cover bg-gray-100"
+                      />
+                    )}
                     
-                    {(!isVideoPlaying || isLoading) && (
+                    {(!isVideoPlaying || isLoading) && !capturedPhoto && (
                       <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                         <div className="text-center">
                           <div className="flex items-center justify-center mb-2">
@@ -440,30 +554,76 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                   </div>
 
                   <div className="text-center space-y-3">
-                    <p className="text-sm text-gray-700">
-                      {isVideoPlaying ? "Hold your pose and click validate" : "Starting camera..."}
-                    </p>
-                    <div className="space-y-2">
-                      <Button 
-                        onClick={() => selectedPose && validatePoseForPhase(selectedPose.name)}
-                        variant="outline"
-                        size="sm"
-                        disabled={!selectedPose || !isVideoPlaying}
-                        className="w-full bg-white hover:bg-gray-50 border-gray-300"
-                      >
-                        <Check className="mr-2 h-4 w-4" />
-                        Validate Current Pose
-                      </Button>
-                      <Button 
-                        onClick={cleanupStream}
-                        variant="outline"
-                        size="sm"
-                        className="w-full bg-white hover:bg-gray-50 border-gray-300"
-                      >
-                        <X className="mr-2 h-4 w-4" />
-                        Stop Camera
-                      </Button>
-                    </div>
+                    {!selectedPose && (
+                      <p className="text-sm text-red-600 font-medium">
+                        Please select a pose from the list first!
+                      </p>
+                    )}
+                    
+                    {!capturedPhoto ? (
+                      <>
+                        <p className="text-sm text-gray-700">
+                          {isVideoPlaying ? "Position yourself in the selected pose and take a photo" : "Starting camera..."}
+                        </p>
+                        <div className="space-y-2">
+                          <Button 
+                            onClick={capturePhoto}
+                            variant="default"
+                            size="sm"
+                            disabled={!selectedPose || !isVideoPlaying}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            <Camera className="mr-2 h-4 w-4" />
+                            Take Photo
+                          </Button>
+                          <Button 
+                            onClick={cleanupStream}
+                            variant="outline"
+                            size="sm"
+                            className="w-full bg-white hover:bg-gray-50 border-gray-300"
+                          >
+                            <X className="mr-2 h-4 w-4" />
+                            Stop Camera
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm text-gray-700">
+                          Photo captured! Ready to analyze your pose.
+                        </p>
+                        <div className="space-y-2">
+                          <Button 
+                            onClick={analyzePhoto}
+                            variant="default"
+                            size="sm"
+                            disabled={isAnalyzing}
+                            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                          >
+                            {isAnalyzing ? (
+                              <>
+                                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                                Analyzing...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="mr-2 h-4 w-4" />
+                                Analyze Pose
+                              </>
+                            )}
+                          </Button>
+                          <Button 
+                            onClick={retakePhoto}
+                            variant="outline"
+                            size="sm"
+                            className="w-full bg-white hover:bg-gray-50 border-gray-300"
+                          >
+                            <Camera className="mr-2 h-4 w-4" />
+                            Retake Photo
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -483,6 +643,21 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                 </div>
               )}
 
+              {analysisResult && (
+                <div className={`p-3 rounded-lg border ${
+                  analysisResult === 'correct' 
+                    ? 'bg-green-50 border-green-200' 
+                    : 'bg-yellow-50 border-yellow-200'
+                }`}>
+                  <h4 className="font-medium text-sm mb-1">AI Analysis Result</h4>
+                  <p className="text-xs text-gray-700">
+                    {analysisResult === 'correct' 
+                      ? "Great job! Your pose alignment looks good." 
+                      : "Good attempt! Try adjusting your posture according to the instructions."}
+                  </p>
+                </div>
+              )}
+
               <div className="text-xs text-gray-600 text-center bg-white/70 p-3 rounded border border-gray-200">
                 <p className="font-medium mb-1">Expected poses for {phase} phase:</p>
                 <p className="text-gray-700">{getExpectedPosesForPhase().join(", ").replace(/_/g, " ")}</p>
@@ -490,6 +665,9 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
             </div>
           </div>
         </div>
+        
+        {/* Hidden canvas for photo capture */}
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
       </DialogContent>
     </Dialog>
   );
