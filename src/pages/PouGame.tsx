@@ -1,356 +1,215 @@
-
-import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
-import { SachetButton } from "@/components/SachetButton";
+import React, { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/components/AuthProvider';
+import { supabase } from '@/integrations/supabase/client';
+import { UterooCharacter } from '@/components/UterooCharacter';
+import { UterooTutorial } from '@/components/UterooTutorial';
+import { SachetButton } from '@/components/SachetButton';
 
 const PouGame = () => {
-  const [happiness, setHappiness] = useState(50);
-  const [energy, setEnergy] = useState(50);
-  const [health, setHealth] = useState(50);
+  const [stats, setStats] = useState({ happiness: 50, energy: 50, health: 50 });
+  const [isLoading, setIsLoading] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(0);
-  const [showBoost, setShowBoost] = useState(false);
-  const [boostType, setBoostType] = useState<"happiness" | "energy" | "health">("happiness");
-  const [boostAmount, setBoostAmount] = useState(0);
-  const [lastInteraction, setLastInteraction] = useState(Date.now());
-  const [cyclePhase, setCyclePhase] = useState("follicular");
-  const [currentSymptoms, setCurrentSymptoms] = useState<string[]>([]);
+  
   const { toast } = useToast();
   const { user } = useAuth();
-  const characterRef = useRef<HTMLDivElement>(null);
-  const [showStats, setShowStats] = useState(false);
-  const [characterState, setCharacterState] = useState<"idle" | "happy" | "tired" | "sick">("idle");
 
-  // Tutorial steps
-  const tutorialSteps = [
-    {
-      title: "Welcome to Uteroo!",
-      content: "This is your personal uterus companion. Take care of it by keeping its happiness, energy, and health high!"
-    },
-    {
-      title: "Meet Your Companion",
-      content: "Your companion's mood changes based on your cycle phase and how well you're taking care of it."
-    },
-    {
-      title: "Boost Stats",
-      content: "Tap your companion to give it attention and boost its stats. Different actions have different effects!"
-    },
-    {
-      title: "Track Your Cycle",
-      content: "Your companion reflects your current cycle phase. Use the tools in your sachet to help manage symptoms!"
-    }
-  ];
-
-  // Load user data from pet_stats table
+  // Check if tutorial should be shown
   useEffect(() => {
-    const loadUserData = async () => {
-      if (!user) return;
-      
-      try {
-        // Load pet stats
-        const { data: petData, error: petError } = await supabase
-          .from('pet_stats')
-          .select('happiness, energy, hygiene as health')
-          .eq('user_id', user.id)
-          .single();
-          
-        if (petError) {
-          console.error('Error loading pet stats:', petError);
-          // If no pet stats exist, create them
-          if (petError.code === 'PGRST116') {
-            const { error: insertError } = await supabase
-              .from('pet_stats')
-              .insert({
-                user_id: user.id,
-                happiness: 50,
-                energy: 50,
-                hygiene: 50
-              });
-            
-            if (insertError) {
-              console.error('Error creating pet stats:', insertError);
-            }
-          }
-        } else if (petData) {
-          setHappiness(petData.happiness || 50);
-          setEnergy(petData.energy || 50);
-          setHealth(petData.health || 50);
-        }
-        
-        // Check tutorial completion from localStorage
-        const tutorialCompleted = localStorage.getItem(`tutorial_completed_${user.id}`);
-        if (!tutorialCompleted) {
-          setShowTutorial(true);
-        }
-      } catch (err) {
-        console.error('Error in loadUserData:', err);
-      }
-    };
-    
-    loadUserData();
+    const hasSeenTutorial = localStorage.getItem('hasSeenUterooTutorial');
+    if (!hasSeenTutorial && user) {
+      setShowTutorial(true);
+    }
   }, [user]);
 
-  // Save stats to pet_stats table periodically
+  // Load pet stats
   useEffect(() => {
-    const saveInterval = setInterval(async () => {
+    const fetchStats = async () => {
       if (!user) return;
       
+      setIsLoading(true);
       try {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('pet_stats')
-          .update({
-            happiness,
-            energy,
-            hygiene: health,
-            last_updated: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
-          
+          .select('happiness, energy, health')
+          .eq('user_id', user.id)
+          .single();
+
         if (error) {
-          console.error('Error saving stats:', error);
+          console.error('Error fetching pet stats:', error);
+          // Use default stats if none exist
+          setStats({ happiness: 50, energy: 50, health: 50 });
+        } else if (data) {
+          setStats({
+            happiness: data.happiness || 50,
+            energy: data.energy || 50,
+            health: data.health || 50
+          });
         }
-      } catch (err) {
-        console.error('Error in save interval:', err);
+      } catch (error) {
+        console.error('Unexpected error fetching stats:', error);
+      } finally {
+        setIsLoading(false);
       }
-    }, 60000); // Save every minute
-    
-    return () => clearInterval(saveInterval);
-  }, [happiness, energy, health, user]);
+    };
 
-  // Passive stat decrease over time
-  useEffect(() => {
-    const decayInterval = setInterval(() => {
-      const now = Date.now();
-      const timeSinceLastInteraction = now - lastInteraction;
-      
-      // Only decay if it's been more than 5 minutes since last interaction
-      if (timeSinceLastInteraction > 5 * 60 * 1000) {
-        setHappiness(prev => Math.max(prev - 1, 0));
-        setEnergy(prev => Math.max(prev - 1, 0));
-        setHealth(prev => Math.max(prev - 0.5, 0));
+    fetchStats();
+  }, [user]);
+
+  const updateStats = async (newStats: typeof stats) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('pet_stats')
+        .upsert({
+          user_id: user.id,
+          happiness: newStats.happiness,
+          energy: newStats.energy,
+          health: newStats.health,
+        });
+
+      if (error) {
+        console.error('Error updating stats:', error);
+      } else {
+        setStats(newStats);
       }
-    }, 60000); // Check every minute
-    
-    return () => clearInterval(decayInterval);
-  }, [lastInteraction]);
-
-  // Update character state based on stats
-  useEffect(() => {
-    if (happiness < 30) {
-      setCharacterState("tired");
-    } else if (energy < 30) {
-      setCharacterState("tired");
-    } else if (health < 30) {
-      setCharacterState("sick");
-    } else if (happiness > 70 && energy > 70) {
-      setCharacterState("happy");
-    } else {
-      setCharacterState("idle");
-    }
-  }, [happiness, energy, health]);
-
-  const handleCharacterClick = () => {
-    // Determine which stat to boost based on lowest value
-    let statToBoost: "happiness" | "energy" | "health" = "happiness";
-    let lowestValue = happiness;
-    
-    if (energy < lowestValue) {
-      statToBoost = "energy";
-      lowestValue = energy;
-    }
-    
-    if (health < lowestValue) {
-      statToBoost = "health";
-    }
-    
-    // Random boost amount between 5-15
-    const boost = Math.floor(Math.random() * 11) + 5;
-    
-    // Apply boost
-    switch (statToBoost) {
-      case "happiness":
-        setHappiness(prev => Math.min(prev + boost, 100));
-        break;
-      case "energy":
-        setEnergy(prev => Math.min(prev + boost, 100));
-        break;
-      case "health":
-        setHealth(prev => Math.min(prev + boost, 100));
-        break;
-    }
-    
-    // Show boost animation
-    setBoostType(statToBoost);
-    setBoostAmount(boost);
-    setShowBoost(true);
-    setTimeout(() => setShowBoost(false), 1000);
-    
-    // Update last interaction time
-    setLastInteraction(Date.now());
-    
-    // Character animation
-    if (characterRef.current) {
-      characterRef.current.classList.add("animate-heart-squish");
-      setTimeout(() => {
-        if (characterRef.current) {
-          characterRef.current.classList.remove("animate-heart-squish");
-        }
-      }, 400);
+    } catch (error) {
+      console.error('Unexpected error updating stats:', error);
     }
   };
 
-  const completeTutorial = async () => {
+  const handleFeed = () => {
+    const newStats = {
+      ...stats,
+      happiness: Math.min(100, stats.happiness + 10),
+      health: Math.min(100, stats.health + 5),
+    };
+    updateStats(newStats);
+    toast({ title: "Fed your companion!", description: "Happiness and health increased!" });
+  };
+
+  const handlePlay = () => {
+    const newStats = {
+      ...stats,
+      happiness: Math.min(100, stats.happiness + 15),
+      energy: Math.max(0, stats.energy - 10),
+    };
+    updateStats(newStats);
+    toast({ title: "Played with your companion!", description: "Happiness increased but energy decreased!" });
+  };
+
+  const handleRest = () => {
+    const newStats = {
+      ...stats,
+      energy: Math.min(100, stats.energy + 20),
+      health: Math.min(100, stats.health + 5),
+    };
+    updateStats(newStats);
+    toast({ title: "Your companion is resting!", description: "Energy and health restored!" });
+  };
+
+  const handleTutorialComplete = () => {
+    localStorage.setItem('hasSeenUterooTutorial', 'true');
     setShowTutorial(false);
-    
-    if (user) {
-      try {
-        localStorage.setItem(`tutorial_completed_${user.id}`, 'true');
-      } catch (err) {
-        console.error('Error saving tutorial progress:', err);
-      }
-    }
-    
-    toast({
-      title: "Tutorial completed!",
-      description: "You're now ready to take care of your uterus companion!",
-    });
   };
 
-  const nextTutorialStep = () => {
-    if (tutorialStep < tutorialSteps.length - 1) {
-      setTutorialStep(tutorialStep + 1);
-    } else {
-      completeTutorial();
-    }
-  };
-
-  const getCharacterImage = () => {
-    // Use the happy/sad uteroo images based on character state
-    if (characterState === "happy") {
-      return "/lovable-uploads/50167af2-3f66-47c1-aadb-96e97717d531.png"; // happy uteroo
-    } else if (characterState === "sick" || characterState === "tired") {
-      return "/lovable-uploads/0a06c37e-fc17-41fc-be9c-2417fa48a098.png"; // sad uteroo
-    } else {
-      return "/lovable-uploads/9ec8afcf-fc18-4524-8cdf-ccf7730637ae.png"; // neutral uteroo
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-pink-500 mx-auto mb-4" />
+          <p className="text-gray-600">Loading your companion...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-pink-200 rounded-full opacity-30 animate-gentle-float"></div>
-      <div className="absolute bottom-40 right-20 w-24 h-24 bg-purple-200 rounded-full opacity-30 animate-gentle-float" style={{ animationDelay: "2s" }}></div>
-      <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-orange-200 rounded-full opacity-30 animate-gentle-float" style={{ animationDelay: "4s" }}></div>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 p-4">
+      {showTutorial && <UterooTutorial onComplete={handleTutorialComplete} />}
       
-      {/* Tutorial overlay */}
-      {showTutorial && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-md p-6 bg-white/90 backdrop-blur-sm">
-            <h2 className="text-xl font-bold mb-2 text-purple-600">{tutorialSteps[tutorialStep].title}</h2>
-            <p className="mb-6 text-gray-700">{tutorialSteps[tutorialStep].content}</p>
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setShowTutorial(false)}>
-                Skip Tutorial
-              </Button>
-              <Button onClick={nextTutorialStep}>
-                {tutorialStep < tutorialSteps.length - 1 ? "Next" : "Start"}
-              </Button>
-            </div>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent mb-2">
+            Your Uteroo Companion
+          </h1>
+          <p className="text-gray-600 text-lg">Take care of your menstrual health companion!</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Character Display */}
+          <Card className="p-6 bg-white/80 backdrop-blur-lg shadow-xl">
+            <UterooCharacter 
+              happiness={stats.happiness}
+              energy={stats.energy}
+              health={stats.health}
+            />
           </Card>
-        </div>
-      )}
-      
-      {/* Header */}
-      <header className="p-4 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-purple-800">Uteroo</h1>
-          <p className="text-sm text-purple-600">Your uterus companion</p>
-        </div>
-        <div className="text-right">
-          <p className="text-sm font-medium text-purple-700">Current Phase:</p>
-          <p className="text-lg font-bold capitalize text-purple-900">{cyclePhase}</p>
-        </div>
-      </header>
-      
-      {/* Main character area */}
-      <div className="flex flex-col items-center justify-center p-4 relative" style={{ minHeight: "60vh" }}>
-        {/* Character */}
-        <div 
-          ref={characterRef}
-          className="relative cursor-pointer transition-transform hover:scale-105"
-          onClick={handleCharacterClick}
-        >
-          <img 
-            src={getCharacterImage()} 
-            alt="Uterus character" 
-            className="w-64 h-64 object-contain"
-          />
-          
-          {/* Boost animation */}
-          {showBoost && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-boost">
-              <div className={`text-2xl font-bold ${
-                boostType === "happiness" ? "text-pink-500" : 
-                boostType === "energy" ? "text-yellow-500" : "text-green-500"
-              }`}>
-                +{boostAmount}
+
+          {/* Stats and Controls */}
+          <div className="space-y-6">
+            {/* Stats */}
+            <Card className="p-6 bg-white/80 backdrop-blur-lg shadow-xl">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800">Companion Stats</h2>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Happiness</span>
+                    <span className="text-sm text-gray-600">{stats.happiness}/100</span>
+                  </div>
+                  <Progress value={stats.happiness} className="h-3" />
+                </div>
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Energy</span>
+                    <span className="text-sm text-gray-600">{stats.energy}/100</span>
+                  </div>
+                  <Progress value={stats.energy} className="h-3" />
+                </div>
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Health</span>
+                    <span className="text-sm text-gray-600">{stats.health}/100</span>
+                  </div>
+                  <Progress value={stats.health} className="h-3" />
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-        
-        {/* Stats toggle button */}
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setShowStats(!showStats)}
-          className="mt-4"
-        >
-          {showStats ? "Hide Stats" : "Show Stats"}
-        </Button>
-      </div>
-      
-      {/* Stats area */}
-      <div className={`fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm p-4 transition-transform duration-300 ${
-        showStats ? "translate-y-0" : "translate-y-full"
-      }`}>
-        <div className="max-w-md mx-auto space-y-4">
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <label className="text-sm font-medium text-pink-700">Happiness</label>
-              <span className="text-sm text-pink-700">{happiness}%</span>
-            </div>
-            <Progress value={happiness} className="h-2 bg-pink-100" indicatorClassName="bg-pink-500" />
-          </div>
-          
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <label className="text-sm font-medium text-yellow-700">Energy</label>
-              <span className="text-sm text-yellow-700">{energy}%</span>
-            </div>
-            <Progress value={energy} className="h-2 bg-yellow-100" indicatorClassName="bg-yellow-500" />
-          </div>
-          
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <label className="text-sm font-medium text-green-700">Health</label>
-              <span className="text-sm text-green-700">{health}%</span>
-            </div>
-            <Progress value={health} className="h-2 bg-green-100" indicatorClassName="bg-green-500" />
+            </Card>
+
+            {/* Action Buttons */}
+            <Card className="p-6 bg-white/80 backdrop-blur-lg shadow-xl">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800">Care Actions</h2>
+              <div className="grid grid-cols-1 gap-3">
+                <Button 
+                  onClick={handleFeed}
+                  className="bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white"
+                >
+                  🍎 Feed (+10 Happiness, +5 Health)
+                </Button>
+                <Button 
+                  onClick={handlePlay}
+                  className="bg-gradient-to-r from-purple-400 to-indigo-400 hover:from-purple-500 hover:to-indigo-500 text-white"
+                >
+                  🎮 Play (+15 Happiness, -10 Energy)
+                </Button>
+                <Button 
+                  onClick={handleRest}
+                  className="bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 text-white"
+                >
+                  😴 Rest (+20 Energy, +5 Health)
+                </Button>
+              </div>
+            </Card>
           </div>
         </div>
       </div>
 
-      {/* Sachet Button - Always accessible */}
-      <SachetButton 
-        currentPhase={cyclePhase}
-        currentSymptoms={currentSymptoms}
-      />
+      <SachetButton />
     </div>
   );
 };

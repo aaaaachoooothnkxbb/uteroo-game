@@ -30,10 +30,16 @@ const Index = () => {
   const handleGoogleLogin = async () => {
     setLoadingProvider('google');
     try {
+      // Use localhost in development, otherwise use the actual origin
+      const isDevelopment = window.location.hostname === 'localhost';
+      const redirectUrl = isDevelopment 
+        ? 'http://localhost:5173/pou-game'
+        : `${window.location.origin}/pou-game`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/pou-game`
+          redirectTo: redirectUrl
         }
       });
 
