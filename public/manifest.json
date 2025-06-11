@@ -1,0 +1,29 @@
+
+{
+  "name": "Uteroo - Menstrual Cycle Companion",
+  "short_name": "Uteroo",
+  "description": "Your AI companion for menstrual health and wellness",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffeef8",
+  "theme_color": "#ec4899",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/lovable-uploads/50167af2-3f66-47c1-aadb-96e97717d531.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/50167af2-3f66-47c1-aadb-96e97717d531.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "lifestyle", "medical"],
+  "lang": "en",
+  "dir": "ltr"
+}
