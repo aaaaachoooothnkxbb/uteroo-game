@@ -1403,6 +1403,7 @@ const PouGame = () => {
                   <SurvivalPack 
                     isOpen={showSurvivalPack}
                     onToggle={() => setShowSurvivalPack(!showSurvivalPack)}
+                    currentPhase={currentPhase}
                   />
                 </div>
 
