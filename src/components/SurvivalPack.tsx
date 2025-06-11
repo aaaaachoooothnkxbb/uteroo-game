@@ -13,40 +13,40 @@ interface SurvivalPackProps {
 
 const survivalItems = {
   menstruation: [
-    "Either pads, tampon, cup...",
-    "Heating pad",
-    "Spinach",
-    "Dark chocolate",
-    "Ginger, Peppermint, Green tea",
-    "Black undies",
-    "Bravery"
+    "🩸 Either pads, tampon, cup...",
+    "🔥 Heating pad",
+    "🥬 Spinach",
+    "🍫 Dark chocolate",
+    "🫖 Ginger, Peppermint, Green tea",
+    "🩲 Black undies",
+    "💪 Bravery"
   ],
   follicular: [
-    "Protein-rich foods",
-    "Fresh fruits",
-    "Leafy greens",
-    "Energy-boosting snacks",
-    "Comfortable workout clothes",
-    "Water bottle",
-    "Motivation"
+    "🥩 Protein-rich foods",
+    "🍎 Fresh fruits",
+    "🥬 Leafy greens",
+    "⚡ Energy-boosting snacks",
+    "👕 Comfortable workout clothes",
+    "💧 Water bottle",
+    "✨ Motivation"
   ],
   ovulatory: [
-    "Light, hydrating foods",
-    "Colorful vegetables",
-    "Coconut water",
-    "Sunscreen",
-    "Confidence booster",
-    "Social energy",
-    "Radiance"
+    "🥗 Light, hydrating foods",
+    "🌈 Colorful vegetables",
+    "🥥 Coconut water",
+    "☀️ Sunscreen",
+    "💎 Confidence booster",
+    "🎉 Social energy",
+    "✨ Radiance"
   ],
   luteal: [
-    "Magnesium-rich foods",
-    "Complex carbs",
-    "Calming teas",
-    "Cozy blanket",
-    "Self-care essentials",
-    "Patience",
-    "Inner peace"
+    "🥜 Magnesium-rich foods",
+    "🍞 Complex carbs",
+    "🍵 Calming teas",
+    "🧸 Cozy blanket",
+    "💆‍♀️ Self-care essentials",
+    "🧘‍♀️ Patience",
+    "🕊️ Inner peace"
   ]
 };
 
