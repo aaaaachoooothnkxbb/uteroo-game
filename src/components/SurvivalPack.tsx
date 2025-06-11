@@ -96,7 +96,7 @@ export const SurvivalPack = ({ isOpen, onToggle, currentPhase = "menstruation" }
             
             <div className="mb-4">
               <div className="text-sm font-medium text-gray-700 mb-2">
-                🤖 Uteroo asks: "What do you have in your pantry/fridge?"
+                🤖 Uteroo asks: "What are we working with?"
               </div>
               <p className="text-xs text-gray-500 mb-3">
                 Check off the survival items you have for this level:
