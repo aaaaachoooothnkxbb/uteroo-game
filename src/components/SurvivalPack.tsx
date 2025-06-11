@@ -64,8 +64,16 @@ export const SurvivalPack = ({
 }: SurvivalPackProps) => {
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
   
-  const currentItems = survivalItems[currentPhase as keyof typeof survivalItems] || survivalItems.menstruation;
-  const currentMessage = phaseMessages[currentPhase as keyof typeof phaseMessages] || phaseMessages.menstruation;
+  // Add debugging
+  console.log("SurvivalPack currentPhase:", currentPhase);
+  
+  // Ensure we get the right phase items
+  const phaseKey = currentPhase?.toLowerCase() as keyof typeof survivalItems;
+  const currentItems = survivalItems[phaseKey] || survivalItems.menstruation;
+  const currentMessage = phaseMessages[phaseKey] || phaseMessages.menstruation;
+  
+  console.log("SurvivalPack phaseKey:", phaseKey);
+  console.log("SurvivalPack currentItems:", currentItems);
   
   const toggleItem = (index: number) => {
     const newCheckedItems = new Set(checkedItems);
@@ -76,6 +84,11 @@ export const SurvivalPack = ({
     }
     setCheckedItems(newCheckedItems);
   };
+
+  // Reset checked items when phase changes
+  useState(() => {
+    setCheckedItems(new Set());
+  });
 
   return (
     <div className="relative">
@@ -95,7 +108,7 @@ export const SurvivalPack = ({
         <div className="absolute top-0 left-0 z-50">
           <Card className="w-80 p-4 bg-white/95 backdrop-blur-sm shadow-lg border-2">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-sm">🎒 Survival Pack</h3>
+              <h3 className="font-bold text-sm">🎒 Survival Pack - {currentPhase}</h3>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -115,7 +128,7 @@ export const SurvivalPack = ({
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {currentItems.map((item, index) => (
                 <div 
-                  key={index}
+                  key={`${currentPhase}-${index}`}
                   onClick={() => toggleItem(index)}
                   className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer transition-colors"
                 >
