@@ -1,7 +1,6 @@
+
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Avatar } from "@dicebear/react";
-import * as dicebear from "@dicebear/avatars";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -74,6 +73,12 @@ const Dashboard = () => {
     navigate("/onboarding");
   };
 
+  // Simple avatar fallback using initials
+  const getAvatarFallback = () => {
+    if (!username) return "U";
+    return username.charAt(0).toUpperCase();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100">
       <div className="container mx-auto p-8">
@@ -84,16 +89,9 @@ const Dashboard = () => {
               {isLoading ? (
                 <Skeleton className="w-32 h-32 rounded-full mb-4" />
               ) : (
-                <Avatar
-                  style={{ width: "8rem", height: "8rem" }}
-                  seed={`${username}-${avatarDetails.animal}-${avatarDetails.color}-${avatarDetails.accessory}`}
-                  options={{
-                    backgroundColor: [
-                      avatarDetails.color || "#f4f4f4",
-                    ],
-                  }}
-                  generator={dicebear.pixelArt}
-                />
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-4xl font-bold mb-4">
+                  {getAvatarFallback()}
+                </div>
               )}
               {isLoading ? (
                 <Skeleton className="h-8 w-48 mb-2" />
