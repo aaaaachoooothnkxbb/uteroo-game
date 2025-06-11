@@ -99,24 +99,20 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
 
       console.log("Requesting camera permissions...");
       
-      // Try different camera configurations for better compatibility
+      // Simple camera constraints for better compatibility
       const constraints = {
         video: {
-          width: { min: 320, ideal: 640, max: 1280 },
-          height: { min: 240, ideal: 480, max: 720 },
-          facingMode: 'user',
-          frameRate: { ideal: 30, max: 30 }
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: 'user'
         },
         audio: false
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      console.log("Camera permission granted, stream received");
-      console.log("Video tracks:", stream.getVideoTracks().map(track => ({
-        label: track.label,
-        settings: track.getSettings()
-      })));
+      console.log("Camera permission granted, stream received:", stream);
+      console.log("Video tracks:", stream.getVideoTracks().length);
       
       setWebcamStream(stream);
       setIsPoseDetectionActive(true);
@@ -125,22 +121,15 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
         console.log("Setting video source...");
         videoRef.current.srcObject = stream;
         
-        // Set video properties
-        videoRef.current.muted = true;
-        videoRef.current.playsInline = true;
-        videoRef.current.autoplay = true;
-        
-        // Handle successful video load
-        const handleLoadedMetadata = () => {
-          console.log("Video metadata loaded successfully");
-          console.log("Video dimensions:", videoRef.current?.videoWidth, "x", videoRef.current?.videoHeight);
-          setIsLoading(false);
-          
+        // Wait for video to load and then play
+        videoRef.current.addEventListener('loadedmetadata', () => {
+          console.log("Video metadata loaded, attempting to play...");
           if (videoRef.current) {
             videoRef.current.play()
               .then(() => {
                 console.log("Video playing successfully");
                 setIsVideoPlaying(true);
+                setIsLoading(false);
                 toast({
                   title: "Camera Ready",
                   description: "Camera is now active for pose detection",
@@ -150,22 +139,16 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                 console.error("Error playing video:", error);
                 setCameraError("Failed to start video playback. Please try again.");
                 setIsLoading(false);
-                setIsPoseDetectionActive(false);
               });
           }
-        };
+        }, { once: true });
 
         // Handle video errors
-        const handleVideoError = (error: Event) => {
+        videoRef.current.addEventListener('error', (error) => {
           console.error("Video element error:", error);
           setCameraError("Video playback error. Please check your camera and try again.");
           setIsLoading(false);
-          setIsPoseDetectionActive(false);
-        };
-
-        // Add event listeners
-        videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
-        videoRef.current.addEventListener('error', handleVideoError, { once: true });
+        }, { once: true });
       }
 
     } catch (error) {
@@ -508,6 +491,7 @@ export const YogaPoseModal = ({ isOpen, onClose, poses, phase }: YogaPoseModalPr
                         autoPlay
                         muted
                         playsInline
+                        style={{ display: 'block' }}
                       />
                     ) : (
                       <img
