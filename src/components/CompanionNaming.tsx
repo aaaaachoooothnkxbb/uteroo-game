@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,8 +19,6 @@ export const CompanionNaming = ({ onComplete }: CompanionNamingProps) => {
   const { user } = useAuth();
 
   const handleSubmit = async () => {
-    console.log('CompanionNaming handleSubmit called with:', companionName);
-    
     if (!companionName.trim()) {
       toast({
         title: "Please enter a name",
@@ -30,8 +29,11 @@ export const CompanionNaming = ({ onComplete }: CompanionNamingProps) => {
     }
 
     if (!user) {
-      console.log('No user found, calling onComplete anyway');
-      onComplete(companionName.trim());
+      toast({
+        title: "Authentication required",
+        description: "Please log in to continue",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -54,7 +56,10 @@ export const CompanionNaming = ({ onComplete }: CompanionNamingProps) => {
           variant: "destructive",
         });
       } else {
-        console.log('Companion name saved successfully, calling onComplete');
+        toast({
+          title: "Welcome to Uteroo!",
+          description: `Meet ${companionName}, your new companion!`,
+        });
         onComplete(companionName.trim());
       }
     } catch (error) {
