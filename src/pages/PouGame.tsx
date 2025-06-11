@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -47,16 +46,16 @@ const PouGame = () => {
     }
   ];
 
-  // Load user data from pet_stats table
+  // Load user data
   useEffect(() => {
     const loadUserData = async () => {
       if (!user) return;
       
       try {
         const { data, error } = await supabase
-          .from('pet_stats')
-          .select('happiness, energy, hygiene')
-          .eq('user_id', user.id)
+          .from('profiles')
+          .select('happiness, energy, health, cycle_phase')
+          .eq('id', user.id)
           .single();
           
         if (error) {
@@ -67,12 +66,18 @@ const PouGame = () => {
         if (data) {
           setHappiness(data.happiness || 50);
           setEnergy(data.energy || 50);
-          setHealth(data.hygiene || 50); // Using hygiene as health
+          setHealth(data.health || 50);
+          if (data.cycle_phase) setCyclePhase(data.cycle_phase);
         }
         
-        // Simple tutorial check - just use local storage for now
-        const tutorialCompleted = localStorage.getItem(`tutorial_completed_${user.id}`);
-        if (tutorialCompleted) {
+        // Check if tutorial has been completed
+        const { data: tutorialData } = await supabase
+          .from('user_progress')
+          .select('tutorial_completed')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (tutorialData?.tutorial_completed) {
           setShowTutorial(false);
         }
       } catch (err) {
@@ -83,21 +88,21 @@ const PouGame = () => {
     loadUserData();
   }, [user]);
 
-  // Save stats periodically to pet_stats table
+  // Save stats periodically
   useEffect(() => {
     const saveInterval = setInterval(async () => {
       if (!user) return;
       
       try {
         const { error } = await supabase
-          .from('pet_stats')
+          .from('profiles')
           .update({
             happiness,
             energy,
-            hygiene: health, // Using hygiene as health
-            last_updated: new Date().toISOString()
+            health,
+            last_interaction: new Date().toISOString()
           })
-          .eq('user_id', user.id);
+          .eq('id', user.id);
           
         if (error) {
           console.error('Error saving stats:', error);
@@ -196,8 +201,16 @@ const PouGame = () => {
     setShowTutorial(false);
     
     if (user) {
-      // Store tutorial completion in localStorage for now
-      localStorage.setItem(`tutorial_completed_${user.id}`, 'true');
+      try {
+        await supabase
+          .from('user_progress')
+          .upsert({
+            user_id: user.id,
+            tutorial_completed: true
+          });
+      } catch (err) {
+        console.error('Error saving tutorial progress:', err);
+      }
     }
     
     toast({
