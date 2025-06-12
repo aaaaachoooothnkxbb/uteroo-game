@@ -201,7 +201,7 @@ export const SurvivalPack = ({
           🎒
         </div>
         <span className="text-xs font-semibold text-white bg-black/50 rounded-full px-2 py-0.5 mt-1">
-          Survival Pack
+          Survival Kit
         </span>
       </div>
 
