@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -148,7 +147,7 @@ export const SurvivalPack = ({
             onClick={handleThoughtBubbleClick}
           >
             <div className="text-xs font-semibold text-gray-800 text-center leading-tight">
-              💭 Uteroo needs help! {firstEnemyName} is here! Tap the backpack!
+              💭 Uteroo needs help! {firstEnemyName} monster is here! Tap the backpack!
             </div>
             {/* Speech bubble tail pointing towards Uteroo */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-8 border-transparent border-t-pink-300"></div>
