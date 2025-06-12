@@ -1,5 +1,6 @@
+
 import { cn } from "@/lib/utils";
-import { Heart } from "lucide-react";
+import { Heart, Flower } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { audioService } from "@/utils/audioService";
 
@@ -54,6 +55,30 @@ const phaseToSound = {
   luteal: "calm_loop"
 };
 
+// Hormonal level tooltips for each phase
+const phaseToHormonalTips = {
+  menstruation: {
+    estrogen: "Estrogen is at its lowest - time to rest and be gentle with yourself! 💕",
+    progesterone: "Progesterone drops sharply - this triggers your period and may affect mood 🌸",
+    testosterone: "Testosterone is low - perfect time for gentle, restorative activities 🕯️"
+  },
+  follicular: {
+    estrogen: "Estrogen starts rising - you'll feel more energetic and optimistic! ✨",
+    progesterone: "Progesterone stays low - great time to start new projects 🌱",
+    testosterone: "Testosterone begins to climb - motivation and confidence are building! 💪"
+  },
+  ovulatory: {
+    estrogen: "Estrogen peaks - you're at your most radiant and social! 🌟",
+    progesterone: "Progesterone starts to rise - preparing your body for potential pregnancy 🌺",
+    testosterone: "Testosterone surges - peak energy and libido time! 🔥"
+  },
+  luteal: {
+    estrogen: "Estrogen fluctuates then drops - this can affect mood and energy 🍂",
+    progesterone: "Progesterone is high - promoting calm but may cause PMS symptoms 🌙",
+    testosterone: "Testosterone gradually decreases - time to slow down and nurture yourself 🤗"
+  }
+};
+
 interface UterooCharacterProps {
   phase: Phase;
   currentRoom?: string;
@@ -79,6 +104,14 @@ interface CirclingEnemy {
   speed: number;
   icon: string;
   name: string;
+}
+
+// Interface for hormonal tooltip
+interface HormonalTooltip {
+  hormone: string;
+  text: string;
+  x: number;
+  y: number;
 }
 
 export const UterooCharacter = ({ 
@@ -113,6 +146,7 @@ export const UterooCharacter = ({
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
   const [currentMessage, setCurrentMessage] = useState(phaseToMessage[phase]);
   const [circlingEnemies, setCirclingEnemies] = useState<CirclingEnemy[]>([]);
+  const [activeTooltip, setActiveTooltip] = useState<HormonalTooltip | null>(null);
   
   // Initialize circling enemies when enemies prop changes
   useEffect(() => {
@@ -195,6 +229,26 @@ export const UterooCharacter = ({
     }
   }, [onClick]);
 
+  // Handle hormonal icon click
+  const handleHormonalIconClick = (hormone: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    const tooltip: HormonalTooltip = {
+      hormone,
+      text: phaseToHormonalTips[phase][hormone as keyof typeof phaseToHormonalTips[typeof phase]],
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10
+    };
+    
+    setActiveTooltip(tooltip);
+    
+    // Auto-hide tooltip after 3 seconds
+    setTimeout(() => {
+      setActiveTooltip(null);
+    }, 3000);
+  };
+
   if (minimal) {
     // Minimal version without message bubble - just the character
     return (
@@ -274,6 +328,36 @@ export const UterooCharacter = ({
           onClick={handleClick}
         />
         
+        {/* Hormonal Level Icons */}
+        <div className="absolute top-2 right-2 flex flex-col gap-1 z-20">
+          {/* Estrogen */}
+          <div 
+            className="relative cursor-pointer animate-pulse"
+            onClick={(e) => handleHormonalIconClick('estrogen', e)}
+          >
+            <Flower className="h-4 w-4 text-pink-400 animate-pulse" />
+            <div className="absolute inset-0 h-4 w-4 bg-pink-400 opacity-30 rounded-full animate-ping" />
+          </div>
+          
+          {/* Progesterone */}
+          <div 
+            className="relative cursor-pointer animate-pulse"
+            onClick={(e) => handleHormonalIconClick('progesterone', e)}
+          >
+            <Flower className="h-4 w-4 text-purple-400 animate-pulse" />
+            <div className="absolute inset-0 h-4 w-4 bg-purple-400 opacity-30 rounded-full animate-ping" />
+          </div>
+          
+          {/* Testosterone */}
+          <div 
+            className="relative cursor-pointer animate-pulse"
+            onClick={(e) => handleHormonalIconClick('testosterone', e)}
+          >
+            <Flower className="h-4 w-4 text-orange-400 animate-pulse" />
+            <div className="absolute inset-0 h-4 w-4 bg-orange-400 opacity-30 rounded-full animate-ping" />
+          </div>
+        </div>
+        
         {/* Floating hearts animation */}
         {floatingHearts.map(heart => (
           <div
@@ -288,6 +372,25 @@ export const UterooCharacter = ({
           </div>
         ))}
       </div>
+      
+      {/* Hormonal Tooltip */}
+      {activeTooltip && (
+        <div 
+          className="fixed z-50 bg-white/95 backdrop-blur-sm border-2 border-pink-300 rounded-lg px-3 py-2 shadow-lg max-w-64 pointer-events-none"
+          style={{
+            left: activeTooltip.x,
+            top: activeTooltip.y,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          <div className="text-xs font-medium text-gray-800 text-center leading-tight">
+            {activeTooltip.text}
+          </div>
+          {/* Tooltip arrow */}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-8 border-transparent border-t-pink-300"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 translate-y-[-2px] w-0 h-0 border-l-3 border-r-3 border-t-6 border-transparent border-t-white"></div>
+        </div>
+      )}
       
       <div className={cn(
         "mt-4 font-medium tracking-wide text-gray-800 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full px-4 py-2 shadow-lg",
