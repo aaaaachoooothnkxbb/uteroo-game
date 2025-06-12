@@ -1186,8 +1186,8 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Main content area - increased top padding */}
-        <div className="flex-1 pt-40 pb-6 px-4">
+        {/* Main content area - increased top padding even more */}
+        <div className="flex-1 pt-52 pb-6 px-4">
           <div className="max-w-md mx-auto">
             
             {/* Stats panel */}
@@ -1230,6 +1230,9 @@ const PouGame = () => {
                     isOpen={showSurvivalPack}
                     onToggle={() => setShowSurvivalPack(!showSurvivalPack)}
                     currentPhase={currentPhase}
+                    hasActiveEnemies={currentEnemies.length > 0}
+                    hasDailyGoals={false}
+                    enemies={currentEnemies}
                   />
                 </div>
 
