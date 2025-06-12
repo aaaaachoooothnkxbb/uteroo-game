@@ -992,6 +992,8 @@ const PouGame = () => {
       y: -20 - Math.random() * 30, // Start position above character
     };
     
+    setFloatingHearts(prev => [...prev, newHeart]);
+    
     // Remove the heart after animation completes
     setTimeout(() => {
       setFloatingHearts(prev => prev.filter(heart => heart.id !== newHeart.id));
@@ -1184,8 +1186,8 @@ const PouGame = () => {
           </div>
         </div>
 
-        {/* Main content area */}
-        <div className="flex-1 pt-32 pb-6 px-4">
+        {/* Main content area - increased top padding */}
+        <div className="flex-1 pt-40 pb-6 px-4">
           <div className="max-w-md mx-auto">
             
             {/* Stats panel */}
