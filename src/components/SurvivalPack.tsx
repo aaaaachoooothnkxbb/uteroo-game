@@ -164,7 +164,7 @@ export const SurvivalPack = ({
       >
         <div className={cn(
           "text-4xl",
-          shouldShowVisualCue ? "animate-pulse-glow" : "animate-pulse-slow"
+          hasActiveEnemies ? "animate-pulse-glow" : "animate-pulse-slow"
         )}>
           🎒
         </div>
