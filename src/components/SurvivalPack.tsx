@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -68,6 +69,7 @@ export const SurvivalPack = ({
   enemies = []
 }: SurvivalPackProps) => {
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
+  const [showThoughtBubble, setShowThoughtBubble] = useState(false);
   
   // Enhanced debugging
   console.log("🎒 SurvivalPack - Raw currentPhase prop:", currentPhase);
@@ -117,22 +119,38 @@ export const SurvivalPack = ({
     setCheckedItems(new Set());
   }, [currentPhase]);
 
+  // Show thought bubble when enemies are active
+  useEffect(() => {
+    if (hasActiveEnemies && enemies.length > 0) {
+      setShowThoughtBubble(true);
+    } else {
+      setShowThoughtBubble(false);
+    }
+  }, [hasActiveEnemies, enemies]);
+
   // Determine if backpack should have visual cue
   const shouldShowVisualCue = hasActiveEnemies || hasDailyGoals;
 
   // Get the first enemy name for the call-to-action message
   const firstEnemyName = enemies.length > 0 ? enemies[0].name : "";
 
+  const handleThoughtBubbleClick = () => {
+    setShowThoughtBubble(false);
+  };
+
   return (
     <div className="relative">
-      {/* Call-to-Action Bubble - appears when enemies are active */}
-      {hasActiveEnemies && enemies.length > 0 && (
-        <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="bg-white/95 backdrop-blur-sm border-2 border-pink-300 rounded-2xl px-3 py-2 shadow-lg max-w-48 animate-pulse-glow">
+      {/* Call-to-Action Bubble - positioned to come from Uteroo's location */}
+      {showThoughtBubble && hasActiveEnemies && enemies.length > 0 && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-32 z-20">
+          <div 
+            className="bg-white/95 backdrop-blur-sm border-2 border-pink-300 rounded-2xl px-3 py-2 shadow-lg max-w-48 animate-pulse-glow cursor-pointer"
+            onClick={handleThoughtBubbleClick}
+          >
             <div className="text-xs font-semibold text-gray-800 text-center leading-tight">
               💭 Uteroo needs help! {firstEnemyName} is here! Tap the backpack!
             </div>
-            {/* Speech bubble tail */}
+            {/* Speech bubble tail pointing towards Uteroo */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-8 border-transparent border-t-pink-300"></div>
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 translate-y-[-2px] w-0 h-0 border-l-3 border-r-3 border-t-6 border-transparent border-t-white"></div>
           </div>
