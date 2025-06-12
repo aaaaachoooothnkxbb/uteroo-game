@@ -1195,7 +1195,7 @@ const PouGame = () => {
             
             {/* Character area */}
             <div 
-              className="relative flex justify-center mb-4 mx-auto"
+              className="relative flex flex-col items-center justify-center mb-4 mx-auto"
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
@@ -1223,29 +1223,27 @@ const PouGame = () => {
                 </div>
               ))}
               
-              <div className="flex items-center gap-6">
-                {/* Survival Pack */}
-                <div className="flex items-end">
-                  <SurvivalPack 
-                    isOpen={showSurvivalPack}
-                    onToggle={() => setShowSurvivalPack(!showSurvivalPack)}
-                    currentPhase={currentPhase}
-                    hasActiveEnemies={currentEnemies.length > 0}
-                    hasDailyGoals={false}
-                    enemies={currentEnemies}
-                  />
-                </div>
-
-                {/* Uteroo Character */}
-                <UterooCharacter 
-                  phase={currentPhase} 
-                  currentRoom="bedroom"
-                  size="large" 
-                  minimal={false} 
-                  onClick={handleUterooClick}
+              {/* Survival Pack - positioned above Uteroo */}
+              <div className="mb-4">
+                <SurvivalPack 
+                  isOpen={showSurvivalPack}
+                  onToggle={() => setShowSurvivalPack(!showSurvivalPack)}
+                  currentPhase={currentPhase}
+                  hasActiveEnemies={currentEnemies.length > 0}
+                  hasDailyGoals={false}
                   enemies={currentEnemies}
                 />
               </div>
+
+              {/* Uteroo Character - centered */}
+              <UterooCharacter 
+                phase={currentPhase} 
+                currentRoom="bedroom"
+                size="large" 
+                minimal={false} 
+                onClick={handleUterooClick}
+                enemies={currentEnemies}
+              />
               
               {/* Boost indicator */}
               {showBoostIndicator && (
