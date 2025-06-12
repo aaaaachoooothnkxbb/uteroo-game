@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,44 +12,45 @@ interface SurvivalPackProps {
   hasActiveEnemies?: boolean;
   hasDailyGoals?: boolean;
   enemies?: Array<{ id: string; name: string; hp: number; icon: string; suggestion: string; }>;
+  onItemDrag?: (item: string, effectiveness: number) => void;
 }
 
 const survivalItems = {
   menstruation: [
-    "🩸 Comfort Control: Pads, Tampons, or Menstrual Cup",
-    "🔥 Heat Hugger: Heating Pad or Hot Water Bottle",
-    "🥬 Green Power: Spinach or Kale",
-    "🍫 Mood Magic: Dark Chocolate (70%+)",
-    "🍵 Soothing Sips: Ginger, Peppermint, or Green Tea Bags",
-    "🛌 Cozy Cover: A Soft Blanket or Fuzzy Socks",
-    "📖 Inner Peace: Your favorite calming Book or Journal"
+    { id: "comfort_control", name: "🩸 Comfort Control: Pads, Tampons, or Menstrual Cup", effectiveness: { cramps: 3, fatigue: 1 } },
+    { id: "heat_hugger", name: "🔥 Heat Hugger: Heating Pad or Hot Water Bottle", effectiveness: { cramps: 5, fatigue: 2 } },
+    { id: "green_power", name: "🥬 Green Power: Spinach or Kale", effectiveness: { fatigue: 4, cramps: 2 } },
+    { id: "mood_magic", name: "🍫 Mood Magic: Dark Chocolate (70%+)", effectiveness: { irritability: 4, sadness: 3 } },
+    { id: "soothing_sips", name: "🍵 Soothing Sips: Ginger, Peppermint, or Green Tea Bags", effectiveness: { cramps: 3, anxiety: 2 } },
+    { id: "cozy_cover", name: "🛌 Cozy Cover: A Soft Blanket or Fuzzy Socks", effectiveness: { cramps: 2, sadness: 3 } },
+    { id: "inner_peace", name: "📖 Inner Peace: Your favorite calming Book or Journal", effectiveness: { anxiety: 4, irritability: 3 } }
   ],
   follicular: [
-    "🥦 Estrogen Support: Broccoli or Brussels Sprouts",
-    "🌱 Seed Power: Flax Seeds or Pumpkin Seeds",
-    "🫐 Berry Burst: Blueberries or Raspberries",
-    "🥚 Lean Fuel: Eggs or Chicken Breast",
-    "🍚 Steady Carbs: Oats or Quinoa",
-    "💧 Hydration Hero: A Reusable Water Bottle",
-    "📝 Mind Spark: Pen and Paper for new ideas"
+    { id: "estrogen_support", name: "🥦 Estrogen Support: Broccoli or Brussels Sprouts", effectiveness: { fatigue: 3, anxiety: 2 } },
+    { id: "seed_power", name: "🌱 Seed Power: Flax Seeds or Pumpkin Seeds", effectiveness: { fatigue: 4, irritability: 2 } },
+    { id: "berry_burst", name: "🫐 Berry Burst: Blueberries or Raspberries", effectiveness: { fatigue: 3, migraine: 2 } },
+    { id: "lean_fuel", name: "🥚 Lean Fuel: Eggs or Chicken Breast", effectiveness: { fatigue: 5, anxiety: 1 } },
+    { id: "steady_carbs", name: "🍚 Steady Carbs: Oats or Quinoa", effectiveness: { fatigue: 4, anxiety: 3 } },
+    { id: "hydration_hero", name: "💧 Hydration Hero: A Reusable Water Bottle", effectiveness: { migraine: 4, fatigue: 2 } },
+    { id: "mind_spark", name: "📝 Mind Spark: Pen and Paper for new ideas", effectiveness: { anxiety: 3, irritability: 2 } }
   ],
   ovulatory: [
-    "🥑 Healthy Fats: Avocado",
-    "🐟 Omega Power: Canned Salmon or Sardines",
-    "🌰 Fertility Fuel: Nuts (Almonds, Walnuts)",
-    "🥕 Bright Veggies: Bell Peppers or Carrots",
-    "📞 Connection Catalyst: Your Phone (to call a friend!)",
-    "👟 Energy Boost: Your favorite Workout Shoes",
-    "🧖‍♀️ Radiant Glow: A Face Mask or Sheet Mask"
+    { id: "healthy_fats", name: "🥑 Healthy Fats: Avocado", effectiveness: { sensitivity: 3, migraine: 2 } },
+    { id: "omega_power", name: "🐟 Omega Power: Canned Salmon or Sardines", effectiveness: { sensitivity: 4, migraine: 3 } },
+    { id: "fertility_fuel", name: "🌰 Fertility Fuel: Nuts (Almonds, Walnuts)", effectiveness: { sensitivity: 3, migraine: 4 } },
+    { id: "bright_veggies", name: "🥕 Bright Veggies: Bell Peppers or Carrots", effectiveness: { sensitivity: 2, migraine: 2 } },
+    { id: "connection_catalyst", name: "📞 Connection Catalyst: Your Phone (to call a friend!)", effectiveness: { sensitivity: 5, migraine: 1 } },
+    { id: "energy_boost", name: "👟 Energy Boost: Your favorite Workout Shoes", effectiveness: { sensitivity: 2, migraine: 3 } },
+    { id: "radiant_glow", name: "🧖‍♀️ Radiant Glow: A Face Mask or Sheet Mask", effectiveness: { sensitivity: 4, migraine: 2 } }
   ],
   luteal: [
-    "🌻 Progesterone Pal: Pumpkin Seeds or Sunflower Seeds",
-    "🌼 Calm Sips: Chamomile Tea Bags",
-    "🛀 Magnesium Master: Epsom Salts (for a bath)",
-    "🍎 Fiber Friend: Apples or Pears",
-    "🍠 Comfort Food: Sweet Potatoes or Brown Rice",
-    "🌿 Mood Soother: Essential Oil Diffuser or Calming Spray",
-    "🎧 Zen Zone: Noise-Canceling Headphones or Earplugs"
+    { id: "progesterone_pal", name: "🌻 Progesterone Pal: Pumpkin Seeds or Sunflower Seeds", effectiveness: { irritability: 4, sadness: 3 } },
+    { id: "calm_sips", name: "🌼 Calm Sips: Chamomile Tea Bags", effectiveness: { irritability: 5, anxiety: 4 } },
+    { id: "magnesium_master", name: "🛀 Magnesium Master: Epsom Salts (for a bath)", effectiveness: { irritability: 3, cramps: 4 } },
+    { id: "fiber_friend", name: "🍎 Fiber Friend: Apples or Pears", effectiveness: { irritability: 2, sadness: 2 } },
+    { id: "comfort_food", name: "🍠 Comfort Food: Sweet Potatoes or Brown Rice", effectiveness: { sadness: 4, irritability: 2 } },
+    { id: "mood_soother", name: "🌿 Mood Soother: Essential Oil Diffuser or Calming Spray", effectiveness: { sadness: 5, irritability: 4 } },
+    { id: "zen_zone", name: "🎧 Zen Zone: Noise-Canceling Headphones or Earplugs", effectiveness: { sadness: 3, irritability: 5 } }
   ]
 };
 
@@ -65,10 +67,12 @@ export const SurvivalPack = ({
   currentPhase = "menstruation",
   hasActiveEnemies = false,
   hasDailyGoals = false,
-  enemies = []
+  enemies = [],
+  onItemDrag
 }: SurvivalPackProps) => {
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
   const [showThoughtBubble, setShowThoughtBubble] = useState(false);
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
   
   // Enhanced debugging
   console.log("🎒 SurvivalPack - Raw currentPhase prop:", currentPhase);
@@ -137,6 +141,35 @@ export const SurvivalPack = ({
     setShowThoughtBubble(false);
   };
 
+  // Get effectiveness of an item against current enemies
+  const getItemEffectiveness = (item: any) => {
+    if (!enemies.length) return 0;
+    
+    let maxEffectiveness = 0;
+    enemies.forEach(enemy => {
+      const effectiveness = item.effectiveness[enemy.id] || 0;
+      maxEffectiveness = Math.max(maxEffectiveness, effectiveness);
+    });
+    
+    return maxEffectiveness;
+  };
+
+  // Handle item drag start
+  const handleDragStart = (e: React.DragEvent, item: any, index: number) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify({
+      item: item,
+      index: index,
+      effectiveness: getItemEffectiveness(item)
+    }));
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedItem(item.id);
+  };
+
+  // Handle item drag end
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+  };
+
   return (
     <div className="relative">
       {/* Call-to-Action Bubble - positioned to come from Uteroo's location */}
@@ -192,39 +225,64 @@ export const SurvivalPack = ({
               <p className="text-xs text-gray-600 mb-3 leading-relaxed">
                 {currentMessage}
               </p>
+              {hasActiveEnemies && enemies.length > 0 && (
+                <p className="text-xs text-pink-600 font-semibold mb-2 leading-relaxed">
+                  💪 Drag items to Uteroo to fight the {enemies.map(e => e.name).join(", ")} monster{enemies.length > 1 ? 's' : ''}!
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 max-h-64 overflow-y-auto">
-              {currentItems.map((item, index) => (
-                <div 
-                  key={`${normalizedPhase}-${index}`}
-                  onClick={() => toggleItem(index)}
-                  className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer transition-colors"
-                >
+              {currentItems.map((item, index) => {
+                const effectiveness = getItemEffectiveness(item);
+                const isHighlighted = effectiveness > 0;
+                
+                return (
                   <div 
+                    key={`${normalizedPhase}-${index}`}
+                    draggable={hasActiveEnemies}
+                    onDragStart={(e) => handleDragStart(e, item, index)}
+                    onDragEnd={handleDragEnd}
+                    onClick={() => toggleItem(index)}
                     className={cn(
-                      "w-4 h-4 rounded border-2 flex items-center justify-center transition-colors mt-0.5 flex-shrink-0",
-                      checkedItems.has(index) 
-                        ? "bg-green-500 border-green-500" 
-                        : "border-gray-300"
+                      "flex items-start space-x-2 p-2 rounded transition-all cursor-pointer",
+                      hasActiveEnemies ? "cursor-grab active:cursor-grabbing" : "hover:bg-gray-50",
+                      isHighlighted && hasActiveEnemies ? "bg-yellow-50 border-2 border-yellow-300 shadow-md animate-pulse-glow" : "",
+                      draggedItem === item.id ? "opacity-50 scale-95" : ""
                     )}
                   >
-                    {checkedItems.has(index) && (
-                      <Check className="w-3 h-3 text-white" />
-                    )}
+                    <div 
+                      className={cn(
+                        "w-4 h-4 rounded border-2 flex items-center justify-center transition-colors mt-0.5 flex-shrink-0",
+                        checkedItems.has(index) 
+                          ? "bg-green-500 border-green-500" 
+                          : "border-gray-300"
+                      )}
+                    >
+                      {checkedItems.has(index) && (
+                        <Check className="w-3 h-3 text-white" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <span 
+                        className={cn(
+                          "text-xs flex-1 leading-relaxed block",
+                          checkedItems.has(index) 
+                            ? "line-through text-gray-500" 
+                            : "text-gray-700"
+                        )}
+                      >
+                        {item.name}
+                      </span>
+                      {isHighlighted && hasActiveEnemies && (
+                        <span className="text-xs text-yellow-600 font-semibold block mt-1">
+                          ⚡ Effectiveness: {effectiveness}/5
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span 
-                    className={cn(
-                      "text-xs flex-1 leading-relaxed",
-                      checkedItems.has(index) 
-                        ? "line-through text-gray-500" 
-                        : "text-gray-700"
-                    )}
-                  >
-                    {item}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="mt-4 pt-3 border-t">
