@@ -28,21 +28,27 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       title: "Cycle Information",
       description: "Please provide information about your cycle.",
       content: (
-        <div>
-          <p>What is the typical length of your cycle?</p>
-          <input
-            type="number"
-            placeholder="Cycle Length (days)"
-            value={answers.cycleLength || ""}
-            onChange={(e) => setAnswers({ ...answers, cycleLength: e.target.value })}
-          />
-          <p>How long does your period usually last?</p>
-          <input
-            type="number"
-            placeholder="Period Length (days)"
-            value={answers.periodLength || ""}
-            onChange={(e) => setAnswers({ ...answers, periodLength: e.target.value })}
-          />
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">What is the typical length of your cycle?</label>
+            <input
+              type="number"
+              placeholder="Cycle Length (days)"
+              className="w-full p-3 border rounded-lg"
+              value={answers.cycleLength || ""}
+              onChange={(e) => setAnswers({ ...answers, cycleLength: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">How long does your period usually last?</label>
+            <input
+              type="number"
+              placeholder="Period Length (days)"
+              className="w-full p-3 border rounded-lg"
+              value={answers.periodLength || ""}
+              onChange={(e) => setAnswers({ ...answers, periodLength: e.target.value })}
+            />
+          </div>
         </div>
       ),
       fields: ["cycleLength", "periodLength"],
@@ -52,14 +58,17 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       title: "Personalize Your Companion",
       description: "Give your Uteroo companion a name!",
       content: (
-        <div>
-          <p>What would you like to name your companion?</p>
-          <input
-            type="text"
-            placeholder="Companion Name"
-            value={answers.companionName || ""}
-            onChange={(e) => setAnswers({ ...answers, companionName: e.target.value })}
-          />
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">What would you like to name your companion?</label>
+            <input
+              type="text"
+              placeholder="Companion Name"
+              className="w-full p-3 border rounded-lg"
+              value={answers.companionName || ""}
+              onChange={(e) => setAnswers({ ...answers, companionName: e.target.value })}
+            />
+          </div>
         </div>
       ),
       fields: ["companionName"],
@@ -92,7 +101,8 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       if (session?.session?.user) {
         await supabase
           .from('profiles')
-          .update({ onboarding_completed: true, 
+          .update({ 
+            onboarding_completed: true, 
             cycle_length: parseInt(answers.cycleLength),
             period_length: parseInt(answers.periodLength),
             companion_name: answers.companionName
@@ -115,7 +125,11 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           <CardDescription className="text-gray-500">{steps[currentStep].description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {steps[currentStep].content}
+          {typeof steps[currentStep].content === 'string' ? (
+            <p>{steps[currentStep].content}</p>
+          ) : (
+            steps[currentStep].content
+          )}
           {currentStep === 3 && (
             <div className="text-center">
               <Badge variant="secondary" className="gap-2">
