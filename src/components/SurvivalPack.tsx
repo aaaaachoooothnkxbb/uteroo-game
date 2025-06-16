@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,40 +17,40 @@ interface SurvivalPackProps {
 
 const survivalItems = {
   menstruation: [
-    { id: "comfort_control", name: "🩸 Comfort Control: Pads, Tampons, or Menstrual Cup", emoji: "🩸", effectiveness: { cramps: 3, fatigue: 1 } },
-    { id: "heat_hugger", name: "🔥 Heat Hugger: Heating Pad or Hot Water Bottle", emoji: "🔥", effectiveness: { cramps: 5, fatigue: 2 } },
-    { id: "green_power", name: "🥬 Green Power: Spinach or Kale", emoji: "🥬", effectiveness: { fatigue: 4, cramps: 2 } },
-    { id: "mood_magic", name: "🍫 Mood Magic: Dark Chocolate (70%+)", emoji: "🍫", effectiveness: { irritability: 4, sadness: 3 } },
-    { id: "soothing_sips", name: "🍵 Soothing Sips: Ginger, Peppermint, or Green Tea Bags", emoji: "🍵", effectiveness: { cramps: 3, anxiety: 2 } },
-    { id: "cozy_cover", name: "🛌 Cozy Cover: A Soft Blanket or Fuzzy Socks", emoji: "🛌", effectiveness: { cramps: 2, sadness: 3 } },
-    { id: "inner_peace", name: "📖 Inner Peace: Your favorite calming Book or Journal", emoji: "📖", effectiveness: { anxiety: 4, irritability: 3 } }
+    { id: "comfort_control", name: "Comfort Control", emoji: "🩸", effectiveness: { cramps: 3, fatigue: 1 } },
+    { id: "heat_hugger", name: "Heating Pad", emoji: "🔥", effectiveness: { cramps: 5, fatigue: 2 } },
+    { id: "green_power", name: "Spinach", emoji: "🥬", effectiveness: { fatigue: 4, cramps: 2 } },
+    { id: "mood_magic", name: "Dark Chocolate", emoji: "🍫", effectiveness: { irritability: 4, sadness: 3 } },
+    { id: "soothing_sips", name: "Ginger Tea", emoji: "🍵", effectiveness: { cramps: 3, anxiety: 2 } },
+    { id: "cozy_cover", name: "Soft Blanket", emoji: "🛌", effectiveness: { cramps: 2, sadness: 3 } },
+    { id: "inner_peace", name: "Calming Book", emoji: "📖", effectiveness: { anxiety: 4, irritability: 3 } }
   ],
   follicular: [
-    { id: "estrogen_support", name: "🥦 Estrogen Support: Broccoli or Brussels Sprouts", emoji: "🥦", effectiveness: { fatigue: 3, anxiety: 2 } },
-    { id: "seed_power", name: "🌱 Seed Power: Flax Seeds or Pumpkin Seeds", emoji: "🌱", effectiveness: { fatigue: 4, irritability: 2 } },
-    { id: "berry_burst", name: "🫐 Berry Burst: Blueberries or Raspberries", emoji: "🫐", effectiveness: { fatigue: 3, migraine: 2 } },
-    { id: "lean_fuel", name: "🥚 Lean Fuel: Eggs or Chicken Breast", emoji: "🥚", effectiveness: { fatigue: 5, anxiety: 1 } },
-    { id: "steady_carbs", name: "🍚 Steady Carbs: Oats or Quinoa", emoji: "🍚", effectiveness: { fatigue: 4, anxiety: 3 } },
-    { id: "hydration_hero", name: "💧 Hydration Hero: A Reusable Water Bottle", emoji: "💧", effectiveness: { migraine: 4, fatigue: 2 } },
-    { id: "mind_spark", name: "📝 Mind Spark: Pen and Paper for new ideas", emoji: "📝", effectiveness: { anxiety: 3, irritability: 2 } }
+    { id: "estrogen_support", name: "Broccoli", emoji: "🥦", effectiveness: { fatigue: 3, anxiety: 2 } },
+    { id: "seed_power", name: "Flax Seeds", emoji: "🌱", effectiveness: { fatigue: 4, irritability: 2 } },
+    { id: "berry_burst", name: "Blueberries", emoji: "🫐", effectiveness: { fatigue: 3, migraine: 2 } },
+    { id: "lean_fuel", name: "Eggs", emoji: "🥚", effectiveness: { fatigue: 5, anxiety: 1 } },
+    { id: "steady_carbs", name: "Oats", emoji: "🍚", effectiveness: { fatigue: 4, anxiety: 3 } },
+    { id: "hydration_hero", name: "Water Bottle", emoji: "💧", effectiveness: { migraine: 4, fatigue: 2 } },
+    { id: "mind_spark", name: "Pen and Paper", emoji: "📝", effectiveness: { anxiety: 3, irritability: 2 } }
   ],
   ovulatory: [
-    { id: "healthy_fats", name: "🥑 Healthy Fats: Avocado", emoji: "🥑", effectiveness: { sensitivity: 3, migraine: 2 } },
-    { id: "omega_power", name: "🐟 Omega Power: Canned Salmon or Sardines", emoji: "🐟", effectiveness: { sensitivity: 4, migraine: 3 } },
-    { id: "fertility_fuel", name: "🌰 Fertility Fuel: Nuts (Almonds, Walnuts)", emoji: "🌰", effectiveness: { sensitivity: 3, migraine: 4 } },
-    { id: "bright_veggies", name: "🥕 Bright Veggies: Bell Peppers or Carrots", emoji: "🥕", effectiveness: { sensitivity: 2, migraine: 2 } },
-    { id: "connection_catalyst", name: "📞 Connection Catalyst: Your Phone (to call a friend!)", emoji: "📞", effectiveness: { sensitivity: 5, migraine: 1 } },
-    { id: "energy_boost", name: "👟 Energy Boost: Your favorite Workout Shoes", emoji: "👟", effectiveness: { sensitivity: 2, migraine: 3 } },
-    { id: "radiant_glow", name: "🧖‍♀️ Radiant Glow: A Face Mask or Sheet Mask", emoji: "🧖‍♀️", effectiveness: { sensitivity: 4, migraine: 2 } }
+    { id: "healthy_fats", name: "Avocado", emoji: "🥑", effectiveness: { sensitivity: 3, migraine: 2 } },
+    { id: "omega_power", name: "Salmon", emoji: "🐟", effectiveness: { sensitivity: 4, migraine: 3 } },
+    { id: "fertility_fuel", name: "Almonds", emoji: "🌰", effectiveness: { sensitivity: 3, migraine: 4 } },
+    { id: "bright_veggies", name: "Bell Peppers", emoji: "🥕", effectiveness: { sensitivity: 2, migraine: 2 } },
+    { id: "connection_catalyst", name: "Phone", emoji: "📞", effectiveness: { sensitivity: 5, migraine: 1 } },
+    { id: "energy_boost", name: "Workout Shoes", emoji: "👟", effectiveness: { sensitivity: 2, migraine: 3 } },
+    { id: "radiant_glow", name: "Face Mask", emoji: "🧖‍♀️", effectiveness: { sensitivity: 4, migraine: 2 } }
   ],
   luteal: [
-    { id: "progesterone_pal", name: "🌻 Progesterone Pal: Pumpkin Seeds or Sunflower Seeds", emoji: "🌻", effectiveness: { irritability: 4, sadness: 3 } },
-    { id: "calm_sips", name: "🌼 Calm Sips: Chamomile Tea Bags", emoji: "🌼", effectiveness: { irritability: 5, anxiety: 4 } },
-    { id: "magnesium_master", name: "🛀 Magnesium Master: Epsom Salts (for a bath)", emoji: "🛀", effectiveness: { irritability: 3, cramps: 4 } },
-    { id: "fiber_friend", name: "🍎 Fiber Friend: Apples or Pears", emoji: "🍎", effectiveness: { irritability: 2, sadness: 2 } },
-    { id: "comfort_food", name: "🍠 Comfort Food: Sweet Potatoes or Brown Rice", emoji: "🍠", effectiveness: { sadness: 4, irritability: 2 } },
-    { id: "mood_soother", name: "🌿 Mood Soother: Essential Oil Diffuser or Calming Spray", emoji: "🌿", effectiveness: { sadness: 5, irritability: 4 } },
-    { id: "zen_zone", name: "🎧 Zen Zone: Noise-Canceling Headphones or Earplugs", emoji: "🎧", effectiveness: { sadness: 3, irritability: 5 } }
+    { id: "progesterone_pal", name: "Pumpkin Seeds", emoji: "🌻", effectiveness: { irritability: 4, sadness: 3 } },
+    { id: "calm_sips", name: "Chamomile Tea", emoji: "🌼", effectiveness: { irritability: 5, anxiety: 4 } },
+    { id: "magnesium_master", name: "Epsom Salts", emoji: "🛀", effectiveness: { irritability: 3, cramps: 4 } },
+    { id: "fiber_friend", name: "Apples", emoji: "🍎", effectiveness: { irritability: 2, sadness: 2 } },
+    { id: "comfort_food", name: "Sweet Potatoes", emoji: "🍠", effectiveness: { sadness: 4, irritability: 2 } },
+    { id: "mood_soother", name: "Essential Oil", emoji: "🌿", effectiveness: { sadness: 5, irritability: 4 } },
+    { id: "zen_zone", name: "Headphones", emoji: "🎧", effectiveness: { sadness: 3, irritability: 5 } }
   ]
 };
 
@@ -152,6 +153,23 @@ export const SurvivalPack = ({
     });
     
     return maxEffectiveness;
+  };
+
+  // Get which enemy the item is most effective against
+  const getTargetEnemy = (item: any) => {
+    if (!enemies.length) return "";
+    
+    let maxEffectiveness = 0;
+    let targetEnemy = "";
+    enemies.forEach(enemy => {
+      const effectiveness = item.effectiveness[enemy.id] || 0;
+      if (effectiveness > maxEffectiveness) {
+        maxEffectiveness = effectiveness;
+        targetEnemy = enemy.name;
+      }
+    });
+    
+    return targetEnemy;
   };
 
   // Handle item click to release emoji
@@ -293,6 +311,7 @@ export const SurvivalPack = ({
               {currentItems.map((item, index) => {
                 const effectiveness = getItemEffectiveness(item);
                 const isHighlighted = effectiveness > 0;
+                const targetEnemy = getTargetEnemy(item);
                 
                 return (
                   <div 
@@ -325,13 +344,8 @@ export const SurvivalPack = ({
                             : "text-gray-700"
                         )}
                       >
-                        {item.name}
+                        {item.emoji} {item.name}{targetEnemy && ` -> ${targetEnemy}`}
                       </span>
-                      {isHighlighted && hasActiveEnemies && (
-                        <span className="text-xs text-yellow-600 font-semibold block mt-1">
-                          ⚡ Effectiveness: {effectiveness}/5
-                        </span>
-                      )}
                     </div>
                   </div>
                 );
