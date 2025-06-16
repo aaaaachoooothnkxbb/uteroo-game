@@ -295,9 +295,6 @@ export const SurvivalPack = ({
             </div>
             
             <div className="mb-4">
-              <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                {currentMessage}
-              </p>
               {hasActiveEnemies && enemies.length > 0 && (
                 <p className="text-xs text-pink-600 font-semibold mb-2 leading-relaxed">
                   💪 Click items to release emojis, then drag emojis to fight the {enemies.map(e => e.name).join(", ")} monster{enemies.length > 1 ? 's' : ''}!
