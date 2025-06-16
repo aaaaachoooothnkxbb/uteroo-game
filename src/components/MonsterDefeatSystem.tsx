@@ -35,6 +35,7 @@ export const MonsterDefeatSystem = ({
   const [droppedItem, setDroppedItem] = useState<DroppedItem | null>(null);
   const [showDamage, setShowDamage] = useState<{monsterId: string, damage: number} | null>(null);
   const [defeatedMonster, setDefeatedMonster] = useState<string | null>(null);
+  const [monsterHitCounts, setMonsterHitCounts] = useState<{[key: string]: number}>({});
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -68,8 +69,16 @@ export const MonsterDefeatSystem = ({
           }
         });
 
+        // Update hit count for this monster
+        const currentHits = monsterHitCounts[targetMonster.id] || 0;
+        const newHits = currentHits + 1;
+        
+        setMonsterHitCounts(prev => ({
+          ...prev,
+          [targetMonster.id]: newHits
+        }));
+
         const damage = effectiveness;
-        const newHp = Math.max(0, targetMonster.hp - damage);
 
         // Show damage animation
         setShowDamage({ monsterId: targetMonster.id, damage });
@@ -85,7 +94,8 @@ export const MonsterDefeatSystem = ({
         });
         setTimeout(() => setDroppedItem(null), 2000);
 
-        if (newHp <= 0) {
+        // Check if monster should be defeated (after 4 hits)
+        if (newHits >= 4) {
           // Monster defeated
           setDefeatedMonster(targetMonster.id);
           setTimeout(() => setDefeatedMonster(null), 2000);
@@ -93,6 +103,13 @@ export const MonsterDefeatSystem = ({
           const xpReward = targetMonster.maxHp * 10;
           const coinReward = targetMonster.maxHp * 5;
           onMonsterDefeated(targetMonster.id, xpReward, coinReward);
+          
+          // Reset hit count for this monster
+          setMonsterHitCounts(prev => {
+            const newCounts = { ...prev };
+            delete newCounts[targetMonster.id];
+            return newCounts;
+          });
         } else {
           // Monster weakened
           onMonsterWeakened(targetMonster.id, damage);
@@ -102,6 +119,20 @@ export const MonsterDefeatSystem = ({
       console.error("Error processing dropped item:", error);
     }
   };
+
+  // Reset hit counts when monsters change
+  useEffect(() => {
+    const currentMonsterIds = new Set(monsters.map(m => m.id));
+    setMonsterHitCounts(prev => {
+      const filtered: {[key: string]: number} = {};
+      Object.keys(prev).forEach(id => {
+        if (currentMonsterIds.has(id)) {
+          filtered[id] = prev[id];
+        }
+      });
+      return filtered;
+    });
+  }, [monsters]);
 
   return (
     <div
@@ -119,10 +150,23 @@ export const MonsterDefeatSystem = ({
       {dragOver && (
         <div className="absolute inset-0 border-4 border-dashed border-yellow-400 rounded-lg flex items-center justify-center bg-yellow-100/30 pointer-events-none z-10">
           <div className="text-lg font-bold text-yellow-700 text-center">
-            ⚡ Drop here to help Uteroo! ⚡
+            ⚡ Drop emoji here to help Uteroo! ⚡
           </div>
         </div>
       )}
+
+      {/* Hit counter display for each monster */}
+      {monsters.map(monster => {
+        const hits = monsterHitCounts[monster.id] || 0;
+        return hits > 0 ? (
+          <div 
+            key={monster.id}
+            className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold pointer-events-none z-15"
+          >
+            {hits}/4
+          </div>
+        ) : null;
+      })}
 
       {/* Dropped item animation */}
       {droppedItem && (
@@ -135,7 +179,7 @@ export const MonsterDefeatSystem = ({
           }}
         >
           <div className="text-2xl bg-white rounded-full p-2 shadow-lg border-2 border-yellow-400">
-            {droppedItem.item.name.split(' ')[0]}
+            {droppedItem.item.emoji}
           </div>
         </div>
       )}

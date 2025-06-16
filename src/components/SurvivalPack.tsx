@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,40 +16,40 @@ interface SurvivalPackProps {
 
 const survivalItems = {
   menstruation: [
-    { id: "comfort_control", name: "🩸 Comfort Control: Pads, Tampons, or Menstrual Cup", effectiveness: { cramps: 3, fatigue: 1 } },
-    { id: "heat_hugger", name: "🔥 Heat Hugger: Heating Pad or Hot Water Bottle", effectiveness: { cramps: 5, fatigue: 2 } },
-    { id: "green_power", name: "🥬 Green Power: Spinach or Kale", effectiveness: { fatigue: 4, cramps: 2 } },
-    { id: "mood_magic", name: "🍫 Mood Magic: Dark Chocolate (70%+)", effectiveness: { irritability: 4, sadness: 3 } },
-    { id: "soothing_sips", name: "🍵 Soothing Sips: Ginger, Peppermint, or Green Tea Bags", effectiveness: { cramps: 3, anxiety: 2 } },
-    { id: "cozy_cover", name: "🛌 Cozy Cover: A Soft Blanket or Fuzzy Socks", effectiveness: { cramps: 2, sadness: 3 } },
-    { id: "inner_peace", name: "📖 Inner Peace: Your favorite calming Book or Journal", effectiveness: { anxiety: 4, irritability: 3 } }
+    { id: "comfort_control", name: "🩸 Comfort Control: Pads, Tampons, or Menstrual Cup", emoji: "🩸", effectiveness: { cramps: 3, fatigue: 1 } },
+    { id: "heat_hugger", name: "🔥 Heat Hugger: Heating Pad or Hot Water Bottle", emoji: "🔥", effectiveness: { cramps: 5, fatigue: 2 } },
+    { id: "green_power", name: "🥬 Green Power: Spinach or Kale", emoji: "🥬", effectiveness: { fatigue: 4, cramps: 2 } },
+    { id: "mood_magic", name: "🍫 Mood Magic: Dark Chocolate (70%+)", emoji: "🍫", effectiveness: { irritability: 4, sadness: 3 } },
+    { id: "soothing_sips", name: "🍵 Soothing Sips: Ginger, Peppermint, or Green Tea Bags", emoji: "🍵", effectiveness: { cramps: 3, anxiety: 2 } },
+    { id: "cozy_cover", name: "🛌 Cozy Cover: A Soft Blanket or Fuzzy Socks", emoji: "🛌", effectiveness: { cramps: 2, sadness: 3 } },
+    { id: "inner_peace", name: "📖 Inner Peace: Your favorite calming Book or Journal", emoji: "📖", effectiveness: { anxiety: 4, irritability: 3 } }
   ],
   follicular: [
-    { id: "estrogen_support", name: "🥦 Estrogen Support: Broccoli or Brussels Sprouts", effectiveness: { fatigue: 3, anxiety: 2 } },
-    { id: "seed_power", name: "🌱 Seed Power: Flax Seeds or Pumpkin Seeds", effectiveness: { fatigue: 4, irritability: 2 } },
-    { id: "berry_burst", name: "🫐 Berry Burst: Blueberries or Raspberries", effectiveness: { fatigue: 3, migraine: 2 } },
-    { id: "lean_fuel", name: "🥚 Lean Fuel: Eggs or Chicken Breast", effectiveness: { fatigue: 5, anxiety: 1 } },
-    { id: "steady_carbs", name: "🍚 Steady Carbs: Oats or Quinoa", effectiveness: { fatigue: 4, anxiety: 3 } },
-    { id: "hydration_hero", name: "💧 Hydration Hero: A Reusable Water Bottle", effectiveness: { migraine: 4, fatigue: 2 } },
-    { id: "mind_spark", name: "📝 Mind Spark: Pen and Paper for new ideas", effectiveness: { anxiety: 3, irritability: 2 } }
+    { id: "estrogen_support", name: "🥦 Estrogen Support: Broccoli or Brussels Sprouts", emoji: "🥦", effectiveness: { fatigue: 3, anxiety: 2 } },
+    { id: "seed_power", name: "🌱 Seed Power: Flax Seeds or Pumpkin Seeds", emoji: "🌱", effectiveness: { fatigue: 4, irritability: 2 } },
+    { id: "berry_burst", name: "🫐 Berry Burst: Blueberries or Raspberries", emoji: "🫐", effectiveness: { fatigue: 3, migraine: 2 } },
+    { id: "lean_fuel", name: "🥚 Lean Fuel: Eggs or Chicken Breast", emoji: "🥚", effectiveness: { fatigue: 5, anxiety: 1 } },
+    { id: "steady_carbs", name: "🍚 Steady Carbs: Oats or Quinoa", emoji: "🍚", effectiveness: { fatigue: 4, anxiety: 3 } },
+    { id: "hydration_hero", name: "💧 Hydration Hero: A Reusable Water Bottle", emoji: "💧", effectiveness: { migraine: 4, fatigue: 2 } },
+    { id: "mind_spark", name: "📝 Mind Spark: Pen and Paper for new ideas", emoji: "📝", effectiveness: { anxiety: 3, irritability: 2 } }
   ],
   ovulatory: [
-    { id: "healthy_fats", name: "🥑 Healthy Fats: Avocado", effectiveness: { sensitivity: 3, migraine: 2 } },
-    { id: "omega_power", name: "🐟 Omega Power: Canned Salmon or Sardines", effectiveness: { sensitivity: 4, migraine: 3 } },
-    { id: "fertility_fuel", name: "🌰 Fertility Fuel: Nuts (Almonds, Walnuts)", effectiveness: { sensitivity: 3, migraine: 4 } },
-    { id: "bright_veggies", name: "🥕 Bright Veggies: Bell Peppers or Carrots", effectiveness: { sensitivity: 2, migraine: 2 } },
-    { id: "connection_catalyst", name: "📞 Connection Catalyst: Your Phone (to call a friend!)", effectiveness: { sensitivity: 5, migraine: 1 } },
-    { id: "energy_boost", name: "👟 Energy Boost: Your favorite Workout Shoes", effectiveness: { sensitivity: 2, migraine: 3 } },
-    { id: "radiant_glow", name: "🧖‍♀️ Radiant Glow: A Face Mask or Sheet Mask", effectiveness: { sensitivity: 4, migraine: 2 } }
+    { id: "healthy_fats", name: "🥑 Healthy Fats: Avocado", emoji: "🥑", effectiveness: { sensitivity: 3, migraine: 2 } },
+    { id: "omega_power", name: "🐟 Omega Power: Canned Salmon or Sardines", emoji: "🐟", effectiveness: { sensitivity: 4, migraine: 3 } },
+    { id: "fertility_fuel", name: "🌰 Fertility Fuel: Nuts (Almonds, Walnuts)", emoji: "🌰", effectiveness: { sensitivity: 3, migraine: 4 } },
+    { id: "bright_veggies", name: "🥕 Bright Veggies: Bell Peppers or Carrots", emoji: "🥕", effectiveness: { sensitivity: 2, migraine: 2 } },
+    { id: "connection_catalyst", name: "📞 Connection Catalyst: Your Phone (to call a friend!)", emoji: "📞", effectiveness: { sensitivity: 5, migraine: 1 } },
+    { id: "energy_boost", name: "👟 Energy Boost: Your favorite Workout Shoes", emoji: "👟", effectiveness: { sensitivity: 2, migraine: 3 } },
+    { id: "radiant_glow", name: "🧖‍♀️ Radiant Glow: A Face Mask or Sheet Mask", emoji: "🧖‍♀️", effectiveness: { sensitivity: 4, migraine: 2 } }
   ],
   luteal: [
-    { id: "progesterone_pal", name: "🌻 Progesterone Pal: Pumpkin Seeds or Sunflower Seeds", effectiveness: { irritability: 4, sadness: 3 } },
-    { id: "calm_sips", name: "🌼 Calm Sips: Chamomile Tea Bags", effectiveness: { irritability: 5, anxiety: 4 } },
-    { id: "magnesium_master", name: "🛀 Magnesium Master: Epsom Salts (for a bath)", effectiveness: { irritability: 3, cramps: 4 } },
-    { id: "fiber_friend", name: "🍎 Fiber Friend: Apples or Pears", effectiveness: { irritability: 2, sadness: 2 } },
-    { id: "comfort_food", name: "🍠 Comfort Food: Sweet Potatoes or Brown Rice", effectiveness: { sadness: 4, irritability: 2 } },
-    { id: "mood_soother", name: "🌿 Mood Soother: Essential Oil Diffuser or Calming Spray", effectiveness: { sadness: 5, irritability: 4 } },
-    { id: "zen_zone", name: "🎧 Zen Zone: Noise-Canceling Headphones or Earplugs", effectiveness: { sadness: 3, irritability: 5 } }
+    { id: "progesterone_pal", name: "🌻 Progesterone Pal: Pumpkin Seeds or Sunflower Seeds", emoji: "🌻", effectiveness: { irritability: 4, sadness: 3 } },
+    { id: "calm_sips", name: "🌼 Calm Sips: Chamomile Tea Bags", emoji: "🌼", effectiveness: { irritability: 5, anxiety: 4 } },
+    { id: "magnesium_master", name: "🛀 Magnesium Master: Epsom Salts (for a bath)", emoji: "🛀", effectiveness: { irritability: 3, cramps: 4 } },
+    { id: "fiber_friend", name: "🍎 Fiber Friend: Apples or Pears", emoji: "🍎", effectiveness: { irritability: 2, sadness: 2 } },
+    { id: "comfort_food", name: "🍠 Comfort Food: Sweet Potatoes or Brown Rice", emoji: "🍠", effectiveness: { sadness: 4, irritability: 2 } },
+    { id: "mood_soother", name: "🌿 Mood Soother: Essential Oil Diffuser or Calming Spray", emoji: "🌿", effectiveness: { sadness: 5, irritability: 4 } },
+    { id: "zen_zone", name: "🎧 Zen Zone: Noise-Canceling Headphones or Earplugs", emoji: "🎧", effectiveness: { sadness: 3, irritability: 5 } }
   ]
 };
 
@@ -73,6 +72,7 @@ export const SurvivalPack = ({
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
   const [showThoughtBubble, setShowThoughtBubble] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [flyingEmojis, setFlyingEmojis] = useState<Array<{id: string; emoji: string; x: number; y: number}>>([]);
   
   // Enhanced debugging
   console.log("🎒 SurvivalPack - Raw currentPhase prop:", currentPhase);
@@ -154,6 +154,28 @@ export const SurvivalPack = ({
     return maxEffectiveness;
   };
 
+  // Handle item click to release emoji
+  const handleItemClick = (item: any, index: number, event: React.MouseEvent) => {
+    if (hasActiveEnemies) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const newFlyingEmoji = {
+        id: `${item.id}-${Date.now()}`,
+        emoji: item.emoji,
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      };
+      
+      setFlyingEmojis(prev => [...prev, newFlyingEmoji]);
+      
+      // Remove the flying emoji after animation
+      setTimeout(() => {
+        setFlyingEmojis(prev => prev.filter(e => e.id !== newFlyingEmoji.id));
+      }, 3000);
+    } else {
+      toggleItem(index);
+    }
+  };
+
   // Handle item drag start
   const handleDragStart = (e: React.DragEvent, item: any, index: number) => {
     e.dataTransfer.setData("text/plain", JSON.stringify({
@@ -170,8 +192,43 @@ export const SurvivalPack = ({
     setDraggedItem(null);
   };
 
+  // Handle emoji drag start
+  const handleEmojiDragStart = (e: React.DragEvent, item: any) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify({
+      item: item,
+      effectiveness: getItemEffectiveness(item)
+    }));
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedItem(item.id);
+  };
+
+  const handleEmojiDragEnd = () => {
+    setDraggedItem(null);
+  };
+
   return (
     <div className="relative">
+      {/* Flying Emojis */}
+      {flyingEmojis.map(flyingEmoji => (
+        <div
+          key={flyingEmoji.id}
+          className="fixed pointer-events-none z-30 text-2xl animate-bounce cursor-grab"
+          style={{
+            left: flyingEmoji.x,
+            top: flyingEmoji.y,
+            transform: 'translate(-50%, -50%)'
+          }}
+          draggable
+          onDragStart={(e) => {
+            const item = currentItems.find(item => item.emoji === flyingEmoji.emoji);
+            if (item) handleEmojiDragStart(e, item);
+          }}
+          onDragEnd={handleEmojiDragEnd}
+        >
+          {flyingEmoji.emoji}
+        </div>
+      ))}
+
       {/* Call-to-Action Bubble - positioned to come from Uteroo's location */}
       {showThoughtBubble && hasActiveEnemies && enemies.length > 0 && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-32 z-20">
@@ -210,7 +267,7 @@ export const SurvivalPack = ({
         <div className="absolute top-0 left-0 z-50">
           <Card className="w-80 p-4 bg-white/95 backdrop-blur-sm shadow-lg border-2">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-sm">🎒 Survival Pack - {normalizedPhase}</h3>
+              <h3 className="font-bold text-sm">🎒 Survival Kit - {normalizedPhase}</h3>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -227,7 +284,7 @@ export const SurvivalPack = ({
               </p>
               {hasActiveEnemies && enemies.length > 0 && (
                 <p className="text-xs text-pink-600 font-semibold mb-2 leading-relaxed">
-                  💪 Drag items to Uteroo to fight the {enemies.map(e => e.name).join(", ")} monster{enemies.length > 1 ? 's' : ''}!
+                  💪 Click items to release emojis, then drag emojis to fight the {enemies.map(e => e.name).join(", ")} monster{enemies.length > 1 ? 's' : ''}!
                 </p>
               )}
             </div>
@@ -240,15 +297,11 @@ export const SurvivalPack = ({
                 return (
                   <div 
                     key={`${normalizedPhase}-${index}`}
-                    draggable={hasActiveEnemies}
-                    onDragStart={(e) => handleDragStart(e, item, index)}
-                    onDragEnd={handleDragEnd}
-                    onClick={() => toggleItem(index)}
+                    onClick={(e) => handleItemClick(item, index, e)}
                     className={cn(
                       "flex items-start space-x-2 p-2 rounded transition-all cursor-pointer",
-                      hasActiveEnemies ? "cursor-grab active:cursor-grabbing" : "hover:bg-gray-50",
-                      isHighlighted && hasActiveEnemies ? "bg-yellow-50 border-2 border-yellow-300 shadow-md animate-pulse-glow" : "",
-                      draggedItem === item.id ? "opacity-50 scale-95" : ""
+                      hasActiveEnemies ? "hover:bg-yellow-50" : "hover:bg-gray-50",
+                      isHighlighted && hasActiveEnemies ? "bg-yellow-50 border-2 border-yellow-300 shadow-md animate-pulse-glow" : ""
                     )}
                   >
                     <div 
