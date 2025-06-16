@@ -219,8 +219,8 @@ const Index = () => {
       ];
 
       let loginSuccessful = false;
-      let loginError = null;
-      let authUser = null;
+      let loginError: any = null;
+      let authUser: any = null;
 
       for (const email of possibleEmails) {
         try {
