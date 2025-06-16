@@ -123,10 +123,17 @@ export const SurvivalPack = ({
     setCheckedItems(new Set());
   }, [currentPhase]);
 
-  // Show thought bubble when enemies are active
+  // Show thought bubble when enemies are active and auto-hide after 3 seconds
   useEffect(() => {
     if (hasActiveEnemies && enemies.length > 0) {
       setShowThoughtBubble(true);
+      
+      // Auto-hide after 3 seconds
+      const timer = setTimeout(() => {
+        setShowThoughtBubble(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
     } else {
       setShowThoughtBubble(false);
     }
@@ -247,13 +254,10 @@ export const SurvivalPack = ({
         </div>
       ))}
 
-      {/* Call-to-Action Bubble - positioned to come from Uteroo's location */}
+      {/* Call-to-Action Bubble - positioned above Uteroo without covering face */}
       {showThoughtBubble && hasActiveEnemies && enemies.length > 0 && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-32 z-20">
-          <div 
-            className="bg-white/95 backdrop-blur-sm border-2 border-pink-300 rounded-2xl px-3 py-2 shadow-lg max-w-48 animate-pulse-glow cursor-pointer"
-            onClick={handleThoughtBubbleClick}
-          >
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-48 z-20">
+          <div className="bg-white/95 backdrop-blur-sm border-2 border-pink-300 rounded-2xl px-3 py-2 shadow-lg max-w-48 animate-pulse-glow">
             <div className="text-xs font-semibold text-gray-800 text-center leading-tight">
               💭 Uteroo needs help! {firstEnemyName} monster is here! Tap the backpack!
             </div>
