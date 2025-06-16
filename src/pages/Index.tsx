@@ -209,40 +209,18 @@ const Index = () => {
     console.log('Attempting login with username:', username);
     
     try {
-      // First, find the user by username to get their profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, username')
-        .eq('username', username)
-        .maybeSingle();
-
-      console.log('Profile lookup result:', { profile, profileError });
-
-      if (profileError || !profile) {
-        console.log('Username not found in profiles');
-        toast({
-          variant: "destructive",
-          title: "Login failed",
-          description: "Username not found. Please check your username or create an account.",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Now get the user's email from auth.users using RPC or direct query
-      // Since we can't directly query auth.users, we'll try the stored approach
-      // First check if this user has an email stored in their metadata or try common patterns
-      
       // Try multiple possible email formats that might have been used during registration
       const possibleEmails = [
         `${username}@temp.com`,
         `${username}@uteroo.com`,
         `${username.toLowerCase()}@temp.com`,
-        `${username.toLowerCase()}@uteroo.com`
+        `${username.toLowerCase()}@uteroo.com`,
+        username // In case the username is actually an email
       ];
 
       let loginSuccessful = false;
       let loginError = null;
+      let authUser = null;
 
       for (const email of possibleEmails) {
         try {
@@ -255,6 +233,27 @@ const Index = () => {
           if (!error && data.user) {
             console.log('Login successful with email:', email);
             loginSuccessful = true;
+            authUser = data.user;
+            
+            // Check if profile exists, if not create one
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('username')
+              .eq('id', data.user.id)
+              .maybeSingle();
+            
+            if (!profile && !profileError) {
+              console.log('Creating profile for authenticated user');
+              await supabase
+                .from('profiles')
+                .insert({
+                  id: data.user.id,
+                  username: username,
+                  full_name: data.user.user_metadata?.full_name || '',
+                  onboarding_completed: false
+                });
+            }
+            
             toast({
               title: `Lovely to see you again ${username}!`,
               description: "Welcome back to your Uteroo journey!",
@@ -276,7 +275,7 @@ const Index = () => {
         toast({
           variant: "destructive",
           title: "Login failed",
-          description: "Invalid username or password. Please check your credentials.",
+          description: "Invalid username or password. Please check your credentials and try again.",
         });
       }
 
