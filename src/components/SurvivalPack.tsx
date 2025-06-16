@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -285,12 +284,11 @@ export const SurvivalPack = ({
         <div className="absolute top-0 left-0 z-50">
           <Card className="w-80 p-4 bg-white/95 backdrop-blur-sm shadow-lg border-2">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-sm">🎒 Survival Kit - {normalizedPhase}</h3>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={onToggle}
-                className="h-6 w-6 p-0"
+                className="h-6 w-6 p-0 ml-auto"
               >
                 <X className="h-4 w-4" />
               </Button>
