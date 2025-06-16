@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { AccountCreation } from "@/components/AccountCreation";
@@ -225,60 +224,25 @@ const Index = () => {
         return;
       }
 
-      // Get the user's auth record to find their email
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        // Fallback: try direct login with username as email format
-        const tempEmail = `${username}@temp.com`;
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: tempEmail,
-          password: password,
+      // Try direct login with username as email format (fallback approach)
+      const tempEmail = `${username}@temp.com`;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: tempEmail,
+        password: password,
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Login failed",
+          description: "Invalid username or password.",
         });
-
-        if (error) {
-          toast({
-            variant: "destructive",
-            title: "Login failed",
-            description: "Invalid username or password.",
-          });
-        } else {
-          toast({
-            title: `Lovely to see you again ${username}!`,
-            description: "Welcome back to your Uteroo journey!",
-          });
-          navigate("/pou-game");
-        }
       } else {
-        // Find user by profile ID
-        const authUser = authUsers.users.find(user => user.id === profile.id);
-        
-        if (authUser) {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email: authUser.email || `${username}@temp.com`,
-            password: password,
-          });
-
-          if (error) {
-            toast({
-              variant: "destructive",
-              title: "Login failed",
-              description: "Invalid username or password.",
-            });
-          } else {
-            toast({
-              title: `Lovely to see you again ${username}!`,
-              description: "Welcome back to your Uteroo journey!",
-            });
-            navigate("/pou-game");
-          }
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Login failed",
-            description: "User account not found.",
-          });
-        }
+        toast({
+          title: `Lovely to see you again ${username}!`,
+          description: "Welcome back to your Uteroo journey!",
+        });
+        navigate("/pou-game");
       }
     } catch (error) {
       console.error('Login error:', error);
