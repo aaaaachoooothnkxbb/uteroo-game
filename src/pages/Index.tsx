@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
+import { AccountCreation } from "@/components/AccountCreation";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Icons } from "@/components/ui/icons";
 
 const Index = () => {
+  const [showAccountCreation, setShowAccountCreation] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -176,6 +178,11 @@ const Index = () => {
     return () => clearInterval(bounceInterval);
   }, []);
 
+  const handleAccountCreationComplete = () => {
+    setShowAccountCreation(false);
+    setShowOnboarding(true);
+  };
+
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     navigate("/pou-game");
@@ -225,6 +232,10 @@ const Index = () => {
         </div>
       </div>
     );
+  }
+
+  if (showAccountCreation) {
+    return <AccountCreation onComplete={handleAccountCreationComplete} />;
   }
 
   if (showOnboarding) {
@@ -424,7 +435,7 @@ const Index = () => {
           </div>
 
           <div 
-            onClick={() => setShowOnboarding(true)}
+            onClick={() => setShowAccountCreation(true)}
             className="w-full relative cursor-pointer group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full filter blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
