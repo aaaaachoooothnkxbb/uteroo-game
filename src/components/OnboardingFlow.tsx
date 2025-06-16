@@ -30,21 +30,21 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       content: (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">What is the typical length of your cycle?</label>
+            <label className="block text-sm font-medium mb-2 text-gray-700">What is the typical length of your cycle?</label>
             <input
               type="number"
               placeholder="Cycle Length (days)"
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               value={answers.cycleLength || ""}
               onChange={(e) => setAnswers({ ...answers, cycleLength: e.target.value })}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">How long does your period usually last?</label>
+            <label className="block text-sm font-medium mb-2 text-gray-700">How long does your period usually last?</label>
             <input
               type="number"
               placeholder="Period Length (days)"
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               value={answers.periodLength || ""}
               onChange={(e) => setAnswers({ ...answers, periodLength: e.target.value })}
             />
@@ -60,11 +60,11 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       content: (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">What would you like to name your companion?</label>
+            <label className="block text-sm font-medium mb-2 text-gray-700">What would you like to name your companion?</label>
             <input
               type="text"
               placeholder="Companion Name"
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               value={answers.companionName || ""}
               onChange={(e) => setAnswers({ ...answers, companionName: e.target.value })}
             />
@@ -126,7 +126,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           {typeof steps[currentStep].content === 'string' ? (
-            <p>{steps[currentStep].content}</p>
+            <p className="text-gray-600">{steps[currentStep].content}</p>
           ) : (
             steps[currentStep].content
           )}
