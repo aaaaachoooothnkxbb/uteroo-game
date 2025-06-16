@@ -22,7 +22,7 @@ const Index = () => {
   const [nameGlowing, setNameGlowing] = useState(false);
   
   // Login form state
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
   const navigate = useNavigate();
@@ -68,10 +68,10 @@ const Index = () => {
         if (data?.session) {
           console.log('user is already logged in')
           
-          // Check if user has completed onboarding
+          // Check if user has a profile to determine if they're new
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('onboarding_completed, username')
+            .select('*')
             .eq('id', data.session.user.id)
             .maybeSingle();
           
@@ -79,31 +79,32 @@ const Index = () => {
             console.error('Error checking profile:', profileError);
           }
           
-          // If user has completed onboarding, go to pou-game
-          // If no profile or onboarding not completed, show onboarding
-          if (profile && profile.onboarding_completed) {
-            console.log('returning user with completed onboarding - navigating to pou-game');
+          // If user has a profile, they've completed onboarding - go to pou-game
+          // If no profile, they're a first-time user - show onboarding
+          if (profile) {
+            console.log('returning user - navigating to pou-game');
+            console.log('here is your profile: ');
+            console.log(profile);
             navigate("/pou-game");
             toast({
-              title: `Lovely to see you again ${profile.username || 'friend'}!`,
-              description: "Ready to continue your journey?"
+              title: "Welcome back!",
+              description: "Ready to play with your companion?"
             });
           } else {
-            console.log('user needs to complete onboarding');
-            // Create profile if it doesn't exist
-            if (!profile) {
-              const { error: insertError } = await supabase
-                .from('profiles')
-                .insert({
-                  id: data.session.user.id,
-                  username: `user${data.session.user.id.substring(0, 8)}`,
-                  full_name: data.session.user.user_metadata?.full_name || '',
-                  onboarding_completed: false
-                });
-              
-              if (insertError) {
-                console.error('Error creating profile:', insertError);
-              }
+            console.log('first-time user - creating profile and showing onboarding');
+            // Create a new profile for the user
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: data.session.user.id,
+                username: `user${data.session.user.id.substring(0, 8)}`,
+                full_name: data.session.user.user_metadata?.full_name || '',
+              });
+            
+            if (insertError) {
+              console.error('Error creating profile:', insertError);
+            } else {
+              console.log('Profile created successfully');
             }
             
             setShowOnboarding(true);
@@ -113,34 +114,27 @@ const Index = () => {
         // Check if we're handling an OAuth redirect
         const { data: authData } = await supabase.auth.getUser();
         if (authData?.user && window.location.hash.includes("access_token")) {
-          // For OAuth users, also check if they've completed onboarding
+          // For OAuth users, also check if they're first-time
           const { data: profile } = await supabase
             .from('profiles')
-            .select('onboarding_completed, username')
+            .select('*')
             .eq('id', authData.user.id)
             .maybeSingle();
           
-          if (profile && profile.onboarding_completed) {
+          if (profile) {
             navigate("/pou-game");
-            toast({
-              title: `Lovely to see you again ${profile.username || 'friend'}!`,
-              description: "Ready to continue your journey?"
-            });
           } else {
-            // Create profile for OAuth user if needed
-            if (!profile) {
-              const { error: insertError } = await supabase
-                .from('profiles')
-                .insert({
-                  id: authData.user.id,
-                  username: `user${authData.user.id.substring(0, 8)}`,
-                  full_name: authData.user.user_metadata?.full_name || '',
-                  onboarding_completed: false
-                });
-              
-              if (insertError) {
-                console.error('Error creating profile for OAuth user:', insertError);
-              }
+            // Create profile for OAuth user
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: authData.user.id,
+                username: `user${authData.user.id.substring(0, 8)}`,
+                full_name: authData.user.user_metadata?.full_name || '',
+              });
+            
+            if (insertError) {
+              console.error('Error creating profile for OAuth user:', insertError);
             }
             
             setShowOnboarding(true);
@@ -189,102 +183,39 @@ const Index = () => {
     setShowOnboarding(true);
   };
 
-  const handleOnboardingComplete = async () => {
-    // Mark onboarding as completed for the current user
-    const { data: session } = await supabase.auth.getSession();
-    if (session?.session?.user) {
-      await supabase
-        .from('profiles')
-        .update({ onboarding_completed: true })
-        .eq('id', session.session.user.id);
-    }
-    
+  const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     navigate("/pou-game");
   };
 
-  // Handle login with username/password
+  // Handle login
   const handleLogin = async () => {
     setIsLoading(true);
-    console.log('Attempting login with username:', username);
-    
     try {
-      // Try multiple possible email formats that might have been used during registration
-      const possibleEmails = [
-        `${username}@temp.com`,
-        `${username}@uteroo.com`,
-        `${username.toLowerCase()}@temp.com`,
-        `${username.toLowerCase()}@uteroo.com`,
-        username // In case the username is actually an email
-      ];
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
 
-      let loginSuccessful = false;
-      let loginError: any = null;
-      let authUser: any = null;
-
-      for (const email of possibleEmails) {
-        try {
-          console.log('Trying login with email:', email);
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password,
-          });
-
-          if (!error && data.user) {
-            console.log('Login successful with email:', email);
-            loginSuccessful = true;
-            authUser = data.user;
-            
-            // Check if profile exists, if not create one
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('username')
-              .eq('id', data.user.id)
-              .maybeSingle();
-            
-            if (!profile && !profileError) {
-              console.log('Creating profile for authenticated user');
-              await supabase
-                .from('profiles')
-                .insert({
-                  id: data.user.id,
-                  username: username,
-                  full_name: data.user.user_metadata?.full_name || '',
-                  onboarding_completed: false
-                });
-            }
-            
-            toast({
-              title: `Lovely to see you again ${username}!`,
-              description: "Welcome back to your Uteroo journey!",
-            });
-            navigate("/pou-game");
-            break;
-          } else {
-            loginError = error;
-            console.log('Login failed with email:', email, error?.message);
-          }
-        } catch (err) {
-          console.log('Error trying email:', email, err);
-          loginError = err;
-        }
-      }
-
-      if (!loginSuccessful) {
-        console.log('All login attempts failed');
+      if (error) {
         toast({
           variant: "destructive",
           title: "Login failed",
-          description: "Invalid username or password. Please check your credentials and try again.",
+          description: error.message,
         });
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully logged in.",
+        });
+        navigate("/pou-game");
       }
-
     } catch (error) {
       console.error('Login error:', error);
       toast({
         variant: "destructive",
         title: "Login failed",
-        description: "An unexpected error occurred during login.",
+        description: "An unexpected error occurred.",
       });
     } finally {
       setIsLoading(false);
@@ -339,10 +270,10 @@ const Index = () => {
           <div className="space-y-4">
             <div>
               <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type="email"
+                placeholder="Email, phone, or username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-3 rounded-full border-2 border-gray-200 focus:border-[#9370DB] outline-none"
               />
             </div>
@@ -361,7 +292,7 @@ const Index = () => {
           <div className="flex flex-col gap-3">
             <Button
               onClick={handleLogin}
-              disabled={isLoading || !username || !password}
+              disabled={isLoading || !email || !password}
               className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 py-3 rounded-full w-full"
             >
               {isLoading ? "Signing in..." : "SIGN IN"}
