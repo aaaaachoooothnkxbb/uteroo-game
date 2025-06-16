@@ -206,15 +206,20 @@ const Index = () => {
   // Handle login with username/password
   const handleLogin = async () => {
     setIsLoading(true);
+    console.log('Attempting login with username:', username);
+    
     try {
-      // First, find the user by username to get their email
+      // First, find the user by username to get their profile
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id, username')
         .eq('username', username)
         .maybeSingle();
 
+      console.log('Profile lookup result:', { profile, profileError });
+
       if (profileError || !profile) {
+        console.log('Username not found in profiles');
         toast({
           variant: "destructive",
           title: "Login failed",
@@ -224,32 +229,63 @@ const Index = () => {
         return;
       }
 
-      // Try direct login with username as email format (fallback approach)
-      const tempEmail = `${username}@temp.com`;
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: tempEmail,
-        password: password,
-      });
+      // Now get the user's email from auth.users using RPC or direct query
+      // Since we can't directly query auth.users, we'll try the stored approach
+      // First check if this user has an email stored in their metadata or try common patterns
+      
+      // Try multiple possible email formats that might have been used during registration
+      const possibleEmails = [
+        `${username}@temp.com`,
+        `${username}@uteroo.com`,
+        `${username.toLowerCase()}@temp.com`,
+        `${username.toLowerCase()}@uteroo.com`
+      ];
 
-      if (error) {
+      let loginSuccessful = false;
+      let loginError = null;
+
+      for (const email of possibleEmails) {
+        try {
+          console.log('Trying login with email:', email);
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+          });
+
+          if (!error && data.user) {
+            console.log('Login successful with email:', email);
+            loginSuccessful = true;
+            toast({
+              title: `Lovely to see you again ${username}!`,
+              description: "Welcome back to your Uteroo journey!",
+            });
+            navigate("/pou-game");
+            break;
+          } else {
+            loginError = error;
+            console.log('Login failed with email:', email, error?.message);
+          }
+        } catch (err) {
+          console.log('Error trying email:', email, err);
+          loginError = err;
+        }
+      }
+
+      if (!loginSuccessful) {
+        console.log('All login attempts failed');
         toast({
           variant: "destructive",
           title: "Login failed",
-          description: "Invalid username or password.",
+          description: "Invalid username or password. Please check your credentials.",
         });
-      } else {
-        toast({
-          title: `Lovely to see you again ${username}!`,
-          description: "Welcome back to your Uteroo journey!",
-        });
-        navigate("/pou-game");
       }
+
     } catch (error) {
       console.error('Login error:', error);
       toast({
         variant: "destructive",
         title: "Login failed",
-        description: "An unexpected error occurred.",
+        description: "An unexpected error occurred during login.",
       });
     } finally {
       setIsLoading(false);
