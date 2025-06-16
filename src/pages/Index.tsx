@@ -23,7 +23,7 @@ const Index = () => {
   const [nameGlowing, setNameGlowing] = useState(false);
   
   // Login form state
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ const Index = () => {
           // Check if user has completed onboarding
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('onboarding_completed')
+            .select('onboarding_completed, username')
             .eq('id', data.session.user.id)
             .maybeSingle();
           
@@ -86,7 +86,7 @@ const Index = () => {
             console.log('returning user with completed onboarding - navigating to pou-game');
             navigate("/pou-game");
             toast({
-              title: "Welcome back!",
+              title: `Lovely to see you again ${profile.username || 'friend'}!`,
               description: "Ready to continue your journey?"
             });
           } else {
@@ -117,12 +117,16 @@ const Index = () => {
           // For OAuth users, also check if they've completed onboarding
           const { data: profile } = await supabase
             .from('profiles')
-            .select('onboarding_completed')
+            .select('onboarding_completed, username')
             .eq('id', authData.user.id)
             .maybeSingle();
           
           if (profile && profile.onboarding_completed) {
             navigate("/pou-game");
+            toast({
+              title: `Lovely to see you again ${profile.username || 'friend'}!`,
+              description: "Ready to continue your journey?"
+            });
           } else {
             // Create profile for OAuth user if needed
             if (!profile) {
@@ -200,27 +204,81 @@ const Index = () => {
     navigate("/pou-game");
   };
 
-  // Handle login
+  // Handle login with username/password
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
+      // First, find the user by username to get their email
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, username')
+        .eq('username', username)
+        .maybeSingle();
 
-      if (error) {
+      if (profileError || !profile) {
         toast({
           variant: "destructive",
           title: "Login failed",
-          description: error.message,
+          description: "Username not found. Please check your username or create an account.",
         });
+        setIsLoading(false);
+        return;
+      }
+
+      // Get the user's auth record to find their email
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        // Fallback: try direct login with username as email format
+        const tempEmail = `${username}@temp.com`;
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: tempEmail,
+          password: password,
+        });
+
+        if (error) {
+          toast({
+            variant: "destructive",
+            title: "Login failed",
+            description: "Invalid username or password.",
+          });
+        } else {
+          toast({
+            title: `Lovely to see you again ${username}!`,
+            description: "Welcome back to your Uteroo journey!",
+          });
+          navigate("/pou-game");
+        }
       } else {
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully logged in.",
-        });
-        navigate("/pou-game");
+        // Find user by profile ID
+        const authUser = authUsers.users.find(user => user.id === profile.id);
+        
+        if (authUser) {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: authUser.email || `${username}@temp.com`,
+            password: password,
+          });
+
+          if (error) {
+            toast({
+              variant: "destructive",
+              title: "Login failed",
+              description: "Invalid username or password.",
+            });
+          } else {
+            toast({
+              title: `Lovely to see you again ${username}!`,
+              description: "Welcome back to your Uteroo journey!",
+            });
+            navigate("/pou-game");
+          }
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Login failed",
+            description: "User account not found.",
+          });
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -282,10 +340,10 @@ const Index = () => {
           <div className="space-y-4">
             <div>
               <input
-                type="email"
-                placeholder="Email, phone, or username"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="w-full p-3 rounded-full border-2 border-gray-200 focus:border-[#9370DB] outline-none"
               />
             </div>
@@ -304,7 +362,7 @@ const Index = () => {
           <div className="flex flex-col gap-3">
             <Button
               onClick={handleLogin}
-              disabled={isLoading || !email || !password}
+              disabled={isLoading || !username || !password}
               className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 py-3 rounded-full w-full"
             >
               {isLoading ? "Signing in..." : "SIGN IN"}
