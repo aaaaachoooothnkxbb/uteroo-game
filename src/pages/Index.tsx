@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { AccountCreation } from "@/components/AccountCreation";
@@ -68,10 +69,10 @@ const Index = () => {
         if (data?.session) {
           console.log('user is already logged in')
           
-          // Check if user has a profile to determine if they're new
+          // Check if user has completed onboarding
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('*')
+            .select('onboarding_completed')
             .eq('id', data.session.user.id)
             .maybeSingle();
           
@@ -79,32 +80,31 @@ const Index = () => {
             console.error('Error checking profile:', profileError);
           }
           
-          // If user has a profile, they've completed onboarding - go to pou-game
-          // If no profile, they're a first-time user - show onboarding
-          if (profile) {
-            console.log('returning user - navigating to pou-game');
-            console.log('here is your profile: ');
-            console.log(profile);
+          // If user has completed onboarding, go to pou-game
+          // If no profile or onboarding not completed, show onboarding
+          if (profile && profile.onboarding_completed) {
+            console.log('returning user with completed onboarding - navigating to pou-game');
             navigate("/pou-game");
             toast({
               title: "Welcome back!",
-              description: "Ready to play with your companion?"
+              description: "Ready to continue your journey?"
             });
           } else {
-            console.log('first-time user - creating profile and showing onboarding');
-            // Create a new profile for the user
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert({
-                id: data.session.user.id,
-                username: `user${data.session.user.id.substring(0, 8)}`,
-                full_name: data.session.user.user_metadata?.full_name || '',
-              });
-            
-            if (insertError) {
-              console.error('Error creating profile:', insertError);
-            } else {
-              console.log('Profile created successfully');
+            console.log('user needs to complete onboarding');
+            // Create profile if it doesn't exist
+            if (!profile) {
+              const { error: insertError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: data.session.user.id,
+                  username: `user${data.session.user.id.substring(0, 8)}`,
+                  full_name: data.session.user.user_metadata?.full_name || '',
+                  onboarding_completed: false
+                });
+              
+              if (insertError) {
+                console.error('Error creating profile:', insertError);
+              }
             }
             
             setShowOnboarding(true);
@@ -114,27 +114,30 @@ const Index = () => {
         // Check if we're handling an OAuth redirect
         const { data: authData } = await supabase.auth.getUser();
         if (authData?.user && window.location.hash.includes("access_token")) {
-          // For OAuth users, also check if they're first-time
+          // For OAuth users, also check if they've completed onboarding
           const { data: profile } = await supabase
             .from('profiles')
-            .select('*')
+            .select('onboarding_completed')
             .eq('id', authData.user.id)
             .maybeSingle();
           
-          if (profile) {
+          if (profile && profile.onboarding_completed) {
             navigate("/pou-game");
           } else {
-            // Create profile for OAuth user
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert({
-                id: authData.user.id,
-                username: `user${authData.user.id.substring(0, 8)}`,
-                full_name: authData.user.user_metadata?.full_name || '',
-              });
-            
-            if (insertError) {
-              console.error('Error creating profile for OAuth user:', insertError);
+            // Create profile for OAuth user if needed
+            if (!profile) {
+              const { error: insertError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: authData.user.id,
+                  username: `user${authData.user.id.substring(0, 8)}`,
+                  full_name: authData.user.user_metadata?.full_name || '',
+                  onboarding_completed: false
+                });
+              
+              if (insertError) {
+                console.error('Error creating profile for OAuth user:', insertError);
+              }
             }
             
             setShowOnboarding(true);
@@ -183,7 +186,16 @@ const Index = () => {
     setShowOnboarding(true);
   };
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = async () => {
+    // Mark onboarding as completed for the current user
+    const { data: session } = await supabase.auth.getSession();
+    if (session?.session?.user) {
+      await supabase
+        .from('profiles')
+        .update({ onboarding_completed: true })
+        .eq('id', session.session.user.id);
+    }
+    
     setShowOnboarding(false);
     navigate("/pou-game");
   };
