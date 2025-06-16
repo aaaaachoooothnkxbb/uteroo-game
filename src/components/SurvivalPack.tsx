@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { X, Check } from "lucide-react";
+import { X, Check, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SurvivalPackProps {
@@ -73,6 +73,7 @@ export const SurvivalPack = ({
   const [showThoughtBubble, setShowThoughtBubble] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [flyingEmojis, setFlyingEmojis] = useState<Array<{id: string; emoji: string; x: number; y: number}>>([]);
+  const [showInstructions, setShowInstructions] = useState(false);
   
   // Enhanced debugging
   console.log("🎒 SurvivalPack - Raw currentPhase prop:", currentPhase);
@@ -284,6 +285,16 @@ export const SurvivalPack = ({
         <div className="absolute top-0 left-0 z-50">
           <Card className="w-80 p-4 bg-white/95 backdrop-blur-sm shadow-lg border-2">
             <div className="flex justify-between items-center mb-3">
+              {hasActiveEnemies && enemies.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowInstructions(!showInstructions)}
+                  className="h-6 w-6 p-0"
+                >
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+              )}
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -295,7 +306,7 @@ export const SurvivalPack = ({
             </div>
             
             <div className="mb-4">
-              {hasActiveEnemies && enemies.length > 0 && (
+              {showInstructions && hasActiveEnemies && enemies.length > 0 && (
                 <p className="text-xs text-pink-600 font-semibold mb-2 leading-relaxed">
                   💪 Click items to release emojis, then drag emojis to fight the {enemies.map(e => e.name).join(", ")} monster{enemies.length > 1 ? 's' : ''}!
                 </p>
