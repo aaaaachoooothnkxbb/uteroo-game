@@ -29,8 +29,6 @@ type FormData = {
   screenTime: string;
 };
 
-type UserType = 'PRE_MENSTRUAL' | 'MENSTRUAL' | 'POST_MENSTRUAL';
-
 const questions = [
   {
     id: "height",
@@ -126,18 +124,6 @@ const questions = [
       { value: "6-plus", label: "6+ hours" }
     ],
     insight: "Balancing screen time with other activities can help your eyes and your mind feel better!"
-  },
-  // Add new classification questions
-  {
-    id: "menstrualStatus",
-    title: "To provide the most relevant guidance, which best describes your current situation?",
-    type: "radio",
-    options: [
-      { value: "pre-menstrual", label: "I haven't started menstruating yet" },
-      { value: "menstrual", label: "I currently menstruate" },
-      { value: "post-menstrual", label: "I used to menstruate but no longer do (menopause, etc.)" }
-    ],
-    insight: "This helps us tailor your experience to your unique needs!"
   }
 ];
 
@@ -281,9 +267,7 @@ const PrePeriodGame = () => {
     const newFormData = { ...formData };
     
     // Handle different question types
-    if (question.id === "menstrualStatus") {
-      // setMenstrualStatus(value as string); // This function is not defined
-    } else if (question.type === "checkbox") {
+    if (question.type === "checkbox") {
       newFormData.sleepBarriers = value as string[];
     } else if (question.type === "slider") {
       newFormData.sleep = value as number;
