@@ -1,5 +1,4 @@
 
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -212,6 +211,10 @@ const PrePeriodGame = () => {
     navigate("/pou-game");
   };
 
+  const handleInputChange = (questionId: string, value: string) => {
+    setFormData(prev => ({ ...prev, [questionId]: value }));
+  };
+
   if (showIntro) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 flex items-center justify-center p-4">
@@ -293,8 +296,9 @@ const PrePeriodGame = () => {
               <Input
                 type="number"
                 placeholder="Enter value"
+                value={formData[question.id as keyof FormData] as string}
+                onChange={(e) => handleInputChange(question.id, e.target.value)}
                 className="w-32 text-center"
-                onChange={(e) => setFormData({ ...formData, [question.id]: e.target.value })}
               />
               <span className="text-gray-600">{question.unit}</span>
               <Button
@@ -315,7 +319,7 @@ const PrePeriodGame = () => {
                   key={option.value}
                   onClick={() => handleAnswer(option.value)}
                   variant="outline"
-                  className="w-full text-left h-auto py-4 px-6 rounded-full hover:bg-pink-50 text-black"
+                  className="w-full text-left h-auto py-4 px-6 rounded-full hover:bg-pink-50 hover:border-[#9370DB] focus:bg-pink-50 focus:border-[#9370DB] transition-all duration-200 text-black text-wrap"
                 >
                   {option.label}
                 </Button>
@@ -354,7 +358,7 @@ const PrePeriodGame = () => {
           {question.type === "checkbox" && question.options && (
             <div className="space-y-4">
               {question.options.map((option) => (
-                <div key={option.value} className="flex items-center space-x-3">
+                <div key={option.value} className="flex items-center space-x-3 p-2 rounded hover:bg-gray-50">
                   <Checkbox
                     id={option.value}
                     checked={formData.sleepBarriers.includes(option.value)}
@@ -365,7 +369,7 @@ const PrePeriodGame = () => {
                       setFormData({ ...formData, sleepBarriers: newBarriers });
                     }}
                   />
-                  <label htmlFor={option.value} className="text-gray-700 cursor-pointer">
+                  <label htmlFor={option.value} className="text-gray-700 cursor-pointer flex-1">
                     {option.label}
                   </label>
                 </div>
@@ -385,4 +389,3 @@ const PrePeriodGame = () => {
 };
 
 export default PrePeriodGame;
-
