@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -420,7 +420,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     }
   };
 
-  // Save onboarding data to Supabase with enhanced error handling
+  // Save onboarding data to Supabase with enhanced error handling and better logging
   const saveOnboardingData = async () => {
     if (!user) {
       console.error('No user found when trying to save onboarding data');
@@ -428,15 +428,17 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     }
 
     try {
-      console.log('Starting to save onboarding data for user:', user.id);
+      console.log('=== STARTING ONBOARDING DATA SAVE ===');
+      console.log('User ID:', user.id);
       console.log('Current form data:', formData);
       console.log('Selected date:', selectedDate);
       
       // Determine user type based on form data
       const userType = determineUserType(formData.lastPeriodStart, selectedDate);
-      console.log('Determined user type:', userType);
+      console.log('=== USER TYPE DETERMINED:', userType, '===');
       
       // Save user type classification with upsert to handle duplicates
+      console.log('Saving user type to database...');
       const { error: userTypeError } = await supabase
         .from('user_types')
         .upsert({
@@ -448,10 +450,10 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         });
 
       if (userTypeError) {
-        console.error('Error saving user type:', userTypeError);
+        console.error('❌ Error saving user type:', userTypeError);
         throw new Error(`Failed to save user type: ${userTypeError.message}`);
       }
-      console.log('User type saved successfully:', userType);
+      console.log('✅ User type saved successfully:', userType);
 
       // Prepare questionnaire responses for all answered questions
       const responses = [];
@@ -460,7 +462,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         return value !== "" && value !== null && value !== undefined;
       });
       
-      console.log('Answered questions to save:', answeredQuestions);
+      console.log('Preparing questionnaire responses for questions:', answeredQuestions);
       
       for (const questionId of answeredQuestions) {
         const value = formData[questionId as keyof typeof formData];
@@ -483,13 +485,13 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           question_id: 'selected_period_date',
           question_text: 'Selected period start date',
           answer_value: selectedDate.toISOString().split('T')[0],
-          answer_type: 'date',
           user_type: userType
         });
       }
 
       if (responses.length > 0) {
         // Clear existing responses first to avoid duplicates
+        console.log('Clearing existing questionnaire responses...');
         const { error: deleteError } = await supabase
           .from('questionnaire_responses')
           .delete()
@@ -497,23 +499,25 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           .eq('questionnaire_type', 'onboarding_flow');
 
         if (deleteError) {
-          console.error('Error clearing existing responses:', deleteError);
+          console.error('⚠️ Error clearing existing responses:', deleteError);
           // Don't throw here, just log and continue
         }
 
+        console.log('Saving', responses.length, 'questionnaire responses...');
         const { error: responsesError } = await supabase
           .from('questionnaire_responses')
           .insert(responses);
 
         if (responsesError) {
-          console.error('Error saving questionnaire responses:', responsesError);
+          console.error('❌ Error saving questionnaire responses:', responsesError);
           throw new Error(`Failed to save responses: ${responsesError.message}`);
         }
-        console.log('Questionnaire responses saved successfully:', responses.length, 'responses');
+        console.log('✅ Questionnaire responses saved successfully');
       }
 
       // Handle cycle tracking data for MENSTRUAL users
       if (userType === 'MENSTRUAL') {
+        console.log('Creating cycle tracking data for MENSTRUAL user...');
         const cycleData: any = {
           user_id: user.id,
           cycle_start_date: selectedDate || new Date(),
@@ -549,7 +553,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           .eq('user_id', user.id);
 
         if (deleteCycleError) {
-          console.error('Error clearing existing cycle data:', deleteCycleError);
+          console.error('⚠️ Error clearing existing cycle data:', deleteCycleError);
         }
 
         // Save new cycle tracking data
@@ -558,11 +562,11 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           .insert(cycleData);
 
         if (cycleError) {
-          console.error('Error saving cycle data:', cycleError);
+          console.error('❌ Error saving cycle data:', cycleError);
           // Don't throw here as it's not critical for pre-menstrual users
           console.log('Cycle tracking creation failed, but continuing...');
         } else {
-          console.log('Cycle data saved successfully');
+          console.log('✅ Cycle data saved successfully');
         }
       }
 
@@ -582,6 +586,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       };
 
       // Save mood log data (clear existing first)
+      console.log('Saving mood log data...');
       const { error: deleteMoodError } = await supabase
         .from('mood_logs')
         .delete()
@@ -589,7 +594,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         .eq('date', new Date().toISOString().split('T')[0]);
 
       if (deleteMoodError) {
-        console.error('Error clearing existing mood data:', deleteMoodError);
+        console.error('⚠️ Error clearing existing mood data:', deleteMoodError);
       }
 
       const { error: moodError } = await supabase
@@ -597,31 +602,33 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         .insert(moodData);
 
       if (moodError) {
-        console.error('Error saving mood data:', moodError);
+        console.error('❌ Error saving mood data:', moodError);
         // Don't throw here as it's not critical
         console.log('Mood log creation failed, but continuing...');
       } else {
-        console.log('Mood data saved successfully');
+        console.log('✅ Mood data saved successfully');
       }
 
       // Update profile to mark onboarding as completed
+      console.log('Marking onboarding as completed in profile...');
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ onboarding_completed: true })
         .eq('id', user.id);
 
       if (profileError) {
-        console.error('Error updating profile:', profileError);
+        console.error('❌ Error updating profile:', profileError);
         // Don't throw here as the main data is saved
         console.log('Profile update failed, but main data saved successfully');
       } else {
-        console.log('Profile updated - onboarding marked as completed');
+        console.log('✅ Profile updated - onboarding marked as completed');
       }
 
-      console.log('All onboarding data saved successfully for user type:', userType);
+      console.log('=== ONBOARDING DATA SAVE COMPLETED SUCCESSFULLY ===');
+      console.log('Final user type:', userType);
       
     } catch (error) {
-      console.error('Error in saveOnboardingData:', error);
+      console.error('❌❌❌ CRITICAL ERROR in saveOnboardingData:', error);
       throw error;
     }
   };
@@ -933,16 +940,13 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     return () => clearTimeout(timer);
   }, [floatingHearts]);
 
-  const isCurrentQuestionAnswered = () => {
+  const currentQuestionHasAnswer = useMemo(() => {
     const currentQuestion = questionFlow[currentQuestionIndex];
     if (!currentQuestion) return false;
     
     const value = formData[currentQuestion as keyof typeof formData];
-    const isAnswered = value !== "" && value !== null && value !== undefined;
-    
-    console.log('Checking if current question is answered:', currentQuestion, 'value:', value, 'isAnswered:', isAnswered);
-    return isAnswered;
-  };
+    return value !== "" && value !== null && value !== undefined;
+  }, [questionFlow, currentQuestionIndex, formData]);
 
   const handleNext = async () => {
     if (isProcessing) {
@@ -950,7 +954,11 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       return;
     }
 
-    console.log('handleNext called - current step:', step, 'currentQuestionIndex:', currentQuestionIndex, 'questionFlow length:', questionFlow.length);
+    console.log('=== HANDLE NEXT CALLED ===');
+    console.log('Current step:', step);
+    console.log('Current question index:', currentQuestionIndex);
+    console.log('Question flow length:', questionFlow.length);
+    console.log('Form data:', formData);
 
     if (step === 1) {
       setStep(2);
@@ -959,7 +967,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     } else if (step === 3) {
       if (currentQuestionIndex < questionFlow.length - 1) {
         // Check if current question is answered before advancing
-        if (!isCurrentQuestionAnswered()) {
+        if (!currentQuestionHasAnswer) {
           toast({
             title: "Please answer the current question",
             description: "We need this information to personalize your experience",
@@ -971,7 +979,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
         // At the last question - check if it's answered
-        if (!isCurrentQuestionAnswered()) {
+        if (!currentQuestionHasAnswer) {
           toast({
             title: "Please answer the current question",
             description: "We need this information to personalize your experience",
@@ -984,13 +992,16 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         setStep(4); // Show summary
       }
     } else if (step === 4) {
+      console.log('=== COMPLETING ONBOARDING FLOW ===');
       setIsProcessing(true);
-      console.log('Completing onboarding flow...');
       
       try {
+        console.log('About to save onboarding data...');
         await saveOnboardingData();
+        console.log('✅ Onboarding data saved successfully!');
         
         const gameRoute = determineGameScreen();
+        console.log('Determined game route:', gameRoute);
         
         if (gameRoute === "/pre-period-game") {
           toast({
@@ -1008,9 +1019,11 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
           console.log('Regular user - navigating to pou-game for companion naming');
         }
         
+        console.log('🚀 NAVIGATING TO:', gameRoute);
         navigate(gameRoute);
+        
       } catch (error) {
-        console.error('Error completing onboarding:', error);
+        console.error('❌❌❌ CRITICAL ERROR completing onboarding:', error);
         toast({
           title: "Error saving your data",
           description: error instanceof Error ? error.message : "Please try again or contact support if the issue persists.",
@@ -1068,7 +1081,6 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
   };
 
   const currentQuestion = questionFlow[currentQuestionIndex];
-  const currentQuestionHasAnswer = isCurrentQuestionAnswered();
 
   return (
     <div className="min-h-screen bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
