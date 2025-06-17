@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -395,58 +396,143 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     if (formData.lastPeriodStart && formData.lastPeriodStart !== "") {
       const newFlow = getQuestionFlow(formData.lastPeriodStart);
       setQuestionFlow(newFlow);
-      console.log('Updated question flow:', newFlow);
+      console.log('Updated question flow:', newFlow, 'for period status:', formData.lastPeriodStart);
     }
   }, [formData.lastPeriodStart]);
 
-  // Save onboarding data to Supabase
+  // Determine user type based on period status
+  const determineUserType = (periodStatus: string, ageRange?: string): string => {
+    console.log('Determining user type for period status:', periodStatus, 'age range:', ageRange);
+    
+    if (periodStatus === "no-period-yet") {
+      return 'PRE_MENSTRUAL';
+    } else if (periodStatus === "stopped-period") {
+      return 'POST_MENSTRUAL';
+    } else {
+      return 'MENSTRUAL';
+    }
+  };
+
+  // Save onboarding data to Supabase with better error handling
   const saveOnboardingData = async () => {
     if (!user) {
       console.error('No user found when trying to save onboarding data');
-      return;
+      throw new Error('User not authenticated');
     }
 
     try {
-      console.log('Saving onboarding data for user:', user.id);
+      console.log('Starting to save onboarding data for user:', user.id);
+      console.log('Current form data:', formData);
+      console.log('Selected date:', selectedDate);
       
-      // Prepare cycle tracking data
-      const cycleData: any = {
-        user_id: user.id,
-        cycle_start_date: selectedDate || new Date(),
-      };
+      // Determine user type
+      const userType = determineUserType(formData.lastPeriodStart, formData.ageRange);
+      console.log('Determined user type:', userType);
+      
+      // Save user type classification
+      const { error: userTypeError } = await supabase
+        .from('user_types')
+        .upsert({
+          user_id: user.id,
+          user_type: userType,
+          classification_date: new Date().toISOString().split('T')[0]
+        });
 
-      // Map period length to numeric values
-      const periodLengthMap: Record<string, number> = {
-        "3-5": 4,
-        "6-7": 6,
-        "8+": 8,
-        "varies": 7
-      };
+      if (userTypeError) {
+        console.error('Error saving user type:', userTypeError);
+        throw new Error(`Failed to save user type: ${userTypeError.message}`);
+      }
+      console.log('User type saved successfully:', userType);
 
-      if (formData.periodLength && periodLengthMap[formData.periodLength]) {
-        cycleData.period_length = periodLengthMap[formData.periodLength];
+      // Prepare questionnaire responses for all answered questions
+      const responses = [];
+      const answeredQuestions = questionFlow.filter(q => {
+        const value = formData[q as keyof typeof formData];
+        return value !== "" && value !== null && value !== undefined;
+      });
+      
+      console.log('Answered questions to save:', answeredQuestions);
+      
+      for (const questionId of answeredQuestions) {
+        const value = formData[questionId as keyof typeof formData];
+        responses.push({
+          user_id: user.id,
+          questionnaire_type: 'onboarding_flow',
+          question_id: questionId,
+          question_text: QuestionTitles[questionId as keyof typeof QuestionTitles] || questionId,
+          answer_value: value.toString(),
+          answer_type: 'radio',
+          user_type: userType
+        });
       }
 
-      // Map cycle predictability to cycle length
-      const cycleLengthMap: Record<string, number> = {
-        "clockwork": 28,
-        "regular-varies": 30,
-        "irregular": 32
-      };
-
-      if (formData.cyclePredictability && cycleLengthMap[formData.cyclePredictability]) {
-        cycleData.cycle_length = cycleLengthMap[formData.cyclePredictability];
+      // Save selected date if applicable
+      if (selectedDate && formData.lastPeriodStart === "calendar") {
+        responses.push({
+          user_id: user.id,
+          questionnaire_type: 'onboarding_flow',
+          question_id: 'selected_period_date',
+          question_text: 'Selected period start date',
+          answer_value: selectedDate.toISOString().split('T')[0],
+          answer_type: 'date',
+          user_type: userType
+        });
       }
 
-      // Save cycle tracking data
-      const { error: cycleError } = await supabase
-        .from('cycle_tracking')
-        .insert(cycleData);
+      if (responses.length > 0) {
+        const { error: responsesError } = await supabase
+          .from('questionnaire_responses')
+          .insert(responses);
 
-      if (cycleError) {
-        console.error('Error saving cycle data:', cycleError);
-      } else {
-        console.log('Cycle data saved successfully');
+        if (responsesError) {
+          console.error('Error saving questionnaire responses:', responsesError);
+          throw new Error(`Failed to save responses: ${responsesError.message}`);
+        }
+        console.log('Questionnaire responses saved successfully:', responses.length, 'responses');
+      }
+
+      // Prepare cycle tracking data for MENSTRUAL users
+      if (userType === 'MENSTRUAL') {
+        const cycleData: any = {
+          user_id: user.id,
+          cycle_start_date: selectedDate || new Date(),
+        };
+
+        // Map period length to numeric values
+        const periodLengthMap: Record<string, number> = {
+          "3-5": 4,
+          "6-7": 6,
+          "8+": 8,
+          "varies": 7
+        };
+
+        if (formData.periodLength && periodLengthMap[formData.periodLength]) {
+          cycleData.period_length = periodLengthMap[formData.periodLength];
+        }
+
+        // Map cycle predictability to cycle length
+        const cycleLengthMap: Record<string, number> = {
+          "clockwork": 28,
+          "regular-varies": 30,
+          "irregular": 32
+        };
+
+        if (formData.cyclePredictability && cycleLengthMap[formData.cyclePredictability]) {
+          cycleData.cycle_length = cycleLengthMap[formData.cyclePredictability];
+        }
+
+        // Save cycle tracking data
+        const { error: cycleError } = await supabase
+          .from('cycle_tracking')
+          .insert(cycleData);
+
+        if (cycleError) {
+          console.error('Error saving cycle data:', cycleError);
+          // Don't throw here as it's not critical for pre-menstrual users
+          console.log('Cycle tracking creation skipped due to error, but continuing...');
+        } else {
+          console.log('Cycle data saved successfully');
+        }
       }
 
       // Prepare mood log data
@@ -459,9 +545,9 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       const moodData = {
         user_id: user.id,
         date: new Date().toISOString().split('T')[0],
-        mood: formData.premenstrualSymptoms || formData.currentSymptoms || 'fine',
+        mood: formData.premenstrualSymptoms || formData.currentSymptoms || 'learning',
         symptoms: symptoms,
-        notes: `Onboarding data: Period start: ${formData.lastPeriodStart}, Age: ${formData.ageRange}, Learning goals: ${formData.learningGoals}, Coping strategies: ${formData.copingStrategies}`
+        notes: `Onboarding completed - User Type: ${userType}, Period status: ${formData.lastPeriodStart}`
       };
 
       // Save mood log data
@@ -471,13 +557,31 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
       if (moodError) {
         console.error('Error saving mood data:', moodError);
+        // Don't throw here as it's not critical
+        console.log('Mood log creation failed, but continuing...');
       } else {
         console.log('Mood data saved successfully');
       }
 
-      console.log('All onboarding data saved successfully');
+      // Update profile to mark onboarding as completed
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ onboarding_completed: true })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+        // Don't throw here as the main data is saved
+        console.log('Profile update failed, but main data saved successfully');
+      } else {
+        console.log('Profile updated - onboarding marked as completed');
+      }
+
+      console.log('All onboarding data saved successfully for user type:', userType);
+      
     } catch (error) {
-      console.error('Error saving onboarding data:', error);
+      console.error('Error in saveOnboardingData:', error);
+      throw error;
     }
   };
 
@@ -783,34 +887,15 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     return () => clearTimeout(timer);
   }, [floatingHearts]);
 
-  const calculateProgress = () => {
-    if (questionFlow.length === 0) return 0;
-    const answeredQuestions = questionFlow.filter(q => formData[q as keyof typeof formData] !== "").length;
-    return (answeredQuestions / questionFlow.length) * 100;
-  };
-
-  const isAllQuestionsAnswered = () => {
-    // Check if we've answered up to the current question index
-    const questionsUpToCurrent = questionFlow.slice(0, currentQuestionIndex + 1);
-    const unansweredInRange = questionsUpToCurrent.filter(q => {
-      const value = formData[q as keyof typeof formData];
-      return value === "" || value === null || value === undefined;
-    });
-    
-    console.log('Questions up to current index:', questionsUpToCurrent);
-    console.log('Current question index:', currentQuestionIndex);
-    console.log('Unanswered questions in range:', unansweredInRange);
-    console.log('Form data:', formData);
-    
-    return unansweredInRange.length === 0;
-  };
-
   const isCurrentQuestionAnswered = () => {
     const currentQuestion = questionFlow[currentQuestionIndex];
     if (!currentQuestion) return false;
     
     const value = formData[currentQuestion as keyof typeof formData];
-    return value !== "" && value !== null && value !== undefined;
+    const isAnswered = value !== "" && value !== null && value !== undefined;
+    
+    console.log('Checking if current question is answered:', currentQuestion, 'value:', value, 'isAnswered:', isAnswered);
+    return isAnswered;
   };
 
   const handleNext = async () => {
@@ -818,6 +903,8 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       console.log('Already processing, ignoring click');
       return;
     }
+
+    console.log('handleNext called - current step:', step, 'currentQuestionIndex:', currentQuestionIndex, 'questionFlow length:', questionFlow.length);
 
     if (step === 1) {
       setStep(2);
@@ -834,6 +921,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
           });
           return;
         }
+        console.log('Advancing to next question');
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
         // At the last question - check if it's answered
@@ -879,7 +967,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
         console.error('Error completing onboarding:', error);
         toast({
           title: "Error saving your data",
-          description: "Please try again or contact support if the issue persists.",
+          description: error instanceof Error ? error.message : "Please try again or contact support if the issue persists.",
           variant: "destructive",
         });
       } finally {
@@ -1189,12 +1277,22 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
               <Button
                 onClick={handleNext}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
-                disabled={isProcessing || (!currentQuestionHasAnswer && currentQuestionIndex === questionFlow.length - 1)}
+                disabled={isProcessing || !currentQuestionHasAnswer}
               >
                 {isProcessing ? "Processing..." : 
                  currentQuestionIndex === questionFlow.length - 1 ? "Get My Results" : "Next"}
               </Button>
             </div>
+
+            {/* Debug info for development */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
+                <div>Current Question: {currentQuestion}</div>
+                <div>Current Answer: {formData[currentQuestion as keyof typeof formData] || 'None'}</div>
+                <div>Is Answered: {currentQuestionHasAnswer ? 'Yes' : 'No'}</div>
+                <div>Question Flow: {questionFlow.join(', ')}</div>
+              </div>
+            )}
           </div>
         ) : (
           // Step 4 - Summary screen

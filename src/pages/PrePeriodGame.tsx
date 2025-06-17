@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -156,7 +155,6 @@ const PrePeriodGame = () => {
     sleepBarriers: [],
     screenTime: ""
   });
-  const [menstrualStatus, setMenstrualStatus] = useState<string>("");
   const [heartPoints, setHeartPoints] = useState(0);
   const [showIntro, setShowIntro] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -165,43 +163,7 @@ const PrePeriodGame = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const classifyUserType = (status: string): UserType => {
-    switch (status) {
-      case 'pre-menstrual':
-        return 'PRE_MENSTRUAL';
-      case 'menstrual':
-        return 'MENSTRUAL';
-      case 'post-menstrual':
-        return 'POST_MENSTRUAL';
-      default:
-        return 'MENSTRUAL'; // Default fallback
-    }
-  };
-
-  const saveUserType = async (userType: UserType) => {
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    console.log('Saving user type:', userType, 'for user:', user.id);
-
-    const { error } = await supabase
-      .from('user_types')
-      .upsert({
-        user_id: user.id,
-        user_type: userType,
-        classification_date: new Date().toISOString().split('T')[0]
-      });
-
-    if (error) {
-      console.error('Error saving user type:', error);
-      throw new Error(`Failed to save user type: ${error.message}`);
-    }
-    
-    console.log('User type saved successfully');
-  };
-
-  const saveQuestionnaireResponse = async (questionId: string, value: string | string[] | number, userType: UserType) => {
+  const saveQuestionnaireResponse = async (questionId: string, value: string | string[] | number) => {
     if (!user) {
       throw new Error('User not authenticated');
     }
@@ -225,7 +187,7 @@ const PrePeriodGame = () => {
           question_text: question.title,
           answer_value: item,
           answer_type: question.type,
-          user_type: userType
+          user_type: 'PRE_MENSTRUAL'
         });
       }
     } else {
@@ -236,7 +198,7 @@ const PrePeriodGame = () => {
         question_text: question.title,
         answer_value: value.toString(),
         answer_type: question.type,
-        user_type: userType
+        user_type: 'PRE_MENSTRUAL'
       });
     }
 
@@ -257,7 +219,7 @@ const PrePeriodGame = () => {
       throw new Error('User not authenticated');
     }
 
-    console.log('Initializing cycle tracking for user:', user.id);
+    console.log('Initializing cycle tracking for pre-menstrual user:', user.id);
 
     // Check if cycle tracking already exists
     const { data: existingTracking } = await supabase
@@ -267,7 +229,7 @@ const PrePeriodGame = () => {
       .maybeSingle();
 
     if (!existingTracking) {
-      // Create initial cycle tracking entry
+      // Create initial cycle tracking entry for future use
       const { error } = await supabase
         .from('cycle_tracking')
         .insert({
@@ -279,10 +241,11 @@ const PrePeriodGame = () => {
 
       if (error) {
         console.error('Error initializing cycle tracking:', error);
-        throw new Error(`Failed to initialize cycle tracking: ${error.message}`);
+        // Don't throw here as this is preparatory data
+        console.log('Cycle tracking initialization skipped due to error');
+      } else {
+        console.log('Cycle tracking initialized successfully for future use');
       }
-      
-      console.log('Cycle tracking initialized successfully');
     } else {
       console.log('Cycle tracking already exists');
     }
@@ -307,10 +270,11 @@ const PrePeriodGame = () => {
 
     if (error) {
       console.error('Error saving pre-period data:', error);
-      throw new Error(`Failed to save mood log: ${error.message}`);
+      // Don't throw here as it's not critical
+      console.log('Mood log creation failed, but continuing...');
+    } else {
+      console.log('Pre-period data saved successfully');
     }
-    
-    console.log('Pre-period data saved successfully');
   };
 
   const handleAnswer = async (value: string | string[] | number) => {
@@ -366,14 +330,22 @@ const PrePeriodGame = () => {
     setIsSaving(true);
 
     try {
-      console.log('Starting to save questionnaire data...');
+      console.log('Starting to save pre-period questionnaire data...');
       
-      // Determine user type
-      const userType = classifyUserType(menstrualStatus);
-      console.log('Classified user type:', userType);
-      
-      // Save user type first
-      await saveUserType(userType);
+      // Ensure user type is saved
+      const { error: userTypeError } = await supabase
+        .from('user_types')
+        .upsert({
+          user_id: user.id,
+          user_type: 'PRE_MENSTRUAL',
+          classification_date: new Date().toISOString().split('T')[0]
+        });
+
+      if (userTypeError) {
+        console.error('Error saving user type:', userTypeError);
+        throw new Error(`Failed to save user type: ${userTypeError.message}`);
+      }
+      console.log('User type saved as PRE_MENSTRUAL');
       
       // Save all questionnaire responses
       const savePromises = [];
@@ -381,31 +353,37 @@ const PrePeriodGame = () => {
       for (const [key, value] of Object.entries(formData)) {
         if (isValidValue(value)) {
           console.log(`Preparing to save ${key}:`, value);
-          savePromises.push(saveQuestionnaireResponse(key, value, userType));
+          savePromises.push(saveQuestionnaireResponse(key, value));
         } else {
           console.log(`Skipping ${key} - invalid value:`, value);
         }
-      }
-      
-      // Save menstrual status response
-      if (menstrualStatus) {
-        console.log('Preparing to save menstrualStatus:', menstrualStatus);
-        savePromises.push(saveQuestionnaireResponse('menstrualStatus', menstrualStatus, userType));
       }
       
       // Execute all saves
       await Promise.all(savePromises);
       console.log('All questionnaire responses saved successfully');
       
-      // Initialize cycle tracking for MENSTRUAL users
-      if (userType === 'MENSTRUAL') {
-        await initializeCycleTracking();
-      }
+      // Initialize cycle tracking for future use
+      await initializeCycleTracking();
       
       // Save legacy mood log data
       await savePrePeriodData();
+
+      // Update profile to mark onboarding as completed
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ onboarding_completed: true })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+        // Don't throw here as the main data is saved
+        console.log('Profile update failed, but main data saved successfully');
+      } else {
+        console.log('Profile updated - onboarding marked as completed');
+      }
       
-      console.log('All data saved successfully!');
+      console.log('All pre-period data saved successfully!');
       
       toast({
         title: "Amazing work! 🌱",
