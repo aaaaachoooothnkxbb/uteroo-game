@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -30,6 +29,9 @@ type FormData = {
   screenTime: string;
 };
 
+type UserType = 'PRE_MENSTRUAL' | 'MENSTRUAL' | 'POST_MENSTRUAL';
+
+// ... keep existing code (questions array)
 const questions = [
   {
     id: "height",
@@ -125,6 +127,18 @@ const questions = [
       { value: "6-plus", label: "6+ hours" }
     ],
     insight: "Balancing screen time with other activities can help your eyes and your mind feel better!"
+  },
+  // Add new classification questions
+  {
+    id: "menstrualStatus",
+    title: "To provide the most relevant guidance, which best describes your current situation?",
+    type: "radio",
+    options: [
+      { value: "pre-menstrual", label: "I haven't started menstruating yet" },
+      { value: "menstrual", label: "I currently menstruate" },
+      { value: "post-menstrual", label: "I used to menstruate but no longer do (menopause, etc.)" }
+    ],
+    insight: "This helps us tailor your experience to your unique needs!"
   }
 ];
 
@@ -141,12 +155,123 @@ const PrePeriodGame = () => {
     sleepBarriers: [],
     screenTime: ""
   });
+  const [menstrualStatus, setMenstrualStatus] = useState<string>("");
   const [heartPoints, setHeartPoints] = useState(0);
   const [showIntro, setShowIntro] = useState(true);
   
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  const classifyUserType = (status: string): UserType => {
+    switch (status) {
+      case 'pre-menstrual':
+        return 'PRE_MENSTRUAL';
+      case 'menstrual':
+        return 'MENSTRUAL';
+      case 'post-menstrual':
+        return 'POST_MENSTRUAL';
+      default:
+        return 'MENSTRUAL'; // Default fallback
+    }
+  };
+
+  const saveUserType = async (userType: UserType) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_types')
+        .upsert({
+          user_id: user.id,
+          user_type: userType,
+          classification_date: new Date().toISOString().split('T')[0]
+        });
+
+      if (error) {
+        console.error('Error saving user type:', error);
+      }
+    } catch (error) {
+      console.error('Error saving user type:', error);
+    }
+  };
+
+  const saveQuestionnaireResponse = async (questionId: string, value: string | string[] | number, userType: UserType) => {
+    if (!user) return;
+
+    const question = questions.find(q => q.id === questionId);
+    if (!question) return;
+
+    try {
+      const responses = [];
+      
+      if (Array.isArray(value)) {
+        // Handle checkbox responses
+        for (const item of value) {
+          responses.push({
+            user_id: user.id,
+            questionnaire_type: 'pre_period_game',
+            question_id: questionId,
+            question_text: question.title,
+            answer_value: item,
+            answer_type: question.type,
+            user_type: userType
+          });
+        }
+      } else {
+        responses.push({
+          user_id: user.id,
+          questionnaire_type: 'pre_period_game',
+          question_id: questionId,
+          question_text: question.title,
+          answer_value: value.toString(),
+          answer_type: question.type,
+          user_type: userType
+        });
+      }
+
+      const { error } = await supabase
+        .from('questionnaire_responses')
+        .insert(responses);
+
+      if (error) {
+        console.error('Error saving questionnaire response:', error);
+      }
+    } catch (error) {
+      console.error('Error saving questionnaire response:', error);
+    }
+  };
+
+  const initializeCycleTracking = async () => {
+    if (!user) return;
+
+    try {
+      // Check if cycle tracking already exists
+      const { data: existingTracking } = await supabase
+        .from('cycle_tracking')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!existingTracking) {
+        // Create initial cycle tracking entry
+        const { error } = await supabase
+          .from('cycle_tracking')
+          .insert({
+            user_id: user.id,
+            cycle_start_date: new Date().toISOString().split('T')[0],
+            cycle_length: 28,
+            period_length: 5
+          });
+
+        if (error) {
+          console.error('Error initializing cycle tracking:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error initializing cycle tracking:', error);
+    }
+  };
 
   const savePrePeriodData = async () => {
     if (!user) return;
@@ -159,7 +284,7 @@ const PrePeriodGame = () => {
           date: new Date().toISOString().split('T')[0],
           mood: 'learning',
           symptoms: [],
-          notes: `Pre-period questionnaire: Height: ${formData.height}cm, Weight: ${formData.weight}kg, Hydration: ${formData.hydration}, Nutrition: ${formData.nutrition}, Movement: ${formData.movement}, Sleep: ${formData.sleep}h, Screen time: ${formData.screenTime}`
+          notes: `Pre-period questionnaire completed: Height: ${formData.height}cm, Weight: ${formData.weight}kg, Hydration: ${formData.hydration}, Nutrition: ${formData.nutrition}, Movement: ${formData.movement}, Sleep: ${formData.sleep}h, Screen time: ${formData.screenTime}`
         });
 
       if (error) {
@@ -170,11 +295,14 @@ const PrePeriodGame = () => {
     }
   };
 
-  const handleAnswer = (value: string | string[] | number) => {
+  const handleAnswer = async (value: string | string[] | number) => {
     const question = questions[currentQuestion];
     const newFormData = { ...formData };
     
-    if (question.type === "checkbox") {
+    // Handle different question types
+    if (question.id === "menstrualStatus") {
+      setMenstrualStatus(value as string);
+    } else if (question.type === "checkbox") {
       newFormData.sleepBarriers = value as string[];
     } else if (question.type === "slider") {
       newFormData.sleep = value as number;
@@ -200,6 +328,32 @@ const PrePeriodGame = () => {
   };
 
   const handleComplete = async () => {
+    if (!user) return;
+
+    // Determine user type
+    const userType = classifyUserType(menstrualStatus);
+    
+    // Save user type
+    await saveUserType(userType);
+    
+    // Save all questionnaire responses
+    for (const [key, value] of Object.entries(formData)) {
+      if (value !== "" && value !== 0 && !(Array.isArray(value) && value.length === 0)) {
+        await saveQuestionnaireResponse(key, value, userType);
+      }
+    }
+    
+    // Save menstrual status response
+    if (menstrualStatus) {
+      await saveQuestionnaireResponse('menstrualStatus', menstrualStatus, userType);
+    }
+    
+    // Initialize cycle tracking for MENSTRUAL users
+    if (userType === 'MENSTRUAL') {
+      await initializeCycleTracking();
+    }
+    
+    // Save legacy mood log data
     await savePrePeriodData();
     
     toast({
