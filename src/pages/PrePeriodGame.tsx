@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -158,6 +159,7 @@ const PrePeriodGame = () => {
   const [menstrualStatus, setMenstrualStatus] = useState<string>("");
   const [heartPoints, setHeartPoints] = useState(0);
   const [showIntro, setShowIntro] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -177,122 +179,138 @@ const PrePeriodGame = () => {
   };
 
   const saveUserType = async (userType: UserType) => {
-    if (!user) return;
-
-    try {
-      const { error } = await supabase
-        .from('user_types')
-        .upsert({
-          user_id: user.id,
-          user_type: userType,
-          classification_date: new Date().toISOString().split('T')[0]
-        });
-
-      if (error) {
-        console.error('Error saving user type:', error);
-      }
-    } catch (error) {
-      console.error('Error saving user type:', error);
+    if (!user) {
+      throw new Error('User not authenticated');
     }
+
+    console.log('Saving user type:', userType, 'for user:', user.id);
+
+    const { error } = await supabase
+      .from('user_types')
+      .upsert({
+        user_id: user.id,
+        user_type: userType,
+        classification_date: new Date().toISOString().split('T')[0]
+      });
+
+    if (error) {
+      console.error('Error saving user type:', error);
+      throw new Error(`Failed to save user type: ${error.message}`);
+    }
+    
+    console.log('User type saved successfully');
   };
 
   const saveQuestionnaireResponse = async (questionId: string, value: string | string[] | number, userType: UserType) => {
-    if (!user) return;
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
     const question = questions.find(q => q.id === questionId);
-    if (!question) return;
+    if (!question) {
+      throw new Error(`Question with id ${questionId} not found`);
+    }
 
-    try {
-      const responses = [];
-      
-      if (Array.isArray(value)) {
-        // Handle checkbox responses
-        for (const item of value) {
-          responses.push({
-            user_id: user.id,
-            questionnaire_type: 'pre_period_game',
-            question_id: questionId,
-            question_text: question.title,
-            answer_value: item,
-            answer_type: question.type,
-            user_type: userType
-          });
-        }
-      } else {
+    console.log('Saving questionnaire response:', questionId, value);
+
+    const responses = [];
+    
+    if (Array.isArray(value)) {
+      // Handle checkbox responses
+      for (const item of value) {
         responses.push({
           user_id: user.id,
           questionnaire_type: 'pre_period_game',
           question_id: questionId,
           question_text: question.title,
-          answer_value: value.toString(),
+          answer_value: item,
           answer_type: question.type,
           user_type: userType
         });
       }
-
-      const { error } = await supabase
-        .from('questionnaire_responses')
-        .insert(responses);
-
-      if (error) {
-        console.error('Error saving questionnaire response:', error);
-      }
-    } catch (error) {
-      console.error('Error saving questionnaire response:', error);
+    } else {
+      responses.push({
+        user_id: user.id,
+        questionnaire_type: 'pre_period_game',
+        question_id: questionId,
+        question_text: question.title,
+        answer_value: value.toString(),
+        answer_type: question.type,
+        user_type: userType
+      });
     }
+
+    const { error } = await supabase
+      .from('questionnaire_responses')
+      .insert(responses);
+
+    if (error) {
+      console.error('Error saving questionnaire response:', error);
+      throw new Error(`Failed to save response for ${questionId}: ${error.message}`);
+    }
+    
+    console.log('Questionnaire response saved successfully for:', questionId);
   };
 
   const initializeCycleTracking = async () => {
-    if (!user) return;
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
-    try {
-      // Check if cycle tracking already exists
-      const { data: existingTracking } = await supabase
+    console.log('Initializing cycle tracking for user:', user.id);
+
+    // Check if cycle tracking already exists
+    const { data: existingTracking } = await supabase
+      .from('cycle_tracking')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (!existingTracking) {
+      // Create initial cycle tracking entry
+      const { error } = await supabase
         .from('cycle_tracking')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .insert({
+          user_id: user.id,
+          cycle_start_date: new Date().toISOString().split('T')[0],
+          cycle_length: 28,
+          period_length: 5
+        });
 
-      if (!existingTracking) {
-        // Create initial cycle tracking entry
-        const { error } = await supabase
-          .from('cycle_tracking')
-          .insert({
-            user_id: user.id,
-            cycle_start_date: new Date().toISOString().split('T')[0],
-            cycle_length: 28,
-            period_length: 5
-          });
-
-        if (error) {
-          console.error('Error initializing cycle tracking:', error);
-        }
+      if (error) {
+        console.error('Error initializing cycle tracking:', error);
+        throw new Error(`Failed to initialize cycle tracking: ${error.message}`);
       }
-    } catch (error) {
-      console.error('Error initializing cycle tracking:', error);
+      
+      console.log('Cycle tracking initialized successfully');
+    } else {
+      console.log('Cycle tracking already exists');
     }
   };
 
   const savePrePeriodData = async () => {
-    if (!user) return;
-
-    try {
-      const { error } = await supabase
-        .from('mood_logs')
-        .insert({
-          user_id: user.id,
-          date: new Date().toISOString().split('T')[0],
-          mood: 'learning',
-          symptoms: [],
-          notes: `Pre-period questionnaire completed: Height: ${formData.height}cm, Weight: ${formData.weight}kg, Hydration: ${formData.hydration}, Nutrition: ${formData.nutrition}, Movement: ${formData.movement}, Sleep: ${formData.sleep}h, Screen time: ${formData.screenTime}`
-        });
-
-      if (error) {
-        console.error('Error saving pre-period data:', error);
-      }
-    } catch (error) {
-      console.error('Error saving pre-period data:', error);
+    if (!user) {
+      throw new Error('User not authenticated');
     }
+
+    console.log('Saving pre-period data for user:', user.id);
+
+    const { error } = await supabase
+      .from('mood_logs')
+      .insert({
+        user_id: user.id,
+        date: new Date().toISOString().split('T')[0],
+        mood: 'learning',
+        symptoms: [],
+        notes: `Pre-period questionnaire completed: Height: ${formData.height}cm, Weight: ${formData.weight}kg, Hydration: ${formData.hydration}, Nutrition: ${formData.nutrition}, Movement: ${formData.movement}, Sleep: ${formData.sleep}h, Screen time: ${formData.screenTime}`
+      });
+
+    if (error) {
+      console.error('Error saving pre-period data:', error);
+      throw new Error(`Failed to save mood log: ${error.message}`);
+    }
+    
+    console.log('Pre-period data saved successfully');
   };
 
   const handleAnswer = async (value: string | string[] | number) => {
@@ -327,42 +345,86 @@ const PrePeriodGame = () => {
     }, 1000);
   };
 
-  const handleComplete = async () => {
-    if (!user) return;
+  const isValidValue = (value: any): boolean => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string' && value.trim() === '') return false;
+    if (Array.isArray(value) && value.length === 0) return false;
+    // Allow 0 as valid value for numbers
+    return true;
+  };
 
-    // Determine user type
-    const userType = classifyUserType(menstrualStatus);
-    
-    // Save user type
-    await saveUserType(userType);
-    
-    // Save all questionnaire responses
-    for (const [key, value] of Object.entries(formData)) {
-      if (value !== "" && value !== 0 && !(Array.isArray(value) && value.length === 0)) {
-        await saveQuestionnaireResponse(key, value, userType);
+  const handleComplete = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save your responses.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      console.log('Starting to save questionnaire data...');
+      
+      // Determine user type
+      const userType = classifyUserType(menstrualStatus);
+      console.log('Classified user type:', userType);
+      
+      // Save user type first
+      await saveUserType(userType);
+      
+      // Save all questionnaire responses
+      const savePromises = [];
+      
+      for (const [key, value] of Object.entries(formData)) {
+        if (isValidValue(value)) {
+          console.log(`Preparing to save ${key}:`, value);
+          savePromises.push(saveQuestionnaireResponse(key, value, userType));
+        } else {
+          console.log(`Skipping ${key} - invalid value:`, value);
+        }
       }
+      
+      // Save menstrual status response
+      if (menstrualStatus) {
+        console.log('Preparing to save menstrualStatus:', menstrualStatus);
+        savePromises.push(saveQuestionnaireResponse('menstrualStatus', menstrualStatus, userType));
+      }
+      
+      // Execute all saves
+      await Promise.all(savePromises);
+      console.log('All questionnaire responses saved successfully');
+      
+      // Initialize cycle tracking for MENSTRUAL users
+      if (userType === 'MENSTRUAL') {
+        await initializeCycleTracking();
+      }
+      
+      // Save legacy mood log data
+      await savePrePeriodData();
+      
+      console.log('All data saved successfully!');
+      
+      toast({
+        title: "Amazing work! 🌱",
+        description: "Your responses have been saved successfully! Now let's meet your companion.",
+        duration: 5000,
+      });
+      
+      navigate("/pou-game");
+      
+    } catch (error) {
+      console.error('Error saving questionnaire data:', error);
+      toast({
+        title: "Save Failed",
+        description: error instanceof Error ? error.message : "Failed to save your responses. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
     }
-    
-    // Save menstrual status response
-    if (menstrualStatus) {
-      await saveQuestionnaireResponse('menstrualStatus', menstrualStatus, userType);
-    }
-    
-    // Initialize cycle tracking for MENSTRUAL users
-    if (userType === 'MENSTRUAL') {
-      await initializeCycleTracking();
-    }
-    
-    // Save legacy mood log data
-    await savePrePeriodData();
-    
-    toast({
-      title: "Amazing work! 🌱",
-      description: "You've built a strong foundation! Now let's meet your companion.",
-      duration: 5000,
-    });
-    
-    navigate("/pou-game");
   };
 
   const handleInputChange = (questionId: string, value: string) => {
@@ -453,14 +515,15 @@ const PrePeriodGame = () => {
                 value={formData[question.id as keyof FormData] as string}
                 onChange={(e) => handleInputChange(question.id, e.target.value)}
                 className="w-32 text-center"
+                disabled={isSaving}
               />
               <span className="text-gray-600">{question.unit}</span>
               <Button
                 onClick={() => handleAnswer(formData[question.id as keyof FormData] as string)}
-                disabled={!formData[question.id as keyof FormData]}
+                disabled={!formData[question.id as keyof FormData] || isSaving}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white"
               >
-                Next
+                {isSaving ? "Saving..." : "Next"}
               </Button>
             </div>
           )}
@@ -473,6 +536,7 @@ const PrePeriodGame = () => {
                   key={option.value}
                   onClick={() => handleAnswer(option.value)}
                   variant="outline"
+                  disabled={isSaving}
                   className="w-full text-left h-auto py-4 px-6 rounded-full hover:bg-pink-50 hover:border-[#9370DB] focus:bg-pink-50 focus:border-[#9370DB] transition-all duration-200 text-black text-wrap"
                 >
                   {option.label}
@@ -492,6 +556,7 @@ const PrePeriodGame = () => {
                   max={question.max}
                   step={1}
                   className="w-full"
+                  disabled={isSaving}
                 />
                 <div className="flex justify-between text-sm text-gray-600 mt-2">
                   <span>{question.min} hours</span>
@@ -501,9 +566,10 @@ const PrePeriodGame = () => {
               </div>
               <Button
                 onClick={() => handleAnswer(formData.sleep)}
+                disabled={isSaving}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white mx-auto block"
               >
-                Next
+                {isSaving ? "Saving..." : "Next"}
               </Button>
             </div>
           )}
@@ -516,6 +582,7 @@ const PrePeriodGame = () => {
                   <Checkbox
                     id={option.value}
                     checked={formData.sleepBarriers.includes(option.value)}
+                    disabled={isSaving}
                     onCheckedChange={(checked) => {
                       const newBarriers = checked
                         ? [...formData.sleepBarriers, option.value]
@@ -530,13 +597,20 @@ const PrePeriodGame = () => {
               ))}
               <Button
                 onClick={() => handleAnswer(formData.sleepBarriers)}
+                disabled={isSaving}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white mt-4"
               >
-                Next
+                {isSaving ? "Saving..." : "Next"}
               </Button>
             </div>
           )}
         </div>
+
+        {isSaving && (
+          <div className="text-center text-[#9370DB] font-medium">
+            Saving your responses... Please wait!
+          </div>
+        )}
       </Card>
     </div>
   );
