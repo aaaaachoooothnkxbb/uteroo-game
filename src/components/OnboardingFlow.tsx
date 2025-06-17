@@ -363,7 +363,7 @@ const screenRewards = [
 export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [questionFlow, setQuestionFlow] = useState<string[]>(["lastPeriodStart"]); // Initialize with first question
+  const [questionFlow, setQuestionFlow] = useState<string[]>(["lastPeriodStart"]);
   const [formData, setFormData] = useState({
     lastPeriodStart: "",
     ageRange: "",
@@ -383,6 +383,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [nextHeartId, setNextHeartId] = useState(1);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Login form state
   const [email, setEmail] = useState("");
@@ -640,7 +641,12 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       return;
     }
     
-    setFormData({ ...formData, [field]: option.value });
+    console.log(`Selecting option for ${field}:`, option.value);
+    
+    const newFormData = { ...formData, [field]: option.value };
+    setFormData(newFormData);
+    
+    console.log('Updated form data:', newFormData);
     
     // Create a floating heart
     const randomLeft = 50 + (Math.random() * 30 - 15);
@@ -663,6 +669,8 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     setTimeout(() => {
       if (currentQuestionIndex < questionFlow.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
+      } else {
+        console.log('Last question answered, ready for results');
       }
     }, 1000);
   };
@@ -779,7 +787,19 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     return (answeredQuestions / questionFlow.length) * 100;
   };
 
+  const isAllQuestionsAnswered = () => {
+    return questionFlow.every(q => {
+      const value = formData[q as keyof typeof formData];
+      return value !== "" && value !== null && value !== undefined;
+    });
+  };
+
   const handleNext = async () => {
+    if (isProcessing) {
+      console.log('Already processing, ignoring click');
+      return;
+    }
+
     if (step === 1) {
       setStep(2);
     } else if (step === 2) {
@@ -787,39 +807,59 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     } else if (step === 3) {
       if (currentQuestionIndex < questionFlow.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
-      } else if (questionFlow.some(q => formData[q as keyof typeof formData] === "")) {
-        toast({
-          title: "Please answer all questions",
-          description: "We need this information to personalize your experience",
-          variant: "destructive",
-        });
-        return;
       } else {
+        // Check if all questions are answered before proceeding
+        if (!isAllQuestionsAnswered()) {
+          const unansweredQuestions = questionFlow.filter(q => !formData[q as keyof typeof formData]);
+          console.log('Unanswered questions:', unansweredQuestions);
+          
+          toast({
+            title: "Please answer all questions",
+            description: "We need this information to personalize your experience",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        console.log('All questions answered, moving to summary');
         setStep(4); // Show summary
       }
     } else if (step === 4) {
+      setIsProcessing(true);
       console.log('Completing onboarding flow...');
-      await saveOnboardingData();
       
-      const gameRoute = determineGameScreen();
-      
-      if (gameRoute === "/pre-period-game") {
+      try {
+        await saveOnboardingData();
+        
+        const gameRoute = determineGameScreen();
+        
+        if (gameRoute === "/pre-period-game") {
+          toast({
+            title: "Welcome to your wellness journey!",
+            description: "Let's start with understanding your daily habits!",
+            duration: 5000,
+          });
+          console.log('Pre-period user - navigating to pre-period game');
+        } else {
+          toast({
+            title: "Welcome to Uteroo!",
+            description: "Time to meet your companion and give them a name!",
+            duration: 5000,
+          });
+          console.log('Regular user - navigating to pou-game for companion naming');
+        }
+        
+        navigate(gameRoute);
+      } catch (error) {
+        console.error('Error completing onboarding:', error);
         toast({
-          title: "Welcome to your wellness journey!",
-          description: "Let's start with understanding your daily habits!",
-          duration: 5000,
+          title: "Error saving your data",
+          description: "Please try again or contact support if the issue persists.",
+          variant: "destructive",
         });
-        console.log('Pre-period user - navigating to pre-period game');
-      } else {
-        toast({
-          title: "Welcome to Uteroo!",
-          description: "Time to meet your companion and give them a name!",
-          duration: 5000,
-        });
-        console.log('Regular user - navigating to pou-game for companion naming');
+      } finally {
+        setIsProcessing(false);
       }
-      
-      navigate(gameRoute);
     }
   };
 
@@ -869,6 +909,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
   };
 
   const currentQuestion = questionFlow[currentQuestionIndex];
+  const currentQuestionHasAnswer = currentQuestion && formData[currentQuestion as keyof typeof formData] !== "";
 
   return (
     <div className="min-h-screen bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -1084,6 +1125,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                             ? "bg-[#9370DB] text-white" 
                             : "text-black hover:bg-pink-50"
                         }`}
+                        disabled={isProcessing}
                       >
                         {option.icon && <span className="mr-3 text-lg">{option.icon}</span>}
                         <span className="text-base">{option.label}</span>
@@ -1104,6 +1146,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                   onClick={() => setCurrentQuestionIndex(prev => prev - 1)}
                   variant="outline"
                   className="text-[#9370DB] hover:bg-pink-50 rounded-full"
+                  disabled={isProcessing}
                 >
                   Previous
                 </Button>
@@ -1112,6 +1155,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
                   onClick={handleSkip}
                   variant="outline"
                   className="text-[#FF69B4] hover:bg-pink-50 rounded-full"
+                  disabled={isProcessing}
                 >
                   Skip for now
                 </Button>
@@ -1120,9 +1164,10 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
               <Button
                 onClick={handleNext}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full"
-                disabled={!formData[currentQuestion as keyof typeof formData]}
+                disabled={isProcessing || (!currentQuestionHasAnswer && currentQuestionIndex === questionFlow.length - 1)}
               >
-                {currentQuestionIndex === questionFlow.length - 1 ? "Get My Results" : "Next"}
+                {isProcessing ? "Processing..." : 
+                 currentQuestionIndex === questionFlow.length - 1 ? "Get My Results" : "Next"}
               </Button>
             </div>
           </div>
@@ -1175,8 +1220,9 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
               <Button
                 onClick={handleNext}
                 className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white rounded-full px-8"
+                disabled={isProcessing}
               >
-                Continue to Game
+                {isProcessing ? "Setting up your journey..." : "Continue to Game"}
               </Button>
             </div>
           </div>
