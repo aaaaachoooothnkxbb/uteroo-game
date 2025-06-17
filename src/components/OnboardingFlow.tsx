@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -481,7 +480,11 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   };
 
   const determineGameScreen = () => {
-    // Always go to pou-game first for naming the companion
+    // Check if user is pre-period and redirect to pre-period game
+    if (formData.lastPeriodStart === "no-period-yet") {
+      return "/pre-period-game";
+    }
+    // Always go to pou-game for other users
     return "/pou-game";
   };
 
@@ -798,14 +801,25 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       console.log('Completing onboarding flow...');
       await saveOnboardingData();
       
-      toast({
-        title: "Welcome to Uteroo!",
-        description: "Time to meet your companion and give them a name!",
-        duration: 5000,
-      });
+      const gameRoute = determineGameScreen();
       
-      console.log('Navigating to pou-game for companion naming');
-      navigate("/pou-game");
+      if (gameRoute === "/pre-period-game") {
+        toast({
+          title: "Welcome to your wellness journey!",
+          description: "Let's start with understanding your daily habits!",
+          duration: 5000,
+        });
+        console.log('Pre-period user - navigating to pre-period game');
+      } else {
+        toast({
+          title: "Welcome to Uteroo!",
+          description: "Time to meet your companion and give them a name!",
+          duration: 5000,
+        });
+        console.log('Regular user - navigating to pou-game for companion naming');
+      }
+      
+      navigate(gameRoute);
     }
   };
 
