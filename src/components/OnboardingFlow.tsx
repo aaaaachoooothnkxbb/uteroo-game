@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -791,17 +790,27 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
   };
 
   const isAllQuestionsAnswered = () => {
-    // Only check questions that are in the current question flow
-    const unansweredInFlow = questionFlow.filter(q => {
+    // Check if we've answered up to the current question index
+    const questionsUpToCurrent = questionFlow.slice(0, currentQuestionIndex + 1);
+    const unansweredInRange = questionsUpToCurrent.filter(q => {
       const value = formData[q as keyof typeof formData];
       return value === "" || value === null || value === undefined;
     });
     
-    console.log('Current question flow:', questionFlow);
-    console.log('Unanswered questions in flow:', unansweredInFlow);
+    console.log('Questions up to current index:', questionsUpToCurrent);
+    console.log('Current question index:', currentQuestionIndex);
+    console.log('Unanswered questions in range:', unansweredInRange);
     console.log('Form data:', formData);
     
-    return unansweredInFlow.length === 0;
+    return unansweredInRange.length === 0;
+  };
+
+  const isCurrentQuestionAnswered = () => {
+    const currentQuestion = questionFlow[currentQuestionIndex];
+    if (!currentQuestion) return false;
+    
+    const value = formData[currentQuestion as keyof typeof formData];
+    return value !== "" && value !== null && value !== undefined;
   };
 
   const handleNext = async () => {
@@ -816,14 +825,19 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       setStep(3);
     } else if (step === 3) {
       if (currentQuestionIndex < questionFlow.length - 1) {
+        // Check if current question is answered before advancing
+        if (!isCurrentQuestionAnswered()) {
+          toast({
+            title: "Please answer the current question",
+            description: "We need this information to personalize your experience",
+            variant: "destructive",
+          });
+          return;
+        }
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
-        // Check if all questions in the current flow are answered
-        if (!isAllQuestionsAnswered()) {
-          const unansweredQuestions = questionFlow.filter(q => !formData[q as keyof typeof formData]);
-          console.log('Questions in current flow:', questionFlow);
-          console.log('Unanswered questions in current flow:', unansweredQuestions);
-          
+        // At the last question - check if it's answered
+        if (!isCurrentQuestionAnswered()) {
           toast({
             title: "Please answer the current question",
             description: "We need this information to personalize your experience",
@@ -832,7 +846,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
           return;
         }
         
-        console.log('All questions in flow answered, moving to summary');
+        console.log('All questions answered, moving to summary');
         setStep(4); // Show summary
       }
     } else if (step === 4) {
@@ -920,7 +934,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
   };
 
   const currentQuestion = questionFlow[currentQuestionIndex];
-  const currentQuestionHasAnswer = currentQuestion && formData[currentQuestion as keyof typeof formData] !== "";
+  const currentQuestionHasAnswer = isCurrentQuestionAnswered();
 
   return (
     <div className="min-h-screen bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
