@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -332,12 +331,14 @@ const formOptions: Record<string, FormOption[]> = {
 
 // Define question flows based on period status
 const getQuestionFlow = (periodStatus: string): string[] => {
+  console.log('Getting question flow for period status:', periodStatus);
+  
   if (periodStatus === "no-period-yet") {
     return ["lastPeriodStart", "ageRange", "learningGoals"];
   } else if (periodStatus === "stopped-period") {
     return ["lastPeriodStart", "currentSymptoms", "copingStrategies"];
   } else {
-    // Regular cycle flow
+    // Regular cycle flow for current, calendar, or unknown
     return ["lastPeriodStart", "periodLength", "cyclePredictability", "ovulationSigns", "premenstrualSymptoms", "worstSymptom"];
   }
 };
@@ -400,20 +401,26 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     }
   }, [formData.lastPeriodStart]);
 
-  // Determine user type based on period status
-  const determineUserType = (periodStatus: string, ageRange?: string): string => {
-    console.log('Determining user type for period status:', periodStatus, 'age range:', ageRange);
+  // Determine user type based on period status with better logic
+  const determineUserType = (periodStatus: string, selectedDate?: Date): string => {
+    console.log('Determining user type for period status:', periodStatus, 'selected date:', selectedDate);
     
     if (periodStatus === "no-period-yet") {
+      console.log('User type determined: PRE_MENSTRUAL');
       return 'PRE_MENSTRUAL';
     } else if (periodStatus === "stopped-period") {
+      console.log('User type determined: POST_MENSTRUAL');
       return 'POST_MENSTRUAL';
+    } else if (periodStatus === "current" || periodStatus === "calendar" || periodStatus === "unknown") {
+      console.log('User type determined: MENSTRUAL');
+      return 'MENSTRUAL';
     } else {
+      console.log('User type determined: MENSTRUAL (default)');
       return 'MENSTRUAL';
     }
   };
 
-  // Save onboarding data to Supabase with better error handling
+  // Save onboarding data to Supabase with enhanced error handling
   const saveOnboardingData = async () => {
     if (!user) {
       console.error('No user found when trying to save onboarding data');
@@ -425,17 +432,19 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       console.log('Current form data:', formData);
       console.log('Selected date:', selectedDate);
       
-      // Determine user type
-      const userType = determineUserType(formData.lastPeriodStart, formData.ageRange);
+      // Determine user type based on form data
+      const userType = determineUserType(formData.lastPeriodStart, selectedDate);
       console.log('Determined user type:', userType);
       
-      // Save user type classification
+      // Save user type classification with upsert to handle duplicates
       const { error: userTypeError } = await supabase
         .from('user_types')
         .upsert({
           user_id: user.id,
           user_type: userType,
           classification_date: new Date().toISOString().split('T')[0]
+        }, {
+          onConflict: 'user_id'
         });
 
       if (userTypeError) {
@@ -480,6 +489,18 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       }
 
       if (responses.length > 0) {
+        // Clear existing responses first to avoid duplicates
+        const { error: deleteError } = await supabase
+          .from('questionnaire_responses')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('questionnaire_type', 'onboarding_flow');
+
+        if (deleteError) {
+          console.error('Error clearing existing responses:', deleteError);
+          // Don't throw here, just log and continue
+        }
+
         const { error: responsesError } = await supabase
           .from('questionnaire_responses')
           .insert(responses);
@@ -491,7 +512,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         console.log('Questionnaire responses saved successfully:', responses.length, 'responses');
       }
 
-      // Prepare cycle tracking data for MENSTRUAL users
+      // Handle cycle tracking data for MENSTRUAL users
       if (userType === 'MENSTRUAL') {
         const cycleData: any = {
           user_id: user.id,
@@ -521,7 +542,17 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           cycleData.cycle_length = cycleLengthMap[formData.cyclePredictability];
         }
 
-        // Save cycle tracking data
+        // Clear existing cycle data first
+        const { error: deleteCycleError } = await supabase
+          .from('cycle_tracking')
+          .delete()
+          .eq('user_id', user.id);
+
+        if (deleteCycleError) {
+          console.error('Error clearing existing cycle data:', deleteCycleError);
+        }
+
+        // Save new cycle tracking data
         const { error: cycleError } = await supabase
           .from('cycle_tracking')
           .insert(cycleData);
@@ -529,7 +560,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         if (cycleError) {
           console.error('Error saving cycle data:', cycleError);
           // Don't throw here as it's not critical for pre-menstrual users
-          console.log('Cycle tracking creation skipped due to error, but continuing...');
+          console.log('Cycle tracking creation failed, but continuing...');
         } else {
           console.log('Cycle data saved successfully');
         }
@@ -550,7 +581,17 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         notes: `Onboarding completed - User Type: ${userType}, Period status: ${formData.lastPeriodStart}`
       };
 
-      // Save mood log data
+      // Save mood log data (clear existing first)
+      const { error: deleteMoodError } = await supabase
+        .from('mood_logs')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('date', new Date().toISOString().split('T')[0]);
+
+      if (deleteMoodError) {
+        console.error('Error clearing existing mood data:', deleteMoodError);
+      }
+
       const { error: moodError } = await supabase
         .from('mood_logs')
         .insert(moodData);
@@ -587,10 +628,15 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   const determineGameScreen = () => {
     // Check if user is pre-period and redirect to pre-period game
-    if (formData.lastPeriodStart === "no-period-yet") {
+    const userType = determineUserType(formData.lastPeriodStart, selectedDate);
+    console.log('Determining game screen for user type:', userType);
+    
+    if (userType === 'PRE_MENSTRUAL') {
+      console.log('Redirecting to pre-period game');
       return "/pre-period-game";
     }
     // Always go to pou-game for other users
+    console.log('Redirecting to pou-game');
     return "/pou-game";
   };
 
