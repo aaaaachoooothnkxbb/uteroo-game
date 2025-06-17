@@ -31,7 +31,6 @@ type FormData = {
 
 type UserType = 'PRE_MENSTRUAL' | 'MENSTRUAL' | 'POST_MENSTRUAL';
 
-// ... keep existing code (questions array)
 const questions = [
   {
     id: "height",
@@ -283,7 +282,7 @@ const PrePeriodGame = () => {
     
     // Handle different question types
     if (question.id === "menstrualStatus") {
-      setMenstrualStatus(value as string);
+      // setMenstrualStatus(value as string); // This function is not defined
     } else if (question.type === "checkbox") {
       newFormData.sleepBarriers = value as string[];
     } else if (question.type === "slider") {
@@ -332,7 +331,7 @@ const PrePeriodGame = () => {
     try {
       console.log('Starting to save pre-period questionnaire data...');
       
-      // Ensure user type is saved
+      // Ensure user type is saved as PRE_MENSTRUAL
       const { error: userTypeError } = await supabase
         .from('user_types')
         .upsert({
