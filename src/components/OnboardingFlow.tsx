@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -395,6 +396,7 @@ export const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     if (formData.lastPeriodStart && formData.lastPeriodStart !== "") {
       const newFlow = getQuestionFlow(formData.lastPeriodStart);
       setQuestionFlow(newFlow);
+      console.log('Updated question flow:', newFlow);
     }
   }, [formData.lastPeriodStart]);
 
@@ -647,6 +649,7 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
     setFormData(newFormData);
     
     console.log('Updated form data:', newFormData);
+    console.log('Current question flow:', questionFlow);
     
     // Create a floating heart
     const randomLeft = 50 + (Math.random() * 30 - 15);
@@ -788,10 +791,17 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
   };
 
   const isAllQuestionsAnswered = () => {
-    return questionFlow.every(q => {
+    // Only check questions that are in the current question flow
+    const unansweredInFlow = questionFlow.filter(q => {
       const value = formData[q as keyof typeof formData];
-      return value !== "" && value !== null && value !== undefined;
+      return value === "" || value === null || value === undefined;
     });
+    
+    console.log('Current question flow:', questionFlow);
+    console.log('Unanswered questions in flow:', unansweredInFlow);
+    console.log('Form data:', formData);
+    
+    return unansweredInFlow.length === 0;
   };
 
   const handleNext = async () => {
@@ -808,20 +818,21 @@ Remember: Your cycle isn't a flaw—it's a rhythm. Uteroo's here to help you syn
       if (currentQuestionIndex < questionFlow.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
-        // Check if all questions are answered before proceeding
+        // Check if all questions in the current flow are answered
         if (!isAllQuestionsAnswered()) {
           const unansweredQuestions = questionFlow.filter(q => !formData[q as keyof typeof formData]);
-          console.log('Unanswered questions:', unansweredQuestions);
+          console.log('Questions in current flow:', questionFlow);
+          console.log('Unanswered questions in current flow:', unansweredQuestions);
           
           toast({
-            title: "Please answer all questions",
+            title: "Please answer the current question",
             description: "We need this information to personalize your experience",
             variant: "destructive",
           });
           return;
         }
         
-        console.log('All questions answered, moving to summary');
+        console.log('All questions in flow answered, moving to summary');
         setStep(4); // Show summary
       }
     } else if (step === 4) {
