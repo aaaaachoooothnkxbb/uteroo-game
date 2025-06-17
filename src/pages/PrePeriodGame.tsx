@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -227,7 +226,6 @@ const PrePeriodGame = () => {
             <div className="text-left space-y-4 text-gray-700 leading-relaxed">
               <p>Welcome, young Uteroo adventurer! ✨ This is where your amazing self-care journey begins.</p>
               <p>Think of your body like a beautiful, unique living system. To truly thrive and feel your best, we don't just focus on how things look on the outside. We believe in <strong>true self-care</strong>, which means understanding what your body needs from the inside out to grow strong and vibrant!</p>
-              <p>Sometimes, things like getting a few spots on your skin or feeling tired aren't just one problem. They're like little signals telling you something deeper needs attention – maybe more rest, or different 'fuel' (food), or even some quiet time.</p>
               <p>Here at Uteroo, we'll help you discover what makes <em>your</em> unique system flourish. Let's start by understanding your daily habits!</p>
             </div>
             <Button
