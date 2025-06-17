@@ -227,6 +227,17 @@ const PrePeriodGame = () => {
             </h1>
             <div className="text-left space-y-4 text-gray-700 leading-relaxed">
               <p>Think of your body like a beautiful, unique living system. To truly thrive and feel your best, we don't just focus on how things look on the outside. We believe in <strong>true self-care</strong>, which means understanding what your body needs from the inside out to grow strong and vibrant!</p>
+              
+              {/* Animated Plant Growth Visual */}
+              <div className="flex items-center justify-center py-6 space-x-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-dashed border-green-200">
+                <div className="text-4xl animate-bounce">💧</div>
+                <div className="flex flex-col items-center space-y-1">
+                  <div className="text-6xl animate-pulse">🪻</div>
+                  <div className="text-sm text-green-600 font-medium animate-pulse">You flourishing!</div>
+                </div>
+                <div className="text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>✨</div>
+              </div>
+              
               <p>Here at Uteroo, we'll help you discover what makes <em>your</em> unique system flourish. Let's start by understanding your daily habits!</p>
             </div>
             <Button
