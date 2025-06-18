@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { AccountCreation } from "@/components/AccountCreation";
@@ -189,6 +190,11 @@ const Index = () => {
     setShowOnboarding(true);
   };
 
+  const handleShowQuestionnaire = () => {
+    setShowAccountCreation(false);
+    setShowOnboarding(true);
+  };
+
   const handleOnboardingComplete = async () => {
     // Mark onboarding as completed for the current user
     const { data: session } = await supabase.auth.getSession();
@@ -304,7 +310,12 @@ const Index = () => {
   }
 
   if (showAccountCreation) {
-    return <AccountCreation onComplete={handleAccountCreationComplete} />;
+    return (
+      <AccountCreation 
+        onComplete={handleAccountCreationComplete} 
+        onShowQuestionnaire={handleShowQuestionnaire}
+      />
+    );
   }
 
   if (showOnboarding) {

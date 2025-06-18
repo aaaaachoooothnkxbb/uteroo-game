@@ -8,9 +8,10 @@ import { Icons } from "@/components/ui/icons";
 
 interface AccountCreationProps {
   onComplete: () => void;
+  onShowQuestionnaire?: () => void;
 }
 
-export const AccountCreation = ({ onComplete }: AccountCreationProps) => {
+export const AccountCreation = ({ onComplete, onShowQuestionnaire }: AccountCreationProps) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -112,31 +113,33 @@ export const AccountCreation = ({ onComplete }: AccountCreationProps) => {
                 login_timestamp: new Date().toISOString()
               });
 
-            // Update profile with sample questionnaire answers and user type
-            const sampleAnswers = {
-              lastPeriod: "sample-answer",
-              periodLength: "3-5-days",
-              cyclePredictability: "like-clockwork"
-            };
-            
-            const userType = "regular_user"; // You can modify this logic as needed
-
-            await supabase
+            // Check if profile exists, if not create one
+            const { data: profile, error: profileError } = await supabase
               .from('profiles')
-              .upsert({
-                id: data.user.id,
-                username: username,
-                questionnaire_answers: sampleAnswers,
-                user_type: userType,
-                full_name: data.user.user_metadata?.full_name || '',
-                onboarding_completed: false
-              });
+              .select('username, onboarding_completed')
+              .eq('id', data.user.id)
+              .maybeSingle();
+            
+            if (!profile && !profileError) {
+              await supabase
+                .from('profiles')
+                .insert({
+                  id: data.user.id,
+                  username: username,
+                  full_name: data.user.user_metadata?.full_name || '',
+                  onboarding_completed: false
+                });
+            }
 
             toast({
               title: `Welcome back ${username}!`,
-              description: "Login successful and activity registered!",
+              description: "Login successful! Let's continue with your questionnaire.",
             });
-            onComplete();
+            
+            // Redirect to questionnaire instead of completing
+            if (onShowQuestionnaire) {
+              onShowQuestionnaire();
+            }
             break;
           }
         } catch (err) {
