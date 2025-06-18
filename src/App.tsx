@@ -12,7 +12,6 @@ import Profile from "./pages/Profile";
 import Rewards from "./pages/Rewards";
 import Settings from "./pages/Settings";
 import PouGame from "./pages/PouGame";
-import PrePeriodGame from "./pages/PrePeriodGame";
 import Videos from "./pages/Videos";
 import { SplashScreen } from "./components/SplashScreen";
 import { audioService } from "./utils/audioService";
@@ -77,7 +76,6 @@ const App = () => {
                     <Route path="/rewards" element={<Rewards />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/pou-game" element={<PouGame />} />
-                    <Route path="/pre-period-game" element={<PrePeriodGame />} />
                     <Route path="/videos" element={<Videos />} />
                   </Routes>
                 </BrowserRouter>

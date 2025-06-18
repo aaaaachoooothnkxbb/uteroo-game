@@ -468,42 +468,6 @@ export type Database = {
         }
         Relationships: []
       }
-      questionnaire_responses: {
-        Row: {
-          answer_type: string
-          answer_value: string
-          created_at: string | null
-          id: string
-          question_id: string
-          question_text: string
-          questionnaire_type: string
-          user_id: string
-          user_type: string
-        }
-        Insert: {
-          answer_type: string
-          answer_value: string
-          created_at?: string | null
-          id?: string
-          question_id: string
-          question_text: string
-          questionnaire_type: string
-          user_id: string
-          user_type: string
-        }
-        Update: {
-          answer_type?: string
-          answer_value?: string
-          created_at?: string | null
-          id?: string
-          question_id?: string
-          question_text?: string
-          questionnaire_type?: string
-          user_id?: string
-          user_type?: string
-        }
-        Relationships: []
-      }
       recipe_roulette: {
         Row: {
           bonus_ingredients: string[]
@@ -609,33 +573,6 @@ export type Database = {
           },
         ]
       }
-      user_types: {
-        Row: {
-          classification_date: string
-          created_at: string | null
-          id: string
-          updated_at: string | null
-          user_id: string
-          user_type: string
-        }
-        Insert: {
-          classification_date?: string
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-          user_id: string
-          user_type: string
-        }
-        Update: {
-          classification_date?: string
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-          user_id?: string
-          user_type?: string
-        }
-        Relationships: []
-      }
       yoga_poses: {
         Row: {
           benefits: string[]
@@ -677,10 +614,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_user_type: {
-        Args: { p_user_id: string }
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
       cycle_phase:

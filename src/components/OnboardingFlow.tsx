@@ -1,564 +1,532 @@
-import React, { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Calendar, User, Heart, Utensils } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
-interface QuestionnaireResponses {
-  lastPeriodStart: 'current' | 'calendar' | 'unknown' | 'no-period-yet' | 'stopped-period';
-  cycleLength: number;
-  worstSymptom: string;
-  selectedDate: string | null;
-}
-
-const defaultResponses: QuestionnaireResponses = {
-  lastPeriodStart: 'unknown',
-  cycleLength: 28,
-  worstSymptom: '',
-  selectedDate: null,
-};
-
-const determineUserType = (lastPeriodStart: string) => {
-  if (lastPeriodStart === 'current') {
-    return 'MENSTRUAL';
-  } else if (lastPeriodStart === 'calendar') {
-    return 'MENSTRUAL';
-  } else if (lastPeriodStart === 'unknown') {
-    return 'MENSTRUAL';
-  } else {
-    return 'PRE_MENSTRUAL';
-  }
-};
-
 export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [responses, setResponses] = useState<QuestionnaireResponses>(defaultResponses);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const [answers, setAnswers] = useState<Record<string, any>>({});
 
-  const handleNext = () => {
-    setCurrentStep((prev) => prev + 1);
+  const steps = [
+    {
+      id: 1,
+      title: "Question 1 of 6",
+      subtitle: "Let's get to know your cycle better",
+      description: "When did your last period start?",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={() => setAnswers({ ...answers, lastPeriod: "tap-to-select" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.lastPeriod === "tap-to-select" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">📅</span>
+              <span className="text-gray-700">Tap to select</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, lastPeriod: "right-now" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.lastPeriod === "right-now" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🔴</span>
+              <span className="text-gray-700">I'm on it right now!</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, lastPeriod: "no-period-yet" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.lastPeriod === "no-period-yet" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🌱</span>
+              <span className="text-gray-700">I haven't gotten my period yet</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, lastPeriod: "stopped-getting" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.lastPeriod === "stopped-getting" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🦋</span>
+              <span className="text-gray-700">I stopped getting my period</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, lastPeriod: "dont-remember" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.lastPeriod === "dont-remember" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🧡</span>
+              <span className="text-gray-700">I don't remember</span>
+            </button>
+          </div>
+        </div>
+      ),
+      fields: ["lastPeriod"],
+    },
+    {
+      id: 2,
+      title: "Question 2 of 6",
+      subtitle: "Let's get to know your cycle better",
+      description: "How long do your periods usually last?",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={() => setAnswers({ ...answers, periodLength: "3-5-days" })}
+              className={`w-full p-4 border-2 rounded-full text-left transition-colors ${
+                answers.periodLength === "3-5-days" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-gray-700">3-5 days</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, periodLength: "6-7-days" })}
+              className={`w-full p-4 border-2 rounded-full text-left transition-colors ${
+                answers.periodLength === "6-7-days" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-gray-700">6-7 days</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, periodLength: "8-plus-days" })}
+              className={`w-full p-4 border-2 rounded-full text-left transition-colors ${
+                answers.periodLength === "8-plus-days" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-gray-700">8+ days</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, periodLength: "varies-a-lot" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.periodLength === "varies-a-lot" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">♾️</span>
+              <span className="text-gray-700">It varies a lot</span>
+            </button>
+          </div>
+        </div>
+      ),
+      fields: ["periodLength"],
+    },
+    {
+      id: 3,
+      title: "Question 3 of 6",
+      subtitle: "Let's get to know your cycle better",
+      description: "How predictable is your cycle?",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={() => setAnswers({ ...answers, cyclePredictability: "like-clockwork" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.cyclePredictability === "like-clockwork" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">⏰</span>
+              <span className="text-gray-700">Like clockwork!</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, cyclePredictability: "usually-25-35-days" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.cyclePredictability === "usually-25-35-days" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">📊</span>
+              <span className="text-gray-700">Usually 25-35 days</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, cyclePredictability: "complete-surprise" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.cyclePredictability === "complete-surprise" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🥂</span>
+              <span className="text-gray-700">Complete surprise every month</span>
+            </button>
+          </div>
+        </div>
+      ),
+      fields: ["cyclePredictability"],
+    },
+    {
+      id: 4,
+      title: "Question 4 of 6",
+      subtitle: "Let's get to know your cycle better",
+      description: "Do you notice any signs around ovulation?",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={() => setAnswers({ ...answers, ovulationSigns: "egg-white-discharge" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.ovulationSigns === "egg-white-discharge" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🥚</span>
+              <span className="text-gray-700">Egg-white discharge</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, ovulationSigns: "energy-boost" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.ovulationSigns === "energy-boost" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">⚡</span>
+              <span className="text-gray-700">Energy boost</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, ovulationSigns: "no-signs" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.ovulationSigns === "no-signs" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🚫</span>
+              <span className="text-gray-700">No signs</span>
+            </button>
+          </div>
+        </div>
+      ),
+      fields: ["ovulationSigns"],
+    },
+    {
+      id: 5,
+      title: "Question 5 of 6",
+      subtitle: "Let's get to know your cycle better",
+      description: "How do you feel 5-7 days before your period?",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={() => setAnswers({ ...answers, prePeriodFeeling: "irritable-sensitive" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.prePeriodFeeling === "irritable-sensitive" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">⚠️</span>
+              <span className="text-gray-700">Irritable/sensitive</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, prePeriodFeeling: "bloated-craving-carbs" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.prePeriodFeeling === "bloated-craving-carbs" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🧡</span>
+              <span className="text-gray-700">Bloated/craving carbs</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, prePeriodFeeling: "totally-fine" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.prePeriodFeeling === "totally-fine" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🌈</span>
+              <span className="text-gray-700">Totally fine, no changes!</span>
+            </button>
+          </div>
+        </div>
+      ),
+      fields: ["prePeriodFeeling"],
+    },
+    {
+      id: 6,
+      title: "Question 6 of 6",
+      subtitle: "Let's get to know your cycle better",
+      description: "What's your most annoying symptom?",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={() => setAnswers({ ...answers, annoyingSymptom: "cramps" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.annoyingSymptom === "cramps" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">😣</span>
+              <span className="text-gray-700">Cramps</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, annoyingSymptom: "mood-swings" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.annoyingSymptom === "mood-swings" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🎭</span>
+              <span className="text-gray-700">Mood swings</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, annoyingSymptom: "fatigue" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.annoyingSymptom === "fatigue" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">😴</span>
+              <span className="text-gray-700">Fatigue</span>
+            </button>
+          </div>
+        </div>
+      ),
+      fields: ["annoyingSymptom"],
+    },
+    {
+      id: 7,
+      title: "Question 3 of 3",
+      subtitle: "Let's get to know your journey better",
+      description: "How are you managing these changes?",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={() => setAnswers({ ...answers, managingChanges: "healthcare-providers" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.managingChanges === "healthcare-providers" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">👩‍⚕️</span>
+              <span className="text-gray-700">Working with healthcare providers</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, managingChanges: "diet-exercise-lifestyle" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.managingChanges === "diet-exercise-lifestyle" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🥗</span>
+              <span className="text-gray-700">Diet, exercise, and lifestyle adjustments</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, managingChanges: "herbal-remedies" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.managingChanges === "herbal-remedies" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🌿</span>
+              <span className="text-gray-700">Herbal remedies and supplements</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, managingChanges: "connecting-with-others" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.managingChanges === "connecting-with-others" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">👥</span>
+              <span className="text-gray-700">Connecting with others in similar situations</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, managingChanges: "still-figuring-out" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.managingChanges === "still-figuring-out" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🔍</span>
+              <span className="text-gray-700">Still figuring out what works for me</span>
+            </button>
+          </div>
+        </div>
+      ),
+      fields: ["managingChanges"],
+    },
+    {
+      id: 8,
+      title: "Question 3 of 3",
+      subtitle: "Let's get to know your journey better",
+      description: "What would you like to learn most about through Uteroo?",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={() => setAnswers({ ...answers, learnAbout: "what-to-expect-period" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.learnAbout === "what-to-expect-period" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🌊</span>
+              <span className="text-gray-700">What to expect when my period starts</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, learnAbout: "body-changes-puberty" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.learnAbout === "body-changes-puberty" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🦋</span>
+              <span className="text-gray-700">How my body is changing during puberty</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, learnAbout: "healthy-habits-hormonal" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.learnAbout === "healthy-habits-hormonal" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">💪</span>
+              <span className="text-gray-700">Building healthy habits for hormonal health</span>
+            </button>
+            
+            <button
+              onClick={() => setAnswers({ ...answers, learnAbout: "managing-mood-changes" })}
+              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
+                answers.learnAbout === "managing-mood-changes" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+              }`}
+            >
+              <span className="text-2xl">🎨</span>
+              <span className="text-gray-700">Understanding and managing mood changes</span>
+            </button>
+          </div>
+        </div>
+      ),
+      fields: ["learnAbout"],
+    },
+    {
+      id: 9,
+      title: "All Done!",
+      subtitle: "You're all set!",
+      description: "Thank you for providing the information. Let's start your journey!",
+      content: "Welcome to your personalized Uteroo experience!",
+      fields: [],
+    },
+  ];
+
+  const nextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
-  const handlePrevious = () => {
-    setCurrentStep((prev) => prev - 1);
-  };
-
-  const updateResponses = (updates: Partial<QuestionnaireResponses>) => {
-    setResponses((prev) => ({ ...prev, ...updates }));
-  };
-
-  const handleDateSelect = (date: Date | undefined) => {
-    setSelectedDate(date);
-    updateResponses({ selectedDate: date ? date.toISOString().split('T')[0] : null });
-  };
-
-  const isCurrentQuestionAnswered = () => {
-    switch (currentStep) {
-      case 0:
-        return !!responses.lastPeriodStart;
-      case 1:
-        return !!responses.cycleLength;
-      case 2:
-        return !!responses.worstSymptom;
-      default:
-        return true;
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
     }
   };
 
   const handleComplete = async () => {
-    console.log('=== STARTING ONBOARDING COMPLETION ===');
-    console.log('Current responses:', responses);
-    
-    setIsSubmitting(true);
-    
     try {
-      // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      // Mark onboarding as completed in the database
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.session?.user) {
+        await supabase
+          .from('profiles')
+          .update({ 
+            onboarding_completed: true,
+            questionnaire_answers: answers
+          })
+          .eq('id', session.session.user.id);
+      }
       
-      if (userError || !user) {
-        console.error('Error getting user:', userError);
-        toast({
-          variant: "destructive",
-          title: "Authentication Error",
-          description: "Please log in and try again."
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      console.log('User authenticated:', user.id);
-
-      // Determine user type
-      const userType = determineUserType(responses.lastPeriodStart);
-      console.log('Determined user type:', userType);
-
-      // Save user type
-      const { error: userTypeError } = await supabase
-        .from('user_types')
-        .upsert({
-          user_id: user.id,
-          user_type: userType,
-          classification_date: new Date().toISOString().split('T')[0]
-        });
-
-      if (userTypeError) {
-        console.error('Error saving user type:', userTypeError);
-        throw userTypeError;
-      }
-
-      console.log('User type saved successfully');
-
-      // Save questionnaire responses
-      const questionnairesToSave = [
-        {
-          user_id: user.id,
-          questionnaire_type: 'onboarding',
-          question_id: 'lastPeriodStart',
-          question_text: 'When did your last period start?',
-          answer_value: responses.lastPeriodStart,
-          answer_type: 'single_choice',
-          user_type: userType,
-        },
-        {
-          user_id: user.id,
-          questionnaire_type: 'onboarding',
-          question_id: 'cycleLength',
-          question_text: 'How long is your cycle typically?',
-          answer_value: responses.cycleLength.toString(),
-          answer_type: 'single_choice',
-          user_type: userType,
-        },
-        {
-          user_id: user.id,
-          questionnaire_type: 'onboarding',
-          question_id: 'worstSymptom',
-          question_text: 'What is your worst period symptom?',
-          answer_value: responses.worstSymptom,
-          answer_type: 'single_choice',
-          user_type: userType,
-        }
-      ];
-
-      const { error: responsesError } = await supabase
-        .from('questionnaire_responses')
-        .insert(questionnairesToSave);
-
-      if (responsesError) {
-        console.error('Error saving questionnaire responses:', responsesError);
-        throw responsesError;
-      }
-
-      console.log('Questionnaire responses saved successfully');
-
-      // Create cycle tracking data if user selected calendar date
-      if (responses.lastPeriodStart === 'calendar' && responses.selectedDate) {
-        const { error: cycleError } = await supabase
-          .from('cycle_tracking')
-          .insert({
-            user_id: user.id,
-            cycle_start_date: responses.selectedDate,
-            cycle_length: responses.cycleLength,
-            period_length: 7 // default value
-          });
-
-        if (cycleError) {
-          console.error('Error saving cycle tracking:', cycleError);
-          // Don't throw here - cycle tracking is optional
-        } else {
-          console.log('Cycle tracking data saved successfully');
-        }
-      }
-
-      // Mark onboarding as completed
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ onboarding_completed: true })
-        .eq('id', user.id);
-
-      if (profileError) {
-        console.error('Error updating profile:', profileError);
-        throw profileError;
-      }
-
-      console.log('Profile updated - onboarding marked as completed');
-
-      // Show success message
-      toast({
-        title: "Welcome to Uteroo!",
-        description: "Your profile has been set up successfully."
-      });
-
-      console.log('=== ONBOARDING COMPLETION SUCCESSFUL ===');
-      console.log('Navigating to game for user type:', userType);
-
-      // Navigate based on user type
-      if (userType === 'PRE_MENSTRUAL') {
-        console.log('Redirecting to pre-period game');
-        navigate('/pre-period-game');
-      } else {
-        console.log('Redirecting to pou game');
-        navigate('/pou-game');
-      }
-
-      // Call onComplete callback
-      if (onComplete) {
-        onComplete();
-      }
-
+      onComplete();
     } catch (error) {
-      console.error('=== ONBOARDING COMPLETION FAILED ===');
-      console.error('Error during onboarding completion:', error);
-      toast({
-        variant: "destructive",
-        title: "Setup Failed",
-        description: "There was an error setting up your profile. Please try again."
-      });
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error completing onboarding:', error);
+      onComplete(); // Still proceed even if update fails
     }
   };
 
-  const renderLastPeriodQuestion = () => {
-    return (
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold text-gray-800">When did your last period start?</h2>
-        <p className="text-gray-600">This helps us personalize your experience.</p>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Button
-            variant={responses.lastPeriodStart === 'current' ? 'default' : 'outline'}
-            onClick={() => updateResponses({ lastPeriodStart: 'current' })}
-            className="w-full"
-          >
-            Currently on my period
-          </Button>
-          <Button
-            variant={responses.lastPeriodStart === 'calendar' ? 'default' : 'outline'}
-            onClick={() => updateResponses({ lastPeriodStart: 'calendar' })}
-            className="w-full"
-          >
-            Choose from calendar
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4">
-          <Button
-            variant={responses.lastPeriodStart === 'unknown' ? 'default' : 'outline'}
-            onClick={() => updateResponses({ lastPeriodStart: 'unknown' })}
-            className="w-full"
-          >
-            I'm not sure when my last period was
-          </Button>
-          <Button
-            variant={responses.lastPeriodStart === 'no-period-yet' ? 'default' : 'outline'}
-            onClick={() => updateResponses({ lastPeriodStart: 'no-period-yet' })}
-            className="w-full"
-          >
-            I haven't had my first period yet
-          </Button>
-          <Button
-            variant={responses.lastPeriodStart === 'stopped-period' ? 'default' : 'outline'}
-            onClick={() => updateResponses({ lastPeriodStart: 'stopped-period' })}
-            className="w-full"
-          >
-            I'm no longer having periods
-          </Button>
-        </div>
-
-        {responses.lastPeriodStart === 'calendar' && (
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold text-gray-700">Select Date</h3>
-            <p className="text-gray-500">Please select the first day of your last period.</p>
-            <CalendarComponent onDateSelect={handleDateSelect} />
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderCycleLengthQuestion = () => {
-    return (
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold text-gray-800">How long is your cycle typically?</h2>
-        <p className="text-gray-600">The average cycle length is 28 days.</p>
-
-        <div className="grid grid-cols-3 gap-4">
-          {[21, 28, 35].map((length) => (
-            <Button
-              key={length}
-              variant={responses.cycleLength === length ? 'default' : 'outline'}
-              onClick={() => updateResponses({ cycleLength: length })}
-              className="w-full"
-            >
-              {length} days
-            </Button>
-          ))}
-          <input
-            type="number"
-            placeholder="Custom length"
-            value={responses.cycleLength}
-            onChange={(e) => updateResponses({ cycleLength: parseInt(e.target.value) })}
-            className="col-span-3 p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
-          />
-        </div>
-      </div>
-    );
-  };
-
-  const renderWorstSymptomQuestion = () => {
-    return (
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold text-gray-800">What is your worst period symptom?</h2>
-        <p className="text-gray-600">Knowing this helps us provide tailored advice.</p>
-
-        <div className="grid grid-cols-2 gap-4">
-          {['cramps', 'bloating', 'mood swings', 'fatigue'].map((symptom) => (
-            <Button
-              key={symptom}
-              variant={responses.worstSymptom === symptom ? 'default' : 'outline'}
-              onClick={() => updateResponses({ worstSymptom: symptom })}
-              className="w-full capitalize"
-            >
-              {symptom}
-            </Button>
-          ))}
-          <input
-            type="text"
-            placeholder="Other symptom"
-            value={responses.worstSymptom}
-            onChange={(e) => updateResponses({ worstSymptom: e.target.value })}
-            className="col-span-2 p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
-          />
-        </div>
-      </div>
-    );
-  };
-
-  const renderSummaryScreen = () => {
-    const userType = determineUserType(responses.lastPeriodStart);
+  const canProceed = () => {
+    const currentStepData = steps[currentStep];
+    if (currentStepData.fields.length === 0) return true;
     
-    return (
-      <div className="space-y-6">
-        <div className="text-center space-y-4">
-          <div className="w-20 h-20 mx-auto bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center">
-            <User className="w-10 h-10 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800">You're All Set!</h2>
-          <p className="text-gray-600">Here's what we learned about you:</p>
-        </div>
-
-        <div className="space-y-4">
-          <Card className="bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <Calendar className="w-5 h-5 text-pink-500" />
-                <div>
-                  <p className="font-semibold text-gray-800">Period Status</p>
-                  <p className="text-sm text-gray-600">
-                    {responses.lastPeriodStart === 'current' && 'Currently on your period'}
-                    {responses.lastPeriodStart === 'calendar' && `Last period: ${responses.selectedDate || 'Selected date'}`}
-                    {responses.lastPeriodStart === 'unknown' && 'Not sure when last period was'}
-                    {responses.lastPeriodStart === 'no-period-yet' && "Haven't had your first period yet"}
-                    {responses.lastPeriodStart === 'stopped-period' && 'No longer having periods'}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <Heart className="w-5 h-5 text-purple-500" />
-                <div>
-                  <p className="font-semibold text-gray-800">Cycle Length</p>
-                  <p className="text-sm text-gray-600">{responses.cycleLength} days</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-indigo-50 to-pink-50 border-indigo-200">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <Utensils className="w-5 h-5 text-indigo-500" />
-                <div>
-                  <p className="font-semibold text-gray-800">Main Concern</p>
-                  <p className="text-sm text-gray-600 capitalize">{responses.worstSymptom}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="text-center space-y-4">
-          <p className="text-sm text-gray-500">
-            Based on your responses, you'll be using the {userType.toLowerCase().replace('_', ' ')} version of Uteroo.
-          </p>
-          
-          <Button 
-            onClick={handleComplete}
-            disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-semibold py-3 rounded-full"
-          >
-            {isSubmitting ? "Setting up your profile..." : "Continue to Game"}
-          </Button>
-        </div>
-      </div>
-    );
-  };
-
-  const CalendarComponent = ({ onDateSelect }: { onDateSelect: (date: Date | undefined) => void }) => {
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [selectedDateInternal, setSelectedDateInternal] = useState<Date | undefined>(selectedDate);
-
-    const handleDateClick = (date: Date) => {
-      setSelectedDateInternal(date);
-      onDateSelect(date);
-    };
-
-    const getDaysInMonth = (date: Date) => {
-      return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-    };
-
-    const getFirstDayOfMonth = (date: Date) => {
-      return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-    };
-
-    const renderCalendarDays = () => {
-      const daysInMonth = getDaysInMonth(currentDate);
-      const firstDay = getFirstDayOfMonth(currentDate);
-      const days = [];
-
-      // Empty cells for days before the first day of the month
-      for (let i = 0; i < firstDay; i++) {
-        days.push(<div key={`empty-${i}`} className="w-10 h-10"></div>);
-      }
-
-      // Days of the month
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        const isSelected = selectedDateInternal && 
-          date.getDate() === selectedDateInternal.getDate() &&
-          date.getMonth() === selectedDateInternal.getMonth() &&
-          date.getFullYear() === selectedDateInternal.getFullYear();
-
-        days.push(
-          <button
-            key={day}
-            onClick={() => handleDateClick(date)}
-            className={`w-10 h-10 rounded-full text-sm hover:bg-pink-100 transition-colors ${
-              isSelected 
-                ? 'bg-pink-500 text-white' 
-                : 'text-gray-700 hover:text-pink-600'
-            }`}
-          >
-            {day}
-          </button>
-        );
-      }
-
-      return days;
-    };
-
-    const navigateMonth = (direction: 'prev' | 'next') => {
-      setCurrentDate(prev => {
-        const newDate = new Date(prev);
-        if (direction === 'prev') {
-          newDate.setMonth(prev.getMonth() - 1);
-        } else {
-          newDate.setMonth(prev.getMonth() + 1);
-        }
-        return newDate;
-      });
-    };
-
-    return (
-      <div className="border rounded-md p-4 bg-white">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => navigateMonth('prev')}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <h3 className="font-semibold">
-            {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-          </h3>
-          <button
-            onClick={() => navigateMonth('next')}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-7 gap-1 mb-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="w-10 h-8 text-xs font-medium text-gray-500 flex items-center justify-center">
-              {day}
-            </div>
-          ))}
-        </div>
-        
-        <div className="grid grid-cols-7 gap-1">
-          {renderCalendarDays()}
-        </div>
-      </div>
-    );
+    return currentStepData.fields.some(field => answers[field]);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 p-6">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
-            Welcome to Uteroo
-          </h1>
-          <p className="text-gray-600 mt-2">Let's get to know you better</p>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+      <Card className="w-full max-w-md space-y-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/40">
+        {/* Header with hearts counter */}
+        <div className="flex justify-between items-center p-4 pb-0">
+          <span className="text-sm text-gray-500">Screen {currentStep + 1} of {steps.length}</span>
+          <span className="flex items-center gap-1 text-pink-500">
+            ❤️ {Math.floor(Math.random() * 40) + 5}
+          </span>
         </div>
-
-        <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-0">
-          <CardContent className="p-8">
-            {currentStep === 0 && renderLastPeriodQuestion()}
-            {currentStep === 1 && renderCycleLengthQuestion()}
-            {currentStep === 2 && renderWorstSymptomQuestion()}
-            {currentStep === 3 && renderSummaryScreen()}
-            
-            {currentStep < 3 && (
-              <div className="flex justify-between mt-8">
-                <Button 
-                  variant="outline" 
-                  onClick={handlePrevious}
-                  disabled={currentStep === 0}
-                  className="flex items-center space-x-2"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Previous</span>
-                </Button>
-                
-                <Button 
-                  onClick={handleNext}
-                  disabled={!isCurrentQuestionAnswered()}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500"
-                >
-                  <span>Next</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+        
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-2xl font-bold text-pink-500">{steps[currentStep].title}</CardTitle>
+          {steps[currentStep].subtitle && (
+            <p className="text-sm text-gray-500 italic">{steps[currentStep].subtitle}</p>
+          )}
+          <CardDescription className="text-lg font-medium text-gray-800">
+            {steps[currentStep].description}
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {typeof steps[currentStep].content === 'string' ? (
+            <p className="text-gray-600 text-center">{steps[currentStep].content}</p>
+          ) : (
+            steps[currentStep].content
+          )}
+          
+          {currentStep === steps.length - 1 && (
+            <div className="text-center">
+              <Badge variant="secondary" className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                Onboarding Complete!
+              </Badge>
+            </div>
+          )}
+        </CardContent>
+        
+        <div className="flex items-center justify-between p-4">
+          {currentStep > 0 ? (
+            <Button variant="outline" onClick={prevStep} className="rounded-full px-6">
+              Previous
+            </Button>
+          ) : (
+            <Button variant="ghost" className="rounded-full px-6 opacity-50">
+              Skip for now
+            </Button>
+          )}
+          
+          {currentStep === steps.length - 1 ? (
+            <Button 
+              onClick={handleComplete}
+              className="bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full px-8"
+            >
+              Get My Results
+            </Button>
+          ) : (
+            <Button 
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full px-8 disabled:opacity-50"
+            >
+              Next
+            </Button>
+          )}
+        </div>
+      </Card>
     </div>
   );
 };
