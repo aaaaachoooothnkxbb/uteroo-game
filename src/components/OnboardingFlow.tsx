@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -419,101 +418,20 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   };
 
   const CalendarComponent = ({ onDateSelect }: { onDateSelect: (date: Date | undefined) => void }) => {
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [selectedDateInternal, setSelectedDateInternal] = useState<Date | undefined>(selectedDate);
+    const [date, setDate] = useState<Date>();
 
-    const handleDateClick = (date: Date) => {
-      setSelectedDateInternal(date);
+    useEffect(() => {
       onDateSelect(date);
-    };
-
-    const getDaysInMonth = (date: Date) => {
-      return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-    };
-
-    const getFirstDayOfMonth = (date: Date) => {
-      return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-    };
-
-    const renderCalendarDays = () => {
-      const daysInMonth = getDaysInMonth(currentDate);
-      const firstDay = getFirstDayOfMonth(currentDate);
-      const days = [];
-
-      // Empty cells for days before the first day of the month
-      for (let i = 0; i < firstDay; i++) {
-        days.push(<div key={`empty-${i}`} className="w-10 h-10"></div>);
-      }
-
-      // Days of the month
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        const isSelected = selectedDateInternal && 
-          date.getDate() === selectedDateInternal.getDate() &&
-          date.getMonth() === selectedDateInternal.getMonth() &&
-          date.getFullYear() === selectedDateInternal.getFullYear();
-
-        days.push(
-          <button
-            key={day}
-            onClick={() => handleDateClick(date)}
-            className={`w-10 h-10 rounded-full text-sm hover:bg-pink-100 transition-colors ${
-              isSelected 
-                ? 'bg-pink-500 text-white' 
-                : 'text-gray-700 hover:text-pink-600'
-            }`}
-          >
-            {day}
-          </button>
-        );
-      }
-
-      return days;
-    };
-
-    const navigateMonth = (direction: 'prev' | 'next') => {
-      setCurrentDate(prev => {
-        const newDate = new Date(prev);
-        if (direction === 'prev') {
-          newDate.setMonth(prev.getMonth() - 1);
-        } else {
-          newDate.setMonth(prev.getMonth() + 1);
-        }
-        return newDate;
-      });
-    };
+    }, [date, onDateSelect]);
 
     return (
-      <div className="border rounded-md p-4 bg-white">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => navigateMonth('prev')}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <h3 className="font-semibold">
-            {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-          </h3>
-          <button
-            onClick={() => navigateMonth('next')}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-7 gap-1 mb-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="w-10 h-8 text-xs font-medium text-gray-500 flex items-center justify-center">
-              {day}
-            </div>
-          ))}
-        </div>
-        
-        <div className="grid grid-cols-7 gap-1">
-          {renderCalendarDays()}
-        </div>
+      <div className="border rounded-md p-4">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          className="w-full"
+        />
       </div>
     );
   };
