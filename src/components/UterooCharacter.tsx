@@ -5,25 +5,41 @@ interface UterooCharacterProps {
   mood?: 'happy' | 'sad' | 'excited' | 'tired';
   size?: 'small' | 'medium' | 'large';
   className?: string;
+  phase?: string;
+  currentRoom?: string;
+  minimal?: boolean;
+  onClick?: () => void;
+  enemies?: Array<{
+    id: string;
+    name: string;
+    hp: number;
+    icon: string;
+    suggestion: string;
+  }>;
 }
 
 export const UterooCharacter: React.FC<UterooCharacterProps> = ({ 
   mood = 'happy', 
   size = 'medium',
-  className = ''
+  className = '',
+  phase,
+  currentRoom,
+  minimal = false,
+  onClick,
+  enemies = []
 }) => {
   const [currentMood, setCurrentMood] = useState(mood);
   const [isAnimating, setIsAnimating] = useState(false);
 
   console.log('UterooCharacter render - mood:', mood, 'currentMood:', currentMood);
 
-  // Fix the infinite loop by adding proper dependencies
+  // Fix the infinite loop by using proper dependencies
   useEffect(() => {
     console.log('UterooCharacter useEffect - mood changed from', currentMood, 'to', mood);
     if (mood !== currentMood) {
       setCurrentMood(mood);
     }
-  }, [mood, currentMood]); // Add proper dependencies
+  }, [mood]); // Only depend on mood, not currentMood to avoid infinite loop
 
   // Animation effect with proper cleanup
   useEffect(() => {
@@ -56,7 +72,10 @@ export const UterooCharacter: React.FC<UterooCharacterProps> = ({
   };
 
   return (
-    <div className={`flex items-center justify-center ${getSizeClass()} ${className}`}>
+    <div 
+      className={`flex items-center justify-center ${getSizeClass()} ${className} ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+    >
       <div className={`text-4xl transition-transform duration-300 ${isAnimating ? 'scale-110' : 'scale-100'}`}>
         {getMoodEmoji()}
       </div>
