@@ -52,7 +52,13 @@ export const useAuth = ({ onComplete, onShowQuestionnaire }: UseAuthProps) => {
           title: "Account created!",
           description: "Welcome to Uteroo!",
         });
-        onComplete();
+        
+        // After successful signup, show questionnaire
+        if (onShowQuestionnaire) {
+          onShowQuestionnaire();
+        } else {
+          onComplete();
+        }
       }
     } catch (error) {
       console.error('Account creation error:', error);
@@ -127,8 +133,11 @@ export const useAuth = ({ onComplete, onShowQuestionnaire }: UseAuthProps) => {
               description: "Login successful! Let's continue with your questionnaire.",
             });
             
+            // Always show questionnaire after login
             if (onShowQuestionnaire) {
               onShowQuestionnaire();
+            } else {
+              onComplete();
             }
             break;
           }
@@ -173,6 +182,11 @@ export const useAuth = ({ onComplete, onShowQuestionnaire }: UseAuthProps) => {
           title: "Google sign-in failed",
           description: error.message,
         });
+      } else {
+        // Google login will redirect, so questionnaire will be handled by the auth state change
+        if (onShowQuestionnaire) {
+          onShowQuestionnaire();
+        }
       }
     } catch (error) {
       console.error('Google login error:', error);
