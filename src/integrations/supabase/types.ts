@@ -437,7 +437,9 @@ export type Database = {
           full_name: string | null
           id: string
           onboarding_completed: boolean | null
+          questionnaire_answers: Json | null
           updated_at: string
+          user_type: string | null
           username: string | null
         }
         Insert: {
@@ -450,7 +452,9 @@ export type Database = {
           full_name?: string | null
           id: string
           onboarding_completed?: boolean | null
+          questionnaire_answers?: Json | null
           updated_at?: string
+          user_type?: string | null
           username?: string | null
         }
         Update: {
@@ -463,8 +467,46 @@ export type Database = {
           full_name?: string | null
           id?: string
           onboarding_completed?: boolean | null
+          questionnaire_answers?: Json | null
           updated_at?: string
+          user_type?: string | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      questionnaire_responses: {
+        Row: {
+          answer_type: string
+          answer_value: string
+          created_at: string | null
+          id: string
+          question_id: string
+          question_text: string
+          questionnaire_type: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          answer_type: string
+          answer_value: string
+          created_at?: string | null
+          id?: string
+          question_id: string
+          question_text: string
+          questionnaire_type: string
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          answer_type?: string
+          answer_value?: string
+          created_at?: string | null
+          id?: string
+          question_id?: string
+          question_text?: string
+          questionnaire_type?: string
+          user_id?: string
+          user_type?: string
         }
         Relationships: []
       }
@@ -573,6 +615,54 @@ export type Database = {
           },
         ]
       }
+      user_login_activities: {
+        Row: {
+          created_at: string
+          id: string
+          login_timestamp: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          login_timestamp?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          login_timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_types: {
+        Row: {
+          classification_date: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          classification_date?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          classification_date?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
       yoga_poses: {
         Row: {
           benefits: string[]
@@ -614,7 +704,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_type: {
+        Args: { p_user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       cycle_phase:
