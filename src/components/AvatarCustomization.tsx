@@ -1,125 +1,101 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
-interface AvatarFeatures {
-  hair_style: string;
-  hair_color: string;
-  eye_shape: string;
-  eye_color: string;
-  skin_tone: string;
-  face_features: string[];
-  body_type: string;
-  posture: string;
-  accessories: string[];
-  outfit: {
-    top: string;
-    bottom: string;
-    shoes: string;
-  };
-  background_theme: string;
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+
+interface AvatarCustomizationProps {
+  onComplete: () => void;
 }
 
-export const AvatarCustomization = () => {
-  const { toast } = useToast();
-  const [features, setFeatures] = useState<AvatarFeatures>({
-    hair_style: "short",
-    hair_color: "#000000",
-    eye_shape: "round",
-    eye_color: "#000000",
-    skin_tone: "#F2D2BD",
-    face_features: [],
-    body_type: "default",
-    posture: "default",
-    accessories: [],
-    outfit: {
-      top: "default",
-      bottom: "default",
-      shoes: "default"
-    },
-    background_theme: "default"
-  });
+export const AvatarCustomization = ({ onComplete }: AvatarCustomizationProps) => {
+  const [selectedAnimal, setSelectedAnimal] = useState<string>("");
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedAccessory, setSelectedAccessory] = useState<string>("");
 
-  const handleSave = async () => {
-    try {
-      const { error } = await supabase
-        .from('avatar_customizations')
-        .upsert({
-          user_id: (await supabase.auth.getUser()).data.user?.id,
-          ...features
-        });
+  const animals = ["Cat", "Dog", "Rabbit", "Fox", "Bear"];
+  const colors = ["Brown", "Black", "White", "Gray", "Orange"];
+  const accessories = ["None", "Bow", "Hat", "Glasses", "Scarf"];
 
-      if (error) throw error;
+  const progress = 90; // Near completion
 
-      toast({
-        title: "Success!",
-        description: "Your avatar has been saved.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save avatar customization.",
-        variant: "destructive",
-      });
-    }
+  const handleComplete = () => {
+    // Save avatar customization (would typically save to database)
+    console.log("Avatar customized:", { selectedAnimal, selectedColor, selectedAccessory });
+    onComplete();
   };
 
   return (
-    <Card className="p-6">
-      <Tabs defaultValue="basics" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="basics">Basics</TabsTrigger>
-          <TabsTrigger value="outfit">Outfit</TabsTrigger>
-          <TabsTrigger value="accessories">Accessories</TabsTrigger>
-          <TabsTrigger value="theme">Theme</TabsTrigger>
-        </TabsList>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+      <Card className="w-full max-w-2xl">
+        <CardHeader className="text-center">
+          <div className="mb-4">
+            <Progress value={progress} className="w-full" />
+            <p className="text-sm text-gray-600 mt-2">Almost done!</p>
+          </div>
+          <CardTitle className="text-2xl font-bold">
+            🎨 Customize Your Avatar
+          </CardTitle>
+        </CardHeader>
 
-        <TabsContent value="basics" className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Hair Color</Label>
-              <input
-                type="color"
-                value={features.hair_color}
-                onChange={(e) => setFeatures(prev => ({...prev, hair_color: e.target.value}))}
-                className="w-full h-10 rounded-md"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Skin Tone</Label>
-              <input
-                type="color"
-                value={features.skin_tone}
-                onChange={(e) => setFeatures(prev => ({...prev, skin_tone: e.target.value}))}
-                className="w-full h-10 rounded-md"
-              />
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="font-medium mb-3">Choose your animal:</h3>
+            <div className="grid grid-cols-5 gap-2">
+              {animals.map((animal) => (
+                <Button
+                  key={animal}
+                  variant={selectedAnimal === animal ? "default" : "outline"}
+                  onClick={() => setSelectedAnimal(animal)}
+                  className="h-auto p-2"
+                >
+                  {animal}
+                </Button>
+              ))}
             </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="outfit" className="space-y-4">
-          {/* Outfit customization options will go here */}
-          <p className="text-muted-foreground">Outfit customization coming soon!</p>
-        </TabsContent>
+          <div>
+            <h3 className="font-medium mb-3">Choose your color:</h3>
+            <div className="grid grid-cols-5 gap-2">
+              {colors.map((color) => (
+                <Button
+                  key={color}
+                  variant={selectedColor === color ? "default" : "outline"}
+                  onClick={() => setSelectedColor(color)}
+                  className="h-auto p-2"
+                >
+                  {color}
+                </Button>
+              ))}
+            </div>
+          </div>
 
-        <TabsContent value="accessories" className="space-y-4">
-          {/* Accessories customization options will go here */}
-          <p className="text-muted-foreground">Accessories customization coming soon!</p>
-        </TabsContent>
+          <div>
+            <h3 className="font-medium mb-3">Choose an accessory:</h3>
+            <div className="grid grid-cols-5 gap-2">
+              {accessories.map((accessory) => (
+                <Button
+                  key={accessory}
+                  variant={selectedAccessory === accessory ? "default" : "outline"}
+                  onClick={() => setSelectedAccessory(accessory)}
+                  className="h-auto p-2"
+                >
+                  {accessory}
+                </Button>
+              ))}
+            </div>
+          </div>
 
-        <TabsContent value="theme" className="space-y-4">
-          {/* Theme customization options will go here */}
-          <p className="text-muted-foreground">Theme customization coming soon!</p>
-        </TabsContent>
-      </Tabs>
-
-      <div className="mt-6 flex justify-end">
-        <Button onClick={handleSave}>Save Changes</Button>
-      </div>
-    </Card>
+          <Button
+            onClick={handleComplete}
+            disabled={!selectedAnimal || !selectedColor || !selectedAccessory}
+            className="w-full mt-6"
+          >
+            Complete Setup 🎉
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

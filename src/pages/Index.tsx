@@ -6,12 +6,15 @@ import { useAuth } from "@/components/AuthProvider";
 import { useQuestionnaire } from "@/hooks/useQuestionnaire";
 import { CycleSanctuary } from "@/components/CycleSanctuary";
 
+type CyclePhase = "menstruation" | "follicular" | "ovulatory" | "luteal";
+
 const Index = () => {
   const { user, isLoading } = useAuth();
   const { checkQuestionnaireDue } = useQuestionnaire();
   const [showAccountCreation, setShowAccountCreation] = useState(false);
   const [showQuestionnaire, setShowQuestionnaire] = useState(false);
   const [questionnaireCheckComplete, setQuestionnaireCheckComplete] = useState(false);
+  const [currentPhase, setCurrentPhase] = useState<CyclePhase>("follicular");
 
   // Check if questionnaire is due when user is authenticated
   useEffect(() => {
@@ -54,6 +57,10 @@ const Index = () => {
     setQuestionnaireCheckComplete(true);
   };
 
+  const handlePhaseChange = (phase: CyclePhase) => {
+    setCurrentPhase(phase);
+  };
+
   // Show loading state
   if (isLoading) {
     return (
@@ -83,7 +90,7 @@ const Index = () => {
 
   // Show main app for authenticated users with completed/up-to-date questionnaire
   if (user && questionnaireCheckComplete && !showQuestionnaire) {
-    return <CycleSanctuary />;
+    return <CycleSanctuary currentPhase={currentPhase} onPhaseChange={handlePhaseChange} />;
   }
 
   // Fallback loading state
