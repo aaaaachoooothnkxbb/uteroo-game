@@ -53,7 +53,7 @@ export const useAuth = ({ onComplete, onShowQuestionnaire }: UseAuthProps) => {
           description: "Welcome to Uteroo!",
         });
         
-        // After successful signup, show questionnaire
+        // New users always need to complete questionnaire
         if (onShowQuestionnaire) {
           onShowQuestionnaire();
         } else {
@@ -113,7 +113,7 @@ export const useAuth = ({ onComplete, onShowQuestionnaire }: UseAuthProps) => {
 
             const { data: profile, error: profileError } = await supabase
               .from('profiles')
-              .select('username, onboarding_completed')
+              .select('username, onboarding_completed, questionnaire_due_date')
               .eq('id', data.user.id)
               .maybeSingle();
             
@@ -130,11 +130,14 @@ export const useAuth = ({ onComplete, onShowQuestionnaire }: UseAuthProps) => {
 
             toast({
               title: `Welcome back ${username}!`,
-              description: "Login successful! Let's continue with your questionnaire.",
+              description: "Login successful!",
             });
             
-            // Always show questionnaire after login
-            if (onShowQuestionnaire) {
+            // Check if questionnaire is needed
+            const needsQuestionnaire = !profile?.onboarding_completed || 
+              (profile?.questionnaire_due_date && new Date() >= new Date(profile.questionnaire_due_date));
+            
+            if (needsQuestionnaire && onShowQuestionnaire) {
               onShowQuestionnaire();
             } else {
               onComplete();
@@ -183,7 +186,7 @@ export const useAuth = ({ onComplete, onShowQuestionnaire }: UseAuthProps) => {
           description: error.message,
         });
       } else {
-        // Google login will redirect, so questionnaire will be handled by the auth state change
+        // Google login will redirect, questionnaire check will happen after auth state change
         if (onShowQuestionnaire) {
           onShowQuestionnaire();
         }

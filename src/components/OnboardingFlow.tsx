@@ -1,531 +1,319 @@
 
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { CompanionNaming } from "./CompanionNaming";
+import { AvatarCustomization } from "./AvatarCustomization";
+import { useAuth } from "./AuthProvider";
+import { useQuestionnaire, UserType, QuestionnaireResponse } from '@/hooks/useQuestionnaire';
 
 interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
+interface Question {
+  id: string;
+  text: string;
+  type: 'single' | 'multiple' | 'text';
+  options?: string[];
+  emoji?: string;
+  userTypes?: UserType[];
+}
+
+const baseQuestions: Question[] = [
+  {
+    id: 'period_status',
+    text: 'When was your last period?',
+    type: 'single',
+    emoji: '🩸',
+    options: [
+      "I'm on it right now",
+      "Tap to select",
+      "I don't remember",
+      "I haven't gotten my period yet",
+      "I stopped getting my period"
+    ]
+  }
+];
+
+const menstrualQuestions: Question[] = [
+  {
+    id: 'period_tracking',
+    text: 'How do you currently track your period?',
+    type: 'single',
+    emoji: '📱',
+    options: ['App on my phone', 'Calendar/notebook', 'I don\'t track it', 'Other method'],
+    userTypes: ['MENSTRUAL']
+  },
+  {
+    id: 'cycle_regularity',
+    text: 'How regular is your cycle?',
+    type: 'single',
+    emoji: '📅',
+    options: ['Very regular', 'Somewhat regular', 'Irregular', 'Not sure'],
+    userTypes: ['MENSTRUAL']
+  },
+  {
+    id: 'period_symptoms',
+    text: 'What symptoms do you experience during your period?',
+    type: 'multiple',
+    emoji: '💊',
+    options: ['Cramps', 'Bloating', 'Mood changes', 'Headaches', 'Fatigue', 'Breast tenderness', 'Food cravings', 'None'],
+    userTypes: ['MENSTRUAL']
+  }
+];
+
+const prePeriodQuestions: Question[] = [
+  {
+    id: 'age_range',
+    text: 'What\'s your age range?',
+    type: 'single',
+    emoji: '👶',
+    options: ['Under 12', '12-14', '15-17', '18+'],
+    userTypes: ['PRE_PERIOD']
+  },
+  {
+    id: 'period_education',
+    text: 'How would you like to learn about periods?',
+    type: 'multiple',
+    emoji: '📚',
+    options: ['Educational videos', 'Articles and guides', 'Interactive games', 'Q&A sessions', 'Talk with a healthcare provider'],
+    userTypes: ['PRE_PERIOD']
+  },
+  {
+    id: 'concerns',
+    text: 'What are you most curious or concerned about?',
+    type: 'multiple',
+    emoji: '🤔',
+    options: ['When will it start?', 'What products to use', 'How to manage symptoms', 'Talking to family/friends', 'School considerations', 'Normal vs. abnormal'],
+    userTypes: ['PRE_PERIOD']
+  }
+];
+
+const postMenstrualQuestions: Question[] = [
+  {
+    id: 'transition_stage',
+    text: 'What stage best describes you?',
+    type: 'single',
+    emoji: '🌸',
+    options: ['Perimenopause', 'Menopause', 'Post-menopause', 'Medical condition', 'Not sure'],
+    userTypes: ['POST_MENSTRUAL']
+  },
+  {
+    id: 'health_concerns',
+    text: 'What health aspects are you focusing on?',
+    type: 'multiple',
+    emoji: '💪',
+    options: ['Bone health', 'Heart health', 'Weight management', 'Sleep quality', 'Mood stability', 'Energy levels', 'Skin care'],
+    userTypes: ['POST_MENSTRUAL']
+  },
+  {
+    id: 'wellness_goals',
+    text: 'What are your wellness goals?',
+    type: 'multiple',
+    emoji: '🎯',
+    options: ['Stay active', 'Manage symptoms', 'Stress reduction', 'Better nutrition', 'Regular checkups', 'Mental health support'],
+    userTypes: ['POST_MENSTRUAL']
+  }
+];
+
+const commonQuestions: Question[] = [
+  {
+    id: 'wellness_interests',
+    text: 'What wellness activities interest you most?',
+    type: 'multiple',
+    emoji: '🧘',
+    options: ['Yoga and meditation', 'Nutrition and recipes', 'Exercise and fitness', 'Mental health support', 'Educational content', 'Community support']
+  },
+  {
+    id: 'goals',
+    text: 'What are your main goals with Uteroo?',
+    type: 'multiple',
+    emoji: '🎯',
+    options: ['Track my cycle', 'Learn about my body', 'Manage symptoms', 'Improve overall wellness', 'Connect with others', 'Get personalized advice']
+  }
+];
+
 export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
+  const { user } = useAuth();
+  const { addResponse, saveQuestionnaire, userType } = useQuestionnaire();
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [currentQuestions, setCurrentQuestions] = useState<Question[]>(baseQuestions);
+  const [responses, setResponses] = useState<Record<string, string | string[]>>({});
+  const [textInput, setTextInput] = useState('');
+  const [showCompanionNaming, setShowCompanionNaming] = useState(false);
+  const [showAvatarCustomization, setShowAvatarCustomization] = useState(false);
 
-  const steps = [
-    {
-      id: 1,
-      title: "Question 1 of 6",
-      subtitle: "Let's get to know your cycle better",
-      description: "When did your last period start?",
-      content: (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <button
-              onClick={() => setAnswers({ ...answers, lastPeriod: "tap-to-select" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.lastPeriod === "tap-to-select" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">📅</span>
-              <span className="text-gray-700">Tap to select</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, lastPeriod: "right-now" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.lastPeriod === "right-now" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🔴</span>
-              <span className="text-gray-700">I'm on it right now!</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, lastPeriod: "no-period-yet" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.lastPeriod === "no-period-yet" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🌱</span>
-              <span className="text-gray-700">I haven't gotten my period yet</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, lastPeriod: "stopped-getting" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.lastPeriod === "stopped-getting" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🦋</span>
-              <span className="text-gray-700">I stopped getting my period</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, lastPeriod: "dont-remember" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.lastPeriod === "dont-remember" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🧡</span>
-              <span className="text-gray-700">I don't remember</span>
-            </button>
-          </div>
-        </div>
-      ),
-      fields: ["lastPeriod"],
-    },
-    {
-      id: 2,
-      title: "Question 2 of 6",
-      subtitle: "Let's get to know your cycle better",
-      description: "How long do your periods usually last?",
-      content: (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <button
-              onClick={() => setAnswers({ ...answers, periodLength: "3-5-days" })}
-              className={`w-full p-4 border-2 rounded-full text-left transition-colors ${
-                answers.periodLength === "3-5-days" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-gray-700">3-5 days</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, periodLength: "6-7-days" })}
-              className={`w-full p-4 border-2 rounded-full text-left transition-colors ${
-                answers.periodLength === "6-7-days" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-gray-700">6-7 days</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, periodLength: "8-plus-days" })}
-              className={`w-full p-4 border-2 rounded-full text-left transition-colors ${
-                answers.periodLength === "8-plus-days" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-gray-700">8+ days</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, periodLength: "varies-a-lot" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.periodLength === "varies-a-lot" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">♾️</span>
-              <span className="text-gray-700">It varies a lot</span>
-            </button>
-          </div>
-        </div>
-      ),
-      fields: ["periodLength"],
-    },
-    {
-      id: 3,
-      title: "Question 3 of 6",
-      subtitle: "Let's get to know your cycle better",
-      description: "How predictable is your cycle?",
-      content: (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <button
-              onClick={() => setAnswers({ ...answers, cyclePredictability: "like-clockwork" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.cyclePredictability === "like-clockwork" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">⏰</span>
-              <span className="text-gray-700">Like clockwork!</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, cyclePredictability: "usually-25-35-days" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.cyclePredictability === "usually-25-35-days" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">📊</span>
-              <span className="text-gray-700">Usually 25-35 days</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, cyclePredictability: "complete-surprise" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.cyclePredictability === "complete-surprise" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🥂</span>
-              <span className="text-gray-700">Complete surprise every month</span>
-            </button>
-          </div>
-        </div>
-      ),
-      fields: ["cyclePredictability"],
-    },
-    {
-      id: 4,
-      title: "Question 4 of 6",
-      subtitle: "Let's get to know your cycle better",
-      description: "Do you notice any signs around ovulation?",
-      content: (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <button
-              onClick={() => setAnswers({ ...answers, ovulationSigns: "egg-white-discharge" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.ovulationSigns === "egg-white-discharge" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🥚</span>
-              <span className="text-gray-700">Egg-white discharge</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, ovulationSigns: "energy-boost" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.ovulationSigns === "energy-boost" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">⚡</span>
-              <span className="text-gray-700">Energy boost</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, ovulationSigns: "no-signs" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.ovulationSigns === "no-signs" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🚫</span>
-              <span className="text-gray-700">No signs</span>
-            </button>
-          </div>
-        </div>
-      ),
-      fields: ["ovulationSigns"],
-    },
-    {
-      id: 5,
-      title: "Question 5 of 6",
-      subtitle: "Let's get to know your cycle better",
-      description: "How do you feel 5-7 days before your period?",
-      content: (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <button
-              onClick={() => setAnswers({ ...answers, prePeriodFeeling: "irritable-sensitive" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.prePeriodFeeling === "irritable-sensitive" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">⚠️</span>
-              <span className="text-gray-700">Irritable/sensitive</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, prePeriodFeeling: "bloated-craving-carbs" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.prePeriodFeeling === "bloated-craving-carbs" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🧡</span>
-              <span className="text-gray-700">Bloated/craving carbs</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, prePeriodFeeling: "totally-fine" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.prePeriodFeeling === "totally-fine" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🌈</span>
-              <span className="text-gray-700">Totally fine, no changes!</span>
-            </button>
-          </div>
-        </div>
-      ),
-      fields: ["prePeriodFeeling"],
-    },
-    {
-      id: 6,
-      title: "Question 6 of 6",
-      subtitle: "Let's get to know your cycle better",
-      description: "What's your most annoying symptom?",
-      content: (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <button
-              onClick={() => setAnswers({ ...answers, annoyingSymptom: "cramps" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.annoyingSymptom === "cramps" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">😣</span>
-              <span className="text-gray-700">Cramps</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, annoyingSymptom: "mood-swings" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.annoyingSymptom === "mood-swings" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🎭</span>
-              <span className="text-gray-700">Mood swings</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, annoyingSymptom: "fatigue" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.annoyingSymptom === "fatigue" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">😴</span>
-              <span className="text-gray-700">Fatigue</span>
-            </button>
-          </div>
-        </div>
-      ),
-      fields: ["annoyingSymptom"],
-    },
-    {
-      id: 7,
-      title: "Question 3 of 3",
-      subtitle: "Let's get to know your journey better",
-      description: "How are you managing these changes?",
-      content: (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <button
-              onClick={() => setAnswers({ ...answers, managingChanges: "healthcare-providers" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.managingChanges === "healthcare-providers" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">👩‍⚕️</span>
-              <span className="text-gray-700">Working with healthcare providers</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, managingChanges: "diet-exercise-lifestyle" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.managingChanges === "diet-exercise-lifestyle" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🥗</span>
-              <span className="text-gray-700">Diet, exercise, and lifestyle adjustments</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, managingChanges: "herbal-remedies" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.managingChanges === "herbal-remedies" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🌿</span>
-              <span className="text-gray-700">Herbal remedies and supplements</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, managingChanges: "connecting-with-others" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.managingChanges === "connecting-with-others" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">👥</span>
-              <span className="text-gray-700">Connecting with others in similar situations</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, managingChanges: "still-figuring-out" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.managingChanges === "still-figuring-out" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🔍</span>
-              <span className="text-gray-700">Still figuring out what works for me</span>
-            </button>
-          </div>
-        </div>
-      ),
-      fields: ["managingChanges"],
-    },
-    {
-      id: 8,
-      title: "Question 3 of 3",
-      subtitle: "Let's get to know your journey better",
-      description: "What would you like to learn most about through Uteroo?",
-      content: (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <button
-              onClick={() => setAnswers({ ...answers, learnAbout: "what-to-expect-period" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.learnAbout === "what-to-expect-period" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🌊</span>
-              <span className="text-gray-700">What to expect when my period starts</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, learnAbout: "body-changes-puberty" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.learnAbout === "body-changes-puberty" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🦋</span>
-              <span className="text-gray-700">How my body is changing during puberty</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, learnAbout: "healthy-habits-hormonal" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.learnAbout === "healthy-habits-hormonal" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">💪</span>
-              <span className="text-gray-700">Building healthy habits for hormonal health</span>
-            </button>
-            
-            <button
-              onClick={() => setAnswers({ ...answers, learnAbout: "managing-mood-changes" })}
-              className={`w-full p-4 border-2 rounded-full text-left flex items-center gap-3 transition-colors ${
-                answers.learnAbout === "managing-mood-changes" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-purple-300"
-              }`}
-            >
-              <span className="text-2xl">🎨</span>
-              <span className="text-gray-700">Understanding and managing mood changes</span>
-            </button>
-          </div>
-        </div>
-      ),
-      fields: ["learnAbout"],
-    },
-    {
-      id: 9,
-      title: "All Done!",
-      subtitle: "You're all set!",
-      description: "Thank you for providing the information. Let's start your journey!",
-      content: "Welcome to your personalized Uteroo experience!",
-      fields: [],
-    },
-  ];
-
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleComplete = async () => {
-    try {
-      // Mark onboarding as completed in the database
-      const { data: session } = await supabase.auth.getSession();
-      if (session?.session?.user) {
-        await supabase
-          .from('profiles')
-          .update({ 
-            onboarding_completed: true,
-            questionnaire_answers: answers
-          })
-          .eq('id', session.session.user.id);
+  useEffect(() => {
+    if (userType) {
+      let typeSpecificQuestions: Question[] = [];
+      
+      switch (userType) {
+        case 'MENSTRUAL':
+          typeSpecificQuestions = menstrualQuestions;
+          break;
+        case 'PRE_PERIOD':
+          typeSpecificQuestions = prePeriodQuestions;
+          break;
+        case 'POST_MENSTRUAL':
+          typeSpecificQuestions = postMenstrualQuestions;
+          break;
       }
       
-      onComplete();
-    } catch (error) {
-      console.error('Error completing onboarding:', error);
-      onComplete(); // Still proceed even if update fails
+      setCurrentQuestions([...baseQuestions, ...typeSpecificQuestions, ...commonQuestions]);
+    }
+  }, [userType]);
+
+  const currentQuestion = currentQuestions[currentStep];
+  const totalSteps = currentQuestions.length + 2; // +2 for companion naming and avatar customization
+  const progress = ((currentStep + 1) / totalSteps) * 100;
+
+  const handleAnswer = (answer: string | string[]) => {
+    const answerValue = Array.isArray(answer) ? answer.join(', ') : answer;
+    
+    setResponses(prev => ({ ...prev, [currentQuestion.id]: answer }));
+    
+    const response: QuestionnaireResponse = {
+      questionId: currentQuestion.id,
+      questionText: currentQuestion.text,
+      answerValue,
+      answerType: currentQuestion.type
+    };
+    
+    addResponse(response);
+    
+    // Move to next question
+    if (currentStep < currentQuestions.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      setShowCompanionNaming(true);
     }
   };
 
-  const canProceed = () => {
-    const currentStepData = steps[currentStep];
-    if (currentStepData.fields.length === 0) return true;
-    
-    return currentStepData.fields.some(field => answers[field]);
+  const handleTextSubmit = () => {
+    if (textInput.trim()) {
+      handleAnswer(textInput.trim());
+      setTextInput('');
+    }
   };
+
+  const handleCompanionNamingComplete = () => {
+    setShowCompanionNaming(false);
+    setShowAvatarCustomization(true);
+  };
+
+  const handleAvatarCustomizationComplete = async () => {
+    if (!user || !userType) return;
+    
+    const success = await saveQuestionnaire(user.id, userType);
+    if (success) {
+      onComplete();
+    }
+  };
+
+  if (showAvatarCustomization) {
+    return <AvatarCustomization onComplete={handleAvatarCustomizationComplete} />;
+  }
+
+  if (showCompanionNaming) {
+    return <CompanionNaming onComplete={handleCompanionNamingComplete} />;
+  }
+
+  if (!currentQuestion) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
-      <Card className="w-full max-w-md space-y-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/40">
-        {/* Header with hearts counter */}
-        <div className="flex justify-between items-center p-4 pb-0">
-          <span className="text-sm text-gray-500">Screen {currentStep + 1} of {steps.length}</span>
-          <span className="flex items-center gap-1 text-pink-500">
-            ❤️ {Math.floor(Math.random() * 40) + 5}
-          </span>
-        </div>
-        
-        <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-2xl font-bold text-pink-500">{steps[currentStep].title}</CardTitle>
-          {steps[currentStep].subtitle && (
-            <p className="text-sm text-gray-500 italic">{steps[currentStep].subtitle}</p>
-          )}
-          <CardDescription className="text-lg font-medium text-gray-800">
-            {steps[currentStep].description}
-          </CardDescription>
+      <Card className="w-full max-w-2xl">
+        <CardHeader className="text-center">
+          <div className="mb-4">
+            <Progress value={progress} className="w-full" />
+            <p className="text-sm text-gray-600 mt-2">
+              Question {currentStep + 1} of {totalSteps}
+            </p>
+          </div>
+          <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
+            {currentQuestion.emoji && (
+              <span className="text-3xl">{currentQuestion.emoji}</span>
+            )}
+            {currentQuestion.text}
+          </CardTitle>
         </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {typeof steps[currentStep].content === 'string' ? (
-            <p className="text-gray-600 text-center">{steps[currentStep].content}</p>
-          ) : (
-            steps[currentStep].content
+
+        <CardContent className="space-y-4">
+          {currentQuestion.type === 'single' && currentQuestion.options && (
+            <div className="grid gap-3">
+              {currentQuestion.options.map((option) => (
+                <Button
+                  key={option}
+                  variant="outline"
+                  className="p-4 text-left justify-start h-auto whitespace-normal"
+                  onClick={() => handleAnswer(option)}
+                >
+                  {option}
+                </Button>
+              ))}
+            </div>
           )}
-          
-          {currentStep === steps.length - 1 && (
-            <div className="text-center">
-              <Badge variant="secondary" className="gap-2">
-                <Sparkles className="h-4 w-4" />
-                Onboarding Complete!
-              </Badge>
+
+          {currentQuestion.type === 'multiple' && currentQuestion.options && (
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">Select all that apply:</p>
+              <div className="grid gap-3">
+                {currentQuestion.options.map((option) => {
+                  const currentResponses = responses[currentQuestion.id] as string[] || [];
+                  const isSelected = currentResponses.includes(option);
+                  
+                  return (
+                    <Button
+                      key={option}
+                      variant={isSelected ? "default" : "outline"}
+                      className="p-4 text-left justify-start h-auto whitespace-normal"
+                      onClick={() => {
+                        const current = responses[currentQuestion.id] as string[] || [];
+                        const updated = isSelected
+                          ? current.filter(item => item !== option)
+                          : [...current, option];
+                        setResponses(prev => ({ ...prev, [currentQuestion.id]: updated }));
+                      }}
+                    >
+                      {option}
+                    </Button>
+                  );
+                })}
+              </div>
+              <Button
+                onClick={() => handleAnswer(responses[currentQuestion.id] || [])}
+                disabled={!responses[currentQuestion.id] || (responses[currentQuestion.id] as string[]).length === 0}
+                className="w-full mt-4"
+              >
+                Continue
+              </Button>
+            </div>
+          )}
+
+          {currentQuestion.type === 'text' && (
+            <div className="space-y-4">
+              <Textarea
+                placeholder="Type your answer here..."
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                className="min-h-[100px]"
+              />
+              <Button
+                onClick={handleTextSubmit}
+                disabled={!textInput.trim()}
+                className="w-full"
+              >
+                Continue
+              </Button>
             </div>
           )}
         </CardContent>
-        
-        <div className="flex items-center justify-between p-4">
-          {currentStep > 0 ? (
-            <Button variant="outline" onClick={prevStep} className="rounded-full px-6">
-              Previous
-            </Button>
-          ) : (
-            <Button variant="ghost" className="rounded-full px-6 opacity-50">
-              Skip for now
-            </Button>
-          )}
-          
-          {currentStep === steps.length - 1 ? (
-            <Button 
-              onClick={handleComplete}
-              className="bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full px-8"
-            >
-              Get My Results
-            </Button>
-          ) : (
-            <Button 
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full px-8 disabled:opacity-50"
-            >
-              Next
-            </Button>
-          )}
-        </div>
       </Card>
     </div>
   );

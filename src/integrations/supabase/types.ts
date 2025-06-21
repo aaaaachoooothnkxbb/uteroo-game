@@ -438,6 +438,8 @@ export type Database = {
           id: string
           onboarding_completed: boolean | null
           questionnaire_answers: Json | null
+          questionnaire_completed_at: string | null
+          questionnaire_due_date: string | null
           updated_at: string
           user_type: string | null
           username: string | null
@@ -453,6 +455,8 @@ export type Database = {
           id: string
           onboarding_completed?: boolean | null
           questionnaire_answers?: Json | null
+          questionnaire_completed_at?: string | null
+          questionnaire_due_date?: string | null
           updated_at?: string
           user_type?: string | null
           username?: string | null
@@ -468,6 +472,8 @@ export type Database = {
           id?: string
           onboarding_completed?: boolean | null
           questionnaire_answers?: Json | null
+          questionnaire_completed_at?: string | null
+          questionnaire_due_date?: string | null
           updated_at?: string
           user_type?: string | null
           username?: string | null
