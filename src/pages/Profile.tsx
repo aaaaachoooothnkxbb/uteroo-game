@@ -1,177 +1,185 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Upload, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { AvatarCustomization } from "@/components/AvatarCustomization";
-import { useToast } from "@/components/ui/use-toast";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { AvatarCustomization } from "@/components/AvatarCustomization";
 
 const Profile = () => {
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const { toast } = useToast();
-  const [uploading, setUploading] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [username, setUsername] = useState("");
+  const [companionName, setCompanionName] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showAvatarCustomization, setShowAvatarCustomization] = useState(false);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        
-        if (authError || !user) {
-          toast({
-            title: "Authentication Error",
-            description: "Please sign in to access this page",
-            variant: "destructive",
-          });
-          navigate("/");
-          return;
-        }
+    loadProfile();
+  }, [user]);
 
-        setUserId(user.id);
-
-        // Fetch existing avatar URL
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('avatar_url')
-          .eq('id', user.id)
-          .single();
-
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
-        } else if (profileData?.avatar_url) {
-          setAvatarUrl(profileData.avatar_url);
-        }
-      } catch (error) {
-        console.error('Error in fetchUserProfile:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load profile",
-          variant: "destructive",
-        });
-      }
-    };
-
-    fetchUserProfile();
-  }, [navigate, toast]);
-
-  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSave = async () => {
+    setIsSaving(true);
     try {
-      if (!userId) {
-        toast({
-          title: "Error",
-          description: "Please sign in to upload a profile picture",
-          variant: "destructive",
-        });
-        return;
-      }
+      const updates = {
+        id: user?.id,
+        username: username,
+        companion_name: companionName,
+        updated_at: new Date(),
+      };
 
-      setUploading(true);
-      
-      if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('You must select an image to upload.');
-      }
-
-      const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${userId}/${Math.random()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('profile_pictures')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile_pictures')
-        .getPublicUrl(filePath);
-
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', userId);
-
-      if (updateError) {
-        throw updateError;
-      }
-
-      setAvatarUrl(publicUrl);
-      toast({
-        title: "Success!",
-        description: "Profile picture updated successfully.",
+      const { error } = await supabase.from("profiles").upsert(updates, {
+        returning: "minimal", // Don't return values after insert
       });
-    } catch (error) {
-      console.error('Error uploading:', error);
+
+      if (error) {
+        throw error;
+      }
       toast({
-        title: "Error",
-        description: error.message || "Failed to upload profile picture",
+        title: "Profile updated!",
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error: any) {
+      toast({
         variant: "destructive",
+        title: "Failed to update profile",
+        description: error.message,
       });
     } finally {
-      setUploading(false);
+      setIsSaving(false);
     }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg p-4 shadow-sm">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-          <ArrowLeft className="mr-2" /> Back to Dashboard
-        </Button>
-      </header>
+  const handleAvatarCustomizationComplete = () => {
+    setShowAvatarCustomization(false);
+    // Reload profile to get updated avatar data
+    if (user) {
+      loadProfile();
+    }
+    toast({
+      title: "Avatar updated!",
+      description: "Your avatar customization has been saved.",
+    });
+  };
 
-      <main className="flex-1 px-4 py-6 overflow-y-auto">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <Card className="p-6">
-            <div className="text-center space-y-6">
-              <div className="relative w-32 h-32 mx-auto">
-                <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                  {avatarUrl ? (
-                    <img 
-                      src={avatarUrl} 
-                      alt="Profile" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-16 h-16 text-gray-400" />
-                  )}
-                </div>
-                <label 
-                  htmlFor="profile-upload" 
-                  className="absolute bottom-0 right-0 p-1 bg-primary hover:bg-primary/90 rounded-full cursor-pointer text-white"
-                >
-                  <input
-                    type="file"
-                    id="profile-upload"
-                    accept="image/*"
-                    onChange={handleUpload}
-                    disabled={uploading}
-                    className="hidden"
-                  />
-                  <Upload className="w-5 h-5" />
-                </label>
-              </div>
-              
-              <div className="space-y-4">
-                <h1 className="text-2xl font-bold">Your Profile</h1>
-                <div className="text-gray-600">
-                  <p>Total Points: 0</p>
-                  <p>Achievements: 0</p>
-                  <p>Days Tracked: 0</p>
-                </div>
-              </div>
-            </div>
-          </Card>
+  const loadProfile = async () => {
+    setIsLoading(true);
+    try {
+      if (user) {
+        const { data, error, status } = await supabase
+          .from("profiles")
+          .select(`username, full_name, avatar_url, companion_name, user_type, created_at, avatar_animal`)
+          .eq("id", user.id)
+          .single();
 
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Customize Your Avatar</h2>
-            <AvatarCustomization />
-          </div>
+        if (status === 406) {
+          throw error;
+        }
+
+        if (data) {
+          setProfile(data);
+          setUsername(data.username || "");
+          setCompanionName(data.companion_name || "");
+        }
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Failed to load profile",
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading profile...</p>
         </div>
-      </main>
+      </div>
+    );
+  }
+
+  if (showAvatarCustomization) {
+    return <AvatarCustomization onComplete={handleAvatarCustomizationComplete} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 p-4">
+      <div className="max-w-2xl mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">
+              Your Profile
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="text-center">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 mx-auto mb-4 flex items-center justify-center">
+                <span className="text-2xl">
+                  {profile?.avatar_animal === "Cat" && "🐱"}
+                  {profile?.avatar_animal === "Dog" && "🐶"}
+                  {profile?.avatar_animal === "Rabbit" && "🐰"}
+                  {profile?.avatar_animal === "Fox" && "🦊"}
+                  {profile?.avatar_animal === "Bear" && "🐻"}
+                  {!profile?.avatar_animal && "👤"}
+                </span>
+              </div>
+              <Button
+                onClick={() => setShowAvatarCustomization(true)}
+                variant="outline"
+                className="mb-4"
+              >
+                Customize Avatar
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="companionName">Companion Name</Label>
+                <Input
+                  id="companionName"
+                  value={companionName}
+                  onChange={(e) => setCompanionName(e.target.value)}
+                  placeholder="Name your companion"
+                />
+              </div>
+
+              <div className="text-sm text-gray-600">
+                <p><strong>User Type:</strong> {profile?.user_type || 'Not classified'}</p>
+                <p><strong>Email:</strong> {user?.email}</p>
+                <p><strong>Member since:</strong> {new Date(profile?.created_at).toLocaleDateString()}</p>
+              </div>
+
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="w-full"
+              >
+                {isSaving ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
