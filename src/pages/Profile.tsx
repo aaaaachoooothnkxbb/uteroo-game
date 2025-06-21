@@ -32,9 +32,7 @@ const Profile = () => {
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from("profiles").upsert(updates, {
-        returning: "minimal", // Don't return values after insert
-      });
+      const { error } = await supabase.from("profiles").upsert(updates);
 
       if (error) {
         throw error;
