@@ -29,7 +29,7 @@ const Profile = () => {
         id: user?.id,
         username: username,
         companion_name: companionName,
-        updated_at: new Date(),
+        updated_at: new Date().toISOString(),
       };
 
       const { error } = await supabase.from("profiles").upsert(updates, {
