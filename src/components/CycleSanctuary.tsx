@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameMonth, isSameDay, addMonths, parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +26,8 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useCycleTracking } from "@/hooks/useCycleTracking";
+import { getPhaseDescription, getPhaseEmoji, formatCycleDay } from "@/utils/cycleCalculations";
 
 type CyclePhase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -95,7 +96,6 @@ const moods = [
 
 export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, onPhaseChange }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [cycleData, setCycleData] = useState<CycleData[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedDateData, setSelectedDateData] = useState<CycleData | null>(null);
   const [flow, setFlow] = useState<"light" | "medium" | "heavy" | undefined>();
@@ -107,6 +107,24 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
   const [isPrivateMode, setIsPrivateMode] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Use the new cycle tracking hook
+  const {
+    cycleData,
+    currentCycleInfo,
+    isLoading,
+    addCycleEntry,
+    getCurrentPhase,
+    getCurrentDay,
+    getCycleLength
+  } = useCycleTracking();
+
+  // Update parent component when calculated phase changes
+  useEffect(() => {
+    if (currentCycleInfo && currentCycleInfo.currentPhase !== currentPhase) {
+      onPhaseChange(currentCycleInfo.currentPhase);
+    }
+  }, [currentCycleInfo, currentPhase, onPhaseChange]);
 
   // Fetch cycle data from Supabase or local storage
   useEffect(() => {
@@ -179,61 +197,40 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
   const saveLogData = () => {
     const dateString = selectedDate?.toISOString() || new Date().toISOString();
     
-    // If there's existing data for this date, update it
-    const existingDataIndex = cycleData.findIndex(data => 
-      data.date === dateString || (selectedDate && isSameDay(parseISO(data.date), selectedDate))
-    );
-    
-    let updatedData: CycleData[] = [];
-    
-    // Determine phase based on flow if it's set
-    let phase: CyclePhase | undefined = undefined;
-    if (flow) {
-      phase = "menstruation";
-      // Auto-switch Uteroo to menstruation phase if flow is logged
-      onPhaseChange("menstruation");
-    } else if (selectedDateData?.phase) {
-      phase = selectedDateData.phase;
-    }
-    
     const newData: CycleData = {
       date: selectedDate?.toISOString() || new Date().toISOString(),
       flow,
       symptoms: selectedSymptoms,
-      mood,
-      phase
+      mood
     };
     
-    if (existingDataIndex !== -1) {
-      updatedData = [...cycleData];
-      updatedData[existingDataIndex] = newData;
-    } else {
-      updatedData = [...cycleData, newData];
-      // Update streak
-      if (streak >= 0) {
-        const newStreak = streak + 1;
-        setStreak(newStreak);
-        localStorage.setItem('cycleStreak', newStreak.toString());
-        
-        // Show streak message
-        if (newStreak % 5 === 0) {
-          toast({
-            title: `🔥 ${newStreak}-day logging streak!`,
-            description: "You've unlocked Period Oracle mode!",
-            duration: 3000,
-          });
-        } else {
-          toast({
-            title: "Entry logged!",
-            description: "Keep up the streak for rewards!",
-            duration: 3000,
-          });
-        }
-      }
+    addCycleEntry(newData);
+    
+    // If flow is logged, update phase immediately
+    if (flow) {
+      onPhaseChange("menstruation");
     }
     
-    setCycleData(updatedData);
     setShowLogDialog(false);
+    
+    // Update streak logic
+    const newStreak = streak + 1;
+    setStreak(newStreak);
+    localStorage.setItem('cycleStreak', newStreak.toString());
+    
+    if (newStreak % 5 === 0) {
+      toast({
+        title: `🔥 ${newStreak}-day logging streak!`,
+        description: "You've unlocked Period Oracle mode!",
+        duration: 3000,
+      });
+    } else {
+      toast({
+        title: "Entry logged!",
+        description: "Keep up the streak for rewards!",
+        duration: 3000,
+      });
+    }
     
     // Clear form
     setFlow(undefined);
@@ -410,6 +407,27 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
               </Popover>
             </div>
           </div>
+          
+          {/* Cycle Info Display */}
+          {currentCycleInfo && !isPrivateMode && (
+            <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg mb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-lg flex items-center gap-2">
+                    {getPhaseEmoji(currentCycleInfo.currentPhase)}
+                    {formatCycleDay(currentCycleInfo.currentDay, currentCycleInfo.cycleLength)}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {getPhaseDescription(currentCycleInfo.currentPhase)}
+                  </p>
+                </div>
+                <div className="text-right text-sm text-gray-500">
+                  <p>Next period: {format(currentCycleInfo.nextPeriodDate, 'MMM d')}</p>
+                  <p>Ovulation: {format(currentCycleInfo.ovulationDate, 'MMM d')}</p>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Month navigation */}
           <div className="flex justify-between items-center mb-4">

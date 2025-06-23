@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { AccountCreation } from "@/components/AccountCreation";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { useAuth } from "@/components/AuthProvider";
 import { useQuestionnaire } from "@/hooks/useQuestionnaire";
 import { CycleSanctuary } from "@/components/CycleSanctuary";
+import { useCycleTracking } from "@/hooks/useCycleTracking";
 
 type CyclePhase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -14,7 +14,15 @@ const Index = () => {
   const [showAccountCreation, setShowAccountCreation] = useState(false);
   const [showQuestionnaire, setShowQuestionnaire] = useState(false);
   const [questionnaireCheckComplete, setQuestionnaireCheckComplete] = useState(false);
-  const [currentPhase, setCurrentPhase] = useState<CyclePhase>("follicular");
+  
+  // Use cycle tracking to get current phase
+  const { getCurrentPhase } = useCycleTracking();
+  const [currentPhase, setCurrentPhase] = useState<CyclePhase>(getCurrentPhase());
+
+  // Update phase when cycle tracking changes
+  useEffect(() => {
+    setCurrentPhase(getCurrentPhase());
+  }, [getCurrentPhase]);
 
   // Check if questionnaire is due when user is authenticated
   useEffect(() => {

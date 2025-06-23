@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { UterooCharacter } from "./UterooCharacter";
@@ -11,10 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-const TOTAL_DAYS = 28;
-const CIRCLE_SIZE = 300; // px
-const POINT_SIZE = 20; // px
+import { useCycleTracking } from "@/hooks/useCycleTracking";
+import { getPhaseEmoji } from "@/utils/cycleCalculations";
 
 const dailyChallenges = {
   menstruation: [
@@ -68,13 +66,22 @@ const dailyChallenges = {
 };
 
 export const CircleCalendar = () => {
-  const [currentDay, setCurrentDay] = useState(1);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
   const [showChallenge, setShowChallenge] = useState(false);
   const { toast } = useToast();
+  
+  // Use cycle tracking hook
+  const { currentCycleInfo, getCurrentPhase, getCurrentDay, getCycleLength } = useCycleTracking();
+  
+  const currentPhase = getCurrentPhase();
+  const currentDay = getCurrentDay();
+  const cycleLength = getCycleLength();
+
+  const CIRCLE_SIZE = 300;
+  const POINT_SIZE = 20;
 
   const calculatePosition = (index: number) => {
-    const angle = ((index - 1) * 360) / TOTAL_DAYS;
+    const angle = ((index - 1) * 360) / cycleLength;
     const radian = (angle * Math.PI) / 180;
     const radius = CIRCLE_SIZE / 2 - POINT_SIZE;
     
@@ -85,16 +92,25 @@ export const CircleCalendar = () => {
   };
 
   const getPhaseColor = (day: number) => {
-    if (day <= 7) return "menstruation";
-    if (day <= 14) return "follicular";
-    if (day <= 21) return "ovulatory";
+    if (!currentCycleInfo) {
+      // Fallback to old logic if no cycle info
+      if (day <= 7) return "menstruation";
+      if (day <= 14) return "follicular";
+      if (day <= 21) return "ovulatory";
+      return "luteal";
+    }
+
+    // Use actual cycle calculation
+    const periodLength = 5; // Could be made configurable
+    const ovulationDay = Math.round(currentCycleInfo.cycleLength - 14);
+    
+    if (day <= periodLength) return "menstruation";
+    if (day < ovulationDay - 2) return "follicular";
+    if (day >= ovulationDay - 2 && day <= ovulationDay + 2) return "ovulatory";
     return "luteal";
   };
 
-  const getCurrentPhase = () => getPhaseColor(currentDay);
-
   const handleDayClick = (day: number) => {
-    setCurrentDay(day);
     const phase = getPhaseColor(day);
     toast({
       title: `Day ${day} - ${phase.charAt(0).toUpperCase() + phase.slice(1)} Phase`,
@@ -116,15 +132,12 @@ export const CircleCalendar = () => {
     }
   };
 
-  // Get challenges for the current phase
   const getCurrentChallenges = () => {
-    const phase = getCurrentPhase();
-    return dailyChallenges[phase as keyof typeof dailyChallenges];
+    return dailyChallenges[currentPhase as keyof typeof dailyChallenges];
   };
 
   const currentProgress = (completedTasks.length / 1) * 100;
   const currentChallenges = getCurrentChallenges();
-  const currentPhase = getCurrentPhase();
 
   const getPhaseStyles = (phase: string) => {
     const styles = {
@@ -147,7 +160,8 @@ export const CircleCalendar = () => {
             <UterooCharacter phase={currentPhase} />
           </div>
 
-          {Array.from({ length: TOTAL_DAYS }, (_, i) => i + 1).map((day) => {
+          {/* Show actual cycle days instead of fixed 28 */}
+          {Array.from({ length: cycleLength }, (_, i) => i + 1).map((day) => {
             const phase = getPhaseColor(day);
             const isCurrentDay = day === currentDay;
             
@@ -171,6 +185,18 @@ export const CircleCalendar = () => {
           })}
         </div>
       </Card>
+
+      {/* Display current cycle info */}
+      {currentCycleInfo && (
+        <div className="text-center">
+          <h3 className="text-lg font-medium">
+            {getPhaseEmoji(currentPhase)} Day {currentDay} of {cycleLength}
+          </h3>
+          <p className="text-sm text-gray-600 capitalize">
+            {currentPhase} Phase
+          </p>
+        </div>
+      )}
 
       {/* Progress tracker */}
       <div className="max-w-md mx-auto space-y-2">
