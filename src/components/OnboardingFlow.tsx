@@ -1,8 +1,12 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { CompanionNaming } from "./CompanionNaming";
 import { AvatarCustomization } from "./AvatarCustomization";
 import { HealthSlider } from "./HealthSlider";
@@ -16,7 +20,7 @@ interface OnboardingFlowProps {
 interface Question {
   id: string;
   text: string;
-  type: 'single' | 'multiple';
+  type: 'single' | 'multiple' | 'date';
   options: string[];
   emoji: string;
 }
@@ -31,14 +35,14 @@ interface HealthQuestion {
   maxValue: number;
 }
 
-// Universal first question
+// Universal first question - updated to support date selection
 const firstQuestion: Question = {
   id: 'period_status',
   text: 'When was your last period?',
   type: 'single',
   emoji: '🩸',
   options: [
-    '📅 Tap to select',
+    '📅 Select date',
     '🔴 I\'m on it right now!',
     '🌱 I haven\'t gotten my period yet',
     '🦋 I stopped getting my period',
@@ -231,11 +235,14 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [showHealthQuestions, setShowHealthQuestions] = useState(false);
   const [showTypeQuestions, setShowTypeQuestions] = useState(false);
   const [typeQuestionIndex, setTypeQuestionIndex] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const classifyUserType = (answer: string): UserType => {
     if (answer.includes('I\'m on it right now') || 
-        answer.includes('Tap to select') || 
-        answer.includes('I don\'t remember')) {
+        answer.includes('Select date') || 
+        answer.includes('I don\'t remember') ||
+        answer.startsWith('Period started on')) {
       return 'MENSTRUAL';
     } else if (answer.includes('I haven\'t gotten my period yet')) {
       return 'PRE_PERIOD';
@@ -322,6 +329,15 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         setShowTypeQuestions(false);
         setShowCompanionNaming(true);
       }
+    }
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+      setShowDatePicker(false);
+      const formattedDate = format(date, 'PPP');
+      handleAnswer(`Period started on ${formattedDate}`);
     }
   };
 
@@ -527,16 +543,44 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
         <CardContent className="space-y-4">
           <div className="grid gap-3">
-            {currentQuestion.options.map((option) => (
-              <Button
-                key={option}
-                variant="outline"
-                className="p-4 text-left justify-start h-auto whitespace-normal"
-                onClick={() => handleAnswer(option)}
-              >
-                {option}
-              </Button>
-            ))}
+            {currentQuestion.options.map((option) => {
+              if (option === '📅 Select date') {
+                return (
+                  <Popover key={option} open={showDatePicker} onOpenChange={setShowDatePicker}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="p-4 text-left justify-start h-auto whitespace-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, 'PPP') : option}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={handleDateSelect}
+                        disabled={(date) => date > new Date()}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                );
+              }
+              
+              return (
+                <Button
+                  key={option}
+                  variant="outline"
+                  className="p-4 text-left justify-start h-auto whitespace-normal"
+                  onClick={() => handleAnswer(option)}
+                >
+                  {option}
+                </Button>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
