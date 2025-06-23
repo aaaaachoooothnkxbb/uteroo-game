@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CompanionNaming } from "./CompanionNaming";
@@ -268,7 +267,6 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
   const getTotalSteps = (): number => {
     if (currentStep === 0) return 1;
-    // 1 (first question) + 3 (health questions) + type questions (no avatar customization)
     return 1 + healthQuestions.length + currentQuestions.length;
   };
 
@@ -296,7 +294,6 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     
     addResponse(response);
 
-    // Handle first question - classify user type and set appropriate questions
     if (currentStep === 0) {
       const type = classifyUserType(answerValue);
       setUserType(type);
@@ -318,11 +315,9 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       setCurrentStep(1);
       setShowHealthQuestions(true);
     } else if (showTypeQuestions) {
-      // Handle type-specific questions
       if (typeQuestionIndex < currentQuestions.length - 1) {
         setTypeQuestionIndex(prev => prev + 1);
       } else {
-        // Complete onboarding immediately after questions, no avatar customization
         handleOnboardingComplete();
       }
     }
@@ -418,7 +413,6 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     );
   }
 
-  // Show type-specific questions
   if (showTypeQuestions) {
     const currentQuestion = getCurrentQuestion();
     if (!currentQuestion) return null;
@@ -500,7 +494,6 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     );
   }
 
-  // Show first question
   const currentQuestion = getCurrentQuestion();
   if (!currentQuestion) return null;
 
@@ -534,7 +527,6 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                         variant="outline"
                         className="p-4 text-left justify-start h-auto whitespace-normal"
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
                         {selectedDate ? format(selectedDate, 'PPP') : option}
                       </Button>
                     </PopoverTrigger>
