@@ -108,9 +108,9 @@ export const HealthSlider: React.FC<HealthSliderProps> = ({
           <div className="text-2xl font-bold text-primary">{value}</div>
         </div>
         
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex flex-col items-center justify-center gap-4">
           {/* Max label (top) */}
-          <div className="text-sm font-medium text-gray-600 writing-mode-vertical text-center min-w-[60px]">
+          <div className="text-sm font-medium text-gray-600 text-center">
             {maxLabel}
           </div>
           
@@ -148,7 +148,7 @@ export const HealthSlider: React.FC<HealthSliderProps> = ({
           </div>
           
           {/* Min label (bottom) */}
-          <div className="text-sm font-medium text-gray-600 writing-mode-vertical text-center min-w-[60px]">
+          <div className="text-sm font-medium text-gray-600 text-center">
             {minLabel}
           </div>
         </div>
