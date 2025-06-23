@@ -28,6 +28,8 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCycleTracking } from "@/hooks/useCycleTracking";
 import { getPhaseDescription, getPhaseEmoji, formatCycleDay } from "@/utils/cycleCalculations";
+import { CompanionNaming } from "./CompanionNaming";
+import { useAuth } from "./AuthProvider";
 
 type CyclePhase = "menstruation" | "follicular" | "ovulatory" | "luteal";
 
@@ -107,6 +109,9 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
   const [isPrivateMode, setIsPrivateMode] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showCompanionNaming, setShowCompanionNaming] = useState(false);
+  const [companionName, setCompanionName] = useState<string | null>(null);
+  const { user } = useAuth();
 
   // Use the new cycle tracking hook
   const {
@@ -118,6 +123,25 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
     getCurrentDay,
     getCycleLength
   } = useCycleTracking();
+
+  // Check if user has a companion name
+  useEffect(() => {
+    const fetchCompanionName = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('companion_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (data && !error) {
+          setCompanionName(data.companion_name);
+        }
+      }
+    };
+    
+    fetchCompanionName();
+  }, [user]);
 
   // Update parent component when calculated phase changes
   useEffect(() => {
@@ -320,8 +344,49 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
     return isPredicted ? "border-2 border-red-500" : "";
   };
 
+  // Pet Button - Floating button in top right
+  const handlePetButtonClick = () => {
+    if (!companionName) {
+      setShowCompanionNaming(true);
+    } else {
+      // Future: Show pet interaction menu
+      toast({
+        title: `Hello ${companionName}!`,
+        description: "Pet interactions coming soon!",
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleCompanionNamingComplete = (name: string) => {
+    setCompanionName(name);
+    setShowCompanionNaming(false);
+  };
+
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      {/* Pet Button - Floating button in top right */}
+      <div className="absolute top-4 right-4 z-20">
+        <Button
+          onClick={handlePetButtonClick}
+          className="rounded-full w-16 h-16 bg-pink-500 hover:bg-pink-600 shadow-lg"
+          size="icon"
+        >
+          <div className="text-2xl">
+            {companionName ? "🐾" : "❓"}
+          </div>
+        </Button>
+      </div>
+
+      {/* Companion Naming Modal */}
+      {showCompanionNaming && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <CompanionNaming 
+            onComplete={handleCompanionNamingComplete}
+          />
+        </div>
+      )}
+
       {/* Onboarding dialog */}
       <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-auto">
