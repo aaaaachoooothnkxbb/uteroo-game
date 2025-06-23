@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -556,14 +557,14 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                         {selectedDate ? format(selectedDate, 'PPP') : option}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 bg-white border border-gray-200 shadow-lg z-50" align="start">
                       <Calendar
                         mode="single"
                         selected={selectedDate}
                         onSelect={handleDateSelect}
                         disabled={(date) => date > new Date()}
                         initialFocus
-                        className="pointer-events-auto"
+                        className="pointer-events-auto bg-white rounded-md"
                       />
                     </PopoverContent>
                   </Popover>
