@@ -84,16 +84,26 @@ export const useQuestionnaire = () => {
         throw userTypeError;
       }
 
-      // Update profile with questionnaire completion data
+      // Update profile with questionnaire completion data including health data
       const questionnaire_answers = responses.reduce((acc, response) => {
         acc[response.questionId] = response.answerValue;
         return acc;
       }, {} as Record<string, string>);
 
+      // Extract health data for easy access
+      const healthData = {
+        hydration: responses.find(r => r.questionId === 'hydration')?.answerValue || '0',
+        exercise: responses.find(r => r.questionId === 'exercise')?.answerValue || '0',
+        nutrition: responses.find(r => r.questionId === 'nutrition')?.answerValue || '1'
+      };
+
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          questionnaire_answers,
+          questionnaire_answers: {
+            ...questionnaire_answers,
+            health_data: healthData
+          },
           questionnaire_completed_at: now.toISOString(),
           questionnaire_due_date: dueDate.toISOString(),
           user_type: completedUserType,

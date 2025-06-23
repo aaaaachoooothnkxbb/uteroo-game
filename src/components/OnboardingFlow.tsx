@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CompanionNaming } from "./CompanionNaming";
 import { AvatarCustomization } from "./AvatarCustomization";
+import { HealthSlider } from "./HealthSlider";
 import { useAuth } from "./AuthProvider";
 import { useQuestionnaire, UserType, QuestionnaireResponse } from '@/hooks/useQuestionnaire';
 
@@ -18,6 +19,16 @@ interface Question {
   type: 'single' | 'multiple';
   options: string[];
   emoji: string;
+}
+
+interface HealthQuestion {
+  id: string;
+  text: string;
+  emoji: string;
+  minLabel: string;
+  maxLabel: string;
+  minValue: number;
+  maxValue: number;
 }
 
 // Universal first question
@@ -34,6 +45,37 @@ const firstQuestion: Question = {
     '🧡 I don\'t remember'
   ]
 };
+
+// Health questions (universal for all user types)
+const healthQuestions: HealthQuestion[] = [
+  {
+    id: 'hydration',
+    text: 'Glasses of water today',
+    emoji: '💧',
+    minLabel: '0-2',
+    maxLabel: '8-10+',
+    minValue: 0,
+    maxValue: 10
+  },
+  {
+    id: 'exercise',
+    text: 'Minutes of activity today',
+    emoji: '🏃‍♀️',
+    minLabel: '0-10',
+    maxLabel: '30-45+',
+    minValue: 0,
+    maxValue: 45
+  },
+  {
+    id: 'nutrition',
+    text: 'Plate "greenness" score',
+    emoji: '🥗',
+    minLabel: '1-3',
+    maxLabel: '8-10',
+    minValue: 1,
+    maxValue: 10
+  }
+];
 
 // Menstrual user questions (for "I'm on it right now", "Tap to select", "I don't remember")
 const menstrualQuestions: Question[] = [
@@ -182,9 +224,13 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
-  const [responses, setResponses] = useState<Record<string, string | string[]>>({});
+  const [responses, setResponses] = useState<Record<string, string | string[] | number>>({});
   const [showCompanionNaming, setShowCompanionNaming] = useState(false);
   const [showAvatarCustomization, setShowAvatarCustomization] = useState(false);
+  const [healthQuestionIndex, setHealthQuestionIndex] = useState(0);
+  const [showHealthQuestions, setShowHealthQuestions] = useState(false);
+  const [showTypeQuestions, setShowTypeQuestions] = useState(false);
+  const [typeQuestionIndex, setTypeQuestionIndex] = useState(0);
 
   const classifyUserType = (answer: string): UserType => {
     if (answer.includes('I\'m on it right now') || 
@@ -198,20 +244,42 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   };
 
-  const getCurrentQuestion = (): Question => {
+  const getCurrentQuestion = (): Question | null => {
     if (currentStep === 0) {
       return firstQuestion;
     }
-    return currentQuestions[currentStep - 1];
+    if (showTypeQuestions && currentQuestions.length > 0) {
+      return currentQuestions[typeQuestionIndex];
+    }
+    return null;
+  };
+
+  const getCurrentHealthQuestion = (): HealthQuestion | null => {
+    if (showHealthQuestions && healthQuestionIndex < healthQuestions.length) {
+      return healthQuestions[healthQuestionIndex];
+    }
+    return null;
   };
 
   const getTotalSteps = (): number => {
     if (currentStep === 0) return 1; // Just the first question initially
-    return currentQuestions.length + 3; // +3 for first question, companion naming, and avatar customization
+    // 1 (first question) + 3 (health questions) + type questions + 2 (companion naming + avatar)
+    return 1 + healthQuestions.length + currentQuestions.length + 2;
+  };
+
+  const getCurrentStepNumber = (): number => {
+    if (currentStep === 0) return 1;
+    if (showHealthQuestions) return 1 + healthQuestionIndex + 1;
+    if (showTypeQuestions) return 1 + healthQuestions.length + typeQuestionIndex + 1;
+    if (showCompanionNaming) return 1 + healthQuestions.length + currentQuestions.length + 1;
+    if (showAvatarCustomization) return 1 + healthQuestions.length + currentQuestions.length + 2;
+    return 1;
   };
 
   const handleAnswer = (answer: string | string[]) => {
     const currentQuestion = getCurrentQuestion();
+    if (!currentQuestion) return;
+
     const answerValue = Array.isArray(answer) ? answer.join(', ') : answer;
     
     setResponses(prev => ({ ...prev, [currentQuestion.id]: answer }));
@@ -245,13 +313,40 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       
       setCurrentQuestions(typeQuestions);
       setCurrentStep(1);
-    } else {
-      // Handle subsequent questions
-      if (currentStep < currentQuestions.length) {
-        setCurrentStep(prev => prev + 1);
+      setShowHealthQuestions(true);
+    } else if (showTypeQuestions) {
+      // Handle type-specific questions
+      if (typeQuestionIndex < currentQuestions.length - 1) {
+        setTypeQuestionIndex(prev => prev + 1);
       } else {
+        setShowTypeQuestions(false);
         setShowCompanionNaming(true);
       }
+    }
+  };
+
+  const handleHealthAnswer = (questionId: string, value: number) => {
+    setResponses(prev => ({ ...prev, [questionId]: value }));
+    
+    const healthQuestion = healthQuestions.find(q => q.id === questionId);
+    if (healthQuestion) {
+      const response: QuestionnaireResponse = {
+        questionId: healthQuestion.id,
+        questionText: healthQuestion.text,
+        answerValue: value.toString(),
+        answerType: 'single'
+      };
+      
+      addResponse(response);
+    }
+  };
+
+  const handleHealthContinue = () => {
+    if (healthQuestionIndex < healthQuestions.length - 1) {
+      setHealthQuestionIndex(prev => prev + 1);
+    } else {
+      setShowHealthQuestions(false);
+      setShowTypeQuestions(true);
     }
   };
 
@@ -277,9 +372,142 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     return <CompanionNaming onComplete={handleCompanionNamingComplete} />;
   }
 
+  // Show health questions
+  if (showHealthQuestions) {
+    const currentHealthQuestion = getCurrentHealthQuestion();
+    if (!currentHealthQuestion) return null;
+
+    const totalSteps = getTotalSteps();
+    const currentStepNum = getCurrentStepNumber();
+    const progress = (currentStepNum / totalSteps) * 100;
+
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+        <Card className="w-full max-w-2xl">
+          <CardHeader className="text-center">
+            <div className="mb-4">
+              <Progress value={progress} className="w-full" />
+              <p className="text-sm text-gray-600 mt-2">
+                Question {currentStepNum} of {totalSteps}
+              </p>
+            </div>
+            <CardTitle className="text-2xl font-bold">
+              Health Check-In
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            <HealthSlider
+              questionText={currentHealthQuestion.text}
+              emoji={currentHealthQuestion.emoji}
+              minLabel={currentHealthQuestion.minLabel}
+              maxLabel={currentHealthQuestion.maxLabel}
+              minValue={currentHealthQuestion.minValue}
+              maxValue={currentHealthQuestion.maxValue}
+              value={responses[currentHealthQuestion.id] as number || currentHealthQuestion.minValue}
+              onChange={(value) => handleHealthAnswer(currentHealthQuestion.id, value)}
+            />
+            
+            <Button
+              onClick={handleHealthContinue}
+              className="w-full mt-4"
+            >
+              Continue
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show type-specific questions
+  if (showTypeQuestions) {
+    const currentQuestion = getCurrentQuestion();
+    if (!currentQuestion) return null;
+
+    const totalSteps = getTotalSteps();
+    const currentStepNum = getCurrentStepNumber();
+    const progress = (currentStepNum / totalSteps) * 100;
+
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+        <Card className="w-full max-w-2xl">
+          <CardHeader className="text-center">
+            <div className="mb-4">
+              <Progress value={progress} className="w-full" />
+              <p className="text-sm text-gray-600 mt-2">
+                Question {currentStepNum} of {totalSteps}
+              </p>
+            </div>
+            <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
+              <span className="text-3xl">{currentQuestion.emoji}</span>
+              {currentQuestion.text}
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            {currentQuestion.type === 'single' && (
+              <div className="grid gap-3">
+                {currentQuestion.options.map((option) => (
+                  <Button
+                    key={option}
+                    variant="outline"
+                    className="p-4 text-left justify-start h-auto whitespace-normal"
+                    onClick={() => handleAnswer(option)}
+                  >
+                    {option}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {currentQuestion.type === 'multiple' && (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">Select all that apply:</p>
+                <div className="grid gap-3">
+                  {currentQuestion.options.map((option) => {
+                    const currentResponses = responses[currentQuestion.id] as string[] || [];
+                    const isSelected = currentResponses.includes(option);
+                    
+                    return (
+                      <Button
+                        key={option}
+                        variant={isSelected ? "default" : "outline"}
+                        className="p-4 text-left justify-start h-auto whitespace-normal"
+                        onClick={() => {
+                          const current = responses[currentQuestion.id] as string[] || [];
+                          const updated = isSelected
+                            ? current.filter(item => item !== option)
+                            : [...current, option];
+                          setResponses(prev => ({ ...prev, [currentQuestion.id]: updated }));
+                        }}
+                      >
+                        {option}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Button
+                  onClick={() => handleAnswer(responses[currentQuestion.id] || [])}
+                  disabled={!responses[currentQuestion.id] || (responses[currentQuestion.id] as string[]).length === 0}
+                  className="w-full mt-4"
+                >
+                  Continue
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show first question
   const currentQuestion = getCurrentQuestion();
+  if (!currentQuestion) return null;
+
   const totalSteps = getTotalSteps();
-  const progress = ((currentStep + 1) / totalSteps) * 100;
+  const progress = (1 / totalSteps) * 100;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
@@ -288,7 +516,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           <div className="mb-4">
             <Progress value={progress} className="w-full" />
             <p className="text-sm text-gray-600 mt-2">
-              Question {currentStep + 1} of {totalSteps}
+              Question 1 of {totalSteps}
             </p>
           </div>
           <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
@@ -298,56 +526,18 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {currentQuestion.type === 'single' && (
-            <div className="grid gap-3">
-              {currentQuestion.options.map((option) => (
-                <Button
-                  key={option}
-                  variant="outline"
-                  className="p-4 text-left justify-start h-auto whitespace-normal"
-                  onClick={() => handleAnswer(option)}
-                >
-                  {option}
-                </Button>
-              ))}
-            </div>
-          )}
-
-          {currentQuestion.type === 'multiple' && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">Select all that apply:</p>
-              <div className="grid gap-3">
-                {currentQuestion.options.map((option) => {
-                  const currentResponses = responses[currentQuestion.id] as string[] || [];
-                  const isSelected = currentResponses.includes(option);
-                  
-                  return (
-                    <Button
-                      key={option}
-                      variant={isSelected ? "default" : "outline"}
-                      className="p-4 text-left justify-start h-auto whitespace-normal"
-                      onClick={() => {
-                        const current = responses[currentQuestion.id] as string[] || [];
-                        const updated = isSelected
-                          ? current.filter(item => item !== option)
-                          : [...current, option];
-                        setResponses(prev => ({ ...prev, [currentQuestion.id]: updated }));
-                      }}
-                    >
-                      {option}
-                    </Button>
-                  );
-                })}
-              </div>
+          <div className="grid gap-3">
+            {currentQuestion.options.map((option) => (
               <Button
-                onClick={() => handleAnswer(responses[currentQuestion.id] || [])}
-                disabled={!responses[currentQuestion.id] || (responses[currentQuestion.id] as string[]).length === 0}
-                className="w-full mt-4"
+                key={option}
+                variant="outline"
+                className="p-4 text-left justify-start h-auto whitespace-normal"
+                onClick={() => handleAnswer(option)}
               >
-                Continue
+                {option}
               </Button>
-            </div>
-          )}
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
