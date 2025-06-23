@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Icons } from "@/components/ui/icons";
 
 interface AuthFormProps {
   username: string;
@@ -22,12 +21,10 @@ export const AuthForm = ({
   password,
   isLoading,
   isLoginLoading,
-  loadingProvider,
   onUsernameChange,
   onPasswordChange,
   onSave,
   onLogin,
-  onGoogleLogin,
 }: AuthFormProps) => {
   return (
     <div className="space-y-6 bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-white/40 shadow-2xl">
@@ -45,7 +42,7 @@ export const AuthForm = ({
         <div>
           <Input
             type="password"
-            placeholder="Set Password"
+            placeholder="Password"
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
             className="w-full p-4 rounded-2xl border-2 border-gray-200 focus:border-[#9370DB] outline-none text-lg"
@@ -60,7 +57,7 @@ export const AuthForm = ({
             disabled={isLoading || !username.trim() || !password.trim()}
             className="flex-1 bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white text-xl font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
           >
-            {isLoading ? "Creating Account..." : "Save"}
+            {isLoading ? "Creating Account..." : "Create Account"}
           </Button>
 
           <Button
@@ -72,19 +69,9 @@ export const AuthForm = ({
           </Button>
         </div>
 
-        <div className="text-center text-gray-500">
-          <span>or</span>
+        <div className="text-center text-sm text-gray-500">
+          <p>Simple username and password authentication</p>
         </div>
-
-        <Button
-          onClick={onGoogleLogin}
-          disabled={loadingProvider === 'google'}
-          variant="outline"
-          className="w-full flex items-center justify-center gap-3 text-gray-700 border-2 border-gray-300 hover:bg-gray-50 text-lg font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-        >
-          <Icons.google className="w-6 h-6" />
-          {loadingProvider === 'google' ? "Signing in..." : "Continue with Google"}
-        </Button>
       </div>
     </div>
   );

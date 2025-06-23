@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/components/AuthProvider";
+import { useCustomAuth } from "@/hooks/useCustomAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AvatarCustomization } from "@/components/AvatarCustomization";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user } = useCustomAuth();
   const { toast } = useToast();
   const [profile, setProfile] = useState<any>(null);
   const [username, setUsername] = useState("");
@@ -21,6 +22,37 @@ const Profile = () => {
   useEffect(() => {
     loadProfile();
   }, [user]);
+
+  const loadProfile = async () => {
+    setIsLoading(true);
+    try {
+      if (user) {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select(`username, full_name, avatar_url, companion_name, user_type, created_at, avatar_animal`)
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          setProfile(data);
+          setUsername(data.username || "");
+          setCompanionName(data.companion_name || "");
+        }
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Failed to load profile",
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -62,37 +94,6 @@ const Profile = () => {
       title: "Avatar updated!",
       description: "Your avatar customization has been saved.",
     });
-  };
-
-  const loadProfile = async () => {
-    setIsLoading(true);
-    try {
-      if (user) {
-        const { data, error, status } = await supabase
-          .from("profiles")
-          .select(`username, full_name, avatar_url, companion_name, user_type, created_at, avatar_animal`)
-          .eq("id", user.id)
-          .single();
-
-        if (status === 406) {
-          throw error;
-        }
-
-        if (data) {
-          setProfile(data);
-          setUsername(data.username || "");
-          setCompanionName(data.companion_name || "");
-        }
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Failed to load profile",
-        description: error.message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   if (isLoading) {
@@ -163,8 +164,8 @@ const Profile = () => {
 
               <div className="text-sm text-gray-600">
                 <p><strong>User Type:</strong> {profile?.user_type || 'Not classified'}</p>
-                <p><strong>Email:</strong> {user?.email}</p>
-                <p><strong>Member since:</strong> {new Date(profile?.created_at).toLocaleDateString()}</p>
+                <p><strong>Username:</strong> {user?.username}</p>
+                <p><strong>Member since:</strong> {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}</p>
               </div>
 
               <Button
