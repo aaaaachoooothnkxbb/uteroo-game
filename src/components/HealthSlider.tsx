@@ -69,7 +69,9 @@ export const HealthSlider: React.FC<HealthSliderProps> = ({
   const updateValueTouch = (e: TouchEvent | React.TouchEvent) => {
     if (!sliderRef.current) return;
     
-    const touch = 'touches' in e ? e.touches[0] : e.changedTouches[0];
+    const touch = e.type === 'touchstart' ? (e as React.TouchEvent).touches[0] : (e as TouchEvent).touches?.[0] || (e as TouchEvent).changedTouches?.[0];
+    if (!touch) return;
+    
     const rect = sliderRef.current.getBoundingClientRect();
     const y = touch.clientY - rect.top;
     const percentage = Math.max(0, Math.min(1, 1 - (y / rect.height))); // Invert because top is max

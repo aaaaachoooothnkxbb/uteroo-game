@@ -488,7 +488,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                   })}
                 </div>
                 <Button
-                  onClick={() => handleAnswer(responses[currentQuestion.id] || [])}
+                  onClick={() => handleAnswer(responses[currentQuestion.id] as string[] || [])}
                   disabled={!responses[currentQuestion.id] || (responses[currentQuestion.id] as string[]).length === 0}
                   className="w-full mt-4"
                 >

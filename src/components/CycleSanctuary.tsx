@@ -129,13 +129,8 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
   // Fetch cycle data from Supabase or local storage
   useEffect(() => {
     // For now, we'll use localStorage for demonstration
-    const savedData = localStorage.getItem('cycleData');
     const savedStreak = localStorage.getItem('cycleStreak');
     const firstTimeUser = localStorage.getItem('firstTimeUser');
-    
-    if (savedData) {
-      setCycleData(JSON.parse(savedData));
-    }
     
     if (savedStreak) {
       setStreak(parseInt(savedStreak));
@@ -153,7 +148,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
     const today = new Date();
     setCurrentDate(today);
   }, []);
-  
+
   // Set up a timer to refresh the date at midnight
   useEffect(() => {
     const now = new Date();
