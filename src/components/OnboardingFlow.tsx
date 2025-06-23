@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,7 @@ interface OnboardingFlowProps {
 interface Question {
   id: string;
   text: string;
-  type: 'single' | 'multiple' | 'date';
+  type: 'single' | 'multiple';
   options: string[];
   emoji: string;
 }
