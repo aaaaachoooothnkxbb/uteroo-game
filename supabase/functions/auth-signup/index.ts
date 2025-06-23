@@ -1,11 +1,27 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts"
+import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// Simple password hashing using Web Crypto API
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const passwordBuffer = encoder.encode(password);
+  const saltedPassword = new Uint8Array(passwordBuffer.length + salt.length);
+  saltedPassword.set(passwordBuffer);
+  saltedPassword.set(salt, passwordBuffer.length);
+  
+  const hashBuffer = await crypto.subtle.digest('SHA-256', saltedPassword);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const saltArray = Array.from(salt);
+  
+  return JSON.stringify({ hash: hashArray, salt: saltArray });
 }
 
 serve(async (req) => {
@@ -53,8 +69,7 @@ serve(async (req) => {
     }
 
     // Hash the password
-    const saltRounds = 12
-    const passwordHash = await bcrypt.hash(password, saltRounds)
+    const passwordHash = await hashPassword(password)
 
     // Create the user
     const { data: newUser, error } = await supabase

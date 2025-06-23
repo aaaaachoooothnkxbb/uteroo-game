@@ -1,11 +1,32 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts"
+import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// Password verification using Web Crypto API
+async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
+  try {
+    const { hash, salt } = JSON.parse(storedHash);
+    const encoder = new TextEncoder();
+    const passwordBuffer = encoder.encode(password);
+    const saltBuffer = new Uint8Array(salt);
+    const saltedPassword = new Uint8Array(passwordBuffer.length + saltBuffer.length);
+    saltedPassword.set(passwordBuffer);
+    saltedPassword.set(saltBuffer, passwordBuffer.length);
+    
+    const hashBuffer = await crypto.subtle.digest('SHA-256', saltedPassword);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    
+    return JSON.stringify(hashArray) === JSON.stringify(hash);
+  } catch (error) {
+    console.error('Password verification error:', error);
+    return false;
+  }
 }
 
 serve(async (req) => {
@@ -54,7 +75,7 @@ serve(async (req) => {
     }
 
     // Verify password
-    const passwordMatch = await bcrypt.compare(password, user.password_hash)
+    const passwordMatch = await verifyPassword(password, user.password_hash)
 
     if (!passwordMatch) {
       console.log('Password mismatch for user:', username)
