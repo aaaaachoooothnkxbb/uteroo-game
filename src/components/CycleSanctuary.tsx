@@ -29,6 +29,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCycleTracking } from "@/hooks/useCycleTracking";
 import { getPhaseDescription, getPhaseEmoji, formatCycleDay } from "@/utils/cycleCalculations";
 import { CompanionNaming } from "./CompanionNaming";
+import { AvatarCustomization } from "./AvatarCustomization";
 import { useAuth } from "./AuthProvider";
 
 type CyclePhase = "menstruation" | "follicular" | "ovulatory" | "luteal";
@@ -110,6 +111,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCompanionNaming, setShowCompanionNaming] = useState(false);
+  const [showAvatarCustomization, setShowAvatarCustomization] = useState(false);
   const [companionName, setCompanionName] = useState<string | null>(null);
   const { user } = useAuth();
 
@@ -344,24 +346,51 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
     return isPredicted ? "border-2 border-red-500" : "";
   };
 
-  // Pet Button - Floating button in top right
+  // Pet Button - Handle pet-related flow
   const handlePetButtonClick = () => {
     if (!companionName) {
+      // If no companion name, start with CompanionNaming
       setShowCompanionNaming(true);
     } else {
-      // Future: Show pet interaction menu
-      toast({
-        title: `Hello ${companionName}!`,
-        description: "Pet interactions coming soon!",
-        duration: 3000,
-      });
+      // If companion already named, show avatar customization
+      setShowAvatarCustomization(true);
     }
   };
 
   const handleCompanionNamingComplete = (name: string) => {
     setCompanionName(name);
     setShowCompanionNaming(false);
+    // After naming, show avatar customization
+    setShowAvatarCustomization(true);
   };
+
+  const handleAvatarCustomizationComplete = () => {
+    setShowAvatarCustomization(false);
+    toast({
+      title: `${companionName} is ready!`,
+      description: "Your companion is all set up and ready to help you!",
+      duration: 3000,
+    });
+  };
+
+  // If showing pet-related modals, render them
+  if (showCompanionNaming) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <CompanionNaming 
+          onComplete={handleCompanionNamingComplete}
+        />
+      </div>
+    );
+  }
+
+  if (showAvatarCustomization) {
+    return (
+      <AvatarCustomization 
+        onComplete={handleAvatarCustomizationComplete}
+      />
+    );
+  }
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -377,15 +406,6 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
           </div>
         </Button>
       </div>
-
-      {/* Companion Naming Modal */}
-      {showCompanionNaming && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <CompanionNaming 
-            onComplete={handleCompanionNamingComplete}
-          />
-        </div>
-      )}
 
       {/* Onboarding dialog */}
       <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>

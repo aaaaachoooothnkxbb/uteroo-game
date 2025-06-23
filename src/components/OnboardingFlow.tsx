@@ -229,7 +229,6 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [userType, setUserType] = useState<UserType | null>(null);
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
   const [responses, setResponses] = useState<Record<string, string | string[] | number>>({});
-  const [showAvatarCustomization, setShowAvatarCustomization] = useState(false);
   const [healthQuestionIndex, setHealthQuestionIndex] = useState(0);
   const [showHealthQuestions, setShowHealthQuestions] = useState(false);
   const [showTypeQuestions, setShowTypeQuestions] = useState(false);
@@ -268,16 +267,15 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   };
 
   const getTotalSteps = (): number => {
-    if (currentStep === 0) return 1; // Just the first question initially
-    // 1 (first question) + 3 (health questions) + type questions + 1 (avatar only, no companion naming)
-    return 1 + healthQuestions.length + currentQuestions.length + 1;
+    if (currentStep === 0) return 1;
+    // 1 (first question) + 3 (health questions) + type questions (no avatar customization)
+    return 1 + healthQuestions.length + currentQuestions.length;
   };
 
   const getCurrentStepNumber = (): number => {
     if (currentStep === 0) return 1;
     if (showHealthQuestions) return 1 + healthQuestionIndex + 1;
     if (showTypeQuestions) return 1 + healthQuestions.length + typeQuestionIndex + 1;
-    if (showAvatarCustomization) return 1 + healthQuestions.length + currentQuestions.length + 1;
     return 1;
   };
 
@@ -324,8 +322,8 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       if (typeQuestionIndex < currentQuestions.length - 1) {
         setTypeQuestionIndex(prev => prev + 1);
       } else {
-        setShowTypeQuestions(false);
-        setShowAvatarCustomization(true);
+        // Complete onboarding immediately after questions, no avatar customization
+        handleOnboardingComplete();
       }
     }
   };
@@ -364,7 +362,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   };
 
-  const handleAvatarCustomizationComplete = async () => {
+  const handleOnboardingComplete = async () => {
     if (!user || !userType) return;
     
     const success = await saveQuestionnaire(user.id, userType);
@@ -373,11 +371,6 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   };
 
-  if (showAvatarCustomization) {
-    return <AvatarCustomization onComplete={handleAvatarCustomizationComplete} />;
-  }
-
-  // Show health questions
   if (showHealthQuestions) {
     const currentHealthQuestion = getCurrentHealthQuestion();
     if (!currentHealthQuestion) return null;
