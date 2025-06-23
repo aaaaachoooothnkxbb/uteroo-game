@@ -403,7 +403,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             
             <Button
               onClick={handleHealthContinue}
-              className="w-full mt-4"
+              className="w-full mt-4 rounded-full"
             >
               Continue
             </Button>
@@ -444,7 +444,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                   <Button
                     key={option}
                     variant="outline"
-                    className="p-4 text-left justify-start h-auto whitespace-normal"
+                    className="p-4 text-left justify-start h-auto whitespace-normal rounded-full"
                     onClick={() => handleAnswer(option)}
                   >
                     {option}
@@ -465,7 +465,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                       <Button
                         key={option}
                         variant={isSelected ? "default" : "outline"}
-                        className="p-4 text-left justify-start h-auto whitespace-normal"
+                        className="p-4 text-left justify-start h-auto whitespace-normal rounded-full"
                         onClick={() => {
                           const current = responses[currentQuestion.id] as string[] || [];
                           const updated = isSelected
@@ -482,7 +482,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                 <Button
                   onClick={() => handleAnswer(responses[currentQuestion.id] as string[] || [])}
                   disabled={!responses[currentQuestion.id] || (responses[currentQuestion.id] as string[]).length === 0}
-                  className="w-full mt-4"
+                  className="w-full mt-4 rounded-full"
                 >
                   Continue
                 </Button>
@@ -525,7 +525,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="p-4 text-left justify-start h-auto whitespace-normal"
+                        className="p-4 text-left justify-start h-auto whitespace-normal rounded-full"
                       >
                         {selectedDate ? format(selectedDate, 'PPP') : option}
                       </Button>
@@ -548,7 +548,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                 <Button
                   key={option}
                   variant="outline"
-                  className="p-4 text-left justify-start h-auto whitespace-normal"
+                  className="p-4 text-left justify-start h-auto whitespace-normal rounded-full"
                   onClick={() => handleAnswer(option)}
                 >
                   {option}
