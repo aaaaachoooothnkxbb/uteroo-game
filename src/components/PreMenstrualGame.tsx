@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,34 +77,34 @@ const trueFalseQuestions: TrueFalseQuestion[] = [
 
 const maslowLevels = [
   {
-    level: "Physiological Needs",
-    icon: <Heart className="w-6 h-6 text-red-500" />,
-    description: "Basic body needs: nutritious food, clean water, enough sleep, and proper hygiene",
-    habits: ["Eat balanced meals", "Drink plenty of water", "Get 8-9 hours of sleep", "Practice good hygiene"]
+    level: "Self-Actualization",
+    emoji: "🌟",
+    shortTitle: "Be Your Best Self!",
+    quickTips: ["Follow your dreams", "Help others", "Stay creative"]
   },
   {
-    level: "Safety & Security",
-    icon: <Home className="w-6 h-6 text-orange-500" />,
-    description: "Feeling safe and secure in your environment and relationships",
-    habits: ["Build trust with family", "Learn about your body", "Create safe spaces", "Know who to talk to"]
+    level: "Self-Esteem", 
+    emoji: "🏆",
+    shortTitle: "Feel Confident!",
+    quickTips: ["Celebrate wins", "Practice self-care", "You're amazing!"]
   },
   {
     level: "Love & Belonging",
-    icon: <Users className="w-6 h-6 text-yellow-500" />,
-    description: "Connection with family, friends, and community",
-    habits: ["Share feelings with trusted people", "Join supportive groups", "Maintain friendships", "Express yourself"]
+    emoji: "💕",
+    shortTitle: "Connect & Share!",
+    quickTips: ["Talk to friends", "Join groups", "Express feelings"]
   },
   {
-    level: "Self-Esteem",
-    icon: <Trophy className="w-6 h-6 text-green-500" />,
-    description: "Confidence in yourself and your abilities",
-    habits: ["Celebrate small wins", "Practice self-care", "Learn new skills", "Accept compliments"]
+    level: "Safety & Security",
+    emoji: "🏠",
+    shortTitle: "Feel Safe!",
+    quickTips: ["Trust your family", "Learn about your body", "Ask questions"]
   },
   {
-    level: "Self-Actualization",
-    icon: <Brain className="w-6 h-6 text-blue-500" />,
-    description: "Becoming your best self and reaching your potential",
-    habits: ["Set personal goals", "Help others", "Be creative", "Stay curious and keep learning"]
+    level: "Basic Needs",
+    emoji: "❤️",
+    shortTitle: "Take Care of Your Body!",
+    quickTips: ["Eat well", "Sleep 8+ hours", "Stay clean", "Drink water"]
   }
 ];
 
@@ -197,41 +196,53 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
         <Card className="w-full max-w-4xl">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-purple-600 mb-2">
-              🏔️ Your Wellness Pyramid 🏔️
+              🏔️ Your Wellness Pyramid! 🏔️
             </CardTitle>
             <p className="text-gray-700">
-              Just like building a pyramid, we build our health step by step, starting with the basics!
+              Build your health like a pyramid - start with the basics and reach for the stars! ✨
             </p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              {maslowLevels.map((level, index) => (
-                <div key={index} className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-gradient-to-b from-pink-400 to-purple-400">
-                  <div className="flex items-start gap-3">
-                    {level.icon}
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg text-gray-800">{level.level}</h3>
-                      <p className="text-gray-600 mb-3">{level.description}</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {level.habits.map((habit, habitIndex) => (
-                          <div key={habitIndex} className="flex items-center gap-2 text-sm text-gray-700">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            {habit}
-                          </div>
-                        ))}
-                      </div>
+          <CardContent className="space-y-6">
+            {/* Pyramid Structure */}
+            <div className="flex flex-col items-center space-y-2">
+              {maslowLevels.map((level, index) => {
+                const pyramidWidths = ['w-32', 'w-40', 'w-48', 'w-56', 'w-64'];
+                const colors = [
+                  'bg-gradient-to-r from-purple-200 to-indigo-200 border-purple-300',
+                  'bg-gradient-to-r from-blue-200 to-purple-200 border-blue-300', 
+                  'bg-gradient-to-r from-green-200 to-blue-200 border-green-300',
+                  'bg-gradient-to-r from-yellow-200 to-green-200 border-yellow-300',
+                  'bg-gradient-to-r from-pink-200 to-yellow-200 border-pink-300'
+                ];
+                
+                return (
+                  <div 
+                    key={index} 
+                    className={`${pyramidWidths[index]} ${colors[index]} border-2 rounded-lg p-3 text-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105`}
+                  >
+                    <div className="text-2xl mb-1">{level.emoji}</div>
+                    <h3 className="font-bold text-sm text-gray-800 mb-2">{level.shortTitle}</h3>
+                    <div className="space-y-1">
+                      {level.quickTips.map((tip, tipIndex) => (
+                        <div key={tipIndex} className="text-xs text-gray-700 flex items-center justify-center gap-1">
+                          <span className="text-green-500">✓</span>
+                          {tip}
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
-            <div className="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-lg mt-6">
-              <h3 className="font-semibold text-lg text-gray-800 mb-2">Remember:</h3>
-              <p className="text-gray-700">
-                Building these habits takes time, and that's perfectly okay! Every small step counts toward feeling your best. 
-                Starting with the basics (like good food and sleep) makes everything else easier! 💪
+
+            <div className="bg-gradient-to-r from-pink-100 to-purple-100 p-4 rounded-lg mt-6 text-center">
+              <h3 className="font-semibold text-lg text-gray-800 mb-2">💡 Quick Tip!</h3>
+              <p className="text-gray-700 text-sm">
+                Start with the bottom (pink) and work your way up! 
+                When you take care of your basic needs, everything else gets easier! 💪✨
               </p>
             </div>
+
             <Button 
               onClick={() => setCurrentScreen('game')}
               className="w-full text-lg py-6 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
