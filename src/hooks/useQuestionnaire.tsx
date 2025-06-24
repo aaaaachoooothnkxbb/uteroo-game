@@ -18,11 +18,12 @@ export const useQuestionnaire = () => {
   const { toast } = useToast();
 
   const classifyUserType = (firstQuestionAnswer: string): UserType => {
-    if (firstQuestionAnswer === "I'm on it right now" || 
-        firstQuestionAnswer === "Tap to select" || 
-        firstQuestionAnswer === "I don't remember") {
+    if (firstQuestionAnswer.includes("I'm on it right now") || 
+        firstQuestionAnswer.includes("Select date") || 
+        firstQuestionAnswer.includes("I don't remember") ||
+        firstQuestionAnswer.startsWith("Period started on")) {
       return 'MENSTRUAL';
-    } else if (firstQuestionAnswer === "I haven't gotten my period yet") {
+    } else if (firstQuestionAnswer.includes("I haven't gotten my period yet")) {
       return 'PRE_PERIOD';
     } else {
       return 'POST_MENSTRUAL';
@@ -30,6 +31,8 @@ export const useQuestionnaire = () => {
   };
 
   const addResponse = (response: QuestionnaireResponse) => {
+    console.log('Adding questionnaire response:', response);
+    
     setResponses(prev => {
       const filtered = prev.filter(r => r.questionId !== response.questionId);
       return [...filtered, response];
@@ -38,12 +41,16 @@ export const useQuestionnaire = () => {
     // Classify user type based on first question
     if (response.questionId === 'period_status') {
       const type = classifyUserType(response.answerValue);
+      console.log('Classified user type:', type);
       setUserType(type);
     }
   };
 
   const saveQuestionnaire = async (userId: string, completedUserType: UserType) => {
     try {
+      console.log('Saving questionnaire for user:', userId, 'with type:', completedUserType);
+      console.log('Responses to save:', responses);
+
       // Calculate next questionnaire due date (10 days from now)
       const now = new Date();
       const dueDate = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)); // 10 days
@@ -59,6 +66,8 @@ export const useQuestionnaire = () => {
         questionnaire_type: 'onboarding'
       }));
 
+      console.log('Inserting questionnaire responses:', responseInserts);
+
       const { error: responsesError } = await supabase
         .from('questionnaire_responses')
         .insert(responseInserts);
@@ -67,6 +76,8 @@ export const useQuestionnaire = () => {
         console.error('Error saving questionnaire responses:', responsesError);
         throw responsesError;
       }
+
+      console.log('Successfully saved questionnaire responses');
 
       // Save/update user type in user_types table
       const { error: userTypeError } = await supabase
@@ -84,6 +95,8 @@ export const useQuestionnaire = () => {
         throw userTypeError;
       }
 
+      console.log('Successfully saved user type');
+
       // Update profile with questionnaire completion data including health data
       const questionnaire_answers = responses.reduce((acc, response) => {
         acc[response.questionId] = response.answerValue;
@@ -96,6 +109,8 @@ export const useQuestionnaire = () => {
         exercise: responses.find(r => r.questionId === 'exercise')?.answerValue || '0',
         nutrition: responses.find(r => r.questionId === 'nutrition')?.answerValue || '1'
       };
+
+      console.log('Updating profile with questionnaire data');
 
       const { error: profileError } = await supabase
         .from('profiles')
@@ -115,6 +130,8 @@ export const useQuestionnaire = () => {
         console.error('Error updating profile:', profileError);
         throw profileError;
       }
+
+      console.log('Successfully updated profile');
 
       toast({
         title: "Questionnaire completed!",
