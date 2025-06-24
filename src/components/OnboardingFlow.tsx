@@ -11,6 +11,7 @@ import { CompanionNaming } from "./CompanionNaming";
 import { AvatarCustomization } from "./AvatarCustomization";
 import { HealthSlider } from "./HealthSlider";
 import { PreMenstrualGame } from "./PreMenstrualGame";
+import { PostMenstrualGame } from "./PostMenstrualGame";
 import { useAuth } from "./AuthProvider";
 import { useQuestionnaire, UserType, QuestionnaireResponse } from '@/hooks/useQuestionnaire';
 import { useCustomAuth } from '@/hooks/useCustomAuth';
@@ -236,6 +237,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [showHealthQuestions, setShowHealthQuestions] = useState(false);
   const [showTypeQuestions, setShowTypeQuestions] = useState(false);
   const [showPreMenstrualGame, setShowPreMenstrualGame] = useState(false);
+  const [showPostMenstrualGame, setShowPostMenstrualGame] = useState(false);
   const [typeQuestionIndex, setTypeQuestionIndex] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -323,10 +325,13 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       if (typeQuestionIndex < currentQuestions.length - 1) {
         setTypeQuestionIndex(prev => prev + 1);
       } else {
-        // Check if user is pre-menstrual to show the game
+        // Check user type to show appropriate game
         if (userType === 'PRE_PERIOD') {
           setShowTypeQuestions(false);
           setShowPreMenstrualGame(true);
+        } else if (userType === 'POST_MENSTRUAL') {
+          setShowTypeQuestions(false);
+          setShowPostMenstrualGame(true);
         } else {
           handleOnboardingComplete();
         }
@@ -373,6 +378,11 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     handleOnboardingComplete();
   };
 
+  const handlePostMenstrualGameComplete = () => {
+    setShowPostMenstrualGame(false);
+    handleOnboardingComplete();
+  };
+
   const handleOnboardingComplete = async () => {
     if (!user || !userType) return;
     
@@ -389,6 +399,11 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   // Show Pre-Menstrual Game for PRE_PERIOD users
   if (showPreMenstrualGame) {
     return <PreMenstrualGame onComplete={handlePreMenstrualGameComplete} />;
+  }
+
+  // Show Post-Menstrual Game for POST_MENSTRUAL users
+  if (showPostMenstrualGame) {
+    return <PostMenstrualGame onComplete={handlePostMenstrualGameComplete} />;
   }
 
   if (showHealthQuestions) {
