@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -182,7 +183,7 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
             </div>
             <Button 
               onClick={() => setCurrentScreen('maslow')}
-              className="w-full text-lg py-6 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+              className="w-full text-lg py-6 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 rounded-full"
             >
               Let's Start Learning! ✨
             </Button>
@@ -277,7 +278,7 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
 
             <Button 
               onClick={() => setCurrentScreen('game')}
-              className="w-full text-base py-4 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+              className="w-full text-base py-4 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 rounded-full"
             >
               Ready for the True/False Game! 🎮
             </Button>
@@ -414,7 +415,7 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
 
             <Button 
               onClick={onComplete}
-              className="w-full text-lg py-6 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+              className="w-full text-lg py-6 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 rounded-full"
             >
               Continue to Your Uteroo Journey! ✨
             </Button>
