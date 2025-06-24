@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -193,20 +194,20 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
   if (currentScreen === 'maslow') {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
-        <Card className="w-full max-w-4xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-purple-600 mb-2">
+        <Card className="w-full max-w-3xl">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-xl font-bold text-purple-600 mb-1">
               🏔️ Your Wellness Pyramid! 🏔️
             </CardTitle>
-            <p className="text-gray-700">
+            <p className="text-sm text-gray-700">
               Build your health like a pyramid - start with the basics and reach for the stars! ✨
             </p>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-3">
             {/* Pyramid Structure */}
-            <div className="flex flex-col items-center space-y-2">
+            <div className="flex flex-col items-center space-y-1">
               {maslowLevels.map((level, index) => {
-                const pyramidWidths = ['w-32', 'w-40', 'w-48', 'w-56', 'w-64'];
+                const pyramidWidths = ['w-24', 'w-32', 'w-40', 'w-48', 'w-56'];
                 const colors = [
                   'bg-gradient-to-r from-purple-200 to-indigo-200 border-purple-300',
                   'bg-gradient-to-r from-blue-200 to-purple-200 border-blue-300', 
@@ -218,15 +219,15 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
                 return (
                   <div 
                     key={index} 
-                    className={`${pyramidWidths[index]} ${colors[index]} border-2 rounded-lg p-3 text-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105`}
+                    className={`${pyramidWidths[index]} ${colors[index]} border-2 rounded-lg p-2 text-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105`}
                   >
-                    <div className="text-2xl mb-1">{level.emoji}</div>
-                    <h3 className="font-bold text-sm text-gray-800 mb-2">{level.shortTitle}</h3>
-                    <div className="space-y-1">
+                    <div className="text-lg mb-1">{level.emoji}</div>
+                    <h3 className="font-bold text-xs text-gray-800 mb-1">{level.shortTitle}</h3>
+                    <div className="space-y-0.5">
                       {level.quickTips.map((tip, tipIndex) => (
                         <div key={tipIndex} className="text-xs text-gray-700 flex items-center justify-center gap-1">
-                          <span className="text-green-500">✓</span>
-                          {tip}
+                          <span className="text-green-500 text-xs">✓</span>
+                          <span className="text-xs">{tip}</span>
                         </div>
                       ))}
                     </div>
@@ -235,9 +236,9 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
               })}
             </div>
 
-            <div className="bg-gradient-to-r from-pink-100 to-purple-100 p-4 rounded-lg mt-6 text-center">
-              <h3 className="font-semibold text-lg text-gray-800 mb-2">💡 Quick Tip!</h3>
-              <p className="text-gray-700 text-sm">
+            <div className="bg-gradient-to-r from-pink-100 to-purple-100 p-3 rounded-lg mt-4 text-center">
+              <h3 className="font-semibold text-sm text-gray-800 mb-1">💡 Quick Tip!</h3>
+              <p className="text-gray-700 text-xs">
                 Start with the bottom (pink) and work your way up! 
                 When you take care of your basic needs, everything else gets easier! 💪✨
               </p>
@@ -245,7 +246,7 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
 
             <Button 
               onClick={() => setCurrentScreen('game')}
-              className="w-full text-lg py-6 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+              className="w-full text-base py-4 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
             >
               Ready for the True/False Game! 🎮
             </Button>
