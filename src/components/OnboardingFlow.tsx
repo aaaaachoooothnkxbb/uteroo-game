@@ -225,6 +225,105 @@ const postMenstrualQuestions: Question[] = [
   }
 ];
 
+// Menstrual Game Component (the original game)
+const MenstrualGame = ({ onComplete }: { onComplete: () => void }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-red-50 to-pink-200 flex flex-col items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-pink-800">
+            🩸 Menstrual Phase
+          </CardTitle>
+          <p className="text-pink-600">Day 2/7</p>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {/* Progress bar */}
+          <div className="w-full bg-pink-200 rounded-full h-2">
+            <div className="bg-pink-500 h-2 rounded-full w-1/4"></div>
+          </div>
+          
+          {/* Next phase info */}
+          <div className="text-center text-sm text-gray-600">
+            Next: FOLLICULAR in 5d
+          </div>
+          
+          {/* Stats */}
+          <div className="flex justify-between text-sm">
+            <span>❤️ 0</span>
+            <span>💰 200</span>
+            <span>⭐ 0d</span>
+          </div>
+          
+          {/* Uterus Character */}
+          <div className="flex justify-center my-8">
+            <div className="relative">
+              {/* Main uterus body */}
+              <div className="w-32 h-32 bg-pink-400 rounded-full relative">
+                {/* Eyes */}
+                <div className="absolute top-8 left-6 w-8 h-8 bg-white rounded-full">
+                  <div className="absolute top-2 left-2 w-4 h-4 bg-black rounded-full"></div>
+                </div>
+                <div className="absolute top-8 right-6 w-8 h-8 bg-white rounded-full">
+                  <div className="absolute top-2 left-2 w-4 h-4 bg-black rounded-full"></div>
+                </div>
+                
+                {/* Fallopian tubes */}
+                <div className="absolute -top-4 -left-8 w-16 h-8 bg-pink-400 rounded-full transform -rotate-45"></div>
+                <div className="absolute -top-4 -right-8 w-16 h-8 bg-pink-400 rounded-full transform rotate-45"></div>
+                
+                {/* Bottom opening */}
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-8 bg-pink-500 rounded-b-full"></div>
+              </div>
+              
+              {/* Decorative elements */}
+              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
+                <div className="w-6 h-6 bg-red-400 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Phase message */}
+          <div className="bg-pink-50 rounded-lg p-4 text-center">
+            <p className="text-pink-800 font-medium">
+              🌸 Gentle movement reduces cramps!
+            </p>
+          </div>
+          
+          {/* Boosters section */}
+          <div>
+            <h3 className="font-bold mb-4">Boosters</h3>
+            <div className="text-right text-sm text-gray-500 mb-2">Tap to use</div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-2xl mb-2">📚</div>
+                <span className="text-xs">Reading Time</span>
+              </div>
+              <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-2xl mb-2">📝</div>
+                <span className="text-xs">Daily Journaling</span>
+              </div>
+            </div>
+            <div className="flex justify-center mt-4">
+              <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-2xl mb-2">🎵</div>
+                <span className="text-xs">Affirmation Playlist</span>
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={onComplete}
+            className="w-full bg-pink-500 hover:bg-pink-600 text-white rounded-full"
+          >
+            Continue Journey
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const { user } = useAuth();
   const { logout } = useCustomAuth();
@@ -238,6 +337,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [showTypeQuestions, setShowTypeQuestions] = useState(false);
   const [showPreMenstrualGame, setShowPreMenstrualGame] = useState(false);
   const [showPostMenstrualGame, setShowPostMenstrualGame] = useState(false);
+  const [showMenstrualGame, setShowMenstrualGame] = useState(false);
   const [typeQuestionIndex, setTypeQuestionIndex] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -322,6 +422,14 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       setCurrentStep(1);
       setShowHealthQuestions(true);
     } else if (showTypeQuestions) {
+      // Check if this is a menstrual user answering the "annoying symptom" question
+      if (userType === 'MENSTRUAL' && currentQuestion.id === 'annoying_symptom') {
+        // Any symptom selection should take them to the menstrual game
+        setShowTypeQuestions(false);
+        setShowMenstrualGame(true);
+        return;
+      }
+
       if (typeQuestionIndex < currentQuestions.length - 1) {
         setTypeQuestionIndex(prev => prev + 1);
       } else {
@@ -373,6 +481,11 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   };
 
+  const handleMenstrualGameComplete = () => {
+    setShowMenstrualGame(false);
+    handleOnboardingComplete();
+  };
+
   const handlePreMenstrualGameComplete = () => {
     setShowPreMenstrualGame(false);
     handleOnboardingComplete();
@@ -395,6 +508,11 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const handleLogout = () => {
     logout();
   };
+
+  // Show Menstrual Game for MENSTRUAL users who selected symptoms
+  if (showMenstrualGame) {
+    return <MenstrualGame onComplete={handleMenstrualGameComplete} />;
+  }
 
   // Show Pre-Menstrual Game for PRE_PERIOD users
   if (showPreMenstrualGame) {
