@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Heart, Brain, Users, Home, Trophy, Lightbulb } from "lucide-react";
+import { CheckCircle, XCircle, Heart, Brain, Users, Home, Trophy, Lightbulb, ArrowLeft } from "lucide-react";
 
 interface PreMenstrualGameProps {
   onComplete: () => void;
@@ -110,14 +109,13 @@ const maslowLevels = [
 ];
 
 export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
-  const [currentScreen, setCurrentScreen] = useState<'intro' | 'maslow' | 'game' | 'results'>('intro');
+  const [currentScreen, setCurrentScreen] = useState<'intro' | 'maslow' | 'why-explanation' | 'game' | 'results'>('intro');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<boolean | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [answeredQuestions, setAnsweredQuestions] = useState<string[]>([]);
   const [expandedLevel, setExpandedLevel] = useState<number | null>(null);
-  const [showWhyExplanation, setShowWhyExplanation] = useState(false);
 
   const currentQuestion = trueFalseQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / trueFalseQuestions.length) * 100;
@@ -247,27 +245,13 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
             {/* Why Button */}
             <div className="flex justify-center mt-4">
               <Button
-                onClick={() => setShowWhyExplanation(!showWhyExplanation)}
+                onClick={() => setCurrentScreen('why-explanation')}
                 variant="outline"
                 className="bg-white hover:bg-pink-50 border-pink-300 text-pink-600 font-semibold"
               >
                 Why? 🤔
               </Button>
             </div>
-
-            {/* Why Explanation */}
-            {showWhyExplanation && (
-              <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg mt-3 text-center border border-pink-200 animate-fade-in">
-                <div className="text-2xl mb-2">👧</div>
-                <h3 className="font-semibold text-sm text-gray-800 mb-2">Hey girl! Here's the secret:</h3>
-                <p className="text-gray-700 text-xs leading-relaxed">
-                  You're like a beautiful system - just like plants, animals, and all living things! 🌱 
-                  When you take care of your basic needs first (like eating well and sleeping), 
-                  everything else becomes easier - your mood, confidence, and dreams all grow stronger! 
-                  It's like building from the inside out, making you unstoppable! 💪✨
-                </p>
-              </div>
-            )}
 
             <div className="bg-gradient-to-r from-pink-100 to-purple-100 p-3 rounded-lg mt-4 text-center">
               <h3 className="font-semibold text-sm text-gray-800 mb-1">💡 Quick Tip!</h3>
@@ -281,6 +265,97 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
               className="w-full text-base py-4 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 rounded-full"
             >
               Ready for the True/False Game! 🎮
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (currentScreen === 'why-explanation') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+        <Card className="w-full max-w-3xl">
+          <CardHeader className="text-center">
+            <Button
+              onClick={() => setCurrentScreen('maslow')}
+              variant="ghost"
+              className="absolute left-4 top-4 text-pink-600 hover:text-pink-700"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back
+            </Button>
+            <CardTitle className="text-2xl font-bold text-pink-600 mb-4">
+              🤔 Why This Pyramid Matters
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg border border-pink-200">
+              <div className="text-4xl mb-4 text-center">👧</div>
+              <h3 className="font-semibold text-lg text-gray-800 mb-4 text-center">Hey girl! Here's the secret:</h3>
+              <p className="text-gray-700 text-base leading-relaxed text-center">
+                You're like a beautiful system - just like plants, animals, and all living things! 🌱 
+                When you take care of your basic needs first (like eating well and sleeping), 
+                everything else becomes easier - your mood, confidence, and dreams all grow stronger! 
+                It's like building from the inside out, making you unstoppable! 💪✨
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="font-semibold text-lg text-gray-800 mb-4">Here's how it works:</h3>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <Heart className="w-6 h-6 text-pink-500 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-pink-600">Start with your body</h4>
+                    <p className="text-sm text-gray-600">Good food, water, sleep, and hygiene make everything else possible</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Home className="w-6 h-6 text-yellow-500 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-yellow-600">Feel safe and secure</h4>
+                    <p className="text-sm text-gray-600">Trust your family, learn about changes, ask questions freely</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Users className="w-6 h-6 text-green-500 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-green-600">Connect with others</h4>
+                    <p className="text-sm text-gray-600">Share feelings, make friends, feel like you belong</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Trophy className="w-6 h-6 text-blue-500 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-blue-600">Build confidence</h4>
+                    <p className="text-sm text-gray-600">Celebrate wins, practice self-care, know you're amazing</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Lightbulb className="w-6 h-6 text-purple-500 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-purple-600">Be your best self</h4>
+                    <p className="text-sm text-gray-600">Follow dreams, help others, stay creative and growing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-lg border border-green-200">
+              <h3 className="font-semibold text-lg text-green-700 mb-3 text-center">🌟 The Amazing Result</h3>
+              <p className="text-green-700 text-center">
+                When you build your wellness pyramid this way, periods and growing up become just another 
+                part of your amazing journey - not something scary, but something you're totally prepared for! 
+                You've got this! 💪✨
+              </p>
+            </div>
+
+            <Button 
+              onClick={() => setCurrentScreen('maslow')}
+              className="w-full text-lg py-6 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 rounded-full"
+            >
+              Got it! Back to My Pyramid ✨
             </Button>
           </CardContent>
         </Card>
