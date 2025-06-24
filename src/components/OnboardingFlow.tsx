@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { CompanionNaming } from "./CompanionNaming";
 import { AvatarCustomization } from "./AvatarCustomization";
 import { HealthSlider } from "./HealthSlider";
+import { PreMenstrualGame } from "./PreMenstrualGame";
 import { useAuth } from "./AuthProvider";
 import { useQuestionnaire, UserType, QuestionnaireResponse } from '@/hooks/useQuestionnaire';
 import { useCustomAuth } from '@/hooks/useCustomAuth';
@@ -234,6 +235,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [healthQuestionIndex, setHealthQuestionIndex] = useState(0);
   const [showHealthQuestions, setShowHealthQuestions] = useState(false);
   const [showTypeQuestions, setShowTypeQuestions] = useState(false);
+  const [showPreMenstrualGame, setShowPreMenstrualGame] = useState(false);
   const [typeQuestionIndex, setTypeQuestionIndex] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -321,7 +323,13 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       if (typeQuestionIndex < currentQuestions.length - 1) {
         setTypeQuestionIndex(prev => prev + 1);
       } else {
-        handleOnboardingComplete();
+        // Check if user is pre-menstrual to show the game
+        if (userType === 'PRE_PERIOD') {
+          setShowTypeQuestions(false);
+          setShowPreMenstrualGame(true);
+        } else {
+          handleOnboardingComplete();
+        }
       }
     }
   };
@@ -360,6 +368,11 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   };
 
+  const handlePreMenstrualGameComplete = () => {
+    setShowPreMenstrualGame(false);
+    handleOnboardingComplete();
+  };
+
   const handleOnboardingComplete = async () => {
     if (!user || !userType) return;
     
@@ -372,6 +385,11 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const handleLogout = () => {
     logout();
   };
+
+  // Show Pre-Menstrual Game for PRE_PERIOD users
+  if (showPreMenstrualGame) {
+    return <PreMenstrualGame onComplete={handlePreMenstrualGameComplete} />;
+  }
 
   if (showHealthQuestions) {
     const currentHealthQuestion = getCurrentHealthQuestion();
