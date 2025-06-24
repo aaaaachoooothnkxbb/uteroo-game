@@ -291,7 +291,7 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg border border-pink-200">
-              <div className="text-4xl mb-4 text-center">🧍‍♀️</div>
+              <div className="text-8xl mb-4 text-center">🧍‍♀️</div>
               <h3 className="font-semibold text-lg text-gray-800 mb-4 text-center">Hey girl! Here's the secret:</h3>
               <p className="text-gray-700 text-base leading-relaxed text-center">
                 You're like a beautiful system - just like plants, animals, and all living things! 🌱 
