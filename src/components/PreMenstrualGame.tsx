@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -116,6 +115,7 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [answeredQuestions, setAnsweredQuestions] = useState<string[]>([]);
+  const [expandedLevel, setExpandedLevel] = useState<number | null>(null);
 
   const currentQuestion = trueFalseQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / trueFalseQuestions.length) * 100;
@@ -219,17 +219,23 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
                 return (
                   <div 
                     key={index} 
-                    className={`${pyramidWidths[index]} ${colors[index]} border-2 rounded-lg p-2 text-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105`}
+                    className={`${pyramidWidths[index]} ${colors[index]} border-2 rounded-lg text-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer`}
+                    onClick={() => setExpandedLevel(expandedLevel === index ? null : index)}
                   >
-                    <div className="text-lg mb-1">{level.emoji}</div>
-                    <h3 className="font-bold text-xs text-gray-800 mb-1">{level.shortTitle}</h3>
-                    <div className="space-y-0.5">
-                      {level.quickTips.map((tip, tipIndex) => (
-                        <div key={tipIndex} className="text-xs text-gray-700 flex items-center justify-center gap-1">
-                          <span className="text-green-500 text-xs">✓</span>
-                          <span className="text-xs">{tip}</span>
+                    <div className="p-2">
+                      <div className="text-lg mb-1">{level.emoji}</div>
+                      <h3 className="font-bold text-xs text-gray-800">{level.shortTitle}</h3>
+                      
+                      {expandedLevel === index && (
+                        <div className="space-y-0.5 mt-2 animate-fade-in">
+                          {level.quickTips.map((tip, tipIndex) => (
+                            <div key={tipIndex} className="text-xs text-gray-700 flex items-center justify-center gap-1">
+                              <span className="text-green-500 text-xs">✓</span>
+                              <span className="text-xs">{tip}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 );
@@ -239,8 +245,7 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
             <div className="bg-gradient-to-r from-pink-100 to-purple-100 p-3 rounded-lg mt-4 text-center">
               <h3 className="font-semibold text-sm text-gray-800 mb-1">💡 Quick Tip!</h3>
               <p className="text-gray-700 text-xs">
-                Start with the bottom (pink) and work your way up! 
-                When you take care of your basic needs, everything else gets easier! 💪✨
+                Click on each level to see the tips! Start with the bottom (pink) and work your way up! 💪✨
               </p>
             </div>
 
