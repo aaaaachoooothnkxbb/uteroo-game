@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { LogOut } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CompanionNaming } from "./CompanionNaming";
@@ -11,6 +12,7 @@ import { AvatarCustomization } from "./AvatarCustomization";
 import { HealthSlider } from "./HealthSlider";
 import { useAuth } from "./AuthProvider";
 import { useQuestionnaire, UserType, QuestionnaireResponse } from '@/hooks/useQuestionnaire';
+import { useCustomAuth } from '@/hooks/useCustomAuth';
 
 interface OnboardingFlowProps {
   onComplete: () => void;
@@ -223,6 +225,7 @@ const postMenstrualQuestions: Question[] = [
 
 export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const { user } = useAuth();
+  const { logout } = useCustomAuth();
   const { addResponse, saveQuestionnaire } = useQuestionnaire();
   const [currentStep, setCurrentStep] = useState(0);
   const [userType, setUserType] = useState<UserType | null>(null);
@@ -366,6 +369,10 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+  };
+
   if (showHealthQuestions) {
     const currentHealthQuestion = getCurrentHealthQuestion();
     if (!currentHealthQuestion) return null;
@@ -378,11 +385,21 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
         <Card className="w-full max-w-2xl">
           <CardHeader className="text-center">
-            <div className="mb-4">
-              <Progress value={progress} className="w-full" />
-              <p className="text-sm text-gray-600 mt-2">
-                Question {currentStepNum} of {totalSteps}
-              </p>
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1">
+                <Progress value={progress} className="w-full" />
+                <p className="text-sm text-gray-600 mt-2">
+                  Question {currentStepNum} of {totalSteps}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="ml-4 text-gray-500 hover:text-gray-700"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
             <CardTitle className="text-2xl font-bold">
               Health Check-In
@@ -425,11 +442,21 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
         <Card className="w-full max-w-2xl">
           <CardHeader className="text-center">
-            <div className="mb-4">
-              <Progress value={progress} className="w-full" />
-              <p className="text-sm text-gray-600 mt-2">
-                Question {currentStepNum} of {totalSteps}
-              </p>
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1">
+                <Progress value={progress} className="w-full" />
+                <p className="text-sm text-gray-600 mt-2">
+                  Question {currentStepNum} of {totalSteps}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="ml-4 text-gray-500 hover:text-gray-700"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
             <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
               <span className="text-3xl">{currentQuestion.emoji}</span>
@@ -504,11 +531,21 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
-          <div className="mb-4">
-            <Progress value={progress} className="w-full" />
-            <p className="text-sm text-gray-600 mt-2">
-              Question 1 of {totalSteps}
-            </p>
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1">
+              <Progress value={progress} className="w-full" />
+              <p className="text-sm text-gray-600 mt-2">
+                Question 1 of {totalSteps}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="ml-4 text-gray-500 hover:text-gray-700"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
           <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
             <span className="text-3xl">{currentQuestion.emoji}</span>
