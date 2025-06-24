@@ -116,6 +116,7 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
   const [score, setScore] = useState(0);
   const [answeredQuestions, setAnsweredQuestions] = useState<string[]>([]);
   const [expandedLevel, setExpandedLevel] = useState<number | null>(null);
+  const [showWhyExplanation, setShowWhyExplanation] = useState(false);
 
   const currentQuestion = trueFalseQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / trueFalseQuestions.length) * 100;
@@ -241,6 +242,31 @@ export const PreMenstrualGame = ({ onComplete }: PreMenstrualGameProps) => {
                 );
               })}
             </div>
+
+            {/* Why Button */}
+            <div className="flex justify-center mt-4">
+              <Button
+                onClick={() => setShowWhyExplanation(!showWhyExplanation)}
+                variant="outline"
+                className="bg-white hover:bg-pink-50 border-pink-300 text-pink-600 font-semibold"
+              >
+                Why? 🤔
+              </Button>
+            </div>
+
+            {/* Why Explanation */}
+            {showWhyExplanation && (
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg mt-3 text-center border border-pink-200 animate-fade-in">
+                <div className="text-2xl mb-2">👧</div>
+                <h3 className="font-semibold text-sm text-gray-800 mb-2">Hey girl! Here's the secret:</h3>
+                <p className="text-gray-700 text-xs leading-relaxed">
+                  You're like a beautiful system - just like plants, animals, and all living things! 🌱 
+                  When you take care of your basic needs first (like eating well and sleeping), 
+                  everything else becomes easier - your mood, confidence, and dreams all grow stronger! 
+                  It's like building from the inside out, making you unstoppable! 💪✨
+                </p>
+              </div>
+            )}
 
             <div className="bg-gradient-to-r from-pink-100 to-purple-100 p-3 rounded-lg mt-4 text-center">
               <h3 className="font-semibold text-sm text-gray-800 mb-1">💡 Quick Tip!</h3>
