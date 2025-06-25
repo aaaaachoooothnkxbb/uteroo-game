@@ -1,4 +1,5 @@
 
+
 export const AuthHeader = () => {
   return (
     <div className="flex flex-col items-center space-y-4">
@@ -7,7 +8,7 @@ export const AuthHeader = () => {
         <img 
           src="/lovable-uploads/6d9ab694-126c-44a1-9920-f40be00112b1.png"
           alt="Uteroo Character"
-          className="w-[200px] h-[200px] object-contain drop-shadow-2xl relative z-10"
+          className="w-[300px] h-[300px] object-contain drop-shadow-2xl relative z-10"
         />
       </div>
       
@@ -22,3 +23,4 @@ export const AuthHeader = () => {
     </div>
   );
 };
+
