@@ -1195,7 +1195,6 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [userType, setUserType] = useState<UserType | null>(null);
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
   const [responses, setResponses] = useState<Record<string, string | string[] | number>>({});
-  const [healthQuestionIndex, setHealthQuestionIndex] = useState(0);
   const [showHealthQuestions, setShowHealthQuestions] = useState(false);
   const [showTypeQuestions, setShowTypeQuestions] = useState(false);
   const [showPreMenstrualGame, setShowPreMenstrualGame] = useState(false);
@@ -1228,22 +1227,15 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     return null;
   };
 
-  const getCurrentHealthQuestion = (): HealthQuestion | null => {
-    if (showHealthQuestions && healthQuestionIndex < healthQuestions.length) {
-      return healthQuestions[healthQuestionIndex];
-    }
-    return null;
-  };
-
   const getTotalSteps = (): number => {
     if (currentStep === 0) return 1;
-    return 1 + healthQuestions.length + currentQuestions.length;
+    return 1 + 1 + currentQuestions.length; // First question + combined health questions + type questions
   };
 
   const getCurrentStepNumber = (): number => {
     if (currentStep === 0) return 1;
-    if (showHealthQuestions) return 1 + healthQuestionIndex + 1;
-    if (showTypeQuestions) return 1 + healthQuestions.length + typeQuestionIndex + 1;
+    if (showHealthQuestions) return 2; // Health questions are now step 2
+    if (showTypeQuestions) return 2 + typeQuestionIndex + 1; // Type questions start from step 3
     return 1;
   };
 
@@ -1333,12 +1325,18 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   };
 
   const handleHealthContinue = () => {
-    if (healthQuestionIndex < healthQuestions.length - 1) {
-      setHealthQuestionIndex(prev => prev + 1);
-    } else {
-      setShowHealthQuestions(false);
-      setShowTypeQuestions(true);
+    // Check if all health questions have been answered
+    const allHealthAnswered = healthQuestions.every(q => 
+      responses[q.id] !== undefined && responses[q.id] !== null
+    );
+    
+    if (!allHealthAnswered) {
+      // Optionally show a toast or message that all sliders need to be set
+      return;
     }
+    
+    setShowHealthQuestions(false);
+    setShowTypeQuestions(true);
   };
 
   const handleMenstrualGameComplete = () => {
@@ -1385,22 +1383,24 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   }
 
   if (showHealthQuestions) {
-    const currentHealthQuestion = getCurrentHealthQuestion();
-    if (!currentHealthQuestion) return null;
-
     const totalSteps = getTotalSteps();
     const currentStepNum = getCurrentStepNumber();
     const progress = (currentStepNum / totalSteps) * 100;
 
+    // Check if all health questions have been answered for continue button
+    const allHealthAnswered = healthQuestions.every(q => 
+      responses[q.id] !== undefined && responses[q.id] !== null
+    );
+
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
-        <Card className="w-full max-w-2xl">
+        <Card className="w-full max-w-4xl">
           <CardHeader className="text-center">
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
                 <Progress value={progress} className="w-full" />
                 <p className="text-sm text-gray-600 mt-2">
-                  Question {currentStepNum} of {totalSteps}
+                  Step {currentStepNum} of {totalSteps}
                 </p>
               </div>
               <Button
@@ -1413,27 +1413,37 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
               </Button>
             </div>
             <CardTitle className="text-2xl font-bold">
-              Health Check-In
+              Daily Health Check-In
             </CardTitle>
+            <p className="text-gray-600 mt-2">
+              Set your current levels for today
+            </p>
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <HealthSlider
-              questionText={currentHealthQuestion.text}
-              emoji={currentHealthQuestion.emoji}
-              minLabel={currentHealthQuestion.minLabel}
-              maxLabel={currentHealthQuestion.maxLabel}
-              minValue={currentHealthQuestion.minValue}
-              maxValue={currentHealthQuestion.maxValue}
-              value={responses[currentHealthQuestion.id] as number || currentHealthQuestion.minValue}
-              onChange={(value) => handleHealthAnswer(currentHealthQuestion.id, value)}
-            />
+            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+              {healthQuestions.map((healthQuestion) => (
+                <div key={healthQuestion.id} className="flex justify-center">
+                  <HealthSlider
+                    questionText={healthQuestion.text}
+                    emoji={healthQuestion.emoji}
+                    minLabel={healthQuestion.minLabel}
+                    maxLabel={healthQuestion.maxLabel}
+                    minValue={healthQuestion.minValue}
+                    maxValue={healthQuestion.maxValue}
+                    value={responses[healthQuestion.id] as number || healthQuestion.minValue}
+                    onChange={(value) => handleHealthAnswer(healthQuestion.id, value)}
+                  />
+                </div>
+              ))}
+            </div>
             
             <Button
               onClick={handleHealthContinue}
-              className="w-full mt-4 rounded-full"
+              disabled={!allHealthAnswered}
+              className="w-full mt-6 rounded-full"
             >
-              Continue
+              Continue {!allHealthAnswered && "(Please set all sliders)"}
             </Button>
           </CardContent>
         </Card>
