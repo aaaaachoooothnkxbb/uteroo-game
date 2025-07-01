@@ -374,7 +374,7 @@ const roomBoosters = {
       boost: 20,
       tooltip: {
         title: "Recetas para tu fase",
-        description: "Recetas adaptadas a tus necesidades nutricionales específicas según tu fase del ciclo menstrual.",
+        description: "Recetas adaptadas a tus necesidades nutricionales específicas según tu fase del ciclo menstrual."
       }
     }
   ],
@@ -1243,6 +1243,56 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     return 1;
   };
 
+  // Add the missing symptom slider handler functions
+  const handleSymptomChange = (symptomId: string, value: number) => {
+    setResponses(prev => ({ ...prev, [symptomId]: value }));
+    
+    // Add to questionnaire responses
+    const response: QuestionnaireResponse = {
+      questionId: symptomId,
+      questionText: `Symptom intensity: ${symptomId}`,
+      answerValue: value.toString(),
+      answerType: 'single'
+    };
+    
+    addResponse(response);
+  };
+
+  const handleSymptomNext = () => {
+    if (currentSymptomScreen < symptomScreens.length - 1) {
+      setCurrentSymptomScreen(prev => prev + 1);
+    } else {
+      // Completed all symptom screens, continue with questionnaire
+      setShowSymptomSliders(false);
+      // Continue with the next type question after menopause_symptoms
+      if (typeQuestionIndex < currentQuestions.length - 1) {
+        setTypeQuestionIndex(prev => prev + 1);
+      } else {
+        setShowTypeQuestions(false);
+        setShowPostMenstrualGame(true);
+      }
+    }
+  };
+
+  const handleSymptomBack = () => {
+    if (currentSymptomScreen > 0) {
+      setCurrentSymptomScreen(prev => prev - 1);
+    } else {
+      // Go back to the previous type question
+      setShowSymptomSliders(false);
+      if (typeQuestionIndex > 0) {
+        setTypeQuestionIndex(prev => prev - 1);
+      }
+    }
+  };
+
+  const canProceedFromSymptoms = (): boolean => {
+    const currentSymptoms = symptomScreens[currentSymptomScreen];
+    return currentSymptoms.every(symptom => 
+      responses[symptom.id] !== undefined && responses[symptom.id] !== null
+    );
+  };
+
   const handleAnswer = (answer: string | string[]) => {
     const currentQuestion = getCurrentQuestion();
     if (!currentQuestion) return;
@@ -1281,6 +1331,14 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       setCurrentStep(1);
       setShowHealthQuestions(true);
     } else if (showTypeQuestions) {
+      // Check if this is the menopause_symptoms question for POST_MENSTRUAL users
+      if (userType === 'POST_MENSTRUAL' && currentQuestion.id === 'menopause_symptoms') {
+        setShowTypeQuestions(false);
+        setShowSymptomSliders(true);
+        setCurrentSymptomScreen(0);
+        return;
+      }
+
       if (userType === 'MENSTRUAL' && currentQuestion.id === 'annoying_symptom') {
         setShowTypeQuestions(false);
         setShowMenstrualGame(true);
@@ -1294,9 +1352,8 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           setShowTypeQuestions(false);
           setShowPreMenstrualGame(true);
         } else if (userType === 'POST_MENSTRUAL') {
-          // Instead of going directly to the game, show symptom sliders
           setShowTypeQuestions(false);
-          setShowSymptomSliders(true);
+          setShowPostMenstrualGame(true);
         } else {
           handleOnboardingComplete();
         }
@@ -1374,12 +1431,21 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
   // Show Symptom Sliders for POST_MENSTRUAL users
   if (showSymptomSliders) {
+    // Filter responses to only include symptom IDs with numeric values
+    const symptomResponses = getAllSymptomIds().reduce((acc, symptomId) => {
+      const response = responses[symptomId];
+      if (typeof response === 'number') {
+        acc[symptomId] = response;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
     return (
       <SymptomSliderScreen
         currentScreen={currentSymptomScreen}
         totalScreens={symptomScreens.length}
         symptoms={symptomScreens[currentSymptomScreen]}
-        responses={responses}
+        responses={symptomResponses}
         onSymptomChange={handleSymptomChange}
         onNext={handleSymptomNext}
         onBack={handleSymptomBack}
