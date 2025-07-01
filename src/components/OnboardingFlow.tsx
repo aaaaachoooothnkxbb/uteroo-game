@@ -36,6 +36,8 @@ import { PhaseVideos } from "@/components/PhaseVideos";
 import { AudioToggle } from "@/components/AudioToggle";
 import { audioService } from "@/utils/audioService";
 import { SurvivalPack } from "@/components/SurvivalPack";
+import { SymptomSliderScreen } from "./SymptomSliderScreen";
+import { symptomScreens, getAllSymptomIds } from "@/data/symptomDefinitions";
 
 interface OnboardingFlowProps {
   onComplete: () => void;
@@ -1203,6 +1205,8 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [typeQuestionIndex, setTypeQuestionIndex] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showSymptomSliders, setShowSymptomSliders] = useState(false);
+  const [currentSymptomScreen, setCurrentSymptomScreen] = useState(0);
 
   const classifyUserType = (answer: string): UserType => {
     if (answer.includes('I\'m on it right now') || 
@@ -1290,8 +1294,9 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           setShowTypeQuestions(false);
           setShowPreMenstrualGame(true);
         } else if (userType === 'POST_MENSTRUAL') {
+          // Instead of going directly to the game, show symptom sliders
           setShowTypeQuestions(false);
-          setShowPostMenstrualGame(true);
+          setShowSymptomSliders(true);
         } else {
           handleOnboardingComplete();
         }
@@ -1367,9 +1372,32 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     logout();
   };
 
-  // Show Full POU GAME for MENSTRUAL users who selected symptoms
-  if (showMenstrualGame) {
-    return <MenstrualGame onComplete={handleMenstrualGameComplete} />;
+  // Show Symptom Sliders for POST_MENSTRUAL users
+  if (showSymptomSliders) {
+    return (
+      <SymptomSliderScreen
+        currentScreen={currentSymptomScreen}
+        totalScreens={symptomScreens.length}
+        symptoms={symptomScreens[currentSymptomScreen]}
+        responses={responses}
+        onSymptomChange={handleSymptomChange}
+        onNext={handleSymptomNext}
+        onBack={handleSymptomBack}
+        canProceed={canProceedFromSymptoms()}
+      />
+    );
+  }
+
+  // Show Post-Menstrual Game for POST_MENSTRUAL users
+  if (showPostMenstrualGame) {
+    const symptomResponses = getAllSymptomIds().reduce((acc, symptomId) => {
+      if (responses[symptomId] !== undefined) {
+        acc[symptomId] = responses[symptomId] as number;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
+    return <PostMenstrualGame onComplete={handlePostMenstrualGameComplete} symptomResponses={symptomResponses} />;
   }
 
   // Show Pre-Menstrual Game for PRE_PERIOD users
@@ -1377,9 +1405,9 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     return <PreMenstrualGame onComplete={handlePreMenstrualGameComplete} />;
   }
 
-  // Show Post-Menstrual Game for POST_MENSTRUAL users
-  if (showPostMenstrualGame) {
-    return <PostMenstrualGame onComplete={handlePostMenstrualGameComplete} />;
+  // Show Menstrual Game for MENSTRUAL users
+  if (showMenstrualGame) {
+    return <MenstrualGame onComplete={handleMenstrualGameComplete} />;
   }
 
   if (showHealthQuestions) {

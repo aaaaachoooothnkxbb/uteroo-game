@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { CheckCircle, XCircle, Heart, Brain, Users, Home, Trophy, Lightbulb, Zap
 
 interface PostMenstrualGameProps {
   onComplete: () => void;
+  symptomResponses?: Record<string, number>;
 }
 
 interface TrueFalseQuestion {
@@ -101,7 +101,7 @@ const postMenstrualQuestions: TrueFalseQuestion[] = [
   }
 ];
 
-export const PostMenstrualGame = ({ onComplete }: PostMenstrualGameProps) => {
+export const PostMenstrualGame = ({ onComplete, symptomResponses }: PostMenstrualGameProps) => {
   const [currentScreen, setCurrentScreen] = useState<'intro' | 'game' | 'results'>('intro');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<boolean | null>(null);
@@ -111,6 +111,89 @@ export const PostMenstrualGame = ({ onComplete }: PostMenstrualGameProps) => {
 
   const currentQuestion = postMenstrualQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / postMenstrualQuestions.length) * 100;
+
+  const generatePersonalizedFeedback = () => {
+    if (!symptomResponses) return null;
+
+    const highIntensitySymptoms = Object.entries(symptomResponses)
+      .filter(([_, value]) => value >= 7)
+      .map(([symptom, _]) => symptom);
+
+    const moderateIntensitySymptoms = Object.entries(symptomResponses)
+      .filter(([_, value]) => value >= 4 && value < 7)
+      .map(([symptom, _]) => symptom);
+
+    const lowIntensitySymptoms = Object.entries(symptomResponses)
+      .filter(([_, value]) => value < 4)
+      .map(([symptom, _]) => symptom);
+
+    // Analyze symptom patterns
+    const vasomotorSymptoms = ['hot_flashes', 'night_sweats'];
+    const moodCognitiveSymptoms = ['mood_swings', 'anxiety', 'depressed_mood', 'brain_fog'];
+    const urogenitalSymptoms = ['vaginal_dryness', 'painful_intercourse', 'urinary_urgency'];
+    const physicalSymptoms = ['joint_pain', 'hair_thinning', 'weight_gain', 'fatigue'];
+
+    const hasHighVasomotor = vasomotorSymptoms.some(s => symptomResponses[s] >= 7);
+    const hasHighMoodCognitive = moodCognitiveSymptoms.some(s => symptomResponses[s] >= 7);
+    const hasHighUrogenital = urogenitalSymptoms.some(s => symptomResponses[s] >= 7);
+    const hasHighPhysical = physicalSymptoms.some(s => symptomResponses[s] >= 7);
+
+    let clinicalContext = "";
+    let actionableAdvice = "";
+    let nextSteps = "";
+
+    // Clinical Context
+    if (hasHighVasomotor) {
+      clinicalContext = "Thank you for sharing your experience. It appears you're navigating significant vasomotor symptoms, which are a very common aspect of fluctuating estrogen levels during this transition. Please know you are not alone in experiencing this.";
+    } else if (hasHighMoodCognitive) {
+      clinicalContext = "We understand that mood and cognitive shifts can be challenging. Your responses indicate a strong pattern here, often tied to hormonal changes impacting brain chemistry. It's important to acknowledge these feelings, and Uteroo is here to support you.";
+    } else if (hasHighUrogenital) {
+      clinicalContext = "Your input highlights notable changes in urogenital health. These are common and directly related to the impact of lower estrogen on these sensitive tissues. We recognize the discomfort this can bring.";
+    } else if (hasHighPhysical) {
+      clinicalContext = "We hear that you're experiencing several physical changes. It's quite common for hormonal shifts during this phase to influence metabolism, joint comfort, and energy levels. We aim to help you understand and manage these shifts.";
+    } else if (moderateIntensitySymptoms.length > 0) {
+      clinicalContext = "Thank you for sharing. Your current experience reflects a mix of common menopausal symptoms. Understanding these patterns is a powerful first step towards enhancing your well-being, and we're here to guide you.";
+    } else {
+      clinicalContext = "It sounds like you're navigating this phase with remarkable comfort. We're delighted to see this, and Uteroo can help you continue to maintain this sense of well-being.";
+    }
+
+    // Actionable Advice
+    if (hasHighVasomotor) {
+      actionableAdvice = "**Cooling Catalyst Booster:** Consider layering your clothing and keeping cool water readily available. Exploring **Sage Leaf extract** could be beneficial for reducing hot flash frequency.";
+    } else if (symptomResponses['insomnia'] >= 7 || symptomResponses['restless_sleep'] >= 7) {
+      actionableAdvice = "**Dream Weaver Booster:** Establishing a consistent bedtime routine and ensuring your bedroom is cool, dark, and quiet can significantly improve sleep quality. **Magnesium Glycinate** (200-400mg before bed) may support relaxation.";
+    } else if (hasHighMoodCognitive) {
+      actionableAdvice = "**Calm Keeper Booster:** Dedicating 10 minutes daily to journaling can be a powerful tool for processing emotions. Many find **Ashwagandha** helpful in managing stress and emotional balance during hormonal shifts.";
+    } else if (hasHighUrogenital) {
+      actionableAdvice = "**Comfort Bloom Booster:** Exploring a high-quality vaginal moisturizer or lubricant can significantly alleviate discomfort and improve intimacy.";
+    } else if (symptomResponses['joint_pain'] >= 7) {
+      actionableAdvice = "**Flexibility Flow Booster:** Incorporating Omega-3 fatty acids can be beneficial for inflammation and joint comfort.";
+    } else if (symptomResponses['fatigue'] >= 7) {
+      actionableAdvice = "**Energy Surge Booster:** Prioritize nutrient-dense foods, particularly those rich in B vitamins and iron, to support sustained energy levels.";
+    } else {
+      actionableAdvice = "Remember the importance of consistent hydration throughout your day; it supports overall well-being. Your continued symptom tracking helps us understand your unique patterns even more deeply.";
+    }
+
+    // Next Steps
+    const hasHighSeveritySymptoms = highIntensitySymptoms.length > 0 && Math.max(...Object.values(symptomResponses)) >= 8;
+    const hasMultipleHighSymptoms = highIntensitySymptoms.length >= 3;
+
+    if (hasHighSeveritySymptoms || hasMultipleHighSymptoms) {
+      nextSteps = "For a more comprehensive understanding of your hormonal landscape, we suggest discussing a **hormone panel (e.g., serum Estradiol, FSH, LH)** with your healthcare provider. If any symptoms are significantly impacting your quality of life, we strongly recommend exploring all available management strategies with your healthcare provider.";
+    } else if (moderateIntensitySymptoms.length > 0) {
+      nextSteps = "Consistent tracking of your symptoms within Uteroo will continue to reveal more precise patterns. Over time, Uteroo's 'Medical Predictive Analytics' will become even more adept at offering finely tuned, predictive guidance tailored just for you.";
+    } else {
+      nextSteps = "It's wonderful that you're experiencing this phase with such ease. We encourage you to continue consistent tracking; this helps us ensure you sustain this comfort and empower you with proactive strategies for any future shifts.";
+    }
+
+    return {
+      clinicalContext,
+      actionableAdvice,
+      nextSteps
+    };
+  };
+
+  const personalizedFeedback = generatePersonalizedFeedback();
 
   const handleAnswerSelect = (answer: boolean) => {
     setSelectedAnswer(answer);
@@ -160,9 +243,35 @@ export const PostMenstrualGame = ({ onComplete }: PostMenstrualGameProps) => {
             <CardTitle className="text-3xl font-bold text-purple-600 mb-4">
               🦋 Welcome to Your Uteroo Wellness Revolution! 🦋
             </CardTitle>
-            <p className="text-lg text-gray-700 mb-4">
-              You're about to discover how Uteroo, powered by Peri's multidisciplinary expertise, goes far beyond basic tracking to provide precision, personalization, and proactive health management for your post-menstrual journey.
-            </p>
+            {personalizedFeedback && (
+              <div className="text-left space-y-6 mt-6">
+                <div className="bg-purple-50 p-6 rounded-lg">
+                  <h3 className="text-xl font-semibold text-purple-700 mb-4">Your Personalized Assessment</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold text-purple-600 mb-2">Clinical Context & Initial Insights:</h4>
+                      <p className="text-gray-700">{personalizedFeedback.clinicalContext}</p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold text-purple-600 mb-2">Science Boosters & Wellness Quests:</h4>
+                      <p className="text-gray-700">{personalizedFeedback.actionableAdvice}</p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold text-purple-600 mb-2">Next Steps & Recommendations:</h4>
+                      <p className="text-gray-700">{personalizedFeedback.nextSteps}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            {!personalizedFeedback && (
+              <p className="text-lg text-gray-700 mb-4">
+                You're about to discover how Uteroo, powered by Peri's multidisciplinary expertise, goes far beyond basic tracking to provide precision, personalization, and proactive health management for your post-menstrual journey.
+              </p>
+            )}
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg">
@@ -211,7 +320,7 @@ export const PostMenstrualGame = ({ onComplete }: PostMenstrualGameProps) => {
               onClick={() => setCurrentScreen('game')}
               className="w-full text-lg py-6 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 rounded-full"
             >
-              Discover Uteroo's Revolutionary Approach! ✨
+              {personalizedFeedback ? 'Continue Your Wellness Journey! ✨' : 'Discover Uteroo\'s Revolutionary Approach! ✨'}
             </Button>
           </CardContent>
         </Card>
