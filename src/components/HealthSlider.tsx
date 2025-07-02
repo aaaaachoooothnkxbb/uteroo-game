@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -100,8 +99,8 @@ export const HealthSlider: React.FC<HealthSliderProps> = ({
   const invertedPosition = 100 - indicatorPosition;
 
   return (
-    <Card className="w-full max-w-xs mx-auto">
-      <CardContent className="p-2">
+    <Card className="w-full max-w-[140px] mx-auto">
+      <CardContent className="p-1 px-2">
         <div className="text-center mb-2">
           <h3 className="text-sm font-medium mb-1">{questionText}</h3>
           <div className="text-lg mb-1">{emoji}</div>
