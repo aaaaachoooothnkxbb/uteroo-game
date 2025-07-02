@@ -215,21 +215,8 @@ const prePeriodQuestions: Question[] = [
   }
 ];
 
-// Post-menstrual user questions (for "I stopped getting my period")
+// Post-menstrual user questions (for "I stopped getting my period") - removed menopause_symptoms
 const postMenstrualQuestions: Question[] = [
-  {
-    id: 'menopause_symptoms',
-    text: 'What symptoms are you experiencing?',
-    type: 'multiple',
-    emoji: '🔥',
-    options: [
-      '🔥 Hot flashes',
-      '😴 Sleep disturbances',
-      '🎭 Mood changes',
-      '🦴 Joint aches',
-      '🧠 Brain fog'
-    ]
-  },
   {
     id: 'managing_changes',
     text: 'How are you managing these changes?',
@@ -1262,15 +1249,9 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     if (currentSymptomScreen < symptomScreens.length - 1) {
       setCurrentSymptomScreen(prev => prev + 1);
     } else {
-      // Completed all symptom screens, continue with questionnaire
+      // Completed all symptom screens, continue with post-menstrual questions
       setShowSymptomSliders(false);
-      // Continue with the next type question after menopause_symptoms
-      if (typeQuestionIndex < currentQuestions.length - 1) {
-        setTypeQuestionIndex(prev => prev + 1);
-      } else {
-        setShowTypeQuestions(false);
-        setShowPostMenstrualGame(true);
-      }
+      setShowTypeQuestions(true);
     }
   };
 
@@ -1278,11 +1259,9 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     if (currentSymptomScreen > 0) {
       setCurrentSymptomScreen(prev => prev - 1);
     } else {
-      // Go back to the previous type question
+      // Go back to health questions
       setShowSymptomSliders(false);
-      if (typeQuestionIndex > 0) {
-        setTypeQuestionIndex(prev => prev - 1);
-      }
+      setShowHealthQuestions(true);
     }
   };
 
@@ -1324,21 +1303,17 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           break;
         case 'POST_MENSTRUAL':
           typeQuestions = postMenstrualQuestions;
-          break;
+          // Immediately start symptom sliders for post-menstrual users
+          setCurrentQuestions(typeQuestions);
+          setCurrentStep(1);
+          setShowHealthQuestions(true);
+          return;
       }
       
       setCurrentQuestions(typeQuestions);
       setCurrentStep(1);
       setShowHealthQuestions(true);
     } else if (showTypeQuestions) {
-      // Check if this is the menopause_symptoms question for POST_MENSTRUAL users
-      if (userType === 'POST_MENSTRUAL' && currentQuestion.id === 'menopause_symptoms') {
-        setShowTypeQuestions(false);
-        setShowSymptomSliders(true);
-        setCurrentSymptomScreen(0);
-        return;
-      }
-
       if (userType === 'MENSTRUAL' && currentQuestion.id === 'annoying_symptom') {
         setShowTypeQuestions(false);
         setShowMenstrualGame(true);
@@ -1398,7 +1373,14 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
     
     setShowHealthQuestions(false);
-    setShowTypeQuestions(true);
+    
+    // For post-menstrual users, go directly to symptom sliders
+    if (userType === 'POST_MENSTRUAL') {
+      setShowSymptomSliders(true);
+      setCurrentSymptomScreen(0);
+    } else {
+      setShowTypeQuestions(true);
+    }
   };
 
   const handleMenstrualGameComplete = () => {
