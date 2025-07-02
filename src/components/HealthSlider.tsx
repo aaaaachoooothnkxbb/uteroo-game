@@ -100,17 +100,17 @@ export const HealthSlider: React.FC<HealthSliderProps> = ({
   const invertedPosition = 100 - indicatorPosition;
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardContent className="p-6">
-        <div className="text-center mb-6">
-          <h3 className="text-lg font-medium mb-2">{questionText}</h3>
-          <div className="text-4xl mb-2">{emoji}</div>
-          <div className="text-2xl font-bold text-primary">{value}</div>
+    <Card className="w-full max-w-xs mx-auto">
+      <CardContent className="p-4">
+        <div className="text-center mb-4">
+          <h3 className="text-base font-medium mb-1">{questionText}</h3>
+          <div className="text-2xl mb-1">{emoji}</div>
+          <div className="text-xl font-bold text-primary">{value}</div>
         </div>
         
-        <div className="flex flex-col items-center justify-center gap-4">
+        <div className="flex flex-col items-center justify-center gap-3">
           {/* Max label (top) */}
-          <div className="text-sm font-medium text-gray-600 text-center">
+          <div className="text-xs font-medium text-gray-600 text-center">
             {maxLabel}
           </div>
           
@@ -118,7 +118,7 @@ export const HealthSlider: React.FC<HealthSliderProps> = ({
           <div className="relative">
             <div
               ref={sliderRef}
-              className="w-8 h-64 bg-gradient-to-t from-red-200 via-yellow-200 to-green-200 rounded-full cursor-pointer relative border-2 border-gray-300"
+              className="w-6 h-40 bg-gradient-to-t from-red-200 via-yellow-200 to-green-200 rounded-full cursor-pointer relative border-2 border-gray-300"
               onMouseDown={handleMouseDown}
               onTouchStart={handleTouchStart}
             >
@@ -135,7 +135,7 @@ export const HealthSlider: React.FC<HealthSliderProps> = ({
               
               {/* Draggable indicator */}
               <div
-                className="absolute w-12 h-12 bg-white rounded-full shadow-lg border-2 border-primary flex items-center justify-center text-2xl cursor-grab active:cursor-grabbing transform -translate-x-2 -translate-y-6 transition-all duration-150"
+                className="absolute w-10 h-10 bg-white rounded-full shadow-lg border-2 border-primary flex items-center justify-center text-xl cursor-grab active:cursor-grabbing transform -translate-x-2 -translate-y-5 transition-all duration-150"
                 style={{ 
                   top: `${invertedPosition}%`,
                   left: '50%',
@@ -148,12 +148,12 @@ export const HealthSlider: React.FC<HealthSliderProps> = ({
           </div>
           
           {/* Min label (bottom) */}
-          <div className="text-sm font-medium text-gray-600 text-center">
+          <div className="text-xs font-medium text-gray-600 text-center">
             {minLabel}
           </div>
         </div>
         
-        <div className="mt-4 text-center text-sm text-gray-500">
+        <div className="mt-3 text-center text-xs text-gray-500">
           Drag the {emoji} to set your level
         </div>
       </CardContent>
