@@ -729,6 +729,62 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   };
 
+  // New function to handle skipping to game
+  const handleSkipToGame = () => {
+    if (!userType) return;
+    
+    // Set default values for health questions if not answered
+    healthQuestions.forEach(q => {
+      if (responses[q.id] === undefined) {
+        const defaultValue = q.id === 'hydration' ? 5 : q.id === 'exercise' ? 22 : 5;
+        setResponses(prev => ({ ...prev, [q.id]: defaultValue }));
+        
+        const response: QuestionnaireResponse = {
+          questionId: q.id,
+          questionText: q.text,
+          answerValue: defaultValue.toString(),
+          answerType: 'single'
+        };
+        addResponse(response);
+      }
+    });
+
+    // For POST_MENSTRUAL users, set default symptom values
+    if (userType === 'POST_MENSTRUAL') {
+      const allSymptomIds = getAllSymptomIds();
+      allSymptomIds.forEach(symptomId => {
+        if (responses[symptomId] === undefined) {
+          setResponses(prev => ({ ...prev, [symptomId]: 5 }));
+          
+          const response: QuestionnaireResponse = {
+            questionId: symptomId,
+            questionText: `Symptom intensity: ${symptomId}`,
+            answerValue: '5',
+            answerType: 'single'
+          };
+          addResponse(response);
+        }
+      });
+    }
+
+    // Route to appropriate game
+    setShowHealthQuestions(false);
+    setShowSymptomSliders(false);
+    setShowTypeQuestions(false);
+    
+    switch (userType) {
+      case 'MENSTRUAL':
+        setShowMenstrualGame(true);
+        break;
+      case 'PRE_PERIOD':
+        setShowPreMenstrualGame(true);
+        break;
+      case 'POST_MENSTRUAL':
+        setShowMenopauseGame(true);
+        break;
+    }
+  };
+
   const handleMenstrualGameComplete = () => {
     setShowMenstrualGame(false);
     handleOnboardingComplete();
@@ -801,7 +857,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
   // Show Menstrual Game for MENSTRUAL users
   if (showMenstrualGame) {
-    return <MenstrualGame onComplete={handleMenstrualGameComplete} />;
+    return <PostMenstrualGame onComplete={handleMenstrualGameComplete} />;
   }
 
   if (showHealthQuestions) {
@@ -860,13 +916,23 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
               ))}
             </div>
             
-            <Button
-              onClick={handleHealthContinue}
-              disabled={!allHealthAnswered}
-              className="w-full mt-6 rounded-full"
-            >
-              Continue {!allHealthAnswered && "(Please set all sliders)"}
-            </Button>
+            <div className="flex gap-4 mt-6">
+              <Button
+                onClick={handleHealthContinue}
+                disabled={!allHealthAnswered}
+                className="flex-1 rounded-full"
+              >
+                Continue {!allHealthAnswered && "(Please set all sliders)"}
+              </Button>
+              
+              <Button
+                onClick={handleSkipToGame}
+                variant="outline"
+                className="flex-1 rounded-full"
+              >
+                🎮 Skip to Game
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
