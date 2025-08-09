@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -80,7 +81,7 @@ const phaseInfo = {
   }
 };
 
-// Clinical challenges (enemies) - Fixed to use 'suggestion' instead of 'intervention'
+// Clinical challenges (enemies)
 const menopauseChallenges = {
   perimenopause: [
     { 
@@ -88,14 +89,14 @@ const menopauseChallenges = {
       name: "Vasomotor Instability", 
       hp: 3, 
       icon: "/lovable-uploads/52b8fe36-6c7e-4397-b705-b055fa4d0c62.png", 
-      suggestion: "Thermoregulation Protocol"
+      intervention: "Thermoregulation Protocol"
     },
     { 
       id: "cognitive_modulation", 
       name: "Cognitive Modulation", 
       hp: 2, 
       icon: "/lovable-uploads/d67a2349-3eb7-47bf-b2b7-e52514f533f2.png", 
-      suggestion: "Neuro-Optimization"
+      intervention: "Neuro-Optimization"
     }
   ],
   menopause: [
@@ -104,14 +105,14 @@ const menopauseChallenges = {
       name: "Vaginal Atrophy", 
       hp: 2, 
       icon: "/lovable-uploads/d53d93fd-3fa3-4ab3-aa9a-f36a2f184218.png", 
-      suggestion: "Urogenital Support"
+      intervention: "Urogenital Support"
     },
     { 
       id: "bone_demineralization", 
       name: "Bone Demineralization", 
       hp: 3, 
       icon: "/lovable-uploads/61451e82-27fc-4110-94e4-a08167b4d8db.png", 
-      suggestion: "Skeletal Preservation"
+      intervention: "Skeletal Preservation"
     }
   ],
   postmenopause: [
@@ -120,14 +121,14 @@ const menopauseChallenges = {
       name: "Cardiovascular Risk", 
       hp: 3, 
       icon: "/lovable-uploads/d400493e-b747-4572-9f72-d3e592cc4a3f.png", 
-      suggestion: "Cardiac Optimization"
+      intervention: "Cardiac Optimization"
     },
     { 
       id: "articular_discomfort", 
       name: "Articular Discomfort", 
       hp: 2, 
       icon: "/lovable-uploads/b63fbdb8-0dd0-463d-9269-7bce9726d517.png", 
-      suggestion: "Joint Support Protocol"
+      intervention: "Joint Support Protocol"
     }
   ]
 };
