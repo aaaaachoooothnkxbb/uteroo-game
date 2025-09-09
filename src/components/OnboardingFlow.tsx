@@ -801,7 +801,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
   // Show Menstrual Game for MENSTRUAL users
   if (showMenstrualGame) {
-    return <MenstrualGame onComplete={handleMenstrualGameComplete} />;
+    return <PostMenstrualGame onComplete={handleMenstrualGameComplete} />;
   }
 
   if (showHealthQuestions) {
