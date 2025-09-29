@@ -11,6 +11,7 @@ import { CompanionNaming } from "./CompanionNaming";
 import { AvatarCustomization } from "./AvatarCustomization";
 import { HealthSlider } from "./HealthSlider";
 import { PreMenstrualGame } from "./PreMenstrualGame";
+import { MenstrualGame } from "./MenstrualGame";
 import { PostMenstrualGame } from "./PostMenstrualGame";
 import { MenopauseGame } from "./MenopauseGame";
 import { useAuth } from "./AuthProvider";
@@ -801,7 +802,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
   // Show Menstrual Game for MENSTRUAL users
   if (showMenstrualGame) {
-    return <PostMenstrualGame onComplete={handleMenstrualGameComplete} />;
+    return <MenstrualGame onComplete={handleMenstrualGameComplete} />;
   }
 
   if (showHealthQuestions) {
