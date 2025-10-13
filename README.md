@@ -36,6 +36,10 @@ npm i
 npm run dev
 ```
 
+### Build and run the SwiftUI iOS prototype
+
+If you want to explore the Swift gateway scene in Xcode, follow the step-by-step guide in [`docs/ios_swift_getting_started.md`](docs/ios_swift_getting_started.md). The guide explains how to create an Xcode project, connect it to your own GitHub repository, and launch the hormone-phase door selection screen on the iOS simulator.
+
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).
