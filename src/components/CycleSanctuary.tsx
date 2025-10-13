@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameMonth, isSameDay, addMonths, parseISO } from "date-fns";
+import { PhaseExperiencePanel } from "./PhaseExperiencePanel";
+import { PhaseId, LifeStageId, lifeStageConfigs, defaultLifeStageId } from "@/data/phaseExperience";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, Moon, Sun, Droplets, Heart, CloudMoon } from "lucide-react";
@@ -32,7 +34,7 @@ import { CompanionNaming } from "./CompanionNaming";
 import { AvatarCustomization } from "./AvatarCustomization";
 import { useAuth } from "./AuthProvider";
 
-type CyclePhase = "menstruation" | "follicular" | "ovulatory" | "luteal";
+type CyclePhase = PhaseId;
 
 type CycleData = {
   date: string;
@@ -46,6 +48,8 @@ type CycleSanctuaryProps = {
   currentPhase: CyclePhase;
   onPhaseChange: (phase: CyclePhase) => void;
 };
+
+const LIFE_STAGE_STORAGE_KEY = "uteroo-life-stage";
 
 const phaseInfo = {
   menstruation: {
@@ -113,6 +117,7 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
   const [showCompanionNaming, setShowCompanionNaming] = useState(false);
   const [showAvatarCustomization, setShowAvatarCustomization] = useState(false);
   const [companionName, setCompanionName] = useState<string | null>(null);
+  const [lifeStageId, setLifeStageId] = useState<LifeStageId>(defaultLifeStageId);
   const { user } = useAuth();
 
   // Use the new cycle tracking hook
@@ -125,6 +130,9 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
     getCurrentDay,
     getCycleLength
   } = useCycleTracking();
+
+  const cycleDayNumber = currentCycleInfo?.currentDay ?? 1;
+  const cycleLengthNumber = currentCycleInfo?.cycleLength ?? 28;
 
   // Check if user has a companion name
   useEffect(() => {
@@ -141,9 +149,22 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
         }
       }
     };
-    
+
     fetchCompanionName();
   }, [user]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(LIFE_STAGE_STORAGE_KEY) as LifeStageId | null;
+    if (stored && stored in lifeStageConfigs) {
+      setLifeStageId(stored as LifeStageId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(LIFE_STAGE_STORAGE_KEY, lifeStageId);
+  }, [lifeStageId]);
 
   // Update parent component when calculated phase changes
   useEffect(() => {
@@ -151,6 +172,10 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
       onPhaseChange(currentCycleInfo.currentPhase);
     }
   }, [currentCycleInfo, currentPhase, onPhaseChange]);
+
+  const handleLifeStageChange = (value: LifeStageId) => {
+    setLifeStageId(value);
+  };
 
   // Fetch cycle data from Supabase or local storage
   useEffect(() => {
@@ -440,6 +465,33 @@ export const CycleSanctuary: React.FC<CycleSanctuaryProps> = ({ currentPhase, on
 
       {/* Calendar section with proper scrolling */}
       <ScrollArea className="flex-1 overflow-y-auto pr-4">
+        <div className="mb-4 space-y-2">
+          <label className="text-sm font-semibold text-foreground">Life stage focus</label>
+          <Select
+            value={lifeStageId}
+            onValueChange={(value) => handleLifeStageChange(value as LifeStageId)}
+          >
+            <SelectTrigger className="w-full sm:w-72 bg-white/90">
+              <SelectValue placeholder="Select your hormonal life stage" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.values(lifeStageConfigs).map((stage) => (
+                <SelectItem key={stage.id} value={stage.id}>
+                  {stage.heroEmoji} {stage.displayName} ({stage.ageRange})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            {lifeStageConfigs[lifeStageId]?.summary}
+          </p>
+        </div>
+        <PhaseExperiencePanel
+          phase={currentPhase}
+          cycleDay={cycleDayNumber}
+          cycleLength={cycleLengthNumber}
+          lifeStageId={lifeStageId}
+        />
         <div className="bg-white p-4 rounded-lg shadow-sm mb-4 max-w-full">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
