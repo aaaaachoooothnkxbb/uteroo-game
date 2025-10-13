@@ -87,6 +87,24 @@ const firstQuestion: Question = {
   ]
 };
 
+// Universal questions for all user types (nickname and age)
+const universalQuestions: Question[] = [
+  {
+    id: 'nickname',
+    text: "What's your favourite nickname?",
+    type: 'single',
+    emoji: '✨',
+    options: []
+  },
+  {
+    id: 'age',
+    text: 'How old are you?',
+    type: 'single',
+    emoji: '🎂',
+    options: []
+  }
+];
+
 // Health questions (universal for all user types)
 const healthQuestions: HealthQuestion[] = [
   {
@@ -532,6 +550,8 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [userType, setUserType] = useState<UserType | null>(null);
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
   const [responses, setResponses] = useState<Record<string, string | string[] | number>>({});
+  const [showUniversalQuestions, setShowUniversalQuestions] = useState(false);
+  const [universalQuestionIndex, setUniversalQuestionIndex] = useState(0);
   const [showHealthQuestions, setShowHealthQuestions] = useState(false);
   const [showTypeQuestions, setShowTypeQuestions] = useState(false);
   const [showPreMenstrualGame, setShowPreMenstrualGame] = useState(false);
@@ -560,6 +580,9 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     if (currentStep === 0) {
       return firstQuestion;
     }
+    if (showUniversalQuestions && universalQuestions.length > 0) {
+      return universalQuestions[universalQuestionIndex];
+    }
     if (showTypeQuestions && currentQuestions.length > 0) {
       return currentQuestions[typeQuestionIndex];
     }
@@ -568,13 +591,14 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
   const getTotalSteps = (): number => {
     if (currentStep === 0) return 1;
-    return 1 + 1 + currentQuestions.length; // First question + combined health questions + type questions
+    return 1 + universalQuestions.length + 1 + currentQuestions.length; // First question + universal questions + health questions + type questions
   };
 
   const getCurrentStepNumber = (): number => {
     if (currentStep === 0) return 1;
-    if (showHealthQuestions) return 2; // Health questions are now step 2
-    if (showTypeQuestions) return 2 + typeQuestionIndex + 1; // Type questions start from step 3
+    if (showUniversalQuestions) return 1 + universalQuestionIndex + 1; // Universal questions start from step 2
+    if (showHealthQuestions) return 1 + universalQuestions.length + 1; // Health questions after universal
+    if (showTypeQuestions) return 1 + universalQuestions.length + 1 + typeQuestionIndex + 1; // Type questions after health
     return 1;
   };
 
@@ -650,16 +674,20 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           break;
         case 'POST_MENSTRUAL':
           typeQuestions = postMenstrualQuestions;
-          // Immediately start symptom sliders for post-menstrual users
-          setCurrentQuestions(typeQuestions);
-          setCurrentStep(1);
-          setShowHealthQuestions(true);
-          return;
+          break;
       }
       
       setCurrentQuestions(typeQuestions);
       setCurrentStep(1);
-      setShowHealthQuestions(true);
+      setShowUniversalQuestions(true);
+      setUniversalQuestionIndex(0);
+    } else if (showUniversalQuestions) {
+      if (universalQuestionIndex < universalQuestions.length - 1) {
+        setUniversalQuestionIndex(prev => prev + 1);
+      } else {
+        setShowUniversalQuestions(false);
+        setShowHealthQuestions(true);
+      }
     } else if (showTypeQuestions) {
       if (userType === 'MENSTRUAL' && currentQuestion.id === 'annoying_symptom') {
         setShowTypeQuestions(false);
@@ -803,6 +831,104 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   // Show Menstrual Game for MENSTRUAL users
   if (showMenstrualGame) {
     return <MenstrualGame onComplete={handleMenstrualGameComplete} />;
+  }
+
+  if (showUniversalQuestions) {
+    const currentQuestion = getCurrentQuestion();
+    if (!currentQuestion) return null;
+
+    const totalSteps = getTotalSteps();
+    const currentStepNum = getCurrentStepNumber();
+    const progress = (currentStepNum / totalSteps) * 100;
+    const isTextInput = currentQuestion.id === 'nickname';
+    const isNumberInput = currentQuestion.id === 'age';
+
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+        <Card className="w-full max-w-2xl">
+          <CardHeader className="text-center">
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1">
+                <Progress value={progress} className="w-full" />
+                <p className="text-sm text-gray-600 mt-2">
+                  Question {currentStepNum} of {totalSteps}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="ml-4 text-gray-500 hover:text-gray-700"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+            <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
+              <span className="text-3xl">{currentQuestion.emoji}</span>
+              {currentQuestion.text}
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {isTextInput && (
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  id="nickname-input"
+                  placeholder="Enter your nickname..."
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:border-purple-500 focus:outline-none text-lg"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                      handleAnswer(e.currentTarget.value.trim());
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    const input = document.getElementById('nickname-input') as HTMLInputElement;
+                    if (input?.value.trim()) {
+                      handleAnswer(input.value.trim());
+                    }
+                  }}
+                  className="w-full rounded-full"
+                >
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {isNumberInput && (
+              <div className="space-y-4">
+                <input
+                  type="number"
+                  id="age-input"
+                  placeholder="Enter your age..."
+                  min="8"
+                  max="120"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:border-purple-500 focus:outline-none text-lg"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && e.currentTarget.value) {
+                      handleAnswer(e.currentTarget.value);
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    const input = document.getElementById('age-input') as HTMLInputElement;
+                    if (input?.value) {
+                      handleAnswer(input.value);
+                    }
+                  }}
+                  className="w-full rounded-full"
+                >
+                  Continue
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (showHealthQuestions) {
